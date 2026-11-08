@@ -54,6 +54,12 @@ export function processingSystem(ctx: Ctx): void {
     r.sees = false;
   }
 
+  for (const cam of state.cameras) {
+    cam.suspicion = 0;
+    cam.sees = false;
+  }
+  state.messages = [];
+
   const before = state.alert.level;
   const level = Math.max(before, config.failure.alertAfterProcessing) as 0 | 1 | 2 | 3;
   state.alert.quietSince = state.tick;

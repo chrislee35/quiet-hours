@@ -62,6 +62,9 @@ export type Effect =
       };
     }
   | { revoke_pass: string }
+  /** Takes a camera offline; the city notices and sends a maintenance robot after a delay. */
+  | { disable_camera: string }
+  | { enable_camera: string }
   /** Clears a door's lock (the door stays closed until opened). */
   | { unlock_door: string };
 
@@ -173,10 +176,23 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       state.passes = state.passes.filter((p) => p.id !== effect.revoke_pass);
       events.push({ type: "PassLost", tick, passId: effect.revoke_pass });
     }
+  } else if ("disable_camera" in effect || "enable_camera" in effect) {
+    const id = "disable_camera" in effect ? effect.disable_camera : effect.enable_camera;
+    const cam = state.cameras.find((c) => c.id === id);
+    const off = "disable_camera" in effect;
+    if (cam && cam.broken !== off) {
+      cam.broken = off;
+      cam.brokenAt = tick;
+      cam.claimed = false;
+      cam.sees = false;
+      cam.suspicion = 0;
+      events.push({ type: off ? "CameraDisabled" : "CameraRepaired", tick, cameraId: id });
+    }
   } else if ("unlock_door" in effect) {
     const door = state.doors[effect.unlock_door];
     if (door?.locked) {
       door.locked = false;
+      door.unlockedAt = tick;
       events.push({ type: "DoorUnlocked", tick, doorId: effect.unlock_door });
     }
   } else {
@@ -283,6 +299,8 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
       if (o.curfewExempt !== undefined && typeof o.curfewExempt !== "boolean") bad("curfewExempt must be true or false");
       break;
     }
+    case "disable_camera":
+    case "enable_camera":
     case "revoke_pass":
     case "verify_clue":
     case "disprove_clue":

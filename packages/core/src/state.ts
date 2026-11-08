@@ -2,7 +2,7 @@ import { gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, MoveMode, TrustLevel } from "./events.ts";
 import type { Pass } from "./identity.ts";
-import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type DoorState, type RobotDef, type RobotKind, type World } from "./world.ts";
+import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type CameraDef, type DoorState, type RobotDef, type RobotKind, type World } from "./world.ts";
 
 export const STATE_VERSION = 1;
 
@@ -23,6 +23,11 @@ export interface SimState {
   /** Runtime state of every door, keyed by door id. */
   doors: Record<string, DoorState>;
   robots: RobotState[];
+  cameras: CameraState[];
+  /** Alerts in flight between robots. */
+  messages: PendingAlert[];
+  /** Where the city believes the player was last reported (the shared memory hunters are sent to). */
+  lastKnown: { x: number; y: number; tick: number } | null;
   /** Story and quest flags, set by effects and read by conditions. */
   flags: Record<string, FlagValue>;
   /** The notebook: every clue the player knows, by clue id. */
@@ -104,13 +109,57 @@ export interface RobotState {
   unseenTicks: number;
   /** Hound: already dispatched during the current high-alert episode. */
   dispatched: boolean;
+  /** Maintenance robots: the repair job being carried out. */
+  task: RepairTask | null;
+}
+
+export interface RepairTask {
+  kind: "camera" | "door";
+  targetId: string;
+  /** Ticks left working once on site; -1 while still travelling. */
+  workLeft: number;
+}
+
+export interface CameraState {
+  id: string;
+  x: number;
+  y: number;
+  /** The post facing; the view sweeps around it. */
+  facing: number;
+  /** The current facing after sweeping. */
+  heading: number;
+  suspicion: number;
+  sees: boolean;
+  broken: boolean;
+  /** Tick it was disabled (for the repair delay). */
+  brokenAt: number;
+  /** A maintenance robot is already on its way. */
+  claimed: boolean;
+  /** Tick before which it cannot raise another alarm. */
+  quietUntil: number;
+}
+
+/** An alert on its way to a robot (comms latency). */
+export interface PendingAlert {
+  to: string;
+  from: string;
+  x: number;
+  y: number;
+  deliverTick: number;
+}
+
+export function createCameraState(c: CameraDef): CameraState {
+  return {
+    id: c.id, x: c.x + 0.5, y: c.y + 0.5, facing: c.facing, heading: c.facing, suspicion: 0, sees: false,
+    broken: false, brokenAt: 0, claimed: false, quietUntil: 0,
+  };
 }
 
 export function createRobotState(r: RobotDef): RobotState {
   return {
     id: r.id, kind: r.kind, x: r.x, y: r.y, facing: r.facing, mode: "patrol", route: r.route, routeIndex: 0,
     target: null, path: [], pathGoal: null, arrived: false, dwell: 0, dwellTotal: 0, lookBase: r.facing,
-    suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false,
+    suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false, task: null,
   };
 }
 
@@ -132,6 +181,9 @@ export function createInitialState(seed: number, config: Config, world: World = 
     },
     doors: initialDoorStates(world),
     robots: world.robots.map(createRobotState),
+    cameras: world.cameras.map(createCameraState),
+    messages: [],
+    lastKnown: null,
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },

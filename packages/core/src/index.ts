@@ -24,3 +24,7 @@ export * as powerRouting from "./puzzles/power-routing.ts";
 export type { PuzzleDef, PuzzleState } from "./puzzles/power-routing.ts";
 export * from "./demerits.ts";
 export * from "./identity.ts";
+export * from "./cameras.ts";
+export * from "./comms.ts";
+export * from "./nav.ts";
+export * from "./repairs.ts";

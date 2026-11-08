@@ -3,6 +3,9 @@ import { alertSystem } from "./alert.ts";
 import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
+import { cameraSystem } from "./cameras.ts";
+import { commsSystem } from "./comms.ts";
+import { repairSystem } from "./repairs.ts";
 import { demeritSystem } from "./demerits.ts";
 import { processingSystem } from "./processing.ts";
 import { applyEffects, type Effect } from "./rules.ts";
@@ -219,6 +222,9 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "npcs", run: notYet },
   { name: "robot-perception", run: robotPerception },
   { name: "robot-behavior", run: robotBehavior },
+  { name: "cameras", run: cameraSystem },
+  { name: "comms", run: commsSystem },
+  { name: "repairs", run: repairSystem },
   { name: "alert", run: alertSystem },
   { name: "demerits", run: demeritSystem },
   { name: "processing", run: processingSystem },

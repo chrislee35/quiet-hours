@@ -1,4 +1,4 @@
-import { buildWorld, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type RobotDef, type RouteDef, type SpawnDef, type World, type ZoneDef } from "@qh/core";
+import { buildWorld, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type CameraDef, type RobotDef, type RouteDef, type SpawnDef, type World, type ZoneDef } from "@qh/core";
 
 export interface AsciiZone extends ZoneDef {
   /** Tile rectangle (inclusive-exclusive): x, y, width, height. */
@@ -14,7 +14,7 @@ export interface AsciiZone extends ZoneDef {
 export function asciiWorld(
   rows: string[],
   zones: AsciiZone[] = [],
-  extras: { id?: string; robots?: RobotDef[]; routes?: RouteDef[]; npcs?: NpcDef[]; terminals?: TerminalPlacement[] } = {},
+  extras: { id?: string; robots?: RobotDef[]; routes?: RouteDef[]; npcs?: NpcDef[]; terminals?: TerminalPlacement[]; cameras?: CameraDef[] } = {},
 ): World {
   const id = extras.id ?? "ascii";
   const height = rows.length;
@@ -59,6 +59,7 @@ export function asciiWorld(
     lockers,
     npcs: extras.npcs ?? [],
     terminals: extras.terminals ?? [],
+    cameras: extras.cameras ?? [],
   };
   return buildWorld(data);
 }

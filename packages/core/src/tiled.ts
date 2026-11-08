@@ -1,4 +1,4 @@
-import { ROBOT_KINDS, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
+import { ROBOT_KINDS, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type CameraDef, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
 
 /**
  * Importer for maps authored in Tiled (https://www.mapeditor.org/), exported as JSON.
@@ -12,6 +12,7 @@ import { ROBOT_KINDS, type DoorDef, type LockerDef, type MapData, type NpcDef, t
  *    named with the entity id. Doors take bool properties `open` and `locked` (default false).
  *    Class "npc": a person to talk to; Name is the npc id, string property `dialogue` is the conversation id.
  *    Class "terminal": a hackable terminal; Name is the terminal id (defined in content/terminals).
+ *    Class "camera": a fixed camera; Name is its id, number property `facing` in degrees (like robots).
  *    Class "locker": where confiscated items are recovered after processing.
  *    Class "robot": string `kind` (default "warden"), number `facing` in degrees (0 = east, 90 = south,
  *    default 0), optional string `route`. Class "waypoint": string `route`, number `order` (default:
@@ -114,6 +115,7 @@ export function importTiled(raw: unknown, id: string): MapData {
   const lockers: LockerDef[] = [];
   const npcs: NpcDef[] = [];
   const terminals: TerminalPlacement[] = [];
+  const cameras: CameraDef[] = [];
   const waypoints = new Map<string, { order: number; seq: number; x: number; y: number }[]>();
   let seq = 0;
   for (const o of layer("objects", "objectgroup")?.objects ?? []) {
@@ -154,6 +156,9 @@ export function importTiled(raw: unknown, id: string): MapData {
         continue;
       }
       npcs.push({ id: oid, x: tx, y: ty, dialogue: dlg });
+    } else if (kind === "camera") {
+      const degrees = prop(o, "facing");
+      cameras.push({ id: oid, x: tx, y: ty, facing: ((typeof degrees === "number" ? degrees : 0) * Math.PI) / 180 });
     } else if (kind === "terminal") {
       terminals.push({ id: oid, x: tx, y: ty });
     } else if (kind === "locker") {
@@ -175,7 +180,7 @@ export function importTiled(raw: unknown, id: string): MapData {
         route: typeof route === "string" && route !== "" ? route : null,
       });
     } else {
-      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, terminal, robot or waypoint)`);
+      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, terminal, camera, robot or waypoint)`);
     }
   }
 
@@ -187,5 +192,5 @@ export function importTiled(raw: unknown, id: string): MapData {
     }));
 
   if (errors.length > 0) throw new TiledImportError(`map "${id}": ${errors.join("; ")}`);
-  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers, npcs, terminals };
+  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers, npcs, terminals, cameras };
 }

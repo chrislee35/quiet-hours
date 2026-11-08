@@ -21,6 +21,16 @@ export interface MapData {
   lockers: LockerDef[];
   npcs: NpcDef[];
   terminals: TerminalPlacement[];
+  cameras: CameraDef[];
+}
+
+/** A fixed camera. It may be mounted in a wall tile; its view starts from the tile centre. */
+export interface CameraDef {
+  id: string;
+  x: number;
+  y: number;
+  /** Radians; 0 faces east (+x), pi/2 faces south (+y). */
+  facing: number;
 }
 
 /** Where a terminal stands; its behaviour lives in content (`TerminalDef`), keyed by the same id. */
@@ -47,8 +57,8 @@ export interface LockerDef {
   y: number;
 }
 
-export type RobotKind = "warden" | "sentry" | "checker" | "hound" | "auditor" | "heavy";
-export const ROBOT_KINDS: readonly RobotKind[] = ["warden", "sentry", "checker", "hound", "auditor", "heavy"];
+export type RobotKind = "warden" | "sentry" | "checker" | "hound" | "auditor" | "heavy" | "mender";
+export const ROBOT_KINDS: readonly RobotKind[] = ["warden", "sentry", "checker", "hound", "auditor", "heavy", "mender"];
 
 export interface RobotDef {
   id: string;
@@ -107,6 +117,7 @@ export interface World {
   lockers: readonly LockerDef[];
   npcs: readonly NpcDef[];
   terminals: readonly TerminalPlacement[];
+  cameras: readonly CameraDef[];
   doorByTile: ReadonlyMap<number, DoorDef>;
   doorById: ReadonlyMap<string, DoorDef>;
 }
@@ -128,6 +139,7 @@ export const OPEN_WORLD: World = {
   lockers: [],
   npcs: [],
   terminals: [],
+  cameras: [],
   doorByTile: new Map(),
   doorById: new Map(),
 };
@@ -136,6 +148,8 @@ export const OPEN_WORLD: World = {
 export interface DoorState {
   open: boolean;
   locked: boolean;
+  /** Tick it was unlocked by an effect (set only for doors that began locked); the city re-locks it later. */
+  unlockedAt?: number;
 }
 
 const tileKey = (w: World, x: number, y: number) => y * w.width + x;
@@ -201,6 +215,13 @@ export function buildWorld(data: MapData): World {
     else if (wall[tileKey(probe, l.x, l.y)]) errors.push(`locker "${l.id}" is inside a wall`);
   }
 
+  const cameraIds = new Set<string>();
+  for (const cam of data.cameras) {
+    if (cameraIds.has(cam.id)) errors.push(`duplicate camera id "${cam.id}"`);
+    cameraIds.add(cam.id);
+    if (!inBounds(probe, cam.x, cam.y)) errors.push(`camera "${cam.id}" is out of bounds`);
+  }
+
   const terminalIds = new Set<string>();
   for (const t of data.terminals) {
     if (terminalIds.has(t.id)) errors.push(`duplicate terminal id "${t.id}"`);
@@ -258,6 +279,7 @@ export function buildWorld(data: MapData): World {
     lockers: data.lockers,
     npcs: data.npcs,
     terminals: data.terminals,
+    cameras: data.cameras,
     doorByTile,
     doorById,
   };

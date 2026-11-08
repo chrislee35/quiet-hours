@@ -183,6 +183,47 @@
       "auditSeconds": 0,
       "dispatchAlert": 0,
       "tracksNoise": false
+    },
+    "mender": {
+      "coneDegrees": 0,
+      "rangeTiles": 0,
+      "gainFactor": 0,
+      "hearingFactor": 0,
+      "patrolSpeed": 2.2,
+      "chaseSpeed": 0,
+      "catchRadius": 0,
+      "pauseSeconds": 2,
+      "investigateSeconds": 0,
+      "searchSeconds": 0,
+      "sweepDegrees": 0,
+      "canChase": false,
+      "thorough": false,
+      "reviewSeconds": 0,
+      "checkRangeTiles": 0,
+      "checkChancePerSecond": 0,
+      "quietHoursCheckFactor": 1,
+      "auditSeconds": 0,
+      "dispatchAlert": 0,
+      "tracksNoise": false
     }
+  },
+  "comms": {
+    "rangeTiles": 14,
+    "latencySeconds": 1,
+    "primedSuspicion": 0.5,
+    "memorySeconds": 20
+  },
+  "cameras": {
+    "coneDegrees": 70,
+    "rangeTiles": 7,
+    "gainFactor": 0.8,
+    "sweepDegrees": 40,
+    "sweepSeconds": 10,
+    "cooldownSeconds": 6
+  },
+  "repairs": {
+    "cameraDelaySeconds": 20,
+    "relockDelaySeconds": 90,
+    "repairSeconds": 4
   }
 }

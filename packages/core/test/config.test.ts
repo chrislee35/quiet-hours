@@ -47,8 +47,8 @@ describe("config", () => {
     }
   });
 
-  it("ships a profile for all six robot types", () => {
-    expect(Object.keys(config.robots).sort()).toEqual(["auditor", "checker", "heavy", "hound", "sentry", "warden"]);
+  it("ships a profile for every robot type (six hostile, one maintenance)", () => {
+    expect(Object.keys(config.robots).sort()).toEqual(["auditor", "checker", "heavy", "hound", "mender", "sentry", "warden"]);
     expect(config.robots.hound.chaseSpeed).toBeGreaterThan(config.player.runSpeed); // a Hound outruns a runner
     expect(config.robots.heavy.chaseSpeed).toBeLessThan(config.player.runSpeed);
     expect(config.robots.warden.chaseSpeed).toBeLessThan(config.player.runSpeed);

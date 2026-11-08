@@ -32,6 +32,16 @@ export type GameEvent =
   | { type: "AuditFailed"; tick: number; robotId: string; reason: string }
   /** A Hound was sent to hunt because the alert reached its dispatch level. */
   | { type: "HoundDispatched"; tick: number; robotId: string }
+  /** A fixed camera identified the player. */
+  | { type: "CameraSpotted"; tick: number; cameraId: string }
+  | { type: "CameraDisabled"; tick: number; cameraId: string }
+  | { type: "CameraRepaired"; tick: number; cameraId: string }
+  | { type: "DoorRelocked"; tick: number; doorId: string }
+  /** A maintenance robot was sent to fix something. */
+  | { type: "RepairAssigned"; tick: number; robotId: string; task: "camera" | "door"; targetId: string }
+  /** A robot or camera that identified the player alerted the robots within comms range. */
+  | { type: "AlertBroadcast"; tick: number; originId: string; recipients: string[] }
+  | { type: "AlertReceived"; tick: number; robotId: string; originId: string }
   | { type: "PlayerCaught"; tick: number; robotId: string }
   | { type: "AlertChanged"; tick: number; from: AlertLevel; to: AlertLevel }
   | { type: "ClueGained"; tick: number; clueId: string; from: string }

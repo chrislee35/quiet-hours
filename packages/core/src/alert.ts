@@ -11,10 +11,10 @@ import type { AlertLevel } from "./events.ts";
 export function alertSystem(ctx: Ctx): void {
   const { state, config, events } = ctx;
   const a = state.alert;
-  const anySees = state.robots.some((r) => r.sees);
+  const anySees = state.robots.some((r) => r.sees) || state.cameras.some((c) => !c.broken && c.sees);
   if (anySees) a.quietSince = state.tick;
 
-  const spotted = events.some((e) => e.type === "RobotSpotted" && e.tick === state.tick);
+  const spotted = events.some((e) => (e.type === "RobotSpotted" || e.type === "CameraSpotted") && e.tick === state.tick);
   const cooldown = secondsToTicks(config.alert.sightingCooldownSeconds, config);
   if (spotted && a.level < 3 && state.tick - a.lastRaise >= cooldown) {
     const from = a.level;

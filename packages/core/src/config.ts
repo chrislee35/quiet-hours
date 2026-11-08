@@ -109,6 +109,37 @@ export interface Config {
     /** Alert level (0-3) the city is at least raised to after processing: the setback (FAIL-2). */
     alertAfterProcessing: number;
   };
+  /** Robot-to-robot alerts and the city's shared memory of where the player was last seen (ROB-2). */
+  comms: {
+    /** A robot that identifies the player alerts every robot within this many tiles. */
+    rangeTiles: number;
+    /** Seconds before an alert reaches its recipients. */
+    latencySeconds: number;
+    /** Suspicion an alerted robot starts from, so it identifies the player quickly when it sees them. */
+    primedSuspicion: number;
+    /** How long a reported position stays "fresh" for dispatching hunters. */
+    memorySeconds: number;
+  };
+  /** Fixed cameras: a sweeping view that cannot move and reports what it sees. */
+  cameras: {
+    coneDegrees: number;
+    rangeTiles: number;
+    gainFactor: number;
+    sweepDegrees: number;
+    /** Seconds for a full sweep cycle. */
+    sweepSeconds: number;
+    /** Seconds after raising an alarm before it can raise another. */
+    cooldownSeconds: number;
+  };
+  /** The city repairs what it can see is wrong (ROB-5), using maintenance robots. */
+  repairs: {
+    /** A disabled camera is noticed and repaired after this long. */
+    cameraDelaySeconds: number;
+    /** A door that began locked and was unlocked is locked again after this long. */
+    relockDelaySeconds: number;
+    /** Seconds a maintenance robot spends on the job once it arrives. */
+    repairSeconds: number;
+  };
   /** One behaviour profile per robot type (ROB-3): how it sees, moves, and what it can do. */
   robots: Record<RobotKind, RobotProfile>;
 
@@ -154,6 +185,9 @@ const SHAPE: Shape = {
     enforcerThreshold: "number",
   },
   failure: { holdSeconds: "number", alertAfterProcessing: "number" },
+  comms: { rangeTiles: "number", latencySeconds: "number", primedSuspicion: "number", memorySeconds: "number" },
+  cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
+  repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },
   robots: Object.fromEntries(ROBOT_KINDS.map((k) => [k, PROFILE_SHAPE])) as Shape,
 };
 
