@@ -1,6 +1,6 @@
 # ADR-1 spike result: Phaser renderer (T0.4)
 
-**Status: provisional, not yet signed off.**
+**Status: accepted (2026-11-08). Phaser stays.**
 
 ## What was built
 `packages/client/src/render/PhaserRenderer.ts`: a 24x14 procedurally generated tilemap with normal-mapped walls,
@@ -13,7 +13,16 @@ lighting features the design needs exist without a custom pipeline.
 - Typechecks against Phaser's bundled types; production build succeeds (about 361 KB gzipped).
 - The renderer touches the core only through `Sim` commands and state (the `Renderer` seam).
 
-## NOT verified (needs a human on real hardware)
+## Verified by the maintainer (2026-11-08)
+- The deployed GitHub Pages build loads, and the player responds to WASD, Shift (run) and Ctrl (sneak).
+
+## Also verified by the maintainer
+- Lighting looks as intended (bevel-lit walls, cone light follows movement, neon tint) and the HUD shows 60 FPS on their machine.
+
+## Still unmeasured
+The NFR-1 reference profile (mid-range 2022 laptop, integrated GPU, 1080p) with 40 robots and many lights; re-check at T1.10 and T5.4.
+
+## (superseded) original open items
 - Visual correctness: a headless Firefox screenshot came back blank, which could be capture timing or a
   WebGL failure in headless mode; we cannot tell. Run `pnpm dev` in a normal browser and check that walls
   show bevel lighting, the cone follows movement, and neon lights tint nearby tiles.

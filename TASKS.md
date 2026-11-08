@@ -10,7 +10,7 @@
 ---
 
 ## M0 — Foundations (spike and scaffolding)
-**Status (2026-11-08):** T0.1, T0.2, T0.3, T0.5, T0.6 done and green locally (`pnpm check`: typecheck, core-purity lint, content validation, 51 tests; production build and no-debug check pass). **T0.4 is partial:** the spike builds, but its visuals and 60 FPS target are unverified (see `docs/adr/0001-renderer-spike.md`). T0.1's "publishes a placeholder to the Pages URL" is unverified until the repo is pushed to GitHub and Pages is enabled.
+**Status (2026-11-08):** T0.1–T0.6 all done and green (`pnpm check`: typecheck, core-purity lint, content validation, 51 tests; production build and no-debug check pass). **T0.4 is done:** the maintainer confirmed in a real browser that the lighting looks right (bevel-lit walls, cone light, neon tint), input works, and the HUD shows 60 FPS; ADR-1 (Phaser) stands (see `docs/adr/0001-renderer-spike.md`). T0.1 is fully verified: the Pages deploy ran and the game loads at the Pages URL (confirmed by the maintainer, 2026-11-08).
 | ID | Task | Reqs | Dep | Size | Done when |
 |---|---|---|---|---|---|
 | T0.1 | Repo scaffold: pnpm workspace, TS strict, Vite (`base: './'`), Vitest, ESLint (ban `Math.random`/`Date.now`/DOM in core), `.nvmrc`, and GitHub workflows `ci.yml` and `deploy.yml` (DESIGN §16.2) publishing a placeholder page to GitHub Pages. | NFR-3, NFR-4, ADR-7 | | S | `pnpm test` and lint run in CI on an empty core; a push to `main` publishes the placeholder to the Pages URL. |
