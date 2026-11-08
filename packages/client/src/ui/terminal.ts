@@ -1,11 +1,37 @@
 import { powerRouting, type Sim, type TerminalView } from "@qh/core";
 
-const GLYPH: Record<string, string> = {
-  "": " ", N: "╵", E: "╶", S: "╷", W: "╴", NS: "│", EW: "─", NE: "└", ES: "┌", SW: "┐", NW: "┘",
-  NES: "├", ESW: "┬", NSW: "┤", NEW: "┴", NESW: "┼",
-};
 const SIDE_NAMES = ["N", "E", "S", "W"] as const;
 const PIECE_NAMES: Record<string, string> = { I: "straight pipe", L: "corner", T: "tee junction", "+": "cross junction", E: "dead end", ".": "empty" };
+// Where each side's pipe reaches the cell edge, in a 100x100 viewBox.
+const EDGE: Record<number, [number, number]> = { 0: [50, 0], 1: [100, 50], 2: [50, 100], 3: [0, 50] };
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function svg(tag: string, attrs: Record<string, string | number>): SVGElement {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+  return el;
+}
+
+/**
+ * One cell's picture: a pipe from the centre to each open edge, so neighbouring pieces visibly join; a ring on
+ * targets (filled once powered); and a bolt on the source. Colour is never the only signal: powered pipes are
+ * also thicker with a bright core, and the cell's accessible label says "powered".
+ */
+function cellSvg(sides: number[], powered: boolean, isSource: boolean, isTarget: boolean): SVGElement {
+  const root = svg("svg", { viewBox: "0 0 100 100", "aria-hidden": "true" });
+  for (const side of sides) {
+    const [x, y] = EDGE[side]!;
+    root.append(svg("line", { x1: 50, y1: 50, x2: x, y2: y, class: "pipe", "stroke-linecap": "butt" }));
+    if (powered) root.append(svg("line", { x1: 50, y1: 50, x2: x, y2: y, class: "core", "stroke-linecap": "butt" }));
+  }
+  if (sides.length > 0) root.append(svg("circle", { cx: 50, cy: 50, r: 11, class: "hub" }));
+  if (isTarget) root.append(svg("circle", { cx: 50, cy: 50, r: 22, class: powered ? "target on" : "target" }));
+  if (isSource) {
+    const bolt = svg("path", { d: "M56 14 L36 54 H50 L44 86 L66 42 H52 Z", class: "bolt" });
+    root.append(bolt);
+  }
+  return root;
+}
 
 /**
  * Terminal window for the power-routing puzzle (HAK-2). Cells are real buttons, so the keyboard works
@@ -61,30 +87,43 @@ export class TerminalWindow {
     h.textContent = view.title;
     root.append(h);
 
-    const hint = document.createElement("p");
-    hint.className = "hint";
-    hint.textContent = view.solved
-      ? view.solvedText
-      : "Turn the pipes until power (bright) reaches every target (◎). Click or press Enter to turn a piece.";
-    root.append(hint);
+    const targets = view.cells.filter((c) => c.isTarget);
+    const lit = targets.filter((c) => c.powered).length;
+
+    if (view.solved) {
+      const banner = document.createElement("p");
+      banner.className = "granted";
+      banner.textContent = `ACCESS GRANTED. ${view.solvedText}`;
+      root.append(banner);
+    } else {
+      const hint = document.createElement("p");
+      hint.className = "hint";
+      hint.textContent =
+        "Turn pieces to run power from the bolt (⚡) to every ring (◎). There is no confirm button: the terminal unlocks by itself the moment all rings are powered.";
+      root.append(hint);
+      const status = document.createElement("p");
+      status.className = "status";
+      status.setAttribute("aria-live", "polite");
+      status.textContent = `Powered targets: ${lit} of ${targets.length}`;
+      root.append(status);
+    }
 
     const grid = document.createElement("div");
     grid.className = "qh-grid";
     grid.dataset.cols = String(view.width);
-    grid.style.gridTemplateColumns = `repeat(${view.width}, 3.2em)`;
+    grid.style.gridTemplateColumns = `repeat(${view.width}, 4em)`;
     view.cells.forEach((cell, i) => {
       const b = document.createElement("button");
-      const sides = powerRouting.openSides(cell.piece, cell.rotation).map((s) => SIDE_NAMES[s]!).sort((a, c) => "NESW".indexOf(a) - "NESW".indexOf(c));
+      const sides = powerRouting.openSides(cell.piece, cell.rotation);
+      const names = sides.map((s) => SIDE_NAMES[s]!).sort((a, c) => "NESW".indexOf(a) - "NESW".indexOf(c));
       b.className = `cell${cell.powered ? " on" : ""}${cell.isSource ? " source" : ""}${cell.isTarget ? " target" : ""}`;
-      b.textContent = GLYPH[sides.join("")] ?? "?";
+      b.append(cellSvg(sides, cell.powered, cell.isSource, cell.isTarget));
       b.disabled = cell.piece === "." || view.solved;
       const role = cell.isSource ? ", power source" : cell.isTarget ? ", target" : "";
       b.setAttribute(
         "aria-label",
-        `${PIECE_NAMES[cell.piece] ?? cell.piece}${role}, open ${sides.join("") || "nowhere"}, ${cell.powered ? "powered" : "unpowered"}`,
+        `${PIECE_NAMES[cell.piece] ?? cell.piece}${role}, open ${names.join("") || "nowhere"}, ${cell.powered ? "powered" : "unpowered"}`,
       );
-      if (cell.isSource) b.dataset.mark = "⚡";
-      if (cell.isTarget) b.dataset.mark = cell.powered ? "◉" : "◎";
       b.addEventListener("click", () => this.rotate(i));
       grid.append(b);
     });
@@ -92,12 +131,12 @@ export class TerminalWindow {
 
     const leave = document.createElement("button");
     leave.className = "leave";
-    leave.textContent = "Leave terminal (Esc)";
+    leave.textContent = view.solved ? "Done (Esc)" : "Leave terminal (Esc)";
     leave.addEventListener("click", () => this.cancel());
     root.append(leave);
 
-    const buttons = grid.querySelectorAll<HTMLButtonElement>("button:not(:disabled)");
-    (grid.children[this.focusIndex] as HTMLButtonElement | undefined)?.focus();
-    if (document.activeElement === document.body) buttons[0]?.focus();
+    // Keep the player's place in the grid; after solving there is nothing to turn, so focus the exit.
+    if (view.solved) leave.focus();
+    else (grid.children[this.focusIndex] as HTMLButtonElement | undefined)?.focus();
   }
 }
