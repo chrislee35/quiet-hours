@@ -21,6 +21,7 @@
 | T0.6 | `sim-harness`: scenario DSL (place entities, script commands, assert events). | NFR-10 | T0.3 | M | One example scenario runs in CI. |
 
 ## M1 — Vertical slice (one district)
+**Status:** T1.1 and T1.2 implemented (Tiled import, zones, doors, collision, noise only when actually moving); 77 tests green. Client renders the sample map with doors (E) and a zone overlay (Z); the visual result is pending maintainer review in a browser. Map format: `docs/maps.md`.
 Goal: concept §11.1. Uses a trimmed Stacks block.
 | ID | Task | Reqs | Dep | Size | Done when |
 |---|---|---|---|---|---|

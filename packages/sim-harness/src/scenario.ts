@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { Sim, gameTimeAt, type Command, type Config, type GameEvent, type GameTime } from "@qh/core";
+import { Sim, gameTimeAt, type Command, type Config, type GameEvent, type GameTime, type World } from "@qh/core";
 
 type Matcher<T> = Partial<T>;
 
@@ -13,9 +13,9 @@ export class Scenario {
   /** Every event emitted since construction (or the last clearEvents()). */
   events: GameEvent[] = [];
 
-  constructor(config: Config, seed = 1) {
+  constructor(config: Config, seed = 1, world?: World) {
     this.config = config;
-    this.sim = new Sim(config, seed);
+    this.sim = new Sim(config, seed, world ? { world } : {});
   }
 
   // ---- setup ----------------------------------------------------------------------------

@@ -3,6 +3,14 @@ export type MoveMode = "walk" | "sneak" | "run";
 /** Everything the core tells the outside world. Clients render these; tests assert on them. */
 export type GameEvent =
   | { type: "NoiseEmitted"; tick: number; x: number; y: number; radius: number; source: "player" }
+  | { type: "DoorOpened"; tick: number; doorId: string }
+  | { type: "DoorClosed"; tick: number; doorId: string }
+  /** The player tried to open a locked door. */
+  | { type: "DoorLocked"; tick: number; doorId: string }
+  /** The player tried to close a door while standing in its doorway. */
+  | { type: "DoorBlocked"; tick: number; doorId: string }
+  | { type: "ZoneEntered"; tick: number; zone: string }
+  | { type: "ZoneExited"; tick: number; zone: string }
   | { type: "DayChanged"; tick: number; day: number }
   | { type: "CurfewStarted"; tick: number }
   | { type: "CurfewEnded"; tick: number }

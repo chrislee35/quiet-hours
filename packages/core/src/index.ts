@@ -6,3 +6,6 @@ export * from "./rng.ts";
 export * from "./sim.ts";
 export * from "./state.ts";
 export * from "./clone.ts";
+export * from "./movement.ts";
+export * from "./tiled.ts";
+export * from "./world.ts";

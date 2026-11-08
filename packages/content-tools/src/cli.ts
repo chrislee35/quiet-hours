@@ -12,5 +12,5 @@ if (issues.length > 0) {
   console.error(`\ncontent validation failed: ${issues.length} issue(s)`);
   process.exit(1);
 }
-const count = Object.values(bundle.files).reduce((n, f) => n + f.length, 0);
+const count = Object.values(bundle.files).reduce((n, f) => n + f.length, bundle.maps.length);
 console.log(`content validation passed (${count} files)`);

@@ -14,7 +14,15 @@ export interface Config {
     quietHoursStartMinute: number;
     quietHoursEndMinute: number;
   };
-  player: { walkSpeed: number; sneakSpeed: number; runSpeed: number };
+  player: {
+    walkSpeed: number;
+    sneakSpeed: number;
+    runSpeed: number;
+    /** Half-size of the player's square hitbox, in tiles. */
+    radius: number;
+    /** How far (tiles) the Interact action reaches. */
+    interactRadius: number;
+  };
   noise: { walkRadius: number; sneakRadius: number; runRadius: number };
   alert: { decaySeconds: number };
   vision: { coneDegrees: number; rangeTiles: number; checkerRangeTiles: number };
@@ -33,7 +41,7 @@ const SHAPE: Shape = {
     quietHoursStartMinute: "number",
     quietHoursEndMinute: "number",
   },
-  player: { walkSpeed: "number", sneakSpeed: "number", runSpeed: "number" },
+  player: { walkSpeed: "number", sneakSpeed: "number", runSpeed: "number", radius: "number", interactRadius: "number" },
   noise: { walkRadius: "number", sneakRadius: "number", runRadius: "number" },
   alert: { decaySeconds: "number" },
   vision: { coneDegrees: "number", rangeTiles: "number", checkerRangeTiles: "number" },

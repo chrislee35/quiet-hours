@@ -16,6 +16,7 @@ describe("sim step", () => {
     expect(SYSTEM_ORDER.map((s) => s.name)).toEqual([
       "commands",
       "player",
+      "zones",
       "clock",
       "npcs",
       "robot-perception",
@@ -105,7 +106,7 @@ describe("sim step", () => {
   it("state is JSON-serializable (save groundwork)", () => {
     const sim = new Sim(config, 5);
     run(sim, 50, [{ type: "SetMove", dx: 1, dy: 0, mode: "walk" }]);
-    const restored = new Sim(config, 5, JSON.parse(JSON.stringify(sim.state)));
+    const restored = new Sim(config, 5, { initial: JSON.parse(JSON.stringify(sim.state)) });
     run(sim, 100);
     run(restored, 100);
     expect(restored.hash).toBe(sim.hash);

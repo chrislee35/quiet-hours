@@ -30,5 +30,13 @@ export function loadContent(root: string): { bundle: ContentBundle; issues: Issu
           .filter((f): f is ContentFile => f !== undefined)
       : [];
   }
-  return { bundle: { ...(config ? { config } : {}), files }, issues };
+  const mapDir = join(root, "maps");
+  const maps = existsSync(mapDir)
+    ? readdirSync(mapDir)
+        .filter((f) => f.endsWith(".json"))
+        .sort()
+        .map((f) => read(join(mapDir, f), `maps/${f}`))
+        .filter((f): f is ContentFile => f !== undefined)
+    : [];
+  return { bundle: { ...(config ? { config } : {}), maps, files }, issues };
 }

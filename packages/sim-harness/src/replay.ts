@@ -1,4 +1,4 @@
-import { Sim, type Command, type Config, type GameEvent } from "@qh/core";
+import { Sim, type Command, type Config, type GameEvent, type World } from "@qh/core";
 
 /** A recorded run (TESTING §12): enough to reproduce a session exactly and compare state hashes. */
 export interface Replay {
@@ -17,9 +17,9 @@ export class ReplayRecorder {
   private readonly seed: number;
   readonly sim: Sim;
 
-  constructor(config: Config, seed: number) {
+  constructor(config: Config, seed: number, world?: World) {
     this.seed = seed;
-    this.sim = new Sim(config, seed);
+    this.sim = new Sim(config, seed, world ? { world } : {});
   }
 
   tick(commands: Command[] = []): GameEvent[] {
@@ -37,8 +37,8 @@ export interface ReplayResult {
   events: GameEvent[];
 }
 
-export function runReplay(replay: Replay, config: Config): ReplayResult {
-  const sim = new Sim(config, replay.seed);
+export function runReplay(replay: Replay, config: Config, world?: World): ReplayResult {
+  const sim = new Sim(config, replay.seed, world ? { world } : {});
   const byTick = new Map(replay.frames.map((f) => [f.tick, f.commands]));
   const events: GameEvent[] = [];
   for (let i = 0; i < replay.ticks; i++) events.push(...sim.tick(byTick.get(i) ?? []));

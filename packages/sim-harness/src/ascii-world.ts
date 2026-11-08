@@ -1,0 +1,49 @@
+import { buildWorld, type DoorDef, type MapData, type SpawnDef, type World, type ZoneDef } from "@qh/core";
+
+export interface AsciiZone extends ZoneDef {
+  /** Tile rectangle (inclusive-exclusive): x, y, width, height. */
+  rect: [x: number, y: number, w: number, h: number];
+}
+
+/**
+ * Build a tiny World from ASCII art for scenarios.
+ *   #  wall        .  floor        S  spawn "start" (floor)
+ *   D  closed door  O  open door    L  locked door
+ * Doors are named door_<x>_<y>. Zones are painted from rectangles, later ones overwriting earlier ones.
+ */
+export function asciiWorld(rows: string[], zones: AsciiZone[] = [], id = "ascii"): World {
+  const height = rows.length;
+  const width = rows[0]?.length ?? 0;
+  const collision: number[] = [];
+  const doors: DoorDef[] = [];
+  const spawns: SpawnDef[] = [];
+  rows.forEach((row, y) => {
+    if (row.length !== width) throw new Error(`ascii row ${y} has width ${row.length}, expected ${width}`);
+    [...row].forEach((ch, x) => {
+      collision.push(ch === "#" ? 1 : 0);
+      if (ch === "D" || ch === "O" || ch === "L") {
+        doors.push({ id: `door_${x}_${y}`, x, y, open: ch === "O", locked: ch === "L" });
+      } else if (ch === "S") {
+        spawns.push({ id: "start", x: x + 0.5, y: y + 0.5 });
+      } else if (ch !== "#" && ch !== ".") {
+        throw new Error(`unknown ascii map character "${ch}" at (${x}, ${y})`);
+      }
+    });
+  });
+  const zoneGrid = new Array<number>(width * height).fill(0);
+  zones.forEach((z, i) => {
+    const [x0, y0, w, h] = z.rect;
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) zoneGrid[y * width + x] = i + 1;
+  });
+  const data: MapData = {
+    id,
+    width,
+    height,
+    collision,
+    zoneGrid,
+    zones: zones.map(({ id: zid, requiredPermission }) => ({ id: zid, requiredPermission })),
+    doors,
+    spawns,
+  };
+  return buildWorld(data);
+}

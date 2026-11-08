@@ -1,5 +1,5 @@
 // covers: NFR-5
-import { cpSync, mkdtempSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -67,5 +67,24 @@ describe("content validation", () => {
     expect(issues.some((i) => i.message.startsWith("cannot parse JSON"))).toBe(true);
     const noConfig = fixture((d) => writeFileSync(join(d, "config", "tuning.json"), "{}"));
     expect(noConfig.some((i) => i.file === "config/tuning.json")).toBe(true);
+  });
+
+  it("validates maps: ships a good one, flags a door inside a wall and a map missing its collision layer", () => {
+    const good = fixture(() => {});
+    expect(good.filter((i) => i.file.startsWith("maps/"))).toEqual([]);
+
+    const walled = fixture((d) => {
+      const path = join(d, "maps", "stacks_slice.json");
+      const m = JSON.parse(readFileSync(path, "utf8"));
+      m.layers[2].objects[1].x = 0; // door at tile (0,3): a wall
+      m.layers[2].objects[1].y = 96;
+      writeFileSync(path, JSON.stringify(m));
+    });
+    expect(walled.some((i) => i.file === "maps/stacks_slice.json" && i.message.includes("inside a wall"))).toBe(true);
+
+    const missing = fixture((d) =>
+      writeFileSync(join(d, "maps", "empty.json"), JSON.stringify({ width: 1, height: 1, tilewidth: 32, tileheight: 32, layers: [] })),
+    );
+    expect(missing.some((i) => i.file === "maps/empty.json" && i.message.includes('"collision"'))).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import Ajv from "ajv";
-import { ConfigError, validateConfig } from "@qh/core";
+import { ConfigError, TiledImportError, WorldError, buildWorld, importTiled, validateConfig } from "@qh/core";
 import { kinds, type Kind } from "./schemas.ts";
 
 export interface Issue {
@@ -15,6 +15,8 @@ export interface ContentFile {
 
 export interface ContentBundle {
   config?: ContentFile;
+  /** Tiled JSON exports; the map id is the file name without extension. */
+  maps: ContentFile[];
   files: Record<Kind, ContentFile[]>;
 }
 
@@ -37,6 +39,20 @@ export function validateContent(bundle: ContentBundle): Issue[] {
     } catch (e) {
       if (!(e instanceof ConfigError)) throw e;
       for (const line of e.message.split("\n")) issues.push({ file: bundle.config.file, message: line });
+    }
+  }
+
+  // Maps: import (Tiled conventions) then build (geometry rules). Both report every problem at once.
+  const mapIds = new Set<string>();
+  for (const { file, data } of bundle.maps) {
+    const id = file.replace(/^maps\//, "").replace(/\.json$/, "");
+    if (mapIds.has(id)) issues.push({ file, message: `duplicate map id "${id}"` });
+    mapIds.add(id);
+    try {
+      buildWorld(importTiled(data, id));
+    } catch (e) {
+      if (!(e instanceof TiledImportError || e instanceof WorldError)) throw e;
+      for (const part of e.message.replace(/^map "[^"]*": /, "").split("; ")) issues.push({ file, message: part });
     }
   }
 
