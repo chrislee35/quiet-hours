@@ -59,7 +59,7 @@ function grantAccess(ctx: Ctx, terminalId: string, via: "puzzle" | "bypass"): vo
   if (!ts || !def || ts.solved) return;
   ts.solved = true;
   events.push({ type: "TerminalSolved", tick: state.tick, terminalId, via });
-  applyEffects(def.onSolve, state, events);
+  applyEffects(def.onSolve, state, events, ctx.config);
 }
 
 export function openTerminal(ctx: Ctx, terminalId: string): boolean {

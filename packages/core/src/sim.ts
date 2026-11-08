@@ -3,6 +3,7 @@ import { alertSystem } from "./alert.ts";
 import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
+import { demeritSystem } from "./demerits.ts";
 import { processingSystem } from "./processing.ts";
 import { applyEffects, type Effect } from "./rules.ts";
 import { gameTimeAt } from "./clock.ts";
@@ -81,7 +82,7 @@ export function interactionPrompt(state: Readonly<SimState>, world: World, confi
   if (t.kind === "terminal") return { ...base, label: "Use terminal" };
   if (t.kind === "locker") {
     const l = state.locker;
-    return Object.keys(l.items).length > 0 || l.credits > 0 ? { ...base, label: "Recover belongings" } : null;
+    return Object.keys(l.items).length > 0 || l.credits > 0 || l.passes.length > 0 ? { ...base, label: "Recover belongings" } : null;
   }
   const door = state.doors[t.id];
   if (!door) return null;
@@ -101,11 +102,16 @@ function interact(ctx: Ctx): void {
     return;
   }
   if (target.kind === "locker") {
-    const { items, credits } = state.locker;
-    if (credits === 0 && Object.keys(items).length === 0) return;
+    const { items, credits, passes } = state.locker;
+    if (credits === 0 && Object.keys(items).length === 0 && passes.length === 0) return;
+    for (const p of passes) {
+      state.passes = state.passes.filter((x) => x.id !== p.id);
+      state.passes.push(p);
+      events.push({ type: "PassGained", tick: state.tick, passId: p.id });
+    }
     for (const [id, n] of Object.entries(items)) state.inventory.items[id] = (state.inventory.items[id] ?? 0) + n;
     state.inventory.credits += credits;
-    state.locker = { credits: 0, items: {} };
+    state.locker = { credits: 0, items: {}, passes: [] };
     events.push({ type: "LockerOpened", tick: state.tick, lockerId: target.id, items, credits });
     return;
   }
@@ -127,12 +133,12 @@ function interact(ctx: Ctx): void {
 }
 
 function applyCommands(ctx: Ctx): void {
-  const { state, commands, events } = ctx;
+  const { state, config, commands, events } = ctx;
   const held = state.tick < state.processingUntil; // being processed: the player cannot act
   for (const cmd of commands) {
     switch (cmd.type) {
       case "ApplyEffects":
-        applyEffects(cmd.effects, state, events);
+        applyEffects(cmd.effects, state, events, config);
         break;
       case "SetMove": {
         if (held) break;
@@ -214,6 +220,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "robot-perception", run: robotPerception },
   { name: "robot-behavior", run: robotBehavior },
   { name: "alert", run: alertSystem },
+  { name: "demerits", run: demeritSystem },
   { name: "processing", run: processingSystem },
   { name: "district-reactions", run: notYet },
 ];
@@ -242,7 +249,7 @@ export function step(
       else if (cmd.type === "EndConversation") endConversation(ctx);
       else if (cmd.type === "TerminalRotate") rotateCell(ctx, cmd.index);
       else if (cmd.type === "ExitTerminal") closeTerminal(ctx);
-      else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events);
+      else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events, config);
     }
     return { state, events };
   }

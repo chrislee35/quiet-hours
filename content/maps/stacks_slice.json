@@ -392,6 +392,11 @@
        "name": "permission",
        "type": "int",
        "value": 0
+      },
+      {
+       "name": "curfew",
+       "type": "bool",
+       "value": true
       }
      ]
     },

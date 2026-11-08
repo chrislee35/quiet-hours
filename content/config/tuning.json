@@ -48,5 +48,18 @@
   "failure": {
     "holdSeconds": 4,
     "alertAfterProcessing": 1
+  },
+  "identity": {
+    "nullGainFactor": 1.0,
+    "violationGainFactor": 1.6,
+    "allowedGainFactor": 0.0
+  },
+  "demerits": {
+    "restrictedZonePoints": 3,
+    "curfewPoints": 2,
+    "cooldownSeconds": 8,
+    "decayPerSecond": 0.05,
+    "checkThreshold": 5,
+    "enforcerThreshold": 10
   }
 }

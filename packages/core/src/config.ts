@@ -48,6 +48,26 @@ export interface Config {
     /** Fraction of the gain lost at maximum range (0 = distance does not matter). */
     proximityFalloff: number;
   };
+  /** How a robot's ID check outcome scales how fast it becomes suspicious of the player (STE-3). */
+  identity: {
+    /** No record at all: "pending review", the baseline. */
+    nullGainFactor: number;
+    /** Holding a pass that does not cover this zone, or has expired. */
+    violationGainFactor: number;
+    /** Holding a valid pass: the robot has no reason to be suspicious. */
+    allowedGainFactor: number;
+  };
+  demerits: {
+    restrictedZonePoints: number;
+    curfewPoints: number;
+    /** Minimum seconds between two infractions of the same kind being recorded. */
+    cooldownSeconds: number;
+    decayPerSecond: number;
+    /** Points at which a check is triggered (alert raised to Suspicious). */
+    checkThreshold: number;
+    /** Points at which enforcers are called (alert raised to Hunting). */
+    enforcerThreshold: number;
+  };
   failure: {
     /** Seconds the player is held (frozen) in the holding facility after being caught. */
     holdSeconds: number;
@@ -88,6 +108,15 @@ const SHAPE: Shape = {
     suspicionDecayPerSecond: "number",
     sneakGainFactor: "number",
     proximityFalloff: "number",
+  },
+  identity: { nullGainFactor: "number", violationGainFactor: "number", allowedGainFactor: "number" },
+  demerits: {
+    restrictedZonePoints: "number",
+    curfewPoints: "number",
+    cooldownSeconds: "number",
+    decayPerSecond: "number",
+    checkThreshold: "number",
+    enforcerThreshold: "number",
   },
   failure: { holdSeconds: "number", alertAfterProcessing: "number" },
   warden: {

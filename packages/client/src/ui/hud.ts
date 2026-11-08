@@ -1,4 +1,4 @@
-import { ALERT_NAMES, formatTime, gameTimeAt, type Sim } from "@qh/core";
+import { ALERT_NAMES, formatTime, gameTimeAt, standing, type Sim } from "@qh/core";
 
 const fmt = (items: Record<string, number>) => Object.entries(items).map(([k, n]) => `${k} x${n}`).join(", ");
 
@@ -49,7 +49,8 @@ export class Hud {
     const next = [
       `Alert: ${ALERT_NAMES[level]} ${dots}`,
       `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}   Zone: ${s.player.zone ?? "none"}`,
-      `Credits ${s.inventory.credits}   Items: ${fmt(s.inventory.items) || "none"}${locker ? `   [Locker: ${locker}]` : ""}`,
+      `Credits ${s.inventory.credits}   Items: ${fmt(s.inventory.items) || "none"}${locker ? `   [Locker: ${locker}]` : ""}` +
+        (s.passes.length > 0 ? `   Passes: ${s.passes.map((p) => p.label).join(", ")}   Standing: ${standing(s.demerits.points, this.sim.config)}` : "   (no record on file)"),
       performance.now() < this.messageUntil ? `» ${this.message}` : "",
       "WASD move · Shift run · Ctrl sneak (quieter, harder to spot) · E use/talk · N notebook · Z zones",
       `${padConnected ? "Pad: stick/d-pad move · RB run · LB sneak · A use · B back · Y notebook   " : ""}${Math.round(fps)} fps`,

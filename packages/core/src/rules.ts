@@ -11,6 +11,7 @@ import { gameTimeAt, inWindow } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, GameEvent, TrustLevel } from "./events.ts";
 import type { SimState } from "./state.ts";
+import { ticksPerGameMinute, type PassOrigin } from "./identity.ts";
 
 // ---- Types -------------------------------------------------------------------------------
 
@@ -30,7 +31,9 @@ export type Condition =
   | { alert_gte: AlertLevel }
   /** Minute-of-day window [start, end), which may wrap past midnight. */
   | { time_between: [startMinute: number, endMinute: number] }
-  | { arrest_count_gte: number };
+  | { arrest_count_gte: number }
+  /** The player holds a pass with this id (valid or not: validity is the resolver's business). */
+  | { has_pass: string };
 
 export type Effect =
   | { give_clue: { id: string; from: string } }
@@ -45,6 +48,20 @@ export type Effect =
   /** Raises alert to at least this level (never lowers it). */
   | { raise_alert_to: AlertLevel }
   | { emit: string }
+  /** Gives (or replaces) a pass. Expiry is in in-game minutes from now. */
+  | {
+      give_pass: {
+        id: string;
+        label: string;
+        level: number;
+        zones?: string[];
+        expiresInMinutes?: number;
+        uses?: number;
+        origin: PassOrigin;
+        curfewExempt?: boolean;
+      };
+    }
+  | { revoke_pass: string }
   /** Clears a door's lock (the door stays closed until opened). */
   | { unlock_door: string };
 
@@ -71,6 +88,7 @@ export function evalCondition(c: Condition, state: Readonly<SimState>, config: C
     return inWindow(gameTimeAt(state.tick, config).minuteOfDay, c.time_between[0], c.time_between[1]);
   }
   if ("arrest_count_gte" in c) return state.arrestCount >= c.arrest_count_gte;
+  if ("has_pass" in c) return state.passes.some((p) => p.id === c.has_pass);
   throw new RuleError(`unknown condition ${JSON.stringify(c)}`);
 }
 
@@ -85,7 +103,7 @@ export function evalAll(conds: Condition | Condition[] | undefined, state: Reado
 const clampTrust = (n: number): TrustLevel => (n <= -1 ? -1 : n >= 1 ? 1 : 0);
 
 /** Applies one effect to `state` (mutating it) and appends the resulting events. */
-export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]): void {
+export function applyEffect(effect: Effect, state: SimState, events: GameEvent[], config?: Config): void {
   const tick = state.tick;
   if ("give_clue" in effect) {
     const { id, from } = effect.give_clue;
@@ -140,6 +158,21 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
     }
   } else if ("emit" in effect) {
     events.push({ type: "Custom", tick, name: effect.emit });
+  } else if ("give_pass" in effect) {
+    const g = effect.give_pass;
+    if (g.expiresInMinutes !== undefined && !config) throw new RuleError("give_pass with an expiry needs the game config");
+    const expiresTick = g.expiresInMinutes === undefined || !config ? null : tick + Math.round(g.expiresInMinutes * ticksPerGameMinute(config));
+    state.passes = state.passes.filter((p) => p.id !== g.id);
+    state.passes.push({
+      id: g.id, label: g.label, level: g.level, zones: g.zones ?? null, expiresTick,
+      usesLeft: g.uses ?? null, origin: g.origin, curfewExempt: g.curfewExempt ?? false,
+    });
+    events.push({ type: "PassGained", tick, passId: g.id });
+  } else if ("revoke_pass" in effect) {
+    if (state.passes.some((p) => p.id === effect.revoke_pass)) {
+      state.passes = state.passes.filter((p) => p.id !== effect.revoke_pass);
+      events.push({ type: "PassLost", tick, passId: effect.revoke_pass });
+    }
   } else if ("unlock_door" in effect) {
     const door = state.doors[effect.unlock_door];
     if (door?.locked) {
@@ -151,8 +184,8 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
   }
 }
 
-export function applyEffects(effects: readonly Effect[], state: SimState, events: GameEvent[]): void {
-  for (const e of effects) applyEffect(e, state, events);
+export function applyEffects(effects: readonly Effect[], state: SimState, events: GameEvent[], config?: Config): void {
+  for (const e of effects) applyEffect(e, state, events, config);
 }
 
 // ---- Validation (for content tools; mirrors the runtime exactly) ---------------------------
@@ -192,6 +225,7 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
       break;
     case "has_clue":
     case "flag":
+    case "has_pass":
       if (!isStr(a)) bad("expected a string id");
       break;
     case "clue_state":
@@ -234,6 +268,22 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
       if (typeof o !== "object" || o === null || !isStr(o.id) || !isStr(o.from)) bad("expected { id, from } strings");
       break;
     }
+    case "give_pass": {
+      const o = a as Record<string, unknown> | null;
+      if (typeof o !== "object" || o === null) {
+        bad("expected an object");
+        break;
+      }
+      if (!isStr(o.id) || !isStr(o.label)) bad("needs string id and label");
+      if (!isInt(o.level, 0, 9)) bad("level must be a whole number 0-9");
+      if (!["issued", "forged", "borrowed", "stolen"].includes(o.origin as string)) bad("origin must be issued, forged, borrowed or stolen");
+      if (o.zones !== undefined && !(Array.isArray(o.zones) && o.zones.every(isStr))) bad("zones must be a list of zone ids");
+      if (o.expiresInMinutes !== undefined && !isInt(o.expiresInMinutes, 1)) bad("expiresInMinutes must be a whole number >= 1");
+      if (o.uses !== undefined && !isInt(o.uses, 1)) bad("uses must be a whole number >= 1");
+      if (o.curfewExempt !== undefined && typeof o.curfewExempt !== "boolean") bad("curfewExempt must be true or false");
+      break;
+    }
+    case "revoke_pass":
     case "verify_clue":
     case "disprove_clue":
     case "emit":

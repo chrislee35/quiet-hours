@@ -28,6 +28,11 @@ export function processingSystem(ctx: Ctx): void {
   for (const [id, n] of Object.entries(items)) state.locker.items[id] = (state.locker.items[id] ?? 0) + n;
   state.locker.credits += credits;
   state.inventory = { credits: 0, items: {} };
+  // Passes are confiscated too (forged ones included): getting an identity back is part of the setback.
+  state.locker.passes.push(...state.passes);
+  state.passes = [];
+  // Serving the processing wipes the slate of minor infractions.
+  state.demerits = { points: 0, level: 0, last: {} };
 
   state.arrestCount += 1;
   state.processingUntil = state.tick + secondsToTicks(config.failure.holdSeconds, config);

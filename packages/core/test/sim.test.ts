@@ -22,6 +22,7 @@ describe("sim step", () => {
       "robot-perception",
       "robot-behavior",
       "alert",
+      "demerits",
       "processing",
       "district-reactions",
     ]);

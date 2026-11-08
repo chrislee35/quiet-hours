@@ -55,7 +55,8 @@ function parseConditions(text: string, allowReliability: boolean, fail: (m: stri
     else if ((m = t.match(new RegExp(`^trust:(${ID})>=(-?\\d|distrusts|unsure|trusts)$`)))) {
       const lvl = m[2]! in TRUST_WORDS ? TRUST_WORDS[m[2]!]! : Number(m[2]);
       c = { trust_gte: [m[1]!, lvl as -1 | 0 | 1] };
-    } else if ((m = t.match(/^alert>=([0-3])$/))) c = { alert_gte: Number(m[1]) as 0 | 1 | 2 | 3 };
+    } else if ((m = t.match(new RegExp(`^pass:(${ID})$`)))) c = { has_pass: m[1]! };
+    else if ((m = t.match(/^alert>=([0-3])$/))) c = { alert_gte: Number(m[1]) as 0 | 1 | 2 | 3 };
     else if ((m = t.match(/^arrests>=(\d+)$/))) c = { arrest_count_gte: Number(m[1]) };
     else if ((m = t.match(/^time:(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/))) {
       c = { time_between: [Number(m[1]) * 60 + Number(m[2]), Number(m[3]) * 60 + Number(m[4])] };
@@ -93,6 +94,7 @@ function parseEffects(text: string, defaultFrom: string, fail: (m: string) => vo
       e = m[1] === "+" ? { add_item: [m[2]!, n] } : { remove_item: [m[2]!, n] };
     } else if ((m = token.match(/^([+-])credits:(\d+)$/))) e = { add_credits: (m[1] === "-" ? -1 : 1) * Number(m[2]) };
     else if ((m = token.match(new RegExp(`^trust:(${ID})([+-]\\d+)$`)))) e = { adjust_trust: [m[1]!, Number(m[2])] };
+    else if ((m = token.match(new RegExp(`^-pass:(${ID})$`)))) e = { revoke_pass: m[1]! };
     else if ((m = token.match(/^alert:([0-3])$/))) e = { raise_alert_to: Number(m[1]) as 0 | 1 | 2 | 3 };
     else if ((m = token.match(new RegExp(`^emit:(${ID})$`)))) e = { emit: m[1]! };
     if (!e) {

@@ -29,7 +29,7 @@ describe("processing (soft failure)", () => {
     const st = s.sim.state;
     expect(st.player.x).toBeCloseTo(13.5, 5); // the holding spawn
     expect(st.inventory).toEqual({ credits: 0, items: {} });
-    expect(st.locker).toEqual({ credits: 75, items: { wire: 2, keycard: 1 } });
+    expect(st.locker).toEqual({ credits: 75, items: { wire: 2, keycard: 1 }, passes: [] });
     expect(st.arrestCount).toBe(1);
     expect(s.alert).toBeGreaterThanOrEqual(config.failure.alertAfterProcessing);
   });
@@ -68,7 +68,7 @@ describe("processing (soft failure)", () => {
     s.player(14.5, 1.5).command({ type: "Interact" });
     s.expectEvent("LockerOpened", { credits: 75 });
     expect(s.sim.state.inventory).toEqual({ credits: 75, items: { wire: 2, keycard: 1 } });
-    expect(s.sim.state.locker).toEqual({ credits: 0, items: {} });
+    expect(s.sim.state.locker).toEqual({ credits: 0, items: {}, passes: [] });
     s.clearEvents().command({ type: "Interact" }); // now empty: nothing happens
     expect(s.events).toEqual([]);
   });
@@ -85,7 +85,7 @@ describe("processing (soft failure)", () => {
       if (t > 40 * 30) throw new Error("never caught again");
     }
     expect(s.sim.state.arrestCount).toBe(2);
-    expect(s.sim.state.locker).toEqual({ credits: 80, items: { wire: 3, keycard: 1 } });
+    expect(s.sim.state.locker).toEqual({ credits: 80, items: { wire: 3, keycard: 1 }, passes: [] });
   });
 
   it("without a holding spawn the player stays put but is still processed and frozen", () => {

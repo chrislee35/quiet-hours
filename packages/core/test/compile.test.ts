@@ -43,6 +43,7 @@ describe("compileDialogue: valid input", () => {
       ["credits>=20", { credits_gte: 20 }],
       ["trust:pallas>=trusts", { trust_gte: ["pallas", 1] }],
       ["trust:pallas>=unsure", { trust_gte: ["pallas", 0] }],
+      ["pass:work_permit", { has_pass: "work_permit" }],
       ["alert>=2", { alert_gte: 2 }],
       ["arrests>=3", { arrest_count_gte: 3 }],
       ["time:22:00-06:00", { time_between: [1320, 360] }],
@@ -69,6 +70,7 @@ describe("compileDialogue: valid input", () => {
       ["-credits:5", { add_credits: -5 }],
       ["trust:pallas+1", { adjust_trust: ["pallas", 1] }],
       ["trust:pallas-1", { adjust_trust: ["pallas", -1] }],
+      ["-pass:work_permit", { revoke_pass: "work_permit" }],
       ["alert:2", { raise_alert_to: 2 }],
       ["emit:alarm", { emit: "alarm" }],
     ];

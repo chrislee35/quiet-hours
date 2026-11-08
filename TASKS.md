@@ -20,8 +20,8 @@
 | T0.5 | Content pipeline skeleton: schemas from TS types, loader, ID-integrity validator. | NFR-5 | T0.1 | M | Validator fails on a deliberately broken fixture; passes on the sample. |
 | T0.6 | `sim-harness`: scenario DSL (place entities, script commands, assert events). | NFR-10 | T0.3 | M | One example scenario runs in CI. |
 
-## M1 — Vertical slice (one district)
-**Status:** T1.1–T1.12 implemented (T1.10/T1.11 polish: camera follow with zoom for larger maps, accessible DOM HUD, windows usable by keyboard and gamepad; T1.12: one input layer for keyboard and gamepad, rebinding logic and storage, no rebinding screen yet); 237 tests green. T1.9 (terminals, power-routing puzzle with a build-time solver, bypass route, door unlock effect, terminal window) is done. T1.8 (clues/notebook, `.qdl` compiler, dialogue runtime, Odd Sam sample conversation) is done; the client already has a dialogue window and a basic notebook panel (the first half of T1.11). Author reference: `docs/dialogue.md`. T1.6 (soft failure: processing, holding cell, confiscation to a recoverable locker, robots stand down, alert setback, arrest count; clues/flags/trust never touched) and T1.7 (shared condition/effect language with validators) are done. Done: tile world, Tiled import, zones, doors, collision; vision cones with line of sight and a suspicion meter; Warden patrol/investigate/chase/search with A* pathfinding, door use and hearing (walls muffle sound); alert state machine with sighting cooldown and decay. Client shows the Warden, its occluded vision cone, a suspicion bar and the alert level; the visual result is pending maintainer review. Map format: `docs/maps.md`. T1.13 (slice integration playtest) is in progress: first finding and fix recorded in `docs/playtests/P1-slice-notes.md` (the slice was impossible as built; sneaking now matters, spawn/patrol/map changed, fairness regression test added). Remaining: check each REQUIREMENTS §4 acceptance item in a browser and decide whether the slice is signed off.
+## M1 — Vertical slice (one district) — COMPLETE (2026-11-08)
+**Status:** T1.1–T1.13 done; signed off by the maintainer after a browser walkthrough of every REQUIREMENTS §4 slice acceptance item. First playtest (P1) found the slice impossible as built; fixed by sneak-aware detection, retuning, a new spawn/patrol and a second route (`docs/playtests/P1-slice-notes.md`, guarded by `slice-fairness.test.ts`). Terminal UI redrawn after the maintainer could not tell the puzzle auto-accepts. Known slice gaps, all scheduled in M2: restricted-zone enforcement and curfew effects (T2.3), portraits (art, M5), the other robot types (T2.1). Author references: `docs/maps.md`, `docs/dialogue.md`.
 Goal: concept §11.1. Uses a trimmed Stacks block.
 | ID | Task | Reqs | Dep | Size | Done when |
 |---|---|---|---|---|---|
@@ -40,6 +40,7 @@ Goal: concept §11.1. Uses a trimmed Stacks block.
 | T1.13 | Slice integration + playtest + decision record. | all VS | T1.1-T1.12 | M | Slice acceptance criteria in REQUIREMENTS §4 all demonstrated; playtest notes filed. |
 
 ## M2 — Core systems
+**Status:** T2.3 done (identity/pass system, resolver with null state, demerit ledger with thresholds, forged-pass detection by thorough scans, processing confiscates and returns passes; `docs/identity.md`). Remaining: T2.1, T2.2, T2.4–T2.15.
 | ID | Task | Reqs | Dep | Size | Done when |
 |---|---|---|---|---|---|
 | T2.1 | Remaining robot types: Sentry, Checker, Hound, Auditor, Heavy. | ROB-3 | T1.4 | L | A scenario per type validating its signature behavior. |

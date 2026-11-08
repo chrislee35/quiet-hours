@@ -1,6 +1,7 @@
 import { gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, MoveMode, TrustLevel } from "./events.ts";
+import type { Pass } from "./identity.ts";
 import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type DoorState, type World } from "./world.ts";
 
 export const STATE_VERSION = 1;
@@ -27,6 +28,10 @@ export interface SimState {
   /** The notebook: every clue the player knows, by clue id. */
   clues: Record<string, NotebookEntry>;
   inventory: { credits: number; items: Record<string, number> };
+  /** Passes the player holds. Empty means the null state: no record at all (STE-3). */
+  passes: Pass[];
+  /** Infraction ledger: points drain over time; `level` tracks which threshold has fired. */
+  demerits: { points: number; level: 0 | 1 | 2; last: Record<string, number> };
   /** Hidden three-level trust per NPC; absent means 0 (unsure). */
   trust: Record<string, TrustLevel>;
   /** Times the player has been caught and processed. */
@@ -34,7 +39,7 @@ export interface SimState {
   /** While tick < processingUntil the player is held and cannot act; 0 when free. */
   processingUntil: number;
   /** Items and credits confiscated by processing, recoverable at a locker. */
-  locker: { credits: number; items: Record<string, number> };
+  locker: { credits: number; items: Record<string, number>; passes: Pass[] };
   /** Terminal progress by terminal id, created the first time a terminal is opened. */
   terminals: Record<string, { rotations: number[]; solved: boolean }>;
   /** The terminal currently being used, if any. While set, the world is frozen like a conversation. */
@@ -129,10 +134,12 @@ export function createInitialState(seed: number, config: Config, world: World = 
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },
+    passes: [],
+    demerits: { points: 0, level: 0 as const, last: {} },
     trust: {},
     arrestCount: 0,
     processingUntil: 0,
-    locker: { credits: 0, items: {} },
+    locker: { credits: 0, items: {}, passes: [] },
     terminals: {},
     terminal: null,
     conversation: null,

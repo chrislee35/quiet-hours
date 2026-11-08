@@ -85,7 +85,7 @@ function enterNode(ctx: Ctx, d: Dialogue, nodeId: string): void {
   }
   state.conversation = { dialogueId: d.id, node: nodeId };
   events.push({ type: "ConversationNode", tick: state.tick, dialogueId: d.id, node: nodeId });
-  applyEffects(node.onEnter, state, events);
+  applyEffects(node.onEnter, state, events, ctx.config);
 }
 
 export function startConversation(ctx: Ctx, dialogueId: string): boolean {
@@ -125,7 +125,7 @@ export function chooseOption(ctx: Ctx, index: number): void {
   if (!cur) return;
   const picked = visibleChoices(cur.node, ctx.state, ctx.config).find((v) => v.index === index);
   if (!picked) return;
-  applyEffects(picked.choice.effects, ctx.state, ctx.events);
+  applyEffects(picked.choice.effects, ctx.state, ctx.events, ctx.config);
   follow(ctx, cur.d, picked.choice.goto);
 }
 
@@ -142,6 +142,6 @@ export function presentClue(ctx: Ctx, clueId: string): void {
   );
   if (!reaction) return;
   ctx.events.push({ type: "CluePresented", tick: ctx.state.tick, clueId, npc: cur.d.npc });
-  applyEffects(reaction.effects, ctx.state, ctx.events);
+  applyEffects(reaction.effects, ctx.state, ctx.events, ctx.config);
   follow(ctx, cur.d, reaction.goto);
 }

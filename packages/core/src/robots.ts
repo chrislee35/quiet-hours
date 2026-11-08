@@ -3,7 +3,10 @@ import { secondsToTicks } from "./ctx.ts";
 import { findPath } from "./pathfind.ts";
 import type { RobotState } from "./state.ts";
 import { canSee, lineOfSight } from "./vision.ts";
-import { isSolid } from "./world.ts";
+import { gameTimeAt } from "./clock.ts";
+import { recordInfraction } from "./demerits.ts";
+import { curfewExempt, resolvePass } from "./identity.ts";
+import { isSolid, zoneAt } from "./world.ts";
 
 /**
  * Warden behaviour (T1.3, T1.4). Two systems run in order each tick:
@@ -41,9 +44,24 @@ export function robotPerception(ctx: Ctx): void {
     robot.sees = canSee(robot, player, vis.coneDegrees, vis.rangeTiles, blocked);
 
     if (robot.sees) {
+      // The ID check: what the robot learns about the player depends on the zone and on what they carry (STE-3).
+      const zone = zoneAt(world, Math.floor(player.x), Math.floor(player.y));
+      const scan = resolvePass(state, zone);
+      const id = config.identity;
+      const idFactor = scan.outcome === "Allowed" ? id.allowedGainFactor : scan.outcome === "Null" ? id.nullGainFactor : id.violationGainFactor;
       const proximity = 1 - vis.proximityFalloff * Math.min(1, dist / vis.rangeTiles);
       const stance = player.intent.mode === "sneak" ? vis.sneakGainFactor : 1;
-      robot.suspicion = Math.min(1, robot.suspicion + vis.suspicionGainPerSecond * proximity * stance * dt);
+      robot.suspicion = Math.min(1, robot.suspicion + vis.suspicionGainPerSecond * proximity * stance * idFactor * dt);
+
+      // Demerits need a record to mark: a null is "pending review", so it earns none (the null's edge).
+      if (state.passes.length > 0) {
+        if ((scan.outcome === "Violation" || scan.outcome === "Expired") && zone && zone.requiredPermission > 0) {
+          recordInfraction(state, config, events, "restricted_zone");
+        }
+        if (zone?.curfew && gameTimeAt(state.tick, config).isCurfew && !curfewExempt(state)) {
+          recordInfraction(state, config, events, "curfew");
+        }
+      }
     } else {
       robot.suspicion = Math.max(0, robot.suspicion - vis.suspicionDecayPerSecond * dt);
     }

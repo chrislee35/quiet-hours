@@ -40,6 +40,10 @@ export type GameEvent =
   | { type: "PlayerProcessed"; tick: number; arrestCount: number; items: Record<string, number>; credits: number }
   | { type: "PlayerReleased"; tick: number }
   | { type: "LockerOpened"; tick: number; lockerId: string; items: Record<string, number>; credits: number }
+  | { type: "InfractionRecorded"; tick: number; kind: "restricted_zone" | "curfew"; points: number; total: number }
+  | { type: "DemeritThreshold"; tick: number; level: "check" | "enforcer" }
+  | { type: "PassGained"; tick: number; passId: string }
+  | { type: "PassLost"; tick: number; passId: string }
   | { type: "ConversationStarted"; tick: number; dialogueId: string; npc: string }
   | { type: "ConversationNode"; tick: number; dialogueId: string; node: string }
   | { type: "ConversationEnded"; tick: number; dialogueId: string }

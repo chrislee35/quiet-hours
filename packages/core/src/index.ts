@@ -22,3 +22,5 @@ export * from "./dialogue/types.ts";
 export * from "./terminal.ts";
 export * as powerRouting from "./puzzles/power-routing.ts";
 export type { PuzzleDef, PuzzleState } from "./puzzles/power-routing.ts";
+export * from "./demerits.ts";
+export * from "./identity.ts";

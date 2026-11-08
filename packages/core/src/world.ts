@@ -72,6 +72,8 @@ export interface ZoneDef {
   id: string;
   /** Pass level needed to be here legitimately (STE-1). 0 = public. */
   requiredPermission: number;
+  /** Curfew applies here: being seen out during curfew is an infraction for anyone with a record. */
+  curfew?: boolean;
 }
 
 export interface DoorDef {
