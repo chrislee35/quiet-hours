@@ -1,5 +1,6 @@
 import Ajv from "ajv";
-import { ConfigError, TiledImportError, WorldError, buildWorld, importTiled, validateConfig } from "@qh/core";
+import { ConfigError, TiledImportError, WorldError, buildWorld, compileDialogue, importTiled, validateConfig, type Dialogue, type MapData } from "@qh/core";
+import { clueGates, cluesGiven } from "./dialogue-checks.ts";
 import { kinds, type Kind } from "./schemas.ts";
 
 export interface Issue {
@@ -15,6 +16,8 @@ export interface ContentFile {
 
 export interface ContentBundle {
   config?: ContentFile;
+  /** `.qdl` dialogue sources; the conversation id is the file name without extension. */
+  dialogues: { file: string; text: string }[];
   /** Tiled JSON exports; the map id is the file name without extension. */
   maps: ContentFile[];
   files: Record<Kind, ContentFile[]>;
@@ -44,12 +47,15 @@ export function validateContent(bundle: ContentBundle): Issue[] {
 
   // Maps: import (Tiled conventions) then build (geometry rules). Both report every problem at once.
   const mapIds = new Set<string>();
+  const mapData: { file: string; map: MapData }[] = [];
   for (const { file, data } of bundle.maps) {
     const id = file.replace(/^maps\//, "").replace(/\.json$/, "");
     if (mapIds.has(id)) issues.push({ file, message: `duplicate map id "${id}"` });
     mapIds.add(id);
     try {
-      buildWorld(importTiled(data, id));
+      const map = importTiled(data, id);
+      buildWorld(map);
+      mapData.push({ file, map });
     } catch (e) {
       if (!(e instanceof TiledImportError || e instanceof WorldError)) throw e;
       for (const part of e.message.replace(/^map "[^"]*": /, "").split("; ")) issues.push({ file, message: part });
@@ -98,6 +104,44 @@ export function validateContent(bundle: ContentBundle): Issue[] {
         issues.push({ file, message: `clue "${entity.id}": link target "${link.to}" does not exist` });
       }
       if (link.to === entity.id) issues.push({ file, message: `clue "${entity.id}": links to itself` });
+    }
+  }
+
+  // 4. Dialogues: compile (syntax, dead ends, unreachable nodes, known ids), then cross-file checks.
+  const clueIds = ids.clues;
+  const npcIds = ids.npcs;
+  const compiled: { file: string; dialogue: Dialogue }[] = [];
+  for (const { file, text } of bundle.dialogues) {
+    const id = file.replace(/^dialogue\//, "").replace(/\.qdl$/, "");
+    const { dialogue, errors } = compileDialogue(text, { id, knownClues: clueIds, knownNpcs: npcIds });
+    for (const e of errors) issues.push({ file, message: `line ${e.line}: ${e.message}` });
+    if (dialogue) {
+      compiled.push({ file, dialogue });
+      if (!npcIds.has(dialogue.npc)) issues.push({ file, message: `npc "${dialogue.npc}" is not defined in content/npcs` });
+    }
+  }
+
+  // Every clue a conversation is gated on must be obtainable somewhere: given by some dialogue, or
+  // sourced from something other than an NPC (a terminal, a document, a pickup).
+  const given = new Set<string>();
+  for (const { dialogue } of compiled) for (const c of cluesGiven(dialogue)) given.add(c);
+  const clueSource = new Map(entities.clues.map(({ entity }) => [entity.id, String(entity.source)]));
+  for (const { file, dialogue } of compiled) {
+    for (const { clue, where } of clueGates(dialogue)) {
+      const source = clueSource.get(clue);
+      if (source === undefined) continue; // unknown clue: already reported by the compiler
+      if (!given.has(clue) && source.startsWith("npc:")) {
+        issues.push({ file, message: `${where} needs clue "${clue}", but no conversation ever gives it (source ${source})` });
+      }
+    }
+  }
+
+  // Map NPCs must point at a real conversation and a real npc.
+  const dialogueIds = new Set(compiled.map((c) => c.dialogue.id));
+  for (const { file, map } of mapData) {
+    for (const n of map.npcs) {
+      if (!npcIds.has(n.id)) issues.push({ file, message: `npc "${n.id}" is not defined in content/npcs` });
+      if (!dialogueIds.has(n.dialogue)) issues.push({ file, message: `npc "${n.id}" uses unknown dialogue "${n.dialogue}"` });
     }
   }
 

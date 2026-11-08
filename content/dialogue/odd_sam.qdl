@@ -1,0 +1,67 @@
+// Odd Sam, fixer and fence in the Stacks. Vertical-slice conversation: he sells and trades information.
+// Demonstrates: clue-gated options, buying a clue, and presenting clues whose reliability Sam can judge.
+npc: odd_sam
+name: Odd Sam
+start: return_visit [flag:met_sam]
+start: first_meeting
+
+node: first_meeting
+  on_enter: {flag:met_sam}
+  odd_sam (wry): "New face. No band worth reading, and yet here you are. Everything I sell is a bargain relative to inflation, which is ongoing."
+  > "What do you sell?" -> wares
+  > "Never mind." -> goodbye
+
+node: return_visit
+  odd_sam (amused): "Back again. My prices haven't moved. Prices only move one way."
+  > "What do you sell?" -> wares
+  > [clue:pump4_shift] "I heard the night shift at Pump 4 leaves the side door unlocked." -> pump4_claim
+  > "I have something to show you." -> show
+  > "Goodbye." -> goodbye
+
+node: wares
+  odd_sam: "Rumours, mostly. The Pump 4 night shift, for twenty credits. Or a free sample, if you don't mind it being stale."
+  > [credits>=20, !clue:pump4_shift] "Buy the Pump 4 rumour. (20 credits)" {-credits:20, +clue:pump4_shift(odd_sam)} -> sold
+  > [!clue:pump4_shift_old] "Take the free sample." {+clue:pump4_shift_old(odd_sam)} -> sample
+  > "Not now." -> return_visit
+
+node: sold
+  odd_sam (smug): "A pleasure. Remember, you never heard it from me."
+  > "Understood." -> return_visit
+
+node: sample
+  odd_sam (shrugging): "It was true once. That is the most anyone can say for most information."
+  > "Thanks." -> return_visit
+
+node: pump4_claim
+  odd_sam (sharp): "Is that so. Then you know my price was fair. Show it to me properly and I will tell you if it holds up."
+  > "Show him." -> show
+  > "Maybe later." -> return_visit
+
+node: show
+  odd_sam: "Let me see it."
+  present:
+    pump4_shift [reliability:true, !verified:pump4_shift] {verify:pump4_shift, +credits:15} -> confirmed
+    pump4_shift [verified:pump4_shift] -> already
+    pump4_shift_old [reliability:outdated] {disprove:pump4_shift_old} -> stale
+    * -> shrug
+  > "Never mind." -> return_visit
+
+node: confirmed
+  odd_sam (impressed): "That matches what I have. Here, for the confirmation."
+  > "Pleasure doing business." -> return_visit
+
+node: already
+  odd_sam: "You have shown me that one. I do not pay twice for the same truth."
+  > "Fair enough." -> return_visit
+
+node: stale
+  odd_sam (kind): "Stale. The night crew changed their habits last winter. Cross that one out."
+  > "Noted." -> return_visit
+
+node: shrug
+  odd_sam (shrugging): "Interesting. And entirely useless to me."
+  > "Fair enough." -> return_visit
+
+node: goodbye
+  odd_sam: "Mind the Wardens. They are very thorough about people with nothing to declare."
+  end

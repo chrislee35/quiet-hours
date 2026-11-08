@@ -16,3 +16,6 @@ export * from "./robots.ts";
 export * from "./vision.ts";
 export * from "./rules.ts";
 export * from "./processing.ts";
+export * from "./dialogue/compile.ts";
+export * from "./dialogue/runtime.ts";
+export * from "./dialogue/types.ts";

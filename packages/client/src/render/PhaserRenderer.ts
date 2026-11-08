@@ -181,6 +181,31 @@ class QuietScene extends Phaser.Scene {
         c.fillRect(0, 0, TILE, TILE);
       },
     );
+    canvasTexture(
+      this,
+      "npc",
+      TILE,
+      (c) => {
+        c.fillStyle = "#6fb7ff";
+        c.beginPath();
+        c.arc(TILE / 2, TILE / 2, 10, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = "#10121c";
+        c.fillRect(TILE / 2 - 5, TILE / 2 - 3, 3, 3);
+        c.fillRect(TILE / 2 + 2, TILE / 2 - 3, 3, 3);
+      },
+      (c) => {
+        c.fillStyle = FLAT;
+        c.fillRect(0, 0, TILE, TILE);
+      },
+    );
+    for (const n of this.sim.world.npcs) {
+      this.add.image((n.x + 0.5) * TILE, (n.y + 0.5) * TILE, "npc").setLighting(true).setDepth(8);
+      this.add
+        .text((n.x + 0.5) * TILE, n.y * TILE - 4, n.id.replace(/_/g, " "), { fontFamily: "monospace", fontSize: "10px", color: "#9fd0ff" })
+        .setOrigin(0.5, 1)
+        .setDepth(60);
+    }
     for (const r of this.sim.state.robots) {
       this.robotSprites.set(r.id, this.add.image(0, 0, "robot").setLighting(true).setDepth(9));
       this.prevRobots.set(r.id, { x: r.x, y: r.y });
@@ -286,7 +311,10 @@ class QuietScene extends Phaser.Scene {
       if (intent.dx !== 0 || intent.dy !== 0) this.facing = Math.atan2(intent.dy, intent.dx);
     }
 
-    const ticks = this.stepper.advance(delta);
+    // While a conversation is open the world is frozen (CORE-4): do not advance or queue world commands.
+    const talking = this.sim.state.conversation !== null;
+    if (talking) this.pending = [];
+    const ticks = this.stepper.advance(talking ? 0 : delta);
     for (let i = 0; i < ticks; i++) {
       this.prev = { x: this.sim.state.player.x, y: this.sim.state.player.y };
       for (const r of this.sim.state.robots) this.prevRobots.set(r.id, { x: r.x, y: r.y });
@@ -326,7 +354,7 @@ class QuietScene extends Phaser.Scene {
               : "") +
         `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}\n` +
         `zone: ${this.sim.state.player.zone ?? "none"}\n` +
-        `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use door/locker, Z zones`,
+        `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use/talk, N notebook, Z zones`,
     );
   }
 }

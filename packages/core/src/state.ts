@@ -35,6 +35,8 @@ export interface SimState {
   processingUntil: number;
   /** Items and credits confiscated by processing, recoverable at a locker. */
   locker: { credits: number; items: Record<string, number> };
+  /** Active conversation, if any. While set, the world is frozen (CORE-4). */
+  conversation: { dialogueId: string; node: string } | null;
   alert: {
     level: AlertLevel;
     /** Tick of the last sighting, raise, or decay step; decay counts out-of-sight time from here. */
@@ -127,6 +129,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
     arrestCount: 0,
     processingUntil: 0,
     locker: { credits: 0, items: {} },
+    conversation: null,
     alert: { level: 0 as AlertLevel, quietSince: 0, lastRaise: -1_000_000 },
     // Seeded from tick 0 so the starting window state never fires spurious transition events.
     windows: { curfew: t.isCurfew, quietHours: t.isQuietHours, day: t.day },

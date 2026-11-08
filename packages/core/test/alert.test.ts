@@ -1,7 +1,7 @@
 // covers: ALR-1, ALR-2
 import { describe, expect, it } from "vitest";
 import { alertSystem, createInitialState, type AlertLevel, type Ctx, type GameEvent, type SimState } from "../src/index.ts";
-import { OPEN_WORLD } from "../src/index.ts";
+import { EMPTY_CONTENT, OPEN_WORLD } from "../src/index.ts";
 import { config } from "./helpers.ts";
 
 const tps = config.sim.ticksPerSecond;
@@ -22,7 +22,7 @@ function setup(level: AlertLevel = 0, robotCount = 2) {
     state.tick = tick;
     state.robots.forEach((r) => (r.sees = o.sees ?? false));
     const tickEvents: GameEvent[] = o.spotted ? [{ type: "RobotSpotted", tick, robotId: "r0" }] : [];
-    const ctx: Ctx = { state, config, world: OPEN_WORLD, events: tickEvents, commands: [] };
+    const ctx: Ctx = { state, config, world: OPEN_WORLD, content: EMPTY_CONTENT, events: tickEvents, commands: [] };
     alertSystem(ctx);
     events.push(...tickEvents.filter((e) => e.type === "AlertChanged"));
     return state.alert.level;

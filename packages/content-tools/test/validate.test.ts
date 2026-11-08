@@ -87,4 +87,43 @@ describe("content validation", () => {
     );
     expect(missing.some((i) => i.file === "maps/empty.json" && i.message.includes('"collision"'))).toBe(true);
   });
+
+  it("validates dialogues: compile errors carry file and line; unknown references are caught", () => {
+    expect(fixture(() => {}).filter((i) => i.file.startsWith("dialogue/"))).toEqual([]);
+
+    const dead = fixture((d) => writeFileSync(join(d, "dialogue", "wren.qdl"), "npc: wren\nnode: a\n  wren: \"hi\"\n"));
+    expect(dead).toContainEqual({ file: "dialogue/wren.qdl", message: 'line 2: dead end: node "a" has no choices and no "end"' });
+
+    const unknownClue = fixture((d) =>
+      writeFileSync(join(d, "dialogue", "wren.qdl"), 'npc: wren\nnode: a\n  > [clue:ghost] "x" -> a\n  > "y" -> a\n'),
+    );
+    expect(unknownClue.map((i) => i.message)).toContain('line 3: unknown clue "ghost"');
+
+    const strangerNpc = fixture((d) => writeFileSync(join(d, "dialogue", "x.qdl"), 'npc: stranger\nnode: a\n  end\n'));
+    expect(strangerNpc.map((i) => i.message)).toContain('npc "stranger" is not defined in content/npcs');
+  });
+
+  it("flags a conversation gated on a clue that no conversation ever gives", () => {
+    const issues = fixture((d) => {
+      // wren's clue pump4_shift_old is sourced from odd_sam; remove the only conversation that gives it.
+      const path = join(d, "dialogue", "odd_sam.qdl");
+      const text = readFileSync(path, "utf8").replace('{+clue:pump4_shift_old(odd_sam)}', "{flag:took_sample}");
+      writeFileSync(path, text);
+    });
+    expect(issues.some((i) => i.message.includes('needs clue "pump4_shift_old", but no conversation ever gives it'))).toBe(true);
+  });
+
+  it("flags map NPCs that reference a missing dialogue or npc", () => {
+    const issues = fixture((d) => {
+      const path = join(d, "maps", "stacks_slice.json");
+      const m = JSON.parse(readFileSync(path, "utf8"));
+      const npc = m.layers[2].objects.find((o: { class: string }) => o.class === "npc");
+      npc.name = "nobody";
+      npc.properties[0].value = "missing_talk";
+      writeFileSync(path, JSON.stringify(m));
+    });
+    const msgs = issues.map((i) => i.message);
+    expect(msgs).toContain('npc "nobody" is not defined in content/npcs');
+    expect(msgs).toContain('npc "nobody" uses unknown dialogue "missing_talk"');
+  });
 });

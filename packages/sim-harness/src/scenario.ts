@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { Sim, gameTimeAt, type AlertLevel, type Command, type Config, type GameEvent, type GameTime, type RobotState, type World } from "@qh/core";
+import { Sim, gameTimeAt, type AlertLevel, type Command, type Config, type GameEvent, type GameTime, type RobotState, type World, type Content, type DialogueView } from "@qh/core";
 
 type Matcher<T> = Partial<T>;
 
@@ -13,9 +13,9 @@ export class Scenario {
   /** Every event emitted since construction (or the last clearEvents()). */
   events: GameEvent[] = [];
 
-  constructor(config: Config, seed = 1, world?: World) {
+  constructor(config: Config, seed = 1, world?: World, content?: Content) {
     this.config = config;
-    this.sim = new Sim(config, seed, world ? { world } : {});
+    this.sim = new Sim(config, seed, { ...(world ? { world } : {}), ...(content ? { content } : {}) });
   }
 
   // ---- setup ----------------------------------------------------------------------------
@@ -43,6 +43,19 @@ export class Scenario {
 
   get alert(): AlertLevel {
     return this.sim.state.alert.level;
+  }
+
+  /** The open dialogue window, or null. */
+  get dialogue(): DialogueView | null {
+    return this.sim.dialogue();
+  }
+
+  /** Choose the visible option whose text matches exactly (more readable than indexes in tests). */
+  say(text: string): this {
+    const view = this.dialogue;
+    const choice = view?.choices.find((c) => c.text === text);
+    if (!choice) throw new Error(`no visible choice "${text}"; visible: ${JSON.stringify(view?.choices.map((c) => c.text))}`);
+    return this.command({ type: "Choose", index: choice.index });
   }
 
   // ---- time -----------------------------------------------------------------------------

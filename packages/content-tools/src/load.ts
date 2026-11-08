@@ -38,5 +38,12 @@ export function loadContent(root: string): { bundle: ContentBundle; issues: Issu
         .map((f) => read(join(mapDir, f), `maps/${f}`))
         .filter((f): f is ContentFile => f !== undefined)
     : [];
-  return { bundle: { ...(config ? { config } : {}), maps, files }, issues };
+  const dialogueDir = join(root, "dialogue");
+  const dialogues = existsSync(dialogueDir)
+    ? readdirSync(dialogueDir)
+        .filter((f) => f.endsWith(".qdl"))
+        .sort()
+        .map((f) => ({ file: `dialogue/${f}`, text: readFileSync(join(dialogueDir, f), "utf8") }))
+    : [];
+  return { bundle: { ...(config ? { config } : {}), dialogues, maps, files }, issues };
 }

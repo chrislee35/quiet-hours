@@ -19,6 +19,17 @@ export interface MapData {
   robots: RobotDef[];
   routes: RouteDef[];
   lockers: LockerDef[];
+  npcs: NpcDef[];
+}
+
+/** A person the player can talk to. Standing still in v1; routines come with T2.8. */
+export interface NpcDef {
+  /** The npc's content id (also the dialogue `npc:` header). */
+  id: string;
+  x: number;
+  y: number;
+  /** Conversation (a compiled `.qdl`) started by Interact. */
+  dialogue: string;
 }
 
 /** Where items confiscated by processing can be recovered (FAIL-3). */
@@ -84,6 +95,7 @@ export interface World {
   routes: readonly RouteDef[];
   routeById: ReadonlyMap<string, RouteDef>;
   lockers: readonly LockerDef[];
+  npcs: readonly NpcDef[];
   doorByTile: ReadonlyMap<number, DoorDef>;
   doorById: ReadonlyMap<string, DoorDef>;
 }
@@ -103,6 +115,7 @@ export const OPEN_WORLD: World = {
   routes: [],
   routeById: new Map(),
   lockers: [],
+  npcs: [],
   doorByTile: new Map(),
   doorById: new Map(),
 };
@@ -176,6 +189,15 @@ export function buildWorld(data: MapData): World {
     else if (wall[tileKey(probe, l.x, l.y)]) errors.push(`locker "${l.id}" is inside a wall`);
   }
 
+  const npcIds = new Set<string>();
+  for (const n of data.npcs) {
+    if (npcIds.has(n.id)) errors.push(`duplicate npc id "${n.id}"`);
+    npcIds.add(n.id);
+    if (!inBounds(probe, n.x, n.y)) errors.push(`npc "${n.id}" is out of bounds`);
+    else if (wall[tileKey(probe, n.x, n.y)]) errors.push(`npc "${n.id}" is inside a wall`);
+    if (n.dialogue === "") errors.push(`npc "${n.id}" needs a dialogue`);
+  }
+
   const routeById = new Map<string, RouteDef>();
   for (const r of data.routes) {
     if (routeById.has(r.id)) errors.push(`duplicate route id "${r.id}"`);
@@ -214,6 +236,7 @@ export function buildWorld(data: MapData): World {
     routes: data.routes,
     routeById,
     lockers: data.lockers,
+    npcs: data.npcs,
     doorByTile,
     doorById,
   };

@@ -1,5 +1,7 @@
 import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
+import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
+import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { processingSystem } from "./processing.ts";
 import { applyEffects, type Effect } from "./rules.ts";
 import { gameTimeAt } from "./clock.ts";
@@ -22,6 +24,11 @@ export type Command =
   | { type: "Teleport"; x: number; y: number }
   /** Use the nearest interactable within reach: doors and lockers (CORE-5). */
   | { type: "Interact" }
+  /** Pick a visible dialogue option by its index in the current view (DLG-1). */
+  | { type: "Choose"; index: number }
+  /** Show the NPC a notebook clue (DLG-3). */
+  | { type: "Present"; clueId: string }
+  | { type: "EndConversation" }
   /** Run effects as if triggered by content (dialogue, quest scripts). Also used by scenarios to set up state. */
   | { type: "ApplyEffects"; effects: Effect[] };
 
@@ -33,21 +40,27 @@ export interface StepResult {
 
 // ---- Systems, in the documented update order (DESIGN §3.1) --------------------------------
 
-/** Nearest interactable (door or locker) within `reach` of the player; doors win ties. */
+/** Nearest interactable (door, locker, or person) within `reach` of the player; earlier kinds win ties. */
 function nearestInteractable(state: SimState, world: World, reach: number) {
-  let best: { kind: "door" | "locker"; id: string; x: number; y: number; d: number } | undefined;
-  const consider = (kind: "door" | "locker", id: string, x: number, y: number) => {
+  let best: { kind: "door" | "locker" | "npc"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
+  const consider = (kind: "door" | "locker" | "npc", id: string, x: number, y: number, dialogue?: string) => {
     const d = Math.hypot(x + 0.5 - state.player.x, y + 0.5 - state.player.y);
-    if (d <= reach && (best === undefined || d < best.d)) best = { kind, id, x, y, d };
+    if (d <= reach && (best === undefined || d < best.d)) best = { kind, id, x, y, d, ...(dialogue ? { dialogue } : {}) };
   };
   for (const door of world.doors) consider("door", door.id, door.x, door.y);
   for (const l of world.lockers) consider("locker", l.id, l.x, l.y);
+  for (const n of world.npcs) consider("npc", n.id, n.x, n.y, n.dialogue);
   return best;
 }
 
-function interact({ state, config, world, events }: Ctx): void {
+function interact(ctx: Ctx): void {
+  const { state, config, world, events } = ctx;
   const target = nearestInteractable(state, world, config.player.interactRadius);
   if (!target) return;
+  if (target.kind === "npc") {
+    if (target.dialogue) startConversation(ctx, target.dialogue);
+    return;
+  }
   if (target.kind === "locker") {
     const { items, credits } = state.locker;
     if (credits === 0 && Object.keys(items).length === 0) return;
@@ -177,13 +190,25 @@ export function step(
   commands: readonly Command[],
   config: Config,
   world: World = OPEN_WORLD,
+  content: Content = EMPTY_CONTENT,
 ): StepResult {
   const state = deepClone(prev);
   const events: GameEvent[] = [];
+  if (state.conversation) {
+    // Dialogue freezes the world: the clock, robots and player do not advance (CORE-4).
+    const ctx: Ctx = { state, config, world, content, events, commands };
+    for (const cmd of commands) {
+      if (cmd.type === "Choose") chooseOption(ctx, cmd.index);
+      else if (cmd.type === "Present") presentClue(ctx, cmd.clueId);
+      else if (cmd.type === "EndConversation") endConversation(ctx);
+      else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events);
+    }
+    return { state, events };
+  }
   // Advance the tick first: systems and emitted events all see the tick the new state will have,
   // so `state.tick` always matches the clock windows stored in that state.
   state.tick += 1;
-  const ctx: Ctx = { state, config, world, events, commands };
+  const ctx: Ctx = { state, config, world, content, events, commands };
   for (const system of SYSTEM_ORDER) system.run(ctx);
   return { state, events };
 }
@@ -195,11 +220,16 @@ export class Sim {
 
   readonly config: Config;
   readonly world: World;
+  readonly content: Content;
 
-  /** `initial` resumes from a saved state; `world` is the static level (default: unbounded open space). */
-  constructor(config: Config, seed: number, options: { world?: World; initial?: SimState } = {}) {
+  /**
+   * `initial` resumes from a saved state; `world` is the static level (default: unbounded open space);
+   * `content` holds compiled dialogues and clue definitions.
+   */
+  constructor(config: Config, seed: number, options: { world?: World; content?: Content; initial?: SimState } = {}) {
     this.config = config;
     this.world = options.world ?? OPEN_WORLD;
+    this.content = options.content ?? EMPTY_CONTENT;
     this.current = options.initial ?? createInitialState(seed, config, this.world);
   }
 
@@ -213,10 +243,20 @@ export class Sim {
 
   /** Advance exactly one tick. */
   tick(commands: readonly Command[] = []): GameEvent[] {
-    const { state, events } = step(this.current, commands, this.config, this.world);
+    const { state, events } = step(this.current, commands, this.config, this.world, this.content);
     this.current = state;
     this.bus.emit(events);
     return events;
+  }
+
+  /** The dialogue window's contents, or null when no conversation is active. */
+  dialogue(): DialogueView | null {
+    return dialogueView(this.current, this.content, this.config);
+  }
+
+  /** The notebook as the UI shows it (reliability hidden). */
+  notebook(): NotebookEntryView[] {
+    return notebookEntries(this.current, this.content);
   }
 
   /**

@@ -657,6 +657,26 @@
      "rotation": 0,
      "visible": true,
      "point": true
+    },
+    {
+     "id": 16,
+     "name": "odd_sam",
+     "type": "npc",
+     "class": "npc",
+     "x": 96,
+     "y": 96,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "odd_sam"
+      }
+     ]
     }
    ]
   }

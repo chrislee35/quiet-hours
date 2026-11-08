@@ -1,4 +1,4 @@
-import { ROBOT_KINDS, type DoorDef, type LockerDef, type MapData, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
+import { ROBOT_KINDS, type DoorDef, type LockerDef, type MapData, type NpcDef, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
 
 /**
  * Importer for maps authored in Tiled (https://www.mapeditor.org/), exported as JSON.
@@ -10,6 +10,7 @@ import { ROBOT_KINDS, type DoorDef, type LockerDef, type MapData, type RobotDef,
  *    `permission` (int, default 0). Later rectangles overwrite earlier ones.
  *  - Object layer "objects": points or rectangles whose Class/Type is "door" or "spawn",
  *    named with the entity id. Doors take bool properties `open` and `locked` (default false).
+ *    Class "npc": a person to talk to; Name is the npc id, string property `dialogue` is the conversation id.
  *    Class "locker": where confiscated items are recovered after processing.
  *    Class "robot": string `kind` (default "warden"), number `facing` in degrees (0 = east, 90 = south,
  *    default 0), optional string `route`. Class "waypoint": string `route`, number `order` (default:
@@ -109,6 +110,7 @@ export function importTiled(raw: unknown, id: string): MapData {
   const spawns: SpawnDef[] = [];
   const robots: RobotDef[] = [];
   const lockers: LockerDef[] = [];
+  const npcs: NpcDef[] = [];
   const waypoints = new Map<string, { order: number; seq: number; x: number; y: number }[]>();
   let seq = 0;
   for (const o of layer("objects", "objectgroup")?.objects ?? []) {
@@ -142,6 +144,13 @@ export function importTiled(raw: unknown, id: string): MapData {
     } else if (kind === "spawn") {
       // Spawns stand at the centre of their tile.
       spawns.push({ id: oid, x: tx + 0.5, y: ty + 0.5 });
+    } else if (kind === "npc") {
+      const dlg = prop(o, "dialogue");
+      if (typeof dlg !== "string" || dlg === "") {
+        errors.push(`npc "${oid}" needs a string property "dialogue"`);
+        continue;
+      }
+      npcs.push({ id: oid, x: tx, y: ty, dialogue: dlg });
     } else if (kind === "locker") {
       lockers.push({ id: oid, x: tx, y: ty });
     } else if (kind === "robot") {
@@ -161,7 +170,7 @@ export function importTiled(raw: unknown, id: string): MapData {
         route: typeof route === "string" && route !== "" ? route : null,
       });
     } else {
-      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, robot or waypoint)`);
+      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, robot or waypoint)`);
     }
   }
 
@@ -173,5 +182,5 @@ export function importTiled(raw: unknown, id: string): MapData {
     }));
 
   if (errors.length > 0) throw new TiledImportError(`map "${id}": ${errors.join("; ")}`);
-  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers };
+  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers, npcs };
 }

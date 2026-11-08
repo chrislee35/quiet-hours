@@ -39,6 +39,10 @@ export type GameEvent =
   | { type: "PlayerProcessed"; tick: number; arrestCount: number; items: Record<string, number>; credits: number }
   | { type: "PlayerReleased"; tick: number }
   | { type: "LockerOpened"; tick: number; lockerId: string; items: Record<string, number>; credits: number }
+  | { type: "ConversationStarted"; tick: number; dialogueId: string; npc: string }
+  | { type: "ConversationNode"; tick: number; dialogueId: string; node: string }
+  | { type: "ConversationEnded"; tick: number; dialogueId: string }
+  | { type: "CluePresented"; tick: number; clueId: string; npc: string }
   | { type: "DayChanged"; tick: number; day: number }
   | { type: "CurfewStarted"; tick: number }
   | { type: "CurfewEnded"; tick: number }
