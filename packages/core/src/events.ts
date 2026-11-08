@@ -1,5 +1,9 @@
 export type MoveMode = "walk" | "sneak" | "run";
 
+/** 0 Calm, 1 Suspicious, 2 Hunting, 3 Lockdown (ALR-1). */
+export type AlertLevel = 0 | 1 | 2 | 3;
+export const ALERT_NAMES = ["Calm", "Suspicious", "Hunting", "Lockdown"] as const;
+
 /** Everything the core tells the outside world. Clients render these; tests assert on them. */
 export type GameEvent =
   | { type: "NoiseEmitted"; tick: number; x: number; y: number; radius: number; source: "player" }
@@ -11,6 +15,13 @@ export type GameEvent =
   | { type: "DoorBlocked"; tick: number; doorId: string }
   | { type: "ZoneEntered"; tick: number; zone: string }
   | { type: "ZoneExited"; tick: number; zone: string }
+  | { type: "RobotSpotted"; tick: number; robotId: string }
+  /** A pursuing robot reached the last known position without seeing the player. */
+  | { type: "RobotLostTrack"; tick: number; robotId: string }
+  | { type: "RobotInvestigating"; tick: number; robotId: string; x: number; y: number }
+  /** A robot reached the player. Processing (soft failure) is handled by a later system. */
+  | { type: "PlayerCaught"; tick: number; robotId: string }
+  | { type: "AlertChanged"; tick: number; from: AlertLevel; to: AlertLevel }
   | { type: "DayChanged"; tick: number; day: number }
   | { type: "CurfewStarted"; tick: number }
   | { type: "CurfewEnded"; tick: number }

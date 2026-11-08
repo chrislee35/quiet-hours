@@ -11,6 +11,8 @@ const base = (over: Partial<MapData> = {}): MapData => ({
   zones: [{ id: "lab", requiredPermission: 2 }],
   doors: [],
   spawns: [{ id: "start", x: 1.5, y: 1.5 }],
+  robots: [],
+  routes: [],
   ...over,
 });
 

@@ -1,4 +1,4 @@
-import type { DoorDef, MapData, SpawnDef, ZoneDef } from "./world.ts";
+import { ROBOT_KINDS, type DoorDef, type MapData, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
 
 /**
  * Importer for maps authored in Tiled (https://www.mapeditor.org/), exported as JSON.
@@ -10,6 +10,9 @@ import type { DoorDef, MapData, SpawnDef, ZoneDef } from "./world.ts";
  *    `permission` (int, default 0). Later rectangles overwrite earlier ones.
  *  - Object layer "objects": points or rectangles whose Class/Type is "door" or "spawn",
  *    named with the entity id. Doors take bool properties `open` and `locked` (default false).
+ *    Class "robot": string `kind` (default "warden"), number `facing` in degrees (0 = east, 90 = south,
+ *    default 0), optional string `route`. Class "waypoint": string `route`, number `order` (default:
+ *    creation order); waypoints snap to tile centres and each route needs at least two.
  *  - Positions are pixels; they are divided by tilewidth/tileheight. Maps must be orthogonal.
  */
 
@@ -103,9 +106,29 @@ export function importTiled(raw: unknown, id: string): MapData {
 
   const doors: DoorDef[] = [];
   const spawns: SpawnDef[] = [];
+  const robots: RobotDef[] = [];
+  const waypoints = new Map<string, { order: number; seq: number; x: number; y: number }[]>();
+  let seq = 0;
   for (const o of layer("objects", "objectgroup")?.objects ?? []) {
     const kind = o.class ?? o.type ?? "";
     const oid = o.name ?? "";
+    if (kind === "waypoint") {
+      const route = prop(o, "route");
+      if (typeof route !== "string" || route === "") {
+        errors.push(`waypoint at pixel (${o.x}, ${o.y}) has no string property "route"`);
+        continue;
+      }
+      const order = prop(o, "order");
+      const list = waypoints.get(route) ?? [];
+      list.push({
+        order: typeof order === "number" ? order : Number.MAX_SAFE_INTEGER,
+        seq: seq++,
+        x: Math.floor(o.x / tilewidth) + 0.5,
+        y: Math.floor(o.y / tileheight) + 0.5,
+      });
+      waypoints.set(route, list);
+      continue;
+    }
     if (oid === "") {
       errors.push(`${kind || "object"} at pixel (${o.x}, ${o.y}) needs a name (its id)`);
       continue;
@@ -117,11 +140,34 @@ export function importTiled(raw: unknown, id: string): MapData {
     } else if (kind === "spawn") {
       // Spawns stand at the centre of their tile.
       spawns.push({ id: oid, x: tx + 0.5, y: ty + 0.5 });
+    } else if (kind === "robot") {
+      const rk = prop(o, "kind") ?? "warden";
+      if (typeof rk !== "string" || !ROBOT_KINDS.includes(rk as RobotKind)) {
+        errors.push(`robot "${oid}" has unknown kind "${String(rk)}"`);
+        continue;
+      }
+      const degrees = prop(o, "facing");
+      const route = prop(o, "route");
+      robots.push({
+        id: oid,
+        kind: rk as RobotKind,
+        x: tx + 0.5,
+        y: ty + 0.5,
+        facing: ((typeof degrees === "number" ? degrees : 0) * Math.PI) / 180,
+        route: typeof route === "string" && route !== "" ? route : null,
+      });
     } else {
-      errors.push(`object "${oid}" has unknown class "${kind}" (expected door or spawn)`);
+      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, robot or waypoint)`);
     }
   }
 
+  const routes: RouteDef[] = [...waypoints.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([rid, pts]) => ({
+      id: rid,
+      points: pts.sort((a, b) => a.order - b.order || a.seq - b.seq).map(({ x, y }) => ({ x, y })),
+    }));
+
   if (errors.length > 0) throw new TiledImportError(`map "${id}": ${errors.join("; ")}`);
-  return { id, width, height, collision, zoneGrid, zones, doors, spawns };
+  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes };
 }

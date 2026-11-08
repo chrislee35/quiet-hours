@@ -20,6 +20,7 @@ describe("sim step", () => {
       "clock",
       "npcs",
       "robot-perception",
+      "robot-behavior",
       "alert",
       "district-reactions",
     ]);

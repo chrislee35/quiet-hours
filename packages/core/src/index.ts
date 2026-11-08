@@ -9,3 +9,8 @@ export * from "./clone.ts";
 export * from "./movement.ts";
 export * from "./tiled.ts";
 export * from "./world.ts";
+export * from "./alert.ts";
+export * from "./ctx.ts";
+export * from "./pathfind.ts";
+export * from "./robots.ts";
+export * from "./vision.ts";

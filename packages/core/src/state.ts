@@ -1,6 +1,6 @@
 import { gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
-import type { MoveMode } from "./events.ts";
+import type { AlertLevel, MoveMode } from "./events.ts";
 import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type DoorState, type World } from "./world.ts";
 
 export const STATE_VERSION = 1;
@@ -21,8 +21,47 @@ export interface SimState {
   };
   /** Runtime state of every door, keyed by door id. */
   doors: Record<string, DoorState>;
+  robots: RobotState[];
+  alert: {
+    level: AlertLevel;
+    /** Tick of the last sighting, raise, or decay step; decay counts out-of-sight time from here. */
+    quietSince: number;
+    /** Tick of the last sighting-driven raise (for the cooldown). */
+    lastRaise: number;
+  };
   /** Window flags from the previous tick, used to emit transition events. */
   windows: { curfew: boolean; quietHours: boolean; day: number };
+}
+
+export type RobotMode = "patrol" | "investigate" | "chase" | "search";
+
+export interface RobotState {
+  id: string;
+  kind: "warden";
+  x: number;
+  y: number;
+  facing: number;
+  mode: RobotMode;
+  route: string | null;
+  /** Index of the waypoint currently being walked to. */
+  routeIndex: number;
+  /** Where the robot is heading in investigate/chase/search modes (last known player position). */
+  target: { x: number; y: number } | null;
+  /** Remaining waypoints (tile centres) to the current goal. */
+  path: { x: number; y: number }[];
+  /** Tile the current path leads to; used to know when to re-plan. */
+  pathGoal: { x: number; y: number } | null;
+  /** True once an investigate/search target has been reached and the robot is looking around. */
+  arrived: boolean;
+  /** Ticks left pausing at a waypoint or looking around. */
+  dwell: number;
+  dwellTotal: number;
+  /** Facing when the look-around began; the sweep oscillates around it. */
+  lookBase: number;
+  /** 0..1; reaching 1 means the robot has identified the player. */
+  suspicion: number;
+  /** Whether the player was visible to this robot on the latest tick. */
+  sees: boolean;
 }
 
 export function createInitialState(seed: number, config: Config, world: World = OPEN_WORLD): SimState {
@@ -42,6 +81,26 @@ export function createInitialState(seed: number, config: Config, world: World = 
       zone: zoneAt(world, Math.floor(x), Math.floor(y))?.id ?? null,
     },
     doors: initialDoorStates(world),
+    robots: world.robots.map((r) => ({
+      id: r.id,
+      kind: r.kind,
+      x: r.x,
+      y: r.y,
+      facing: r.facing,
+      mode: "patrol" as const,
+      route: r.route,
+      routeIndex: 0,
+      target: null,
+      path: [],
+      pathGoal: null,
+      arrived: false,
+      dwell: 0,
+      dwellTotal: 0,
+      lookBase: r.facing,
+      suspicion: 0,
+      sees: false,
+    })),
+    alert: { level: 0 as AlertLevel, quietSince: 0, lastRaise: -1_000_000 },
     // Seeded from tick 0 so the starting window state never fires spurious transition events.
     windows: { curfew: t.isCurfew, quietHours: t.isQuietHours, day: t.day },
   };

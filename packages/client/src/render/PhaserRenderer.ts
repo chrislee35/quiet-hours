@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { formatTime, gameTimeAt, zoneAt, type Command, type Sim } from "@qh/core";
+import { ALERT_NAMES, formatTime, gameTimeAt, isSolid, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
 import { FixedStepper } from "../loop.ts";
 import { DEFAULT_KEYS, intentFromActions, sameIntent, type HeldActions, type MoveIntent } from "../input.ts";
 import type { Renderer } from "./Renderer.ts";
@@ -30,6 +30,13 @@ function canvasTexture(
 
 const FLAT = "rgb(128,128,255)";
 
+const MODE_COLOR: Record<RobotMode, number> = {
+  patrol: 0xffd36b,
+  investigate: 0xff9a3c,
+  search: 0xff9a3c,
+  chase: 0xff3355,
+};
+
 class QuietScene extends Phaser.Scene {
   private readonly sim: Sim;
   private stepper!: FixedStepper;
@@ -43,6 +50,10 @@ class QuietScene extends Phaser.Scene {
   private prev = { x: 0, y: 0 };
   private doorSprites = new Map<string, Phaser.GameObjects.Image>();
   private zoneLayer!: Phaser.GameObjects.Graphics;
+  private robotSprites = new Map<string, Phaser.GameObjects.Image>();
+  private prevRobots = new Map<string, { x: number; y: number }>();
+  private cones!: Phaser.GameObjects.Graphics;
+  private caughtUntil = 0;
 
   constructor(sim: Sim) {
     super("quiet");
@@ -148,6 +159,35 @@ class QuietScene extends Phaser.Scene {
       this.doorSprites.set(door.id, img);
     }
 
+    canvasTexture(
+      this,
+      "robot",
+      TILE,
+      (c) => {
+        c.fillStyle = "#c9ccd8";
+        c.beginPath();
+        c.moveTo(TILE / 2 + 11, TILE / 2); // nose points east (angle 0)
+        c.lineTo(TILE / 2 - 8, TILE / 2 - 9);
+        c.lineTo(TILE / 2 - 8, TILE / 2 + 9);
+        c.closePath();
+        c.fill();
+        c.fillStyle = "#e23d4d";
+        c.fillRect(TILE / 2 + 3, TILE / 2 - 1.5, 4, 3);
+      },
+      (c) => {
+        c.fillStyle = FLAT;
+        c.fillRect(0, 0, TILE, TILE);
+      },
+    );
+    for (const r of this.sim.state.robots) {
+      this.robotSprites.set(r.id, this.add.image(0, 0, "robot").setLighting(true).setDepth(9));
+      this.prevRobots.set(r.id, { x: r.x, y: r.y });
+    }
+    this.cones = this.add.graphics().setDepth(40);
+    this.sim.bus.subscribe((e) => {
+      if (e.type === "PlayerCaught") this.caughtUntil = this.time.now + 2500;
+    });
+
     // Zone overlay (press Z to toggle): teal = public, amber/red = restricted by required permission.
     this.zoneLayer = this.add.graphics().setDepth(50);
     for (let y = 0; y < world.height; y++) {
@@ -196,6 +236,44 @@ class QuietScene extends Phaser.Scene {
     }
   }
 
+  /** Robot sprites, occluded vision cones, and suspicion bars. */
+  private drawRobots(alpha: number): void {
+    const { state, config, world } = this.sim;
+    const vis = config.vision;
+    const half = (vis.coneDegrees * Math.PI) / 360;
+    const rays = 28;
+    this.cones.clear();
+    for (const r of state.robots) {
+      const prev = this.prevRobots.get(r.id) ?? r;
+      const x = (prev.x + (r.x - prev.x) * alpha) * TILE;
+      const y = (prev.y + (r.y - prev.y) * alpha) * TILE;
+      this.robotSprites.get(r.id)?.setPosition(x, y).setRotation(r.facing);
+
+      // Cone polygon: march each ray until it meets a wall or closed door, so the shape is what the robot truly sees.
+      const pts: Phaser.Math.Vector2[] = [new Phaser.Math.Vector2(x, y)];
+      for (let i = 0; i <= rays; i++) {
+        const ang = r.facing - half + (2 * half * i) / rays;
+        let d = 0;
+        while (d < vis.rangeTiles) {
+          const nd = d + 0.2;
+          if (isSolid(world, state.doors, Math.floor(r.x + Math.cos(ang) * nd), Math.floor(r.y + Math.sin(ang) * nd))) break;
+          d = nd;
+        }
+        pts.push(new Phaser.Math.Vector2(x + Math.cos(ang) * d * TILE, y + Math.sin(ang) * d * TILE));
+      }
+      this.cones.fillStyle(MODE_COLOR[r.mode], 0.16 + 0.2 * r.suspicion);
+      this.cones.fillPoints(pts, true);
+
+      // Suspicion bar above the robot: fills as it becomes certain of the player.
+      if (r.suspicion > 0.01) {
+        this.cones.fillStyle(0x000000, 0.6);
+        this.cones.fillRect(x - 12, y - 22, 24, 4);
+        this.cones.fillStyle(r.suspicion >= 1 ? 0xff3355 : 0xffd36b, 1);
+        this.cones.fillRect(x - 12, y - 22, 24 * r.suspicion, 4);
+      }
+    }
+  }
+
   override update(_time: number, delta: number): void {
     const intent = intentFromActions(this.held);
     if (!sameIntent(intent, this.lastIntent)) {
@@ -207,6 +285,7 @@ class QuietScene extends Phaser.Scene {
     const ticks = this.stepper.advance(delta);
     for (let i = 0; i < ticks; i++) {
       this.prev = { x: this.sim.state.player.x, y: this.sim.state.player.y };
+      for (const r of this.sim.state.robots) this.prevRobots.set(r.id, { x: r.x, y: r.y });
       this.sim.tick(this.pending);
       this.pending = [];
     }
@@ -219,13 +298,17 @@ class QuietScene extends Phaser.Scene {
     this.player.setPosition(x, y);
     this.cone.setPosition(x, y).setConeRotation(this.facing);
 
+    this.drawRobots(a);
+
     for (const [id, sprite] of this.doorSprites) {
       sprite.setTexture(this.sim.state.doors[id]?.open ? "door_open" : "door_closed");
     }
 
     const t = gameTimeAt(this.sim.state.tick, this.sim.config);
+    const alert = ALERT_NAMES[this.sim.state.alert.level];
     this.hud.setText(
-      `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}\n` +
+      `ALERT: ${alert}${this.time.now < this.caughtUntil ? "   *** CAUGHT (processing arrives in T1.6) ***" : ""}\n` +
+        `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}\n` +
         `zone: ${this.sim.state.player.zone ?? "none"}\n` +
         `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use door, Z zones`,
     );

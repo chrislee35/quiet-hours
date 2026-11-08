@@ -21,7 +21,7 @@
 | T0.6 | `sim-harness`: scenario DSL (place entities, script commands, assert events). | NFR-10 | T0.3 | M | One example scenario runs in CI. |
 
 ## M1 — Vertical slice (one district)
-**Status:** T1.1 and T1.2 implemented (Tiled import, zones, doors, collision, noise only when actually moving); 77 tests green. Client renders the sample map with doors (E) and a zone overlay (Z); the visual result is pending maintainer review in a browser. Map format: `docs/maps.md`.
+**Status:** T1.1–T1.5 implemented; 136 tests green. Done: tile world, Tiled import, zones, doors, collision; vision cones with line of sight and a suspicion meter; Warden patrol/investigate/chase/search with A* pathfinding, door use and hearing (walls muffle sound); alert state machine with sighting cooldown and decay. Client shows the Warden, its occluded vision cone, a suspicion bar and the alert level; the visual result is pending maintainer review. Map format: `docs/maps.md`. Next: T1.6 (soft failure), T1.7–T1.9 (conditions, dialogue, terminal puzzle).
 Goal: concept §11.1. Uses a trimmed Stacks block.
 | ID | Task | Reqs | Dep | Size | Done when |
 |---|---|---|---|---|---|

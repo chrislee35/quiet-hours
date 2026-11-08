@@ -22,8 +22,8 @@ function recordSession() {
  * Golden hash: if this changes, simulation behavior changed. Intentional changes must update
  * the constant in the same commit and say why in the commit message.
  */
-// Updated for T1.1: state gained player.zone and doors, which changes the hash (behavior unchanged).
-const GOLDEN_HASH = "149fbaece972f4";
+// Updated for T1.1 (state gained player.zone, doors) and T1.3-T1.5 (robots, alert): the hash changes when state shape does.
+const GOLDEN_HASH = "16560da60ef614";
 
 describe("Replay", () => {
   it("replaying a recording reproduces the final state hash", () => {

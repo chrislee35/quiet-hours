@@ -1,5 +1,8 @@
 import { deepClone } from "./clone.ts";
+import { alertSystem } from "./alert.ts";
 import { gameTimeAt } from "./clock.ts";
+import type { Ctx, System } from "./ctx.ts";
+import { robotBehavior, robotPerception } from "./robots.ts";
 import type { Config } from "./config.ts";
 import { EventBus, type GameEvent } from "./events.ts";
 import { stateHash } from "./hash.ts";
@@ -23,15 +26,6 @@ export interface StepResult {
   events: GameEvent[];
 }
 
-interface Ctx {
-  state: SimState;
-  config: Config;
-  world: World;
-  events: GameEvent[];
-  commands: readonly Command[];
-}
-
-type System = (ctx: Ctx) => void;
 
 // ---- Systems, in the documented update order (DESIGN §3.1) --------------------------------
 
@@ -143,8 +137,9 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "zones", run: trackZone },
   { name: "clock", run: advanceClock },
   { name: "npcs", run: notYet },
-  { name: "robot-perception", run: notYet },
-  { name: "alert", run: notYet },
+  { name: "robot-perception", run: robotPerception },
+  { name: "robot-behavior", run: robotBehavior },
+  { name: "alert", run: alertSystem },
   { name: "district-reactions", run: notYet },
 ];
 
@@ -199,6 +194,16 @@ export class Sim {
     this.current = state;
     this.bus.emit(events);
     return events;
+  }
+
+  /**
+   * Escape hatch for tests and the debug overlay ("scenario teleport", TESTING §12): edit state directly.
+   * Gameplay code must never call this; it bypasses commands and events.
+   */
+  edit(fn: (state: SimState) => void): void {
+    const copy = deepClone(this.current);
+    fn(copy);
+    this.current = copy;
   }
 
   /** Deep copy for rendering or saving; callers cannot mutate sim state through it. */

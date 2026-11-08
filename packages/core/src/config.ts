@@ -23,9 +23,37 @@ export interface Config {
     /** How far (tiles) the Interact action reaches. */
     interactRadius: number;
   };
-  noise: { walkRadius: number; sneakRadius: number; runRadius: number };
-  alert: { decaySeconds: number };
-  vision: { coneDegrees: number; rangeTiles: number; checkerRangeTiles: number };
+  noise: {
+    walkRadius: number;
+    sneakRadius: number;
+    runRadius: number;
+    /** Multiplier on hearing radius when walls block the straight line to the listener. */
+    occludedFactor: number;
+  };
+  alert: {
+    /** Out-of-sight seconds per one-step decay. */
+    decaySeconds: number;
+    /** Minimum seconds between sighting-driven raises, so a pair of robots cannot jump straight to Lockdown. */
+    sightingCooldownSeconds: number;
+  };
+  vision: {
+    coneDegrees: number;
+    rangeTiles: number;
+    checkerRangeTiles: number;
+    /** Suspicion (0..1) gained per second at point-blank range in the cone. */
+    suspicionGainPerSecond: number;
+    suspicionDecayPerSecond: number;
+    /** Fraction of the gain lost at maximum range (0 = distance does not matter). */
+    proximityFalloff: number;
+  };
+  warden: {
+    patrolSpeed: number;
+    chaseSpeed: number;
+    waypointPauseSeconds: number;
+    investigateSeconds: number;
+    searchSeconds: number;
+    catchRadius: number;
+  };
 }
 
 type Shape = { [key: string]: Shape | "number" };
@@ -42,9 +70,24 @@ const SHAPE: Shape = {
     quietHoursEndMinute: "number",
   },
   player: { walkSpeed: "number", sneakSpeed: "number", runSpeed: "number", radius: "number", interactRadius: "number" },
-  noise: { walkRadius: "number", sneakRadius: "number", runRadius: "number" },
-  alert: { decaySeconds: "number" },
-  vision: { coneDegrees: "number", rangeTiles: "number", checkerRangeTiles: "number" },
+  noise: { walkRadius: "number", sneakRadius: "number", runRadius: "number", occludedFactor: "number" },
+  alert: { decaySeconds: "number", sightingCooldownSeconds: "number" },
+  vision: {
+    coneDegrees: "number",
+    rangeTiles: "number",
+    checkerRangeTiles: "number",
+    suspicionGainPerSecond: "number",
+    suspicionDecayPerSecond: "number",
+    proximityFalloff: "number",
+  },
+  warden: {
+    patrolSpeed: "number",
+    chaseSpeed: "number",
+    waypointPauseSeconds: "number",
+    investigateSeconds: "number",
+    searchSeconds: "number",
+    catchRadius: "number",
+  },
 };
 
 export class ConfigError extends Error {}

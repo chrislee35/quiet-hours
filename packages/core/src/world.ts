@@ -16,6 +16,29 @@ export interface MapData {
   zones: ZoneDef[];
   doors: DoorDef[];
   spawns: SpawnDef[];
+  robots: RobotDef[];
+  routes: RouteDef[];
+}
+
+export type RobotKind = "warden";
+export const ROBOT_KINDS: readonly RobotKind[] = ["warden"];
+
+export interface RobotDef {
+  id: string;
+  kind: RobotKind;
+  /** Start position at a tile centre, in tile units. */
+  x: number;
+  y: number;
+  /** Radians; 0 faces east (+x), pi/2 faces south (+y). */
+  facing: number;
+  /** Patrol route id; a robot without one stands guard. */
+  route: string | null;
+}
+
+export interface RouteDef {
+  id: string;
+  /** Waypoints at tile centres, visited in order and looped. */
+  points: { x: number; y: number }[];
 }
 
 export interface ZoneDef {
@@ -49,6 +72,9 @@ export interface World {
   zones: readonly ZoneDef[];
   doors: readonly DoorDef[];
   spawns: readonly SpawnDef[];
+  robots: readonly RobotDef[];
+  routes: readonly RouteDef[];
+  routeById: ReadonlyMap<string, RouteDef>;
   doorByTile: ReadonlyMap<number, DoorDef>;
   doorById: ReadonlyMap<string, DoorDef>;
 }
@@ -64,6 +90,9 @@ export const OPEN_WORLD: World = {
   zones: [],
   doors: [],
   spawns: [],
+  robots: [],
+  routes: [],
+  routeById: new Map(),
   doorByTile: new Map(),
   doorById: new Map(),
 };
@@ -129,6 +158,30 @@ export function buildWorld(data: MapData): World {
     }
   }
 
+  const routeById = new Map<string, RouteDef>();
+  for (const r of data.routes) {
+    if (routeById.has(r.id)) errors.push(`duplicate route id "${r.id}"`);
+    routeById.set(r.id, r);
+    if (r.points.length < 2) errors.push(`route "${r.id}" needs at least 2 waypoints`);
+    for (const pt of r.points) {
+      const tx = Math.floor(pt.x);
+      const ty = Math.floor(pt.y);
+      if (!inBounds(probe, tx, ty)) errors.push(`route "${r.id}" waypoint (${pt.x}, ${pt.y}) is out of bounds`);
+      else if (wall[tileKey(probe, tx, ty)]) errors.push(`route "${r.id}" waypoint (${pt.x}, ${pt.y}) is inside a wall`);
+    }
+  }
+  const robotIds = new Set<string>();
+  for (const r of data.robots) {
+    if (robotIds.has(r.id)) errors.push(`duplicate robot id "${r.id}"`);
+    robotIds.add(r.id);
+    if (!ROBOT_KINDS.includes(r.kind)) errors.push(`robot "${r.id}" has unknown kind "${String(r.kind)}"`);
+    const tx = Math.floor(r.x);
+    const ty = Math.floor(r.y);
+    if (!inBounds(probe, tx, ty)) errors.push(`robot "${r.id}" is out of bounds`);
+    else if (wall[tileKey(probe, tx, ty)]) errors.push(`robot "${r.id}" is inside a wall`);
+    if (r.route !== null && !routeById.has(r.route)) errors.push(`robot "${r.id}" uses unknown route "${r.route}"`);
+  }
+
   if (errors.length > 0) throw new WorldError(`map "${data.id}": ${errors.join("; ")}`);
   return {
     id: data.id,
@@ -139,6 +192,9 @@ export function buildWorld(data: MapData): World {
     zones: data.zones,
     doors: data.doors,
     spawns: data.spawns,
+    robots: data.robots,
+    routes: data.routes,
+    routeById,
     doorByTile,
     doorById,
   };

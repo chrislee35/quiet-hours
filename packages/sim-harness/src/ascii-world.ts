@@ -1,4 +1,4 @@
-import { buildWorld, type DoorDef, type MapData, type SpawnDef, type World, type ZoneDef } from "@qh/core";
+import { buildWorld, type DoorDef, type MapData, type RobotDef, type RouteDef, type SpawnDef, type World, type ZoneDef } from "@qh/core";
 
 export interface AsciiZone extends ZoneDef {
   /** Tile rectangle (inclusive-exclusive): x, y, width, height. */
@@ -9,9 +9,14 @@ export interface AsciiZone extends ZoneDef {
  * Build a tiny World from ASCII art for scenarios.
  *   #  wall        .  floor        S  spawn "start" (floor)
  *   D  closed door  O  open door    L  locked door
- * Doors are named door_<x>_<y>. Zones are painted from rectangles, later ones overwriting earlier ones.
+ * Doors are named door_<x>_<y>. Robots and patrol routes are passed in `extras` (tile-centre coordinates). Zones are painted from rectangles, later ones overwriting earlier ones.
  */
-export function asciiWorld(rows: string[], zones: AsciiZone[] = [], id = "ascii"): World {
+export function asciiWorld(
+  rows: string[],
+  zones: AsciiZone[] = [],
+  extras: { id?: string; robots?: RobotDef[]; routes?: RouteDef[] } = {},
+): World {
+  const id = extras.id ?? "ascii";
   const height = rows.length;
   const width = rows[0]?.length ?? 0;
   const collision: number[] = [];
@@ -44,6 +49,8 @@ export function asciiWorld(rows: string[], zones: AsciiZone[] = [], id = "ascii"
     zones: zones.map(({ id: zid, requiredPermission }) => ({ id: zid, requiredPermission })),
     doors,
     spawns,
+    robots: extras.robots ?? [],
+    routes: extras.routes ?? [],
   };
   return buildWorld(data);
 }

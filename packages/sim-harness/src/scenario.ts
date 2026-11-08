@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { Sim, gameTimeAt, type Command, type Config, type GameEvent, type GameTime, type World } from "@qh/core";
+import { Sim, gameTimeAt, type AlertLevel, type Command, type Config, type GameEvent, type GameTime, type RobotState, type World } from "@qh/core";
 
 type Matcher<T> = Partial<T>;
 
@@ -27,6 +27,22 @@ export class Scenario {
   command(cmd: Command): this {
     this.events.push(...this.sim.tick([cmd]));
     return this;
+  }
+
+  /** Directly edit state (test setup only), e.g. put a robot into chase mode. */
+  edit(fn: Parameters<Sim["edit"]>[0]): this {
+    this.sim.edit(fn);
+    return this;
+  }
+
+  robot(id: string): RobotState {
+    const r = this.sim.state.robots.find((x) => x.id === id);
+    if (!r) throw new Error(`no robot "${id}"`);
+    return r;
+  }
+
+  get alert(): AlertLevel {
+    return this.sim.state.alert.level;
   }
 
   // ---- time -----------------------------------------------------------------------------
@@ -78,6 +94,11 @@ export class Scenario {
 
   expectNoEvent(type: GameEvent["type"]): this {
     assert.equal(this.eventsOfType(type).length, 0, `unexpected event ${type}`);
+    return this;
+  }
+
+  expectAlert(level: AlertLevel): this {
+    assert.equal(this.alert, level, `alert level ${this.alert}, expected ${level}`);
     return this;
   }
 
