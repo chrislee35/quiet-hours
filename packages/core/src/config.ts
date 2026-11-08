@@ -1,8 +1,46 @@
 import { deepClone } from "./clone.ts";
+import { ROBOT_KINDS, type RobotKind } from "./world.ts";
+
 /**
  * Tuning configuration (NFR-8). The core never reads files: callers inject a Config.
  * The canonical values live in content/config/tuning.json.
  */
+export interface RobotProfile {
+  /** Vision cone width and reach. */
+  coneDegrees: number;
+  rangeTiles: number;
+  /** Multiplier on how fast this robot builds suspicion. */
+  gainFactor: number;
+  /** Multiplier on how far it hears footsteps. */
+  hearingFactor: number;
+  /** Tiles per second; 0 means the robot never moves from its post. */
+  patrolSpeed: number;
+  chaseSpeed: number;
+  catchRadius: number;
+  pauseSeconds: number;
+  investigateSeconds: number;
+  searchSeconds: number;
+  /** Idle scan: the robot sweeps its view this many degrees either side of its post facing (0 = fixed). */
+  sweepDegrees: number;
+  /** Robots that cannot chase raise the alarm and watch instead. */
+  canChase: boolean;
+  /** Thorough scans detect forged passes. */
+  thorough: boolean;
+  /** Checkers: seconds a "pending review" (null) scan stalls them, repeating for as long as the player stays in view. */
+  reviewSeconds: number;
+  /** Auditors: random audits happen only within this distance. */
+  checkRangeTiles: number;
+  checkChancePerSecond: number;
+  /** Multiplier on audit chance during Quiet Hours. */
+  quietHoursCheckFactor: number;
+  /** Seconds an audit takes (and the pause before the next). */
+  auditSeconds: number;
+  /** While chasing, keeps re-targeting the footsteps it can hear (Hounds follow a runner by sound). */
+  tracksNoise: boolean;
+  /** Hounds: the alert level (1-3) at which this robot is dispatched to hunt; 0 = never. */
+  dispatchAlert: number;
+}
+
 export interface Config {
   sim: { ticksPerSecond: number };
   clock: {
@@ -37,9 +75,6 @@ export interface Config {
     sightingCooldownSeconds: number;
   };
   vision: {
-    coneDegrees: number;
-    rangeTiles: number;
-    checkerRangeTiles: number;
     /** Suspicion (0..1) gained per second at point-blank range in the cone. */
     suspicionGainPerSecond: number;
     suspicionDecayPerSecond: number;
@@ -74,17 +109,20 @@ export interface Config {
     /** Alert level (0-3) the city is at least raised to after processing: the setback (FAIL-2). */
     alertAfterProcessing: number;
   };
-  warden: {
-    patrolSpeed: number;
-    chaseSpeed: number;
-    waypointPauseSeconds: number;
-    investigateSeconds: number;
-    searchSeconds: number;
-    catchRadius: number;
-  };
+  /** One behaviour profile per robot type (ROB-3): how it sees, moves, and what it can do. */
+  robots: Record<RobotKind, RobotProfile>;
+
 }
 
-type Shape = { [key: string]: Shape | "number" };
+type Shape = { [key: string]: Shape | "number" | "boolean" };
+
+const PROFILE_SHAPE: Shape = {
+  coneDegrees: "number", rangeTiles: "number", gainFactor: "number", hearingFactor: "number",
+  patrolSpeed: "number", chaseSpeed: "number", catchRadius: "number", pauseSeconds: "number",
+  investigateSeconds: "number", searchSeconds: "number", sweepDegrees: "number",
+  canChase: "boolean", thorough: "boolean", tracksNoise: "boolean", reviewSeconds: "number", checkRangeTiles: "number",
+  checkChancePerSecond: "number", quietHoursCheckFactor: "number", auditSeconds: "number", dispatchAlert: "number",
+};
 
 const SHAPE: Shape = {
   sim: { ticksPerSecond: "number" },
@@ -101,9 +139,6 @@ const SHAPE: Shape = {
   noise: { walkRadius: "number", sneakRadius: "number", runRadius: "number", occludedFactor: "number" },
   alert: { decaySeconds: "number", sightingCooldownSeconds: "number" },
   vision: {
-    coneDegrees: "number",
-    rangeTiles: "number",
-    checkerRangeTiles: "number",
     suspicionGainPerSecond: "number",
     suspicionDecayPerSecond: "number",
     sneakGainFactor: "number",
@@ -119,14 +154,7 @@ const SHAPE: Shape = {
     enforcerThreshold: "number",
   },
   failure: { holdSeconds: "number", alertAfterProcessing: "number" },
-  warden: {
-    patrolSpeed: "number",
-    chaseSpeed: "number",
-    waypointPauseSeconds: "number",
-    investigateSeconds: "number",
-    searchSeconds: "number",
-    catchRadius: "number",
-  },
+  robots: Object.fromEntries(ROBOT_KINDS.map((k) => [k, PROFILE_SHAPE])) as Shape,
 };
 
 export class ConfigError extends Error {}
@@ -144,6 +172,8 @@ function check(value: unknown, shape: Shape, path: string, errors: string[]): vo
       if (typeof actual !== "number" || !Number.isFinite(actual)) {
         errors.push(`${here}: expected a finite number`);
       }
+    } else if (expected === "boolean") {
+      if (typeof actual !== "boolean") errors.push(`${here}: expected true or false`);
     } else {
       check(actual, expected, here, errors);
     }

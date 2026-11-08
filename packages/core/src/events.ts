@@ -26,6 +26,12 @@ export type GameEvent =
   | { type: "RobotLostTrack"; tick: number; robotId: string }
   | { type: "RobotInvestigating"; tick: number; robotId: string; x: number; y: number }
   /** A robot reached the player. Processing (soft failure) is handled by a later system. */
+  /** An ID check completed. `Null` means "pending review"; see identity.ts. */
+  | { type: "ScanPerformed"; tick: number; robotId: string; outcome: "Allowed" | "Null" | "Violation" | "Expired" }
+  | { type: "AuditPassed"; tick: number; robotId: string }
+  | { type: "AuditFailed"; tick: number; robotId: string; reason: string }
+  /** A Hound was sent to hunt because the alert reached its dispatch level. */
+  | { type: "HoundDispatched"; tick: number; robotId: string }
   | { type: "PlayerCaught"; tick: number; robotId: string }
   | { type: "AlertChanged"; tick: number; from: AlertLevel; to: AlertLevel }
   | { type: "ClueGained"; tick: number; clueId: string; from: string }

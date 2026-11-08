@@ -13,7 +13,7 @@ const world = () =>
   ], { robots: [guard] });
 
 /** A guard that can see but never reaches the player, so ledgers can be observed without arrests. */
-const slowConfig = withOverrides(base, { warden: { chaseSpeed: 0 } });
+const slowConfig = withOverrides(base, { robots: { warden: { chaseSpeed: 0 } } });
 
 const give = (id: string, extra: object = {}): Effect => ({ give_pass: { id, label: id, level: 2, origin: "issued", ...extra } });
 const setup = (cfg = slowConfig, effects: Effect[] = [], x = 5.5) =>

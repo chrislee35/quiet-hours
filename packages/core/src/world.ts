@@ -47,8 +47,8 @@ export interface LockerDef {
   y: number;
 }
 
-export type RobotKind = "warden";
-export const ROBOT_KINDS: readonly RobotKind[] = ["warden"];
+export type RobotKind = "warden" | "sentry" | "checker" | "hound" | "auditor" | "heavy";
+export const ROBOT_KINDS: readonly RobotKind[] = ["warden", "sentry", "checker", "hound", "auditor", "heavy"];
 
 export interface RobotDef {
   id: string;

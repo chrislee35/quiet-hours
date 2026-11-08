@@ -30,4 +30,29 @@ describe("config", () => {
     expect(tweaked.noise.runRadius).toBe(20);
     expect(config.noise.runRadius).toBe(8);
   });
+
+  it("requires a complete profile for every robot type, with the right kinds of value", () => {
+    const bad = deepClone(config) as any;
+    delete bad.robots.hound.chaseSpeed;
+    bad.robots.sentry.canChase = "no";
+    delete bad.robots.heavy;
+    try {
+      validateConfig(bad);
+      throw new Error("should have thrown");
+    } catch (e) {
+      const m = (e as Error).message;
+      expect(m).toContain("robots.hound.chaseSpeed: expected a finite number");
+      expect(m).toContain("robots.sentry.canChase: expected true or false");
+      expect(m).toContain("robots.heavy");
+    }
+  });
+
+  it("ships a profile for all six robot types", () => {
+    expect(Object.keys(config.robots).sort()).toEqual(["auditor", "checker", "heavy", "hound", "sentry", "warden"]);
+    expect(config.robots.hound.chaseSpeed).toBeGreaterThan(config.player.runSpeed); // a Hound outruns a runner
+    expect(config.robots.heavy.chaseSpeed).toBeLessThan(config.player.runSpeed);
+    expect(config.robots.warden.chaseSpeed).toBeLessThan(config.player.runSpeed);
+    expect(config.robots.sentry.canChase).toBe(false);
+    expect(config.robots.auditor.thorough).toBe(true);
+  });
 });

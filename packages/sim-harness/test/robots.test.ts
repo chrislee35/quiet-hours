@@ -28,7 +28,7 @@ describe("vision and suspicion", () => {
   it("identifies a player in view after a short build-up, not instantly", () => {
     const t = timeToSpot(5.5)!; // 4 tiles away
     const v = config.vision;
-    const expected = 1 / (v.suspicionGainPerSecond * (1 - v.proximityFalloff * (4 / v.rangeTiles)));
+    const expected = 1 / (v.suspicionGainPerSecond * (1 - v.proximityFalloff * (4 / config.robots.warden.rangeTiles)));
     expect(t).toBeGreaterThan(expected - 0.1);
     expect(t).toBeLessThan(expected + 0.1);
     expect(t).toBeGreaterThan(1); // never instant: the player always gets a moment to react
@@ -154,7 +154,7 @@ describe("hearing", () => {
     const s = new Scenario(config, 1, world()).player(10.5, 1.5).command({ type: "SetMove", dx: 1, dy: 0, mode: "run" });
     s.advance(0.3).command({ type: "SetMove", dx: 0, dy: 0, mode: "walk" }).player(19.5, 1.5);
     expect(s.robot("w1").mode).toBe("investigate");
-    s.advance(config.warden.investigateSeconds + 8);
+    s.advance(config.robots.warden.investigateSeconds + 8);
     expect(s.robot("w1").mode).toBe("patrol");
   });
 });

@@ -107,4 +107,12 @@ describe("importTiled", () => {
     expect(msg).toContain('unknown route "nowhere"');
     expect(msg).toContain('route "short" needs at least 2 waypoints');
   });
+
+  it("accepts every robot type by name", () => {
+    for (const kind of ["warden", "sentry", "checker", "hound", "auditor", "heavy"]) {
+      const m = tiled();
+      (m.layers[2] as { objects: unknown[] }).objects.push({ name: "r", class: "robot", x: 32, y: 32, properties: [{ name: "kind", value: kind }] });
+      expect(importTiled(m, "m").robots[0]!.kind).toBe(kind);
+    }
+  });
 });

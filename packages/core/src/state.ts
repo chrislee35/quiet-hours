@@ -2,7 +2,7 @@ import { gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, MoveMode, TrustLevel } from "./events.ts";
 import type { Pass } from "./identity.ts";
-import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type DoorState, type World } from "./world.ts";
+import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type DoorState, type RobotDef, type RobotKind, type World } from "./world.ts";
 
 export const STATE_VERSION = 1;
 
@@ -64,11 +64,12 @@ export interface NotebookEntry {
   status: ClueStatus;
 }
 
-export type RobotMode = "patrol" | "investigate" | "chase" | "search";
+/** `alert`: a robot that cannot chase (Sentry, Checker) has identified the player and is raising the alarm. */
+export type RobotMode = "patrol" | "investigate" | "chase" | "search" | "alert";
 
 export interface RobotState {
   id: string;
-  kind: "warden";
+  kind: RobotKind;
   x: number;
   y: number;
   facing: number;
@@ -93,6 +94,24 @@ export interface RobotState {
   suspicion: number;
   /** Whether the player was visible to this robot on the latest tick. */
   sees: boolean;
+  /** Where it was posted and which way it faced; robots without a route return here after a search. */
+  home: { x: number; y: number; facing: number };
+  /** Ticks remaining on a review (Checker) or audit (Auditor) in progress; it notices nothing else meanwhile. */
+  busy: number;
+  /** Checker: this player has already been scanned during the current stay in view. */
+  checked: boolean;
+  /** Consecutive ticks the player has been out of sight (resets `checked`). */
+  unseenTicks: number;
+  /** Hound: already dispatched during the current high-alert episode. */
+  dispatched: boolean;
+}
+
+export function createRobotState(r: RobotDef): RobotState {
+  return {
+    id: r.id, kind: r.kind, x: r.x, y: r.y, facing: r.facing, mode: "patrol", route: r.route, routeIndex: 0,
+    target: null, path: [], pathGoal: null, arrived: false, dwell: 0, dwellTotal: 0, lookBase: r.facing,
+    suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false,
+  };
 }
 
 export function createInitialState(seed: number, config: Config, world: World = OPEN_WORLD): SimState {
@@ -112,25 +131,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
       zone: zoneAt(world, Math.floor(x), Math.floor(y))?.id ?? null,
     },
     doors: initialDoorStates(world),
-    robots: world.robots.map((r) => ({
-      id: r.id,
-      kind: r.kind,
-      x: r.x,
-      y: r.y,
-      facing: r.facing,
-      mode: "patrol" as const,
-      route: r.route,
-      routeIndex: 0,
-      target: null,
-      path: [],
-      pathGoal: null,
-      arrived: false,
-      dwell: 0,
-      dwellTotal: 0,
-      lookBase: r.facing,
-      suspicion: 0,
-      sees: false,
-    })),
+    robots: world.robots.map(createRobotState),
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },

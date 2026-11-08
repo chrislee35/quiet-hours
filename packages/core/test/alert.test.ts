@@ -1,6 +1,6 @@
 // covers: ALR-1, ALR-2
 import { describe, expect, it } from "vitest";
-import { alertSystem, createInitialState, type AlertLevel, type Ctx, type GameEvent, type SimState } from "../src/index.ts";
+import { alertSystem, createInitialState, createRobotState, type AlertLevel, type Ctx, type GameEvent, type SimState } from "../src/index.ts";
 import { EMPTY_CONTENT, OPEN_WORLD } from "../src/index.ts";
 import { config } from "./helpers.ts";
 
@@ -12,10 +12,9 @@ function setup(level: AlertLevel = 0, robotCount = 2) {
   const state: SimState = createInitialState(1, config);
   state.alert.level = level;
   state.alert.quietSince = 0;
-  state.robots = Array.from({ length: robotCount }, (_, i) => ({
-    id: `r${i}`, kind: "warden" as const, x: 0, y: 0, facing: 0, mode: "patrol" as const, route: null, routeIndex: 0,
-    target: null, path: [], pathGoal: null, arrived: false, dwell: 0, dwellTotal: 0, lookBase: 0, suspicion: 0, sees: false,
-  }));
+  state.robots = Array.from({ length: robotCount }, (_, i) =>
+    createRobotState({ id: `r${i}`, kind: "warden", x: 0, y: 0, facing: 0, route: null }),
+  );
   const events: GameEvent[] = [];
   /** Advance to `tick` and run the alert system with the given facts. */
   const at = (tick: number, o: { sees?: boolean; spotted?: boolean } = {}) => {

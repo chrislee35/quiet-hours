@@ -39,7 +39,23 @@ const MODE_COLOR: Record<RobotMode, number> = {
   investigate: 0xff9a3c,
   search: 0xff9a3c,
   chase: 0xff3355,
+  alert: 0xff3355,
 };
+
+/** Robot body tint by type, so the player can tell a Hound from a Warden at a glance (shape and label also differ). */
+const KIND_TINT: Record<string, number> = {
+  warden: 0xffffff,
+  sentry: 0x9fd0ff,
+  checker: 0xb8ffb0,
+  hound: 0xffa070,
+  auditor: 0xe0b0ff,
+  heavy: 0xff7a7a,
+};
+const KIND_SCALE: Record<string, number> = { heavy: 1.35, hound: 0.85 };
+
+/** The player's own light cone (a stand-in until the Signal Lens and real lighting art). */
+const PLAYER_LIGHT_DEGREES = 90;
+const PLAYER_LIGHT_TILES = 6;
 
 class QuietScene extends Phaser.Scene {
   private readonly sim: Sim;
@@ -235,7 +251,10 @@ class QuietScene extends Phaser.Scene {
         .setDepth(60);
     }
     for (const r of this.sim.state.robots) {
-      this.robotSprites.set(r.id, this.add.image(0, 0, "robot").setLighting(true).setDepth(9));
+      this.robotSprites.set(
+        r.id,
+        this.add.image(0, 0, "robot").setLighting(true).setDepth(9).setTint(KIND_TINT[r.kind] ?? 0xffffff).setScale(KIND_SCALE[r.kind] ?? 1),
+      );
       this.prevRobots.set(r.id, { x: r.x, y: r.y });
     }
     this.cones = this.add.graphics().setDepth(40);
@@ -261,9 +280,8 @@ class QuietScene extends Phaser.Scene {
     this.player = this.add.image(0, 0, "player").setLighting(true).setDepth(10);
 
     this.lights.enable().setAmbientColor(0x1a1d30);
-    const vision = this.sim.config.vision;
-    const coneWidth = Phaser.Math.DegToRad(vision.coneDegrees);
-    this.cone = this.lights.addConeLight(0, 0, vision.rangeTiles * TILE, 0xfff0c0, 2, 0, coneWidth * 0.7, coneWidth);
+    const coneWidth = Phaser.Math.DegToRad(PLAYER_LIGHT_DEGREES);
+    this.cone = this.lights.addConeLight(0, 0, PLAYER_LIGHT_TILES * TILE, 0xfff0c0, 2, 0, coneWidth * 0.7, coneWidth);
     // A neon sign on the central wall, for the colored-light look.
     this.lights.addLight(11.5 * TILE, 5.5 * TILE, 5 * TILE, 0xff2a9d, 1.4);
     this.lights.addLight(2 * TILE, 12 * TILE, 4 * TILE, 0x2affd5, 1);
@@ -288,8 +306,6 @@ class QuietScene extends Phaser.Scene {
   /** Robot sprites, occluded vision cones, and suspicion bars. */
   private drawRobots(alpha: number): void {
     const { state, config, world } = this.sim;
-    const vis = config.vision;
-    const half = (vis.coneDegrees * Math.PI) / 360;
     const rays = 28;
     this.cones.clear();
     for (const r of state.robots) {
@@ -297,13 +313,15 @@ class QuietScene extends Phaser.Scene {
       const x = (prev.x + (r.x - prev.x) * alpha) * TILE;
       const y = (prev.y + (r.y - prev.y) * alpha) * TILE;
       this.robotSprites.get(r.id)?.setPosition(x, y).setRotation(r.facing);
+      const prof = config.robots[r.kind];
+      const half = (prof.coneDegrees * Math.PI) / 360;
 
       // Cone polygon: march each ray until it meets a wall or closed door, so the shape is what the robot truly sees.
       const pts: Phaser.Math.Vector2[] = [new Phaser.Math.Vector2(x, y)];
       for (let i = 0; i <= rays; i++) {
         const ang = r.facing - half + (2 * half * i) / rays;
         let d = 0;
-        while (d < vis.rangeTiles) {
+        while (d < prof.rangeTiles) {
           const nd = d + 0.2;
           if (isSolid(world, state.doors, Math.floor(r.x + Math.cos(ang) * nd), Math.floor(r.y + Math.sin(ang) * nd))) break;
           d = nd;

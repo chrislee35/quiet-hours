@@ -40,7 +40,7 @@ Goal: concept §11.1. Uses a trimmed Stacks block.
 | T1.13 | Slice integration + playtest + decision record. | all VS | T1.1-T1.12 | M | Slice acceptance criteria in REQUIREMENTS §4 all demonstrated; playtest notes filed. |
 
 ## M2 — Core systems
-**Status:** T2.3 done (identity/pass system, resolver with null state, demerit ledger with thresholds, forged-pass detection by thorough scans, processing confiscates and returns passes; `docs/identity.md`). Remaining: T2.1, T2.2, T2.4–T2.15.
+**Status:** T2.1 done (all six robot types as config profiles with per-type behaviour, `docs/robots.md`). T2.3 done (identity/pass system, resolver with null state, demerit ledger with thresholds, forged-pass detection by thorough scans, processing confiscates and returns passes; `docs/identity.md`). Remaining: T2.2, T2.4–T2.15.
 | ID | Task | Reqs | Dep | Size | Done when |
 |---|---|---|---|---|---|
 | T2.1 | Remaining robot types: Sentry, Checker, Hound, Auditor, Heavy. | ROB-3 | T1.4 | L | A scenario per type validating its signature behavior. |
