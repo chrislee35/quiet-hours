@@ -15,6 +15,7 @@ const base = (over: Partial<MapData> = {}): MapData => ({
   routes: [],
   lockers: [],
   npcs: [],
+  terminals: [],
   ...over,
 });
 

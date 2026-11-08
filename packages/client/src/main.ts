@@ -5,6 +5,7 @@ import { loadContent } from "./content.ts";
 import { PhaserRenderer } from "./render/PhaserRenderer.ts";
 import { DialogueWindow } from "./ui/dialogue.ts";
 import { NotebookPanel } from "./ui/notebook.ts";
+import { TerminalWindow } from "./ui/terminal.ts";
 import { OVERLAY_CSS } from "./ui/styles.ts";
 
 const config = validateConfig(tuning);
@@ -22,6 +23,7 @@ style.textContent = OVERLAY_CSS;
 document.head.append(style);
 new DialogueWindow(sim, document.body);
 new NotebookPanel(sim, document.body);
+new TerminalWindow(sim, document.body);
 
 new PhaserRenderer().start(host, sim);
 

@@ -1,7 +1,7 @@
 // covers: DLG-1, DLG-2, DLG-3, DLG-4, CLU-1, CLU-4, CLU-5, CMP-3, CORE-4, CORE-5
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { buildWorld, compileDialogue, importTiled, type ClueDef, type Content } from "@qh/core";
+import { EMPTY_CONTENT, buildWorld, compileDialogue, importTiled, type ClueDef, type Content } from "@qh/core";
 import { Scenario, asciiWorld } from "../src/index.ts";
 import { config } from "./helpers.ts";
 
@@ -12,7 +12,7 @@ function realContent(): Content {
   const clues = Object.fromEntries((JSON.parse(read("clues/sample.json")) as ClueDef[]).map((c) => [c.id, c]));
   const { dialogue, errors } = compileDialogue(read("dialogue/odd_sam.qdl"), { id: "odd_sam", knownClues: new Set(Object.keys(clues)) });
   if (!dialogue) throw new Error(JSON.stringify(errors));
-  return { dialogues: { odd_sam: dialogue }, clues };
+  return { ...EMPTY_CONTENT, dialogues: { odd_sam: dialogue }, clues };
 }
 
 const room = asciiWorld(["#######", "#S....#", "#######"], [], { npcs: [{ id: "odd_sam", x: 2, y: 1, dialogue: "odd_sam" }] });
@@ -158,7 +158,7 @@ describe("Odd Sam: clue-gated options and information trading", () => {
 describe("trust line (CMP-3)", () => {
   const src = `npc: pallas\nname: Pallas\ntrust: yes\nnode: a\n  pallas (curious): "Hm."\n  > "Hello." {trust:pallas+1} -> a\n  > "Insult." {trust:pallas-1} -> a\n`;
   const { dialogue } = compileDialogue(src, { id: "pallas" });
-  const content: Content = { dialogues: { pallas: dialogue! }, clues: {} };
+  const content: Content = { ...EMPTY_CONTENT, dialogues: { pallas: dialogue! } };
   const w = asciiWorld(["######", "#S...#", "######"], [], { npcs: [{ id: "pallas", x: 2, y: 1, dialogue: "pallas" }] });
 
   it("shows exactly one of three sentences and never a number", () => {

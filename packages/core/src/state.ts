@@ -35,6 +35,10 @@ export interface SimState {
   processingUntil: number;
   /** Items and credits confiscated by processing, recoverable at a locker. */
   locker: { credits: number; items: Record<string, number> };
+  /** Terminal progress by terminal id, created the first time a terminal is opened. */
+  terminals: Record<string, { rotations: number[]; solved: boolean }>;
+  /** The terminal currently being used, if any. While set, the world is frozen like a conversation. */
+  terminal: string | null;
   /** Active conversation, if any. While set, the world is frozen (CORE-4). */
   conversation: { dialogueId: string; node: string } | null;
   alert: {
@@ -129,6 +133,8 @@ export function createInitialState(seed: number, config: Config, world: World = 
     arrestCount: 0,
     processingUntil: 0,
     locker: { credits: 0, items: {} },
+    terminals: {},
+    terminal: null,
     conversation: null,
     alert: { level: 0 as AlertLevel, quietSince: 0, lastRaise: -1_000_000 },
     // Seeded from tick 0 so the starting window state never fires spurious transition events.

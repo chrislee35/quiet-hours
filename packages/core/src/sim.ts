@@ -2,6 +2,7 @@ import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
 import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
+import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
 import { processingSystem } from "./processing.ts";
 import { applyEffects, type Effect } from "./rules.ts";
 import { gameTimeAt } from "./clock.ts";
@@ -29,6 +30,9 @@ export type Command =
   /** Show the NPC a notebook clue (DLG-3). */
   | { type: "Present"; clueId: string }
   | { type: "EndConversation" }
+  /** Quarter-turn a cell of the open terminal's puzzle. */
+  | { type: "TerminalRotate"; index: number }
+  | { type: "ExitTerminal" }
   /** Run effects as if triggered by content (dialogue, quest scripts). Also used by scenarios to set up state. */
   | { type: "ApplyEffects"; effects: Effect[] };
 
@@ -42,14 +46,15 @@ export interface StepResult {
 
 /** Nearest interactable (door, locker, or person) within `reach` of the player; earlier kinds win ties. */
 function nearestInteractable(state: SimState, world: World, reach: number) {
-  let best: { kind: "door" | "locker" | "npc"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
-  const consider = (kind: "door" | "locker" | "npc", id: string, x: number, y: number, dialogue?: string) => {
+  let best: { kind: "door" | "locker" | "npc" | "terminal"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
+  const consider = (kind: "door" | "locker" | "npc" | "terminal", id: string, x: number, y: number, dialogue?: string) => {
     const d = Math.hypot(x + 0.5 - state.player.x, y + 0.5 - state.player.y);
     if (d <= reach && (best === undefined || d < best.d)) best = { kind, id, x, y, d, ...(dialogue ? { dialogue } : {}) };
   };
   for (const door of world.doors) consider("door", door.id, door.x, door.y);
   for (const l of world.lockers) consider("locker", l.id, l.x, l.y);
   for (const n of world.npcs) consider("npc", n.id, n.x, n.y, n.dialogue);
+  for (const t of world.terminals) consider("terminal", t.id, t.x, t.y);
   return best;
 }
 
@@ -57,6 +62,10 @@ function interact(ctx: Ctx): void {
   const { state, config, world, events } = ctx;
   const target = nearestInteractable(state, world, config.player.interactRadius);
   if (!target) return;
+  if (target.kind === "terminal") {
+    openTerminal(ctx, target.id);
+    return;
+  }
   if (target.kind === "npc") {
     if (target.dialogue) startConversation(ctx, target.dialogue);
     return;
@@ -194,13 +203,15 @@ export function step(
 ): StepResult {
   const state = deepClone(prev);
   const events: GameEvent[] = [];
-  if (state.conversation) {
-    // Dialogue freezes the world: the clock, robots and player do not advance (CORE-4).
+  if (state.conversation || state.terminal) {
+    // Dialogue and terminals freeze the world: the clock, robots and player do not advance (CORE-4).
     const ctx: Ctx = { state, config, world, content, events, commands };
     for (const cmd of commands) {
       if (cmd.type === "Choose") chooseOption(ctx, cmd.index);
       else if (cmd.type === "Present") presentClue(ctx, cmd.clueId);
       else if (cmd.type === "EndConversation") endConversation(ctx);
+      else if (cmd.type === "TerminalRotate") rotateCell(ctx, cmd.index);
+      else if (cmd.type === "ExitTerminal") closeTerminal(ctx);
       else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events);
     }
     return { state, events };
@@ -252,6 +263,11 @@ export class Sim {
   /** The dialogue window's contents, or null when no conversation is active. */
   dialogue(): DialogueView | null {
     return dialogueView(this.current, this.content, this.config);
+  }
+
+  /** The open terminal's puzzle for the UI, or null. */
+  terminal(): TerminalView | null {
+    return terminalView(this.current, this.content);
   }
 
   /** The notebook as the UI shows it (reliability hidden). */

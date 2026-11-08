@@ -1,3 +1,4 @@
+import type { PuzzleDef } from "../puzzles/power-routing.ts";
 import type { Condition, Effect } from "../rules.ts";
 
 export type Reliability = "true" | "false" | "outdated" | "planted";
@@ -60,10 +61,25 @@ export interface Dialogue {
   nodes: Record<string, DialogueNode>;
 }
 
+/** A terminal: gated information or controls behind a puzzle (HAK-1). Placed on maps by id. */
+export interface TerminalDef {
+  id: string;
+  title: string;
+  /** The puzzle that must be solved to gain access. */
+  puzzle: string;
+  /** Any alternative way in (a code, a pass): if all hold, access is granted without the puzzle (PUZ-1). */
+  bypass: Condition[];
+  /** Applied once when access is gained (unlock a door, give a clue, set a flag...). */
+  onSolve: Effect[];
+  solvedText: string;
+}
+
 /** Everything the runtime needs besides game state. Injected like Config and World. */
 export interface Content {
   dialogues: Record<string, Dialogue>;
   clues: Record<string, ClueDef>;
+  puzzles: Record<string, PuzzleDef>;
+  terminals: Record<string, TerminalDef>;
 }
 
-export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {} };
+export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {} };

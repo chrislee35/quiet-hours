@@ -16,6 +16,7 @@ export type GameEvent =
   | { type: "DoorClosed"; tick: number; doorId: string }
   /** The player tried to open a locked door. */
   | { type: "DoorLocked"; tick: number; doorId: string }
+  | { type: "DoorUnlocked"; tick: number; doorId: string }
   /** The player tried to close a door while standing in its doorway. */
   | { type: "DoorBlocked"; tick: number; doorId: string }
   | { type: "ZoneEntered"; tick: number; zone: string }
@@ -43,6 +44,9 @@ export type GameEvent =
   | { type: "ConversationNode"; tick: number; dialogueId: string; node: string }
   | { type: "ConversationEnded"; tick: number; dialogueId: string }
   | { type: "CluePresented"; tick: number; clueId: string; npc: string }
+  | { type: "TerminalOpened"; tick: number; terminalId: string }
+  | { type: "TerminalClosed"; tick: number; terminalId: string }
+  | { type: "TerminalSolved"; tick: number; terminalId: string; via: "puzzle" | "bypass" }
   | { type: "DayChanged"; tick: number; day: number }
   | { type: "CurfewStarted"; tick: number }
   | { type: "CurfewEnded"; tick: number }

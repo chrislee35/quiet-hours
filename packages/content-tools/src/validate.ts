@@ -1,6 +1,7 @@
 import Ajv from "ajv";
 import { ConfigError, TiledImportError, WorldError, buildWorld, compileDialogue, importTiled, validateConfig, type Dialogue, type MapData } from "@qh/core";
 import { clueGates, cluesGiven } from "./dialogue-checks.ts";
+import { checkPuzzles, checkTerminals } from "./terminal-checks.ts";
 import { kinds, type Kind } from "./schemas.ts";
 
 export interface Issue {
@@ -34,7 +35,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [] };
 
   if (bundle.config) {
     try {
@@ -83,7 +84,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -142,6 +143,16 @@ export function validateContent(bundle: ContentBundle): Issue[] {
     for (const n of map.npcs) {
       if (!npcIds.has(n.id)) issues.push({ file, message: `npc "${n.id}" is not defined in content/npcs` });
       if (!dialogueIds.has(n.dialogue)) issues.push({ file, message: `npc "${n.id}" uses unknown dialogue "${n.dialogue}"` });
+    }
+  }
+
+  // 5. Puzzles and terminals.
+  issues.push(...checkPuzzles(entities.puzzles));
+  issues.push(...checkTerminals(entities.terminals, ids.puzzles, ids.clues, mapData.map((m) => m.map)));
+  const terminalIds = ids.terminals;
+  for (const { file, map } of mapData) {
+    for (const t of map.terminals) {
+      if (!terminalIds.has(t.id)) issues.push({ file, message: `terminal "${t.id}" is not defined in content/terminals` });
     }
   }
 

@@ -20,6 +20,14 @@ export interface MapData {
   routes: RouteDef[];
   lockers: LockerDef[];
   npcs: NpcDef[];
+  terminals: TerminalPlacement[];
+}
+
+/** Where a terminal stands; its behaviour lives in content (`TerminalDef`), keyed by the same id. */
+export interface TerminalPlacement {
+  id: string;
+  x: number;
+  y: number;
 }
 
 /** A person the player can talk to. Standing still in v1; routines come with T2.8. */
@@ -96,6 +104,7 @@ export interface World {
   routeById: ReadonlyMap<string, RouteDef>;
   lockers: readonly LockerDef[];
   npcs: readonly NpcDef[];
+  terminals: readonly TerminalPlacement[];
   doorByTile: ReadonlyMap<number, DoorDef>;
   doorById: ReadonlyMap<string, DoorDef>;
 }
@@ -116,6 +125,7 @@ export const OPEN_WORLD: World = {
   routeById: new Map(),
   lockers: [],
   npcs: [],
+  terminals: [],
   doorByTile: new Map(),
   doorById: new Map(),
 };
@@ -189,6 +199,14 @@ export function buildWorld(data: MapData): World {
     else if (wall[tileKey(probe, l.x, l.y)]) errors.push(`locker "${l.id}" is inside a wall`);
   }
 
+  const terminalIds = new Set<string>();
+  for (const t of data.terminals) {
+    if (terminalIds.has(t.id)) errors.push(`duplicate terminal id "${t.id}"`);
+    terminalIds.add(t.id);
+    if (!inBounds(probe, t.x, t.y)) errors.push(`terminal "${t.id}" is out of bounds`);
+    else if (wall[tileKey(probe, t.x, t.y)]) errors.push(`terminal "${t.id}" is inside a wall`);
+  }
+
   const npcIds = new Set<string>();
   for (const n of data.npcs) {
     if (npcIds.has(n.id)) errors.push(`duplicate npc id "${n.id}"`);
@@ -237,6 +255,7 @@ export function buildWorld(data: MapData): World {
     routeById,
     lockers: data.lockers,
     npcs: data.npcs,
+    terminals: data.terminals,
     doorByTile,
     doorById,
   };

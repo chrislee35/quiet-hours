@@ -44,7 +44,9 @@ export type Effect =
   | { adjust_trust: [npc: string, delta: number] }
   /** Raises alert to at least this level (never lowers it). */
   | { raise_alert_to: AlertLevel }
-  | { emit: string };
+  | { emit: string }
+  /** Clears a door's lock (the door stays closed until opened). */
+  | { unlock_door: string };
 
 export class RuleError extends Error {}
 
@@ -138,6 +140,12 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
     }
   } else if ("emit" in effect) {
     events.push({ type: "Custom", tick, name: effect.emit });
+  } else if ("unlock_door" in effect) {
+    const door = state.doors[effect.unlock_door];
+    if (door?.locked) {
+      door.locked = false;
+      events.push({ type: "DoorUnlocked", tick, doorId: effect.unlock_door });
+    }
   } else {
     throw new RuleError(`unknown effect ${JSON.stringify(effect)}`);
   }
@@ -229,6 +237,7 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
     case "verify_clue":
     case "disprove_clue":
     case "emit":
+    case "unlock_door":
       if (!isStr(a)) bad("expected a string");
       break;
     case "set_flag":

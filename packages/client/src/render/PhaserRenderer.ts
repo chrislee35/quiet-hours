@@ -199,6 +199,30 @@ class QuietScene extends Phaser.Scene {
         c.fillRect(0, 0, TILE, TILE);
       },
     );
+    canvasTexture(
+      this,
+      "terminal",
+      TILE,
+      (c) => {
+        c.fillStyle = "#1f3a44";
+        c.fillRect(6, 7, TILE - 12, TILE - 12);
+        c.fillStyle = "#5ff0ff";
+        c.fillRect(9, 10, TILE - 18, 8);
+        c.fillStyle = "#2b5662";
+        c.fillRect(9, 21, TILE - 18, 3);
+      },
+      (c) => {
+        c.fillStyle = FLAT;
+        c.fillRect(0, 0, TILE, TILE);
+      },
+    );
+    for (const t of this.sim.world.terminals) {
+      this.add.image(t.x * TILE, t.y * TILE, "terminal").setOrigin(0).setLighting(true).setDepth(6);
+      this.add
+        .text((t.x + 0.5) * TILE, t.y * TILE - 2, "terminal", { fontFamily: "monospace", fontSize: "10px", color: "#7be3ff" })
+        .setOrigin(0.5, 1)
+        .setDepth(60);
+    }
     for (const n of this.sim.world.npcs) {
       this.add.image((n.x + 0.5) * TILE, (n.y + 0.5) * TILE, "npc").setLighting(true).setDepth(8);
       this.add
@@ -312,7 +336,7 @@ class QuietScene extends Phaser.Scene {
     }
 
     // While a conversation is open the world is frozen (CORE-4): do not advance or queue world commands.
-    const talking = this.sim.state.conversation !== null;
+    const talking = this.sim.state.conversation !== null || this.sim.state.terminal !== null;
     if (talking) this.pending = [];
     const ticks = this.stepper.advance(talking ? 0 : delta);
     for (let i = 0; i < ticks; i++) {
@@ -354,7 +378,7 @@ class QuietScene extends Phaser.Scene {
               : "") +
         `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}\n` +
         `zone: ${this.sim.state.player.zone ?? "none"}\n` +
-        `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use/talk, N notebook, Z zones`,
+        `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use/talk/hack, N notebook, Z zones`,
     );
   }
 }
