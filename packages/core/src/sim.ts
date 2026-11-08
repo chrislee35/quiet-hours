@@ -58,6 +58,36 @@ function nearestInteractable(state: SimState, world: World, reach: number) {
   return best;
 }
 
+export interface InteractionPrompt {
+  kind: "door" | "locker" | "npc" | "terminal";
+  id: string;
+  /** Tile position of the thing, for placing the prompt in the world. */
+  x: number;
+  y: number;
+  /** What pressing Interact will do, as a short verb phrase for the prompt ("Open door", "Talk to odd sam"). */
+  label: string;
+}
+
+/**
+ * What Interact would do right now, or null (CORE-5). The UI shows this near the object so the player always
+ * knows when and why a press will do something. Returns null while the world is frozen or the player is held.
+ */
+export function interactionPrompt(state: Readonly<SimState>, world: World, config: Config): InteractionPrompt | null {
+  if (state.conversation || state.terminal || state.tick < state.processingUntil) return null;
+  const t = nearestInteractable(state, world, config.player.interactRadius);
+  if (!t) return null;
+  const base = { kind: t.kind, id: t.id, x: t.x, y: t.y };
+  if (t.kind === "npc") return { ...base, label: `Talk to ${t.id.replace(/_/g, " ")}` };
+  if (t.kind === "terminal") return { ...base, label: "Use terminal" };
+  if (t.kind === "locker") {
+    const l = state.locker;
+    return Object.keys(l.items).length > 0 || l.credits > 0 ? { ...base, label: "Recover belongings" } : null;
+  }
+  const door = state.doors[t.id];
+  if (!door) return null;
+  return { ...base, label: door.open ? "Close door" : door.locked ? "Door (locked)" : "Open door" };
+}
+
 function interact(ctx: Ctx): void {
   const { state, config, world, events } = ctx;
   const target = nearestInteractable(state, world, config.player.interactRadius);
@@ -268,6 +298,11 @@ export class Sim {
   /** The open terminal's puzzle for the UI, or null. */
   terminal(): TerminalView | null {
     return terminalView(this.current, this.content);
+  }
+
+  /** What pressing Interact would do right now, for the in-world prompt. */
+  prompt(): InteractionPrompt | null {
+    return interactionPrompt(this.current, this.world, this.config);
   }
 
   /** The notebook as the UI shows it (reliability hidden). */

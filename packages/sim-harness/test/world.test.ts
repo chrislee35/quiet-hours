@@ -94,3 +94,37 @@ describe("zones", () => {
     expect(s.sim.state.player.zone).toBe("restricted");
   });
 });
+
+describe("interaction prompt (CORE-5)", () => {
+  const w = asciiWorld(["#########", "#S..D..K#", "#########"], [], { npcs: [{ id: "odd_sam", x: 1, y: 1, dialogue: "x" }] });
+
+  it("names what Interact would do, only when something is in reach", () => {
+    const s = new Scenario(config, 1, w);
+    expect(s.sim.prompt()).toMatchObject({ kind: "npc", label: "Talk to odd sam" }); // the player starts beside Sam
+    s.player(3.5, 1.5);
+    expect(s.sim.prompt()).toMatchObject({ kind: "door", id: "door_4_1", label: "Open door" });
+    s.command({ type: "Interact" });
+    expect(s.sim.prompt()!.label).toBe("Close door");
+    s.player(6.0, 1.5).command({ type: "SetMove", dx: 0, dy: 0, mode: "walk" });
+    expect(s.sim.prompt()).toBeNull(); // too far from everything
+  });
+
+  it("locked doors say so, and an empty locker offers nothing", () => {
+    const locked = asciiWorld(["######", "#S.L.#", "######"]);
+    expect(new Scenario(config, 1, locked).player(2.5, 1.5).sim.prompt()!.label).toBe("Door (locked)");
+    expect(new Scenario(config, 1, w).player(7.0, 1.5).sim.prompt()).toBeNull();
+  });
+
+  it("offers the locker only when it holds something", () => {
+    const s = new Scenario(config, 1, w).command({ type: "ApplyEffects", effects: [{ add_credits: 5 }] });
+    s.edit((st) => { st.locker.credits = 5; });
+    s.player(7.0, 1.5);
+    expect(s.sim.prompt()).toMatchObject({ kind: "locker", label: "Recover belongings" });
+  });
+
+  it("is hidden while the world is frozen or the player is held", () => {
+    const s = new Scenario(config, 1, w);
+    s.edit((st) => { st.processingUntil = st.tick + 50; });
+    expect(s.sim.prompt()).toBeNull();
+  });
+});

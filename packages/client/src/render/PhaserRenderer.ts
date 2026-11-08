@@ -55,6 +55,7 @@ class QuietScene extends Phaser.Scene {
   private robotSprites = new Map<string, Phaser.GameObjects.Image>();
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
+  private promptText!: Phaser.GameObjects.Text;
   private readonly deps: RenderDeps;
   /** Whether a window was open when this frame began; presses handled mid-frame must not leak into the world. */
   private uiOpenAtFrameStart = false;
@@ -238,6 +239,12 @@ class QuietScene extends Phaser.Scene {
       this.prevRobots.set(r.id, { x: r.x, y: r.y });
     }
     this.cones = this.add.graphics().setDepth(40);
+    // In-world interaction prompt (CORE-5): appears above whatever Interact would act on.
+    this.promptText = this.add
+      .text(0, 0, "", { fontFamily: "monospace", fontSize: "11px", color: "#10121c", backgroundColor: "#ffd36b", padding: { x: 4, y: 2 } })
+      .setOrigin(0.5, 1)
+      .setDepth(70)
+      .setVisible(false);
 
     // Zone overlay (press Z to toggle): teal = public, amber/red = restricted by required permission.
     this.zoneLayer = this.add.graphics().setDepth(50);
@@ -346,6 +353,14 @@ class QuietScene extends Phaser.Scene {
     this.cone.setPosition(x, y).setConeRotation(this.facing);
 
     this.drawRobots(a);
+
+    const prompt = this.sim.prompt();
+    if (prompt) {
+      const key = this.deps.controller.padConnected ? "A" : "E";
+      this.promptText.setText(`${key}: ${prompt.label}`).setPosition((prompt.x + 0.5) * TILE, prompt.y * TILE - 6).setVisible(true);
+    } else {
+      this.promptText.setVisible(false);
+    }
 
     for (const [id, sprite] of this.doorSprites) {
       sprite.setTexture(this.sim.state.doors[id]?.open ? "door_open" : "door_closed");
