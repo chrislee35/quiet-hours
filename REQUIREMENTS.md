@@ -7,7 +7,7 @@
 
 ## 1. Scope
 - **In scope:** a single-player, web-based (TypeScript, modern desktop browser), top-down real-time stealth-adventure, 3-5 hour run, three Gate routes, four Mentor choices, four escapee candidates, one fixed closing scene.
-- **Out of scope (v1):** mobile/touch, multiplayer, full voice acting, hardcore/permadeath mode, epilogue vignettes, toppling MERIDIAN (sequel).
+- **Out of scope (v1):** mobile/touch as a supported platform (basic on-screen controls exist so playtesters can try the game on tablets and phones; layout, performance and touch-first design are not goals), multiplayer, full voice acting, hardcore/permadeath mode, epilogue vignettes, toppling MERIDIAN (sequel).
 
 ## 2. Functional requirements
 

@@ -1,7 +1,7 @@
 import { ACTIONS, HELD_ACTIONS, type Action, type HeldActions, type KeyBindings, type PadBindings } from "./actions.ts";
 import { newPresses, noActions, padActions, type ActionState, type PadSnapshot } from "./gamepad.ts";
 
-export type PressSource = "keyboard" | "pad";
+export type PressSource = "keyboard" | "pad" | "touch";
 export type PressListener = (action: Action, source: PressSource) => void;
 
 const ARROWS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
@@ -16,10 +16,13 @@ export class InputController {
   private readonly pad: PadBindings;
   private readonly down = new Set<string>();
   private padState: ActionState = noActions();
+  private touchState: ActionState = noActions();
   private readonly listeners = new Set<PressListener>();
   private readonly getPad: () => PadSnapshot | null;
   /** True once a gamepad has been seen; lets the HUD show gamepad hints. */
   padConnected = false;
+  /** Which device the player used last, so prompts and hints can name the right button. */
+  lastSource: PressSource = "keyboard";
 
   constructor(win: EventTarget, keys: KeyBindings, pad: PadBindings, getPad: () => PadSnapshot | null) {
     this.keys = keys;
@@ -48,7 +51,19 @@ export class InputController {
   }
 
   private emit(action: Action, source: PressSource): void {
+    this.lastSource = source;
     for (const l of this.listeners) l(action, source);
+  }
+
+  /** On-screen controls (touch): set which held actions (movement, run, sneak) they are holding right now. */
+  setTouchHeld(state: Partial<ActionState>): void {
+    this.touchState = { ...this.touchState, ...state };
+    this.recompute();
+  }
+
+  /** On-screen controls: a button tap, delivered like any other press. */
+  pressTouch(action: Action): void {
+    this.emit(action, "touch");
   }
 
   private onKeyDown(e: KeyboardEvent): void {
@@ -60,7 +75,7 @@ export class InputController {
   }
 
   private recompute(): void {
-    for (const a of HELD_ACTIONS) this.held[a] = this.keys[a].some((c) => this.down.has(c)) || this.padState[a];
+    for (const a of HELD_ACTIONS) this.held[a] = this.keys[a].some((c) => this.down.has(c)) || this.padState[a] || this.touchState[a];
   }
 
   /** Sample the gamepad; fires pad press edges and merges pad movement into `held`. */

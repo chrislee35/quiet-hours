@@ -6,6 +6,7 @@ import { PhaserRenderer } from "./render/PhaserRenderer.ts";
 import { DialogueWindow } from "./ui/dialogue.ts";
 import { DEFAULT_PAD, loadBindings } from "./input/actions.ts";
 import { InputController, browserPad } from "./input/controller.ts";
+import { TouchControls, wantsTouchControls } from "./input/touch.ts";
 import { safeStorage } from "./storage.ts";
 import { Hud } from "./ui/hud.ts";
 import { bindUi } from "./ui/nav.ts";
@@ -32,7 +33,10 @@ const controller = new InputController(
   DEFAULT_PAD,
   browserPad(navigator),
 );
-const hud = new Hud(sim, document.body);
+if (wantsTouchControls({ coarsePointer: matchMedia("(pointer: coarse)").matches, touchPoints: navigator.maxTouchPoints, search: location.search })) {
+  new TouchControls(controller, document.body);
+}
+const hud = new Hud(sim, document.body, controller);
 const dialogue = new DialogueWindow(sim, document.body);
 const notebook = new NotebookPanel(sim, document.body);
 const terminal = new TerminalWindow(sim, document.body);

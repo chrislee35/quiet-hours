@@ -111,7 +111,7 @@ export class TerminalWindow {
     const grid = document.createElement("div");
     grid.className = "qh-grid";
     grid.dataset.cols = String(view.width);
-    grid.style.gridTemplateColumns = `repeat(${view.width}, 4em)`;
+    grid.style.setProperty("--cols", String(view.width));
     view.cells.forEach((cell, i) => {
       const b = document.createElement("button");
       const sides = powerRouting.openSides(cell.piece, cell.rotation);

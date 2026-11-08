@@ -374,7 +374,8 @@ class QuietScene extends Phaser.Scene {
 
     const prompt = this.sim.prompt();
     if (prompt) {
-      const key = this.deps.controller.padConnected ? "A" : "E";
+      const src = this.deps.controller.lastSource;
+      const key = src === "touch" ? "Use" : src === "pad" ? "A" : "E";
       this.promptText.setText(`${key}: ${prompt.label}`).setPosition((prompt.x + 0.5) * TILE, prompt.y * TILE - 6).setVisible(true);
     } else {
       this.promptText.setVisible(false);
