@@ -43,5 +43,9 @@
     "investigateSeconds": 5,
     "searchSeconds": 6,
     "catchRadius": 0.8
+  },
+  "failure": {
+    "holdSeconds": 4,
+    "alertAfterProcessing": 1
   }
 }

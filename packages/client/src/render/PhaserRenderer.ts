@@ -54,6 +54,8 @@ class QuietScene extends Phaser.Scene {
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
   private caughtUntil = 0;
+  private processedUntil = 0;
+  private recoveredUntil = 0;
 
   constructor(sim: Sim) {
     super("quiet");
@@ -186,6 +188,8 @@ class QuietScene extends Phaser.Scene {
     this.cones = this.add.graphics().setDepth(40);
     this.sim.bus.subscribe((e) => {
       if (e.type === "PlayerCaught") this.caughtUntil = this.time.now + 2500;
+      if (e.type === "PlayerProcessed") this.processedUntil = this.time.now + 4000;
+      if (e.type === "LockerOpened") this.recoveredUntil = this.time.now + 2500;
     });
 
     // Zone overlay (press Z to toggle): teal = public, amber/red = restricted by required permission.
@@ -306,11 +310,23 @@ class QuietScene extends Phaser.Scene {
 
     const t = gameTimeAt(this.sim.state.tick, this.sim.config);
     const alert = ALERT_NAMES[this.sim.state.alert.level];
+    const inv = this.sim.state.inventory;
+    const fmt = (it: Record<string, number>) => Object.entries(it).map(([k, n]) => `${k} x${n}`).join(", ");
+    const items = fmt(inv.items);
+    const lk = this.sim.state.locker;
+    const locker = [lk.credits > 0 ? `${lk.credits} credits` : "", fmt(lk.items)].filter(Boolean).join(", ");
     this.hud.setText(
-      `ALERT: ${alert}${this.time.now < this.caughtUntil ? "   *** CAUGHT (processing arrives in T1.6) ***" : ""}\n` +
+      `ALERT: ${alert}   credits ${inv.credits}   items ${items || "none"}${locker ? `   [locker: ${locker}]` : ""}\n` +
+        (this.time.now < this.processedUntil
+          ? `*** PROCESSED (arrest #${this.sim.state.arrestCount}): belongings confiscated. Find locker_main to recover them. ***\n`
+          : this.time.now < this.recoveredUntil
+            ? "*** Belongings recovered. ***\n"
+            : this.time.now < this.caughtUntil
+              ? "*** CAUGHT ***\n"
+              : "") +
         `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}\n` +
         `zone: ${this.sim.state.player.zone ?? "none"}\n` +
-        `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use door, Z zones`,
+        `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use door/locker, Z zones`,
     );
   }
 }

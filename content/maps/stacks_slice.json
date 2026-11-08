@@ -631,6 +631,32 @@
        "value": 3
       }
      ]
+    },
+    {
+     "id": 14,
+     "name": "holding",
+     "type": "spawn",
+     "class": "spawn",
+     "x": 608,
+     "y": 352,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 15,
+     "name": "locker_main",
+     "type": "locker",
+     "class": "locker",
+     "x": 704,
+     "y": 352,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
     }
    ]
   }

@@ -14,3 +14,5 @@ export * from "./ctx.ts";
 export * from "./pathfind.ts";
 export * from "./robots.ts";
 export * from "./vision.ts";
+export * from "./rules.ts";
+export * from "./processing.ts";

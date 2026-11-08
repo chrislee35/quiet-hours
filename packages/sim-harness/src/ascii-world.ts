@@ -1,4 +1,4 @@
-import { buildWorld, type DoorDef, type MapData, type RobotDef, type RouteDef, type SpawnDef, type World, type ZoneDef } from "@qh/core";
+import { buildWorld, type DoorDef, type LockerDef, type MapData, type RobotDef, type RouteDef, type SpawnDef, type World, type ZoneDef } from "@qh/core";
 
 export interface AsciiZone extends ZoneDef {
   /** Tile rectangle (inclusive-exclusive): x, y, width, height. */
@@ -7,7 +7,7 @@ export interface AsciiZone extends ZoneDef {
 
 /**
  * Build a tiny World from ASCII art for scenarios.
- *   #  wall        .  floor        S  spawn "start" (floor)
+ *   #  wall        .  floor        S  spawn "start"    H  spawn "holding"    K  locker (locker_<x>_<y>)
  *   D  closed door  O  open door    L  locked door
  * Doors are named door_<x>_<y>. Robots and patrol routes are passed in `extras` (tile-centre coordinates). Zones are painted from rectangles, later ones overwriting earlier ones.
  */
@@ -22,6 +22,7 @@ export function asciiWorld(
   const collision: number[] = [];
   const doors: DoorDef[] = [];
   const spawns: SpawnDef[] = [];
+  const lockers: LockerDef[] = [];
   rows.forEach((row, y) => {
     if (row.length !== width) throw new Error(`ascii row ${y} has width ${row.length}, expected ${width}`);
     [...row].forEach((ch, x) => {
@@ -30,6 +31,10 @@ export function asciiWorld(
         doors.push({ id: `door_${x}_${y}`, x, y, open: ch === "O", locked: ch === "L" });
       } else if (ch === "S") {
         spawns.push({ id: "start", x: x + 0.5, y: y + 0.5 });
+      } else if (ch === "H") {
+        spawns.push({ id: "holding", x: x + 0.5, y: y + 0.5 });
+      } else if (ch === "K") {
+        lockers.push({ id: `locker_${x}_${y}`, x, y });
       } else if (ch !== "#" && ch !== ".") {
         throw new Error(`unknown ascii map character "${ch}" at (${x}, ${y})`);
       }
@@ -51,6 +56,7 @@ export function asciiWorld(
     spawns,
     robots: extras.robots ?? [],
     routes: extras.routes ?? [],
+    lockers,
   };
   return buildWorld(data);
 }

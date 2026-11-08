@@ -1,6 +1,6 @@
 import { gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
-import type { AlertLevel, MoveMode } from "./events.ts";
+import type { AlertLevel, ClueStatus, FlagValue, MoveMode, TrustLevel } from "./events.ts";
 import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type DoorState, type World } from "./world.ts";
 
 export const STATE_VERSION = 1;
@@ -22,6 +22,19 @@ export interface SimState {
   /** Runtime state of every door, keyed by door id. */
   doors: Record<string, DoorState>;
   robots: RobotState[];
+  /** Story and quest flags, set by effects and read by conditions. */
+  flags: Record<string, FlagValue>;
+  /** The notebook: every clue the player knows, by clue id. */
+  clues: Record<string, NotebookEntry>;
+  inventory: { credits: number; items: Record<string, number> };
+  /** Hidden three-level trust per NPC; absent means 0 (unsure). */
+  trust: Record<string, TrustLevel>;
+  /** Times the player has been caught and processed. */
+  arrestCount: number;
+  /** While tick < processingUntil the player is held and cannot act; 0 when free. */
+  processingUntil: number;
+  /** Items and credits confiscated by processing, recoverable at a locker. */
+  locker: { credits: number; items: Record<string, number> };
   alert: {
     level: AlertLevel;
     /** Tick of the last sighting, raise, or decay step; decay counts out-of-sight time from here. */
@@ -31,6 +44,13 @@ export interface SimState {
   };
   /** Window flags from the previous tick, used to emit transition events. */
   windows: { curfew: boolean; quietHours: boolean; day: number };
+}
+
+export interface NotebookEntry {
+  learnedTick: number;
+  /** Who or what told the player (an npc id, terminal id, document id, ...). */
+  from: string;
+  status: ClueStatus;
 }
 
 export type RobotMode = "patrol" | "investigate" | "chase" | "search";
@@ -100,6 +120,13 @@ export function createInitialState(seed: number, config: Config, world: World = 
       suspicion: 0,
       sees: false,
     })),
+    flags: {},
+    clues: {},
+    inventory: { credits: 0, items: {} },
+    trust: {},
+    arrestCount: 0,
+    processingUntil: 0,
+    locker: { credits: 0, items: {} },
     alert: { level: 0 as AlertLevel, quietSince: 0, lastRaise: -1_000_000 },
     // Seeded from tick 0 so the starting window state never fires spurious transition events.
     windows: { curfew: t.isCurfew, quietHours: t.isQuietHours, day: t.day },

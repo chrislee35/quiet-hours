@@ -18,6 +18,14 @@ export interface MapData {
   spawns: SpawnDef[];
   robots: RobotDef[];
   routes: RouteDef[];
+  lockers: LockerDef[];
+}
+
+/** Where items confiscated by processing can be recovered (FAIL-3). */
+export interface LockerDef {
+  id: string;
+  x: number;
+  y: number;
 }
 
 export type RobotKind = "warden";
@@ -75,6 +83,7 @@ export interface World {
   robots: readonly RobotDef[];
   routes: readonly RouteDef[];
   routeById: ReadonlyMap<string, RouteDef>;
+  lockers: readonly LockerDef[];
   doorByTile: ReadonlyMap<number, DoorDef>;
   doorById: ReadonlyMap<string, DoorDef>;
 }
@@ -93,6 +102,7 @@ export const OPEN_WORLD: World = {
   robots: [],
   routes: [],
   routeById: new Map(),
+  lockers: [],
   doorByTile: new Map(),
   doorById: new Map(),
 };
@@ -158,6 +168,14 @@ export function buildWorld(data: MapData): World {
     }
   }
 
+  const lockerIds = new Set<string>();
+  for (const l of data.lockers) {
+    if (lockerIds.has(l.id)) errors.push(`duplicate locker id "${l.id}"`);
+    lockerIds.add(l.id);
+    if (!inBounds(probe, l.x, l.y)) errors.push(`locker "${l.id}" is out of bounds`);
+    else if (wall[tileKey(probe, l.x, l.y)]) errors.push(`locker "${l.id}" is inside a wall`);
+  }
+
   const routeById = new Map<string, RouteDef>();
   for (const r of data.routes) {
     if (routeById.has(r.id)) errors.push(`duplicate route id "${r.id}"`);
@@ -195,6 +213,7 @@ export function buildWorld(data: MapData): World {
     robots: data.robots,
     routes: data.routes,
     routeById,
+    lockers: data.lockers,
     doorByTile,
     doorById,
   };

@@ -46,6 +46,12 @@ export interface Config {
     /** Fraction of the gain lost at maximum range (0 = distance does not matter). */
     proximityFalloff: number;
   };
+  failure: {
+    /** Seconds the player is held (frozen) in the holding facility after being caught. */
+    holdSeconds: number;
+    /** Alert level (0-3) the city is at least raised to after processing: the setback (FAIL-2). */
+    alertAfterProcessing: number;
+  };
   warden: {
     patrolSpeed: number;
     chaseSpeed: number;
@@ -80,6 +86,7 @@ const SHAPE: Shape = {
     suspicionDecayPerSecond: "number",
     proximityFalloff: "number",
   },
+  failure: { holdSeconds: "number", alertAfterProcessing: "number" },
   warden: {
     patrolSpeed: "number",
     chaseSpeed: "number",

@@ -1,5 +1,7 @@
 import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
+import { processingSystem } from "./processing.ts";
+import { applyEffects, type Effect } from "./rules.ts";
 import { gameTimeAt } from "./clock.ts";
 import type { Ctx, System } from "./ctx.ts";
 import { robotBehavior, robotPerception } from "./robots.ts";
@@ -18,8 +20,10 @@ export type Command =
   | { type: "SetMove"; dx: number; dy: number; mode: MoveMode }
   /** Debug/scenario helper: place the player. Not available to the real client input layer. */
   | { type: "Teleport"; x: number; y: number }
-  /** Use the nearest interactable within reach (currently: doors) (CORE-5). */
-  | { type: "Interact" };
+  /** Use the nearest interactable within reach: doors and lockers (CORE-5). */
+  | { type: "Interact" }
+  /** Run effects as if triggered by content (dialogue, quest scripts). Also used by scenarios to set up state. */
+  | { type: "ApplyEffects"; effects: Effect[] };
 
 export interface StepResult {
   state: SimState;
@@ -29,20 +33,32 @@ export interface StepResult {
 
 // ---- Systems, in the documented update order (DESIGN §3.1) --------------------------------
 
-/** Nearest door within `reach` of the player, by distance to the door tile's centre. */
-function nearestDoor(state: SimState, world: World, reach: number) {
-  let best: { id: string; x: number; y: number; d: number } | undefined;
-  for (const door of world.doors) {
-    const d = Math.hypot(door.x + 0.5 - state.player.x, door.y + 0.5 - state.player.y);
-    if (d <= reach && (best === undefined || d < best.d)) best = { id: door.id, x: door.x, y: door.y, d };
-  }
+/** Nearest interactable (door or locker) within `reach` of the player; doors win ties. */
+function nearestInteractable(state: SimState, world: World, reach: number) {
+  let best: { kind: "door" | "locker"; id: string; x: number; y: number; d: number } | undefined;
+  const consider = (kind: "door" | "locker", id: string, x: number, y: number) => {
+    const d = Math.hypot(x + 0.5 - state.player.x, y + 0.5 - state.player.y);
+    if (d <= reach && (best === undefined || d < best.d)) best = { kind, id, x, y, d };
+  };
+  for (const door of world.doors) consider("door", door.id, door.x, door.y);
+  for (const l of world.lockers) consider("locker", l.id, l.x, l.y);
   return best;
 }
 
 function interact({ state, config, world, events }: Ctx): void {
-  const target = nearestDoor(state, world, config.player.interactRadius);
-  const door = target && state.doors[target.id];
-  if (!target || !door) return;
+  const target = nearestInteractable(state, world, config.player.interactRadius);
+  if (!target) return;
+  if (target.kind === "locker") {
+    const { items, credits } = state.locker;
+    if (credits === 0 && Object.keys(items).length === 0) return;
+    for (const [id, n] of Object.entries(items)) state.inventory.items[id] = (state.inventory.items[id] ?? 0) + n;
+    state.inventory.credits += credits;
+    state.locker = { credits: 0, items: {} };
+    events.push({ type: "LockerOpened", tick: state.tick, lockerId: target.id, items, credits });
+    return;
+  }
+  const door = state.doors[target.id];
+  if (!door) return;
   if (door.open) {
     if (overlapsTile(state.player, config.player.radius, target.x, target.y)) {
       events.push({ type: "DoorBlocked", tick: state.tick, doorId: target.id });
@@ -59,10 +75,15 @@ function interact({ state, config, world, events }: Ctx): void {
 }
 
 function applyCommands(ctx: Ctx): void {
-  const { state, commands } = ctx;
+  const { state, commands, events } = ctx;
+  const held = state.tick < state.processingUntil; // being processed: the player cannot act
   for (const cmd of commands) {
     switch (cmd.type) {
+      case "ApplyEffects":
+        applyEffects(cmd.effects, state, events);
+        break;
       case "SetMove": {
+        if (held) break;
         const len = Math.hypot(cmd.dx, cmd.dy);
         state.player.intent =
           len === 0
@@ -75,13 +96,14 @@ function applyCommands(ctx: Ctx): void {
         state.player.y = cmd.y;
         break;
       case "Interact":
-        interact(ctx);
+        if (!held) interact(ctx);
         break;
     }
   }
 }
 
 function movePlayer({ state, config, world, events }: Ctx): void {
+  if (state.tick < state.processingUntil) return;
   const { intent } = state.player;
   if (intent.dx === 0 && intent.dy === 0) return;
   const speeds = config.player;
@@ -140,6 +162,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "robot-perception", run: robotPerception },
   { name: "robot-behavior", run: robotBehavior },
   { name: "alert", run: alertSystem },
+  { name: "processing", run: processingSystem },
   { name: "district-reactions", run: notYet },
 ];
 

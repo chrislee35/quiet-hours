@@ -11,12 +11,13 @@ Settings: orthogonal, **fixed-size** (not infinite), 32x32 pixel tiles. Position
 | `objects` | Object layer | Points (or rectangles; the top-left tile is used) whose **Class** is `door` or `spawn` and whose **Name** is the unique id. |
 
 Objects:
-- `spawn`: stands at the centre of its tile. The player starts at the spawn named `start`.
+- `spawn`: stands at the centre of its tile. The player starts at the spawn named `start`; after being caught they wake at the spawn named `holding` (if there is none they stay where they are).
+- `locker`: where items and credits confiscated by processing are recovered; the player presses Interact (E) next to it. A map should place its locker somewhere the player must sneak back to.
 - `door`: must be on a floor tile. Bool properties `open` (default false) and `locked` (default false). A closed door blocks movement; the player opens it with the Interact key (E). Locked doors refuse until a later system (passes, terminals) unlocks them.
 
 - `robot`: Name is the robot id. Properties: `kind` (string, default `warden`; only `warden` exists so far), `facing` (number, **degrees**, 0 = east, 90 = south, default 0), and optional `route` (string). A robot without a route stands guard.
 - `waypoint`: a patrol route point. Properties: `route` (string, required) and `order` (int; points are visited in ascending order, then looped). Waypoints snap to tile centres; every route needs at least two, all on floor tiles. Waypoints need no name.
 
-Validation (`pnpm validate`) reports: unsupported orientation or infinite maps, a missing `collision` layer, zones without an id, conflicting zone permissions, objects without a name or with an unknown class, doors inside walls or overlapping, duplicate ids, spawns inside walls or out of bounds, robots inside walls or using an unknown kind or route, and routes with fewer than two waypoints.
+Validation (`pnpm validate`) reports: unsupported orientation or infinite maps, a missing `collision` layer, zones without an id, conflicting zone permissions, objects without a name or with an unknown class, doors inside walls or overlapping, duplicate ids, spawns and lockers inside walls or out of bounds, robots inside walls or using an unknown kind or route, and routes with fewer than two waypoints.
 
 The sample map `content/maps/stacks_slice.json` shows every feature. Map data lives in the core as `MapData` (plain JSON); the importer is the only code that knows about Tiled, so another editor could be supported by writing a different importer.

@@ -1,3 +1,8 @@
+export type FlagValue = boolean | number | string;
+/** Hidden trust state per NPC: -1 does not trust you, 0 unsure, 1 trusts you (CMP-3). Never shown as a number. */
+export type TrustLevel = -1 | 0 | 1;
+export type ClueStatus = "unverified" | "verified" | "disproved";
+
 export type MoveMode = "walk" | "sneak" | "run";
 
 /** 0 Calm, 1 Suspicious, 2 Hunting, 3 Lockdown (ALR-1). */
@@ -22,6 +27,18 @@ export type GameEvent =
   /** A robot reached the player. Processing (soft failure) is handled by a later system. */
   | { type: "PlayerCaught"; tick: number; robotId: string }
   | { type: "AlertChanged"; tick: number; from: AlertLevel; to: AlertLevel }
+  | { type: "ClueGained"; tick: number; clueId: string; from: string }
+  | { type: "ClueStatusChanged"; tick: number; clueId: string; status: ClueStatus }
+  | { type: "FlagSet"; tick: number; flag: string; value: FlagValue }
+  | { type: "ItemsChanged"; tick: number; itemId: string; delta: number; total: number }
+  | { type: "CreditsChanged"; tick: number; delta: number; total: number }
+  | { type: "TrustChanged"; tick: number; npc: string; from: TrustLevel; to: TrustLevel }
+  /** Free-form hook raised by an effect, for scripted content to react to. */
+  | { type: "Custom"; tick: number; name: string }
+  /** The player was processed after being caught: confiscation, holding, setback (FAIL-1/2). */
+  | { type: "PlayerProcessed"; tick: number; arrestCount: number; items: Record<string, number>; credits: number }
+  | { type: "PlayerReleased"; tick: number }
+  | { type: "LockerOpened"; tick: number; lockerId: string; items: Record<string, number>; credits: number }
   | { type: "DayChanged"; tick: number; day: number }
   | { type: "CurfewStarted"; tick: number }
   | { type: "CurfewEnded"; tick: number }
