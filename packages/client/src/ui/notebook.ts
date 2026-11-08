@@ -15,12 +15,15 @@ export class NotebookPanel {
     sim.bus.subscribe((e) => {
       if (e.type === "ClueGained" || e.type === "ClueStatusChanged") this.refresh();
     });
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "KeyN" && !e.repeat) {
-        this.root.hidden = !this.root.hidden;
-        this.refresh();
-      }
-    });
+  }
+
+  get visible(): boolean {
+    return !this.root.hidden;
+  }
+
+  toggle(): void {
+    this.root.hidden = !this.root.hidden;
+    this.refresh();
   }
 
   refresh(): void {

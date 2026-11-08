@@ -1,10 +1,17 @@
 import type { Sim } from "@qh/core";
+import type { InputController } from "../input/controller.ts";
+import type { Hud } from "../ui/hud.ts";
+
+export interface RenderDeps {
+  controller: InputController;
+  hud: Hud;
+}
 
 /**
  * The seam between the core and any renderer (ADR-1). Implementations read snapshots and
  * send commands through `sim`; they never import core internals or mutate state directly.
  */
 export interface Renderer {
-  start(host: HTMLElement, sim: Sim): void;
+  start(host: HTMLElement, sim: Sim, deps: RenderDeps): void;
   destroy(): void;
 }

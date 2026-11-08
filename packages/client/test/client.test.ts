@@ -1,7 +1,7 @@
 // covers: CORE-1, ACC-1, NFR-9 (storage namespacing, DESIGN §16.2)
 import { describe, expect, it } from "vitest";
 import { FixedStepper } from "../src/loop.ts";
-import { intentFromActions, type HeldActions } from "../src/input.ts";
+import { intentFromActions, type HeldActions } from "../src/input/actions.ts";
 import { STORAGE_PREFIX, safeStorage, storageKey } from "../src/storage.ts";
 
 const none: HeldActions = { up: false, down: false, left: false, right: false, run: false, sneak: false };

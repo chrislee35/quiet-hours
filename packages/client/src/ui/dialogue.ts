@@ -27,6 +27,15 @@ export class DialogueWindow {
     window.addEventListener("keydown", (e) => this.onKey(e));
   }
 
+  /** Back out: close the clue picker if open, otherwise leave the conversation. Returns whether anything was open. */
+  cancel(): boolean {
+    if (!this.sim.dialogue()) return false;
+    if (this.picking) this.picking = false;
+    else this.send({ type: "EndConversation" });
+    this.refresh();
+    return true;
+  }
+
   get open(): boolean {
     return !this.root.hidden;
   }
@@ -39,12 +48,8 @@ export class DialogueWindow {
   private onKey(e: KeyboardEvent): void {
     const view = this.sim.dialogue();
     if (!view || e.repeat) return;
-    if (e.key === "Escape") {
-      if (this.picking) this.picking = false;
-      else this.send({ type: "EndConversation" });
-      this.refresh();
-      e.preventDefault();
-    } else if (!this.picking && /^[1-9]$/.test(e.key)) {
+    // Escape / the gamepad's B button arrive through the input controller (see ui/nav.ts), not here.
+    if (!this.picking && /^[1-9]$/.test(e.key)) {
       const choice = view.choices[Number(e.key) - 1];
       if (choice) this.send({ type: "Choose", index: choice.index });
       e.preventDefault();

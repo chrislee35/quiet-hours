@@ -3,6 +3,10 @@ export const OVERLAY_CSS = `
 :root { --qh-font: 16px; }
 .qh-panel { position: fixed; background: #10121cf2; color: #dfe2f3; font: var(--qh-font)/1.45 system-ui, sans-serif;
   border: 1px solid #3a3f5c; border-radius: 8px; padding: 14px 16px; box-sizing: border-box; }
+.qh-hud { left: 12px; top: 12px; font-size: .8em; line-height: 1.35; padding: 8px 10px; pointer-events: none; max-width: calc(100vw - 24px); }
+.qh-hud div:nth-child(1) { font-weight: 600; color: #ffd36b; }
+.qh-hud div:nth-child(4) { color: #ff9a9a; min-height: 1.35em; }
+.qh-hud div:nth-child(5), .qh-hud div:nth-child(6) { color: #8b91b5; }
 .qh-dialogue { left: 50%; transform: translateX(-50%); bottom: 16px; width: min(760px, calc(100vw - 32px)); max-height: 60vh; overflow: auto; }
 .qh-dialogue h2 { margin: 0 0 2px; font-size: 1.1em; color: #ffd36b; }
 .qh-dialogue .mood { font-weight: 400; color: #9aa0c4; font-size: .85em; margin-left: .4em; }

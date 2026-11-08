@@ -16,6 +16,18 @@ pnpm preview      # serve the built site locally
 ```
 Do not open `index.html` from disk; browsers block modules on `file://`.
 
+## Controls
+| Action | Keyboard | Gamepad |
+|---|---|---|
+| Move | WASD / arrows | left stick or d-pad |
+| Run / Sneak | Shift / Ctrl or C | right bumper or trigger / left bumper or trigger |
+| Use, talk, hack | E | A |
+| Back / leave | Esc | B |
+| Notebook | N | Y |
+| Zone overlay | Z | Back |
+
+In dialogue and terminal windows the d-pad or arrow keys move between options, and A (or Enter) selects. Number keys 1-9 pick dialogue choices. Key bindings are stored per browser; the settings screen for rebinding arrives with T2.13.
+
 ## Layout
 | Path | What |
 |---|---|

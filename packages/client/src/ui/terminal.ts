@@ -28,13 +28,14 @@ export class TerminalWindow {
       if (e.type === "TerminalOpened") this.focusIndex = 0;
       if (e.type === "TerminalOpened" || e.type === "TerminalClosed" || e.type === "TerminalSolved") this.refresh();
     });
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && this.sim.terminal() && !e.repeat) {
-        this.sim.tick([{ type: "ExitTerminal" }]);
-        this.refresh();
-        e.preventDefault();
-      }
-    });
+  }
+
+  /** Leave the terminal. Returns whether one was open. */
+  cancel(): boolean {
+    if (!this.sim.terminal()) return false;
+    this.sim.tick([{ type: "ExitTerminal" }]);
+    this.refresh();
+    return true;
   }
 
   private rotate(index: number): void {
@@ -69,6 +70,7 @@ export class TerminalWindow {
 
     const grid = document.createElement("div");
     grid.className = "qh-grid";
+    grid.dataset.cols = String(view.width);
     grid.style.gridTemplateColumns = `repeat(${view.width}, 3.2em)`;
     view.cells.forEach((cell, i) => {
       const b = document.createElement("button");
@@ -91,10 +93,7 @@ export class TerminalWindow {
     const leave = document.createElement("button");
     leave.className = "leave";
     leave.textContent = "Leave terminal (Esc)";
-    leave.addEventListener("click", () => {
-      this.sim.tick([{ type: "ExitTerminal" }]);
-      this.refresh();
-    });
+    leave.addEventListener("click", () => this.cancel());
     root.append(leave);
 
     const buttons = grid.querySelectorAll<HTMLButtonElement>("button:not(:disabled)");

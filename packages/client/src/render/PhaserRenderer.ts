@@ -1,8 +1,8 @@
 import Phaser from "phaser";
-import { ALERT_NAMES, formatTime, gameTimeAt, isSolid, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
+import { isSolid, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
 import { FixedStepper } from "../loop.ts";
-import { DEFAULT_KEYS, intentFromActions, sameIntent, type HeldActions, type MoveIntent } from "../input.ts";
-import type { Renderer } from "./Renderer.ts";
+import { intentFromActions, sameIntent, type MoveIntent } from "../input/actions.ts";
+import type { RenderDeps, Renderer } from "./Renderer.ts";
 
 /**
  * T0.4 renderer spike: proves Phaser can show a tilemap with normal-mapped walls, a cone light
@@ -11,6 +11,10 @@ import type { Renderer } from "./Renderer.ts";
  */
 
 const TILE = 32;
+/** How much the camera magnifies the world. At 1.5 about 20 x 11 tiles are visible, enough to see a robot's 6-tile cone. */
+const CAMERA_ZOOM = 1.5;
+const VIEW_W = 960;
+const VIEW_H = 540;
 
 function canvasTexture(
   scene: Phaser.Scene,
@@ -40,26 +44,25 @@ const MODE_COLOR: Record<RobotMode, number> = {
 class QuietScene extends Phaser.Scene {
   private readonly sim: Sim;
   private stepper!: FixedStepper;
-  private held: HeldActions = { up: false, down: false, left: false, right: false, run: false, sneak: false };
   private lastIntent: MoveIntent = { dx: 0, dy: 0, mode: "walk" };
   private pending: Command[] = [];
   private player!: Phaser.GameObjects.Image;
   private cone!: Phaser.GameObjects.Light;
   private facing = 0;
-  private hud!: Phaser.GameObjects.Text;
   private prev = { x: 0, y: 0 };
   private doorSprites = new Map<string, Phaser.GameObjects.Image>();
   private zoneLayer!: Phaser.GameObjects.Graphics;
   private robotSprites = new Map<string, Phaser.GameObjects.Image>();
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
-  private caughtUntil = 0;
-  private processedUntil = 0;
-  private recoveredUntil = 0;
+  private readonly deps: RenderDeps;
+  /** Whether a window was open when this frame began; presses handled mid-frame must not leak into the world. */
+  private uiOpenAtFrameStart = false;
 
-  constructor(sim: Sim) {
+  constructor(sim: Sim, deps: RenderDeps) {
     super("quiet");
     this.sim = sim;
+    this.deps = deps;
   }
 
   create(): void {
@@ -235,11 +238,6 @@ class QuietScene extends Phaser.Scene {
       this.prevRobots.set(r.id, { x: r.x, y: r.y });
     }
     this.cones = this.add.graphics().setDepth(40);
-    this.sim.bus.subscribe((e) => {
-      if (e.type === "PlayerCaught") this.caughtUntil = this.time.now + 2500;
-      if (e.type === "PlayerProcessed") this.processedUntil = this.time.now + 4000;
-      if (e.type === "LockerOpened") this.recoveredUntil = this.time.now + 2500;
-    });
 
     // Zone overlay (press Z to toggle): teal = public, amber/red = restricted by required permission.
     this.zoneLayer = this.add.graphics().setDepth(50);
@@ -264,29 +262,20 @@ class QuietScene extends Phaser.Scene {
     this.lights.addLight(2 * TILE, 12 * TILE, 4 * TILE, 0x2affd5, 1);
     this.lights.addLight(20 * TILE, 7 * TILE, 5 * TILE, 0xffaa22, 1.1);
 
-    this.hud = this.add
-      .text(8, 6, "", { fontFamily: "monospace", fontSize: "12px", color: "#c8ccdf" })
-      .setDepth(100)
-      .setScrollFactor(0);
-
     this.stepper = new FixedStepper(this.sim.config.sim.ticksPerSecond);
     this.prev = { x: this.sim.state.player.x, y: this.sim.state.player.y };
 
-    const keyboard = this.input.keyboard;
-    if (keyboard) {
-      const apply = (code: string, down: boolean) => {
-        for (const action of Object.keys(DEFAULT_KEYS) as (keyof HeldActions)[]) {
-          if (DEFAULT_KEYS[action].includes(code)) this.held[action] = down;
-        }
-      };
-      keyboard.on("keydown", (e: KeyboardEvent) => {
-        if (e.repeat) return;
-        if (e.code === "KeyE") this.pending.push({ type: "Interact" });
-        if (e.code === "KeyZ") this.zoneLayer.setVisible(!this.zoneLayer.visible);
-        apply(e.code, true);
-      });
-      keyboard.on("keyup", (e: KeyboardEvent) => apply(e.code, false));
-    }
+    // Camera follows the player so maps larger than the screen work; smaller maps are centred.
+    const cam = this.cameras.main;
+    cam.setBounds(0, 0, world.width * TILE, world.height * TILE);
+    cam.setZoom(CAMERA_ZOOM);
+    cam.startFollow(this.player, true, 0.12, 0.12);
+
+    this.deps.controller.onPress((action) => {
+      if (this.uiOpenAtFrameStart || this.sim.state.conversation || this.sim.state.terminal) return;
+      if (action === "interact") this.pending.push({ type: "Interact" });
+      else if (action === "zones") this.zoneLayer.setVisible(!this.zoneLayer.visible);
+    });
   }
 
   /** Robot sprites, occluded vision cones, and suspicion bars. */
@@ -328,7 +317,9 @@ class QuietScene extends Phaser.Scene {
   }
 
   override update(_time: number, delta: number): void {
-    const intent = intentFromActions(this.held);
+    this.uiOpenAtFrameStart = this.sim.state.conversation !== null || this.sim.state.terminal !== null;
+    this.deps.controller.poll();
+    const intent = intentFromActions(this.deps.controller.held);
     if (!sameIntent(intent, this.lastIntent)) {
       this.lastIntent = intent;
       this.pending.push({ type: "SetMove", ...intent });
@@ -360,42 +351,23 @@ class QuietScene extends Phaser.Scene {
       sprite.setTexture(this.sim.state.doors[id]?.open ? "door_open" : "door_closed");
     }
 
-    const t = gameTimeAt(this.sim.state.tick, this.sim.config);
-    const alert = ALERT_NAMES[this.sim.state.alert.level];
-    const inv = this.sim.state.inventory;
-    const fmt = (it: Record<string, number>) => Object.entries(it).map(([k, n]) => `${k} x${n}`).join(", ");
-    const items = fmt(inv.items);
-    const lk = this.sim.state.locker;
-    const locker = [lk.credits > 0 ? `${lk.credits} credits` : "", fmt(lk.items)].filter(Boolean).join(", ");
-    this.hud.setText(
-      `ALERT: ${alert}   credits ${inv.credits}   items ${items || "none"}${locker ? `   [locker: ${locker}]` : ""}\n` +
-        (this.time.now < this.processedUntil
-          ? `*** PROCESSED (arrest #${this.sim.state.arrestCount}): belongings confiscated. Find locker_main to recover them. ***\n`
-          : this.time.now < this.recoveredUntil
-            ? "*** Belongings recovered. ***\n"
-            : this.time.now < this.caughtUntil
-              ? "*** CAUGHT ***\n"
-              : "") +
-        `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}\n` +
-        `zone: ${this.sim.state.player.zone ?? "none"}\n` +
-        `fps ${this.game.loop.actualFps.toFixed(0)}  WASD move, Shift run, Ctrl/C sneak, E use/talk/hack, N notebook, Z zones`,
-    );
+    this.deps.hud.update(this.game.loop.actualFps, this.deps.controller.padConnected);
   }
 }
 
 export class PhaserRenderer implements Renderer {
   private game?: Phaser.Game;
 
-  start(host: HTMLElement, sim: Sim): void {
+  start(host: HTMLElement, sim: Sim, deps: RenderDeps): void {
     this.game = new Phaser.Game({
       type: Phaser.AUTO,
       parent: host,
-      width: sim.world.width * TILE,
-      height: sim.world.height * TILE,
+      width: VIEW_W,
+      height: VIEW_H,
       backgroundColor: "#07070c",
       pixelArt: true,
       scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      scene: new QuietScene(sim),
+      scene: new QuietScene(sim, deps),
     });
   }
 

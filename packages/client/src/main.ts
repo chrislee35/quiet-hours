@@ -4,6 +4,11 @@ import stacksSlice from "../../../content/maps/stacks_slice.json" with { type: "
 import { loadContent } from "./content.ts";
 import { PhaserRenderer } from "./render/PhaserRenderer.ts";
 import { DialogueWindow } from "./ui/dialogue.ts";
+import { DEFAULT_PAD, loadBindings } from "./input/actions.ts";
+import { InputController, browserPad } from "./input/controller.ts";
+import { safeStorage } from "./storage.ts";
+import { Hud } from "./ui/hud.ts";
+import { bindUi } from "./ui/nav.ts";
 import { NotebookPanel } from "./ui/notebook.ts";
 import { TerminalWindow } from "./ui/terminal.ts";
 import { OVERLAY_CSS } from "./ui/styles.ts";
@@ -21,11 +26,19 @@ sim.tick([{ type: "ApplyEffects", effects: [{ add_credits: 50 }, { add_item: ["s
 const style = document.createElement("style");
 style.textContent = OVERLAY_CSS;
 document.head.append(style);
-new DialogueWindow(sim, document.body);
-new NotebookPanel(sim, document.body);
-new TerminalWindow(sim, document.body);
+const controller = new InputController(
+  window,
+  loadBindings(safeStorage(typeof localStorage === "undefined" ? undefined : localStorage)),
+  DEFAULT_PAD,
+  browserPad(navigator),
+);
+const hud = new Hud(sim, document.body);
+const dialogue = new DialogueWindow(sim, document.body);
+const notebook = new NotebookPanel(sim, document.body);
+const terminal = new TerminalWindow(sim, document.body);
+bindUi(controller, sim, { dialogue, terminal, notebook });
 
-new PhaserRenderer().start(host, sim);
+new PhaserRenderer().start(host, sim, { controller, hud });
 
 if (__QH_DEBUG__) {
   void import("./debug/overlay.ts").then((m) => m.mountDebugOverlay(sim));
