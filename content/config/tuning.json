@@ -32,14 +32,15 @@
     "coneDegrees": 90,
     "rangeTiles": 6,
     "checkerRangeTiles": 4,
-    "suspicionGainPerSecond": 1.2,
-    "suspicionDecayPerSecond": 0.6,
-    "proximityFalloff": 0.6
+    "suspicionGainPerSecond": 0.9,
+    "suspicionDecayPerSecond": 0.8,
+    "proximityFalloff": 0.6,
+    "sneakGainFactor": 0.6
   },
   "warden": {
     "patrolSpeed": 1.8,
     "chaseSpeed": 4,
-    "waypointPauseSeconds": 1.5,
+    "waypointPauseSeconds": 3,
     "investigateSeconds": 5,
     "searchSeconds": 6,
     "catchRadius": 0.8

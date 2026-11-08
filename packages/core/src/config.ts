@@ -43,6 +43,8 @@ export interface Config {
     /** Suspicion (0..1) gained per second at point-blank range in the cone. */
     suspicionGainPerSecond: number;
     suspicionDecayPerSecond: number;
+    /** Multiplier on suspicion gain while the player is sneaking (0-1): crouching low is harder to spot. */
+    sneakGainFactor: number;
     /** Fraction of the gain lost at maximum range (0 = distance does not matter). */
     proximityFalloff: number;
   };
@@ -84,6 +86,7 @@ const SHAPE: Shape = {
     checkerRangeTiles: "number",
     suspicionGainPerSecond: "number",
     suspicionDecayPerSecond: "number",
+    sneakGainFactor: "number",
     proximityFalloff: "number",
   },
   failure: { holdSeconds: "number", alertAfterProcessing: "number" },

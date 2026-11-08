@@ -42,7 +42,8 @@ export function robotPerception(ctx: Ctx): void {
 
     if (robot.sees) {
       const proximity = 1 - vis.proximityFalloff * Math.min(1, dist / vis.rangeTiles);
-      robot.suspicion = Math.min(1, robot.suspicion + vis.suspicionGainPerSecond * proximity * dt);
+      const stance = player.intent.mode === "sneak" ? vis.sneakGainFactor : 1;
+      robot.suspicion = Math.min(1, robot.suspicion + vis.suspicionGainPerSecond * proximity * stance * dt);
     } else {
       robot.suspicion = Math.max(0, robot.suspicion - vis.suspicionDecayPerSecond * dt);
     }

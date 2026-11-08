@@ -26,9 +26,23 @@ function timeToSpot(px: number, seconds = 10): number | null {
 
 describe("vision and suspicion", () => {
   it("identifies a player in view after a short build-up, not instantly", () => {
-    const t = timeToSpot(5.5)!; // 4 tiles away: 0.72 suspicion/s -> about 1.4 s
-    expect(t).toBeGreaterThan(1.2);
-    expect(t).toBeLessThan(1.6);
+    const t = timeToSpot(5.5)!; // 4 tiles away
+    const v = config.vision;
+    const expected = 1 / (v.suspicionGainPerSecond * (1 - v.proximityFalloff * (4 / v.rangeTiles)));
+    expect(t).toBeGreaterThan(expected - 0.1);
+    expect(t).toBeLessThan(expected + 0.1);
+    expect(t).toBeGreaterThan(1); // never instant: the player always gets a moment to react
+  });
+
+  it("sneaking slows detection by the configured factor", () => {
+    const spot = (mode: "walk" | "sneak") => {
+      const s = new Scenario(config, 1, corridor()).player(5.5, 1.5).command({ type: "SetMove", dx: 0, dy: 0, mode });
+      while (s.eventsOfType("RobotSpotted").length === 0 && s.sim.state.tick < 30 * 30) s.advanceTicks(1);
+      return s.sim.state.tick / config.sim.ticksPerSecond;
+    };
+    const ratio = spot("sneak") / spot("walk");
+    expect(ratio).toBeGreaterThan(1 / config.vision.sneakGainFactor - 0.15);
+    expect(ratio).toBeLessThan(1 / config.vision.sneakGainFactor + 0.15);
   });
 
   it("is faster the closer the player is (monotonic)", () => {
@@ -61,7 +75,7 @@ describe("vision and suspicion", () => {
   it("suspicion decays when the player leaves view", () => {
     const s = new Scenario(config, 1, corridor()).player(3.5, 1.5).advance(0.5);
     const raised = s.robot("w1").suspicion;
-    expect(raised).toBeGreaterThan(0.3);
+    expect(raised).toBeGreaterThan(0.2);
     expect(raised).toBeLessThan(1);
     s.player(15.5, 1.5).advance(3);
     expect(s.robot("w1").suspicion).toBe(0);

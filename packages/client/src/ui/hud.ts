@@ -51,7 +51,7 @@ export class Hud {
       `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}   Zone: ${s.player.zone ?? "none"}`,
       `Credits ${s.inventory.credits}   Items: ${fmt(s.inventory.items) || "none"}${locker ? `   [Locker: ${locker}]` : ""}`,
       performance.now() < this.messageUntil ? `» ${this.message}` : "",
-      "WASD move · Shift run · Ctrl sneak · E use/talk · N notebook · Z zones",
+      "WASD move · Shift run · Ctrl sneak (quieter, harder to spot) · E use/talk · N notebook · Z zones",
       `${padConnected ? "Pad: stick/d-pad move · RB run · LB sneak · A use · B back · Y notebook   " : ""}${Math.round(fps)} fps`,
     ];
     next.forEach((text, i) => {

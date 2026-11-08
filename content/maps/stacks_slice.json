@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 20,
+ "nextobjectid": 200,
  "tilesets": [],
  "layers": [
   {
@@ -111,7 +111,7 @@
     0,
     0,
     0,
-    1,
+    0,
     0,
     0,
     0,
@@ -435,8 +435,8 @@
      "name": "start",
      "type": "spawn",
      "class": "spawn",
-     "x": 96,
-     "y": 224,
+     "x": 64,
+     "y": 352,
      "width": 0,
      "height": 0,
      "rotation": 0,
@@ -475,7 +475,7 @@
      "type": "door",
      "class": "door",
      "x": 480,
-     "y": 192,
+     "y": 96,
      "width": 0,
      "height": 0,
      "rotation": 0,
@@ -529,106 +529,6 @@
        "name": "route",
        "type": "string",
        "value": "corridor_loop"
-      }
-     ]
-    },
-    {
-     "id": 9,
-     "name": "",
-     "type": "waypoint",
-     "class": "waypoint",
-     "x": 416,
-     "y": 192,
-     "width": 0,
-     "height": 0,
-     "rotation": 0,
-     "visible": true,
-     "point": true,
-     "properties": [
-      {
-       "name": "route",
-       "type": "string",
-       "value": "corridor_loop"
-      },
-      {
-       "name": "order",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 10,
-     "name": "",
-     "type": "waypoint",
-     "class": "waypoint",
-     "x": 160,
-     "y": 192,
-     "width": 0,
-     "height": 0,
-     "rotation": 0,
-     "visible": true,
-     "point": true,
-     "properties": [
-      {
-       "name": "route",
-       "type": "string",
-       "value": "corridor_loop"
-      },
-      {
-       "name": "order",
-       "type": "int",
-       "value": 1
-      }
-     ]
-    },
-    {
-     "id": 11,
-     "name": "",
-     "type": "waypoint",
-     "class": "waypoint",
-     "x": 160,
-     "y": 224,
-     "width": 0,
-     "height": 0,
-     "rotation": 0,
-     "visible": true,
-     "point": true,
-     "properties": [
-      {
-       "name": "route",
-       "type": "string",
-       "value": "corridor_loop"
-      },
-      {
-       "name": "order",
-       "type": "int",
-       "value": 2
-      }
-     ]
-    },
-    {
-     "id": 12,
-     "name": "",
-     "type": "waypoint",
-     "class": "waypoint",
-     "x": 416,
-     "y": 224,
-     "width": 0,
-     "height": 0,
-     "rotation": 0,
-     "visible": true,
-     "point": true,
-     "properties": [
-      {
-       "name": "route",
-       "type": "string",
-       "value": "corridor_loop"
-      },
-      {
-       "name": "order",
-       "type": "int",
-       "value": 3
       }
      ]
     },
@@ -690,6 +590,106 @@
      "rotation": 0,
      "visible": true,
      "point": true
+    },
+    {
+     "id": 100,
+     "name": "",
+     "type": "waypoint",
+     "class": "waypoint",
+     "x": 416,
+     "y": 192,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "route",
+       "type": "string",
+       "value": "corridor_loop"
+      },
+      {
+       "name": "order",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 101,
+     "name": "",
+     "type": "waypoint",
+     "class": "waypoint",
+     "x": 224,
+     "y": 192,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "route",
+       "type": "string",
+       "value": "corridor_loop"
+      },
+      {
+       "name": "order",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 102,
+     "name": "",
+     "type": "waypoint",
+     "class": "waypoint",
+     "x": 224,
+     "y": 224,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "route",
+       "type": "string",
+       "value": "corridor_loop"
+      },
+      {
+       "name": "order",
+       "type": "int",
+       "value": 2
+      }
+     ]
+    },
+    {
+     "id": 103,
+     "name": "",
+     "type": "waypoint",
+     "class": "waypoint",
+     "x": 416,
+     "y": 224,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "route",
+       "type": "string",
+       "value": "corridor_loop"
+      },
+      {
+       "name": "order",
+       "type": "int",
+       "value": 3
+      }
+     ]
     }
    ]
   }
