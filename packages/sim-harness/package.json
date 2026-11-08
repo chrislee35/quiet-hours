@@ -1,0 +1,10 @@
+{
+  "name": "@qh/sim-harness",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc -p ." },
+  "dependencies": { "@qh/core": "workspace:*" },
+  "devDependencies": { "@types/node": "^24" }
+}

@@ -1,0 +1,5 @@
+[
+  { "id": "wren", "name": "Wren", "role": "cell_leader", "district": "safehouse" },
+  { "id": "odd_sam", "name": "Odd Sam", "role": "fixer", "district": "stacks" },
+  { "id": "pallas", "name": "Pallas", "role": "partner", "district": "safehouse" }
+]

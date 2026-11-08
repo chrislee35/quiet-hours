@@ -1,0 +1,23 @@
+{
+  "name": "quiet-hours",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "pnpm --filter @qh/client dev",
+    "build": "pnpm --filter @qh/client build",
+    "preview": "pnpm --filter @qh/client preview",
+    "typecheck": "pnpm -r --workspace-concurrency=1 typecheck",
+    "lint": "pnpm typecheck && node scripts/check-core-purity.ts",
+    "validate": "node packages/content-tools/src/cli.ts content",
+    "test": "vitest run",
+    "check:no-debug": "node scripts/check-no-debug.ts packages/client/dist",
+    "check": "pnpm lint && pnpm validate && pnpm test"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  }
+}

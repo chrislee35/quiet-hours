@@ -1,0 +1,16 @@
+{
+  "sim": { "ticksPerSecond": 30 },
+  "clock": {
+    "gameMinutesPerRealSecond": 1,
+    "startDay": 1,
+    "startMinuteOfDay": 420,
+    "curfewStartMinute": 1320,
+    "curfewEndMinute": 360,
+    "quietHoursStartMinute": 120,
+    "quietHoursEndMinute": 300
+  },
+  "player": { "walkSpeed": 3, "sneakSpeed": 1.5, "runSpeed": 5 },
+  "noise": { "walkRadius": 3, "sneakRadius": 1, "runRadius": 8 },
+  "alert": { "decaySeconds": 90 },
+  "vision": { "coneDegrees": 90, "rangeTiles": 6, "checkerRangeTiles": 4 }
+}

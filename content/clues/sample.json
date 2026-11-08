@@ -1,0 +1,18 @@
+[
+  {
+    "id": "pump4_shift",
+    "text": "The night shift at Pump 4 leaves the side door unlocked.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": ["place:pump4", "schedule:night_shift"],
+    "links": [{ "to": "pump4_shift_old", "kind": "updates" }]
+  },
+  {
+    "id": "pump4_shift_old",
+    "text": "Pump 4 locks its side door at 22:00.",
+    "source": "npc:wren",
+    "reliability": "outdated",
+    "tags": ["place:pump4"],
+    "links": []
+  }
+]
