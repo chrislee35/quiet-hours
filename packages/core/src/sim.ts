@@ -4,6 +4,7 @@ import { chooseOption, dialogueView, endConversation, notebookEntries, presentCl
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
 import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
+import { useItem } from "./combat.ts";
 import { economySystem } from "./economy.ts";
 import { cameraSystem } from "./cameras.ts";
 import { commsSystem } from "./comms.ts";
@@ -44,6 +45,8 @@ export type Command =
   | { type: "UnequipAugment"; id: string }
   /** Fire a worn augment's active ability (Burst Jammer). */
   | { type: "UseAugment"; id: string }
+  /** Use a tool item: stun or lethal on the nearest robot in reach, throw a decoy along (dx, dy), cut a camera. */
+  | { type: "UseItem"; id: string; dx?: number; dy?: number }
   /** Run effects as if triggered by content (dialogue, quest scripts). Also used by scenarios to set up state. */
   | { type: "ApplyEffects"; effects: Effect[] };
 
@@ -186,6 +189,9 @@ function applyCommands(ctx: Ctx): void {
         break;
       case "UnequipAugment":
         unequipAugment(ctx, cmd.id);
+        break;
+      case "UseItem":
+        if (!held) useItem(ctx, cmd.id, cmd.dx ?? 1, cmd.dy ?? 0);
         break;
       case "UseAugment":
         if (!held) useAugment(ctx, cmd.id);

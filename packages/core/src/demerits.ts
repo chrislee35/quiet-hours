@@ -10,11 +10,12 @@ import type { GameEvent } from "./events.ts";
  * Only people *with* a record can earn demerits: a null has nothing on file to mark (STE-3).
  */
 
-export type InfractionKind = "restricted_zone" | "curfew";
+export type InfractionKind = "restricted_zone" | "curfew" | "assault";
 
 const POINTS = (config: Config): Record<InfractionKind, number> => ({
   restricted_zone: config.demerits.restrictedZonePoints,
   curfew: config.demerits.curfewPoints,
+  assault: config.demerits.assaultPoints,
 });
 
 /** Records an infraction unless the same kind was recorded within the cooldown. Returns whether it counted. */

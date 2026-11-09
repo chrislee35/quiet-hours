@@ -58,7 +58,7 @@ export class Hud {
       performance.now() < this.messageUntil ? `» ${this.message}` : "",
       this.controller.lastSource === "touch"
         ? "Stick moves · Use talks/opens · Sneak is quieter and harder to spot · Notes opens your notebook · Gear manages augments"
-        : "WASD move · Shift run · Ctrl sneak (quieter, harder to spot) · E use/talk · N notebook · G gear · F pulse · Z zones",
+        : "WASD move · Shift run · Ctrl sneak (quieter, harder to spot) · E use/talk · N notebook · G gear · F pulse · Q tool · Z zones",
       `${padConnected ? "Pad: stick/d-pad move · RB run · LB sneak · A use · B back · Y notebook   " : ""}${Math.round(fps)} fps`,
     ];
     next.forEach((text, i) => {

@@ -1,5 +1,91 @@
 [
-  { "id": "scrap_wire", "name": "Scrap wire", "type": "junk", "stackable": true, "tags": ["craft"], "description": "Bits of copper. Doc Perrin pays for it." },
-  { "id": "contraband_radio", "name": "Pirate radio", "type": "contraband", "stackable": false, "tags": [], "description": "Illegal to own. An audit will find it." },
-  { "id": "fuse_kit", "name": "Fuse kit", "type": "tool", "stackable": true, "tags": ["craft"], "description": "Spare fuses for the power grid." }
+  {
+    "id": "scrap_wire",
+    "name": "Scrap wire",
+    "type": "junk",
+    "stackable": true,
+    "tags": [
+      "craft"
+    ],
+    "description": "Bits of copper. Doc Perrin pays for it."
+  },
+  {
+    "id": "contraband_radio",
+    "name": "Pirate radio",
+    "type": "contraband",
+    "stackable": false,
+    "tags": [],
+    "description": "Illegal to own. An audit will find it."
+  },
+  {
+    "id": "fuse_kit",
+    "name": "Fuse kit",
+    "type": "tool",
+    "stackable": true,
+    "tags": [
+      "craft"
+    ],
+    "description": "Spare fuses for the power grid."
+  },
+  {
+    "id": "noise_maker",
+    "name": "Noise-maker",
+    "type": "tool",
+    "stackable": true,
+    "tags": [
+      "distraction"
+    ],
+    "description": "A clockwork rattle. Throw it and robots go to see what made the noise.",
+    "tool": {
+      "kind": "decoy",
+      "rangeTiles": 8,
+      "noiseRadius": 9,
+      "consumed": true
+    }
+  },
+  {
+    "id": "wire_cutters",
+    "name": "Wire cutters",
+    "type": "tool",
+    "stackable": false,
+    "tags": [],
+    "description": "Cuts a camera's cable. The city will send someone to fix it.",
+    "tool": {
+      "kind": "cutters",
+      "rangeTiles": 1.8,
+      "consumed": false
+    }
+  },
+  {
+    "id": "stun_charge",
+    "name": "Stun charge",
+    "type": "tool",
+    "stackable": true,
+    "tags": [
+      "fight"
+    ],
+    "description": "Knocks the nearest robot in reach offline for a while. It is a fight: the alert rises, the robot calls for help, and you lose credits in the scuffle.",
+    "tool": {
+      "kind": "stun",
+      "rangeTiles": 2,
+      "seconds": 8,
+      "consumed": true
+    }
+  },
+  {
+    "id": "contraband_slug_round",
+    "name": "Slug round",
+    "type": "contraband",
+    "stackable": true,
+    "tags": [
+      "fight"
+    ],
+    "description": "Destroys a robot, loudly. The whole city hears, and it is recorded.",
+    "tool": {
+      "kind": "lethal",
+      "rangeTiles": 7,
+      "noiseRadius": 14,
+      "consumed": true
+    }
+  }
 ]

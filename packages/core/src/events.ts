@@ -11,7 +11,7 @@ export const ALERT_NAMES = ["Calm", "Suspicious", "Hunting", "Lockdown"] as cons
 
 /** Everything the core tells the outside world. Clients render these; tests assert on them. */
 export type GameEvent =
-  | { type: "NoiseEmitted"; tick: number; x: number; y: number; radius: number; source: "player" }
+  | { type: "NoiseEmitted"; tick: number; x: number; y: number; radius: number; source: "player" | "decoy" | "weapon" }
   | { type: "DoorOpened"; tick: number; doorId: string }
   | { type: "DoorClosed"; tick: number; doorId: string }
   /** The player tried to open a locked door. */
@@ -56,7 +56,7 @@ export type GameEvent =
   | { type: "PlayerProcessed"; tick: number; arrestCount: number; items: Record<string, number>; credits: number }
   | { type: "PlayerReleased"; tick: number }
   | { type: "LockerOpened"; tick: number; lockerId: string; items: Record<string, number>; credits: number }
-  | { type: "InfractionRecorded"; tick: number; kind: "restricted_zone" | "curfew"; points: number; total: number }
+  | { type: "InfractionRecorded"; tick: number; kind: "restricted_zone" | "curfew" | "assault"; points: number; total: number }
   | { type: "DemeritThreshold"; tick: number; level: "check" | "enforcer" }
   | { type: "ServiceUsed"; tick: number; serviceId: string; price: number }
   | { type: "ServiceRefused"; tick: number; serviceId: string; reason: "unknown" | "null_state" | "requirements" | "funds" | "once"; text: string }
@@ -65,6 +65,13 @@ export type GameEvent =
   | { type: "InterestAccrued"; tick: number; lender: string; owed: number }
   /** Collectors visited an overdue debtor, took a share of their credits and raised the alert. */
   | { type: "CollectorsCame"; tick: number; lender: string; taken: number; owed: number }
+  | { type: "ToolUsed"; tick: number; itemId: string; kind: "stun" | "decoy" | "cutters" | "lethal" }
+  | { type: "ToolRefused"; tick: number; itemId: string; reason: "not_a_tool" | "none_left" | "no_target" }
+  | { type: "RobotStunned"; tick: number; robotId: string }
+  /** Lethal force: rare, loud, and recorded in the flag `lethal_force_used` (CMB-3). */
+  | { type: "RobotDestroyed"; tick: number; robotId: string }
+  /** A fight happened: the alert rose, the victim called for help, credits were lost (CMB-2). */
+  | { type: "FightConsequences"; tick: number; creditsLost: number; alert: number }
   | { type: "AugmentGained"; tick: number; augmentId: string }
   | { type: "AugmentEquipped"; tick: number; augmentId: string }
   | { type: "AugmentUnequipped"; tick: number; augmentId: string }

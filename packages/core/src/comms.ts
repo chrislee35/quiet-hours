@@ -13,7 +13,7 @@ export function broadcastAlert(ctx: Ctx, originId: string, from: { x: number; y:
   const deliverTick = state.tick + secondsToTicks(config.comms.latencySeconds, config);
   const recipients: string[] = [];
   for (const r of state.robots) {
-    if (r.id === originId || r.kind === "mender") continue;
+    if (r.id === originId || r.kind === "mender" || r.destroyed) continue;
     if (Math.hypot(r.x - from.x, r.y - from.y) > range) continue;
     recipients.push(r.id);
     state.messages.push({ to: r.id, from: originId, x: at.x, y: at.y, deliverTick });
@@ -30,7 +30,7 @@ export function commsSystem(ctx: Ctx): void {
   state.messages = state.messages.filter((m) => m.deliverTick > state.tick);
   for (const m of due) {
     const robot = state.robots.find((r) => r.id === m.to);
-    if (!robot || robot.mode === "chase" || robot.mode === "alert") continue; // already on it
+    if (!robot || robot.destroyed || robot.mode === "chase" || robot.mode === "alert") continue; // already on it
     robot.suspicion = Math.max(robot.suspicion, config.comms.primedSuspicion);
     robot.mode = "investigate";
     robot.target = { x: m.x, y: m.y };

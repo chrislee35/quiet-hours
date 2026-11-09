@@ -113,6 +113,18 @@ export const itemSchema = {
     stackable: { type: "boolean" },
     tags: { type: "array", items: id },
     description: { type: "string" },
+    tool: {
+      type: "object",
+      additionalProperties: false,
+      required: ["kind", "rangeTiles", "consumed"],
+      properties: {
+        kind: { enum: ["stun", "decoy", "cutters", "lethal"] },
+        rangeTiles: { type: "number", exclusiveMinimum: 0 },
+        seconds: { type: "number", exclusiveMinimum: 0 },
+        noiseRadius: { type: "number", exclusiveMinimum: 0 },
+        consumed: { type: "boolean" },
+      },
+    },
   },
 } as const;
 

@@ -94,6 +94,8 @@ export interface Config {
   };
   demerits: {
     restrictedZonePoints: number;
+    /** Points for attacking a robot (only people with a record can earn demerits). */
+    assaultPoints: number;
     curfewPoints: number;
     /** Minimum seconds between two infractions of the same kind being recorded. */
     cooldownSeconds: number;
@@ -139,6 +141,15 @@ export interface Config {
     relockDelaySeconds: number;
     /** Seconds a maintenance robot spends on the job once it arrives. */
     repairSeconds: number;
+  };
+  /** What fighting costs (CMB-2). */
+  combat: {
+    /** Alert level a fight raises the city to (Hunting). */
+    fightAlert: number;
+    /** Alert level lethal force raises it to (Lockdown). */
+    lethalAlert: number;
+    /** Share of the credits carried that is lost in the scuffle. */
+    creditLossFraction: number;
   };
   /** Loans and collectors (ECO-2). */
   economy: {
@@ -189,6 +200,7 @@ const SHAPE: Shape = {
   identity: { nullGainFactor: "number", violationGainFactor: "number", allowedGainFactor: "number" },
   demerits: {
     restrictedZonePoints: "number",
+    assaultPoints: "number",
     curfewPoints: "number",
     cooldownSeconds: "number",
     decayPerSecond: "number",
@@ -200,6 +212,7 @@ const SHAPE: Shape = {
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },
   band: { slots: "number", powerBudget: "number" },
+  combat: { fightAlert: "number", lethalAlert: "number", creditLossFraction: "number" },
   economy: { loanInterestPerDay: "number", loanDueDays: "number", garnishFraction: "number" },
   robots: Object.fromEntries(ROBOT_KINDS.map((k) => [k, PROFILE_SHAPE])) as Shape,
 };

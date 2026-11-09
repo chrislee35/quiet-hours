@@ -131,8 +131,10 @@ export interface RobotState {
   dispatched: boolean;
   /** Maintenance robots: the repair job being carried out. */
   task: RepairTask | null;
-  /** Tick until which a Burst Jammer has knocked it out (0 = not jammed). */
+  /** Tick until which it is knocked out (Burst Jammer, stun); 0 = not. */
   jammedUntil: number;
+  /** Destroyed by lethal force: out for good. */
+  destroyed: boolean;
 }
 
 export interface RepairTask {
@@ -183,7 +185,7 @@ export function createRobotState(r: RobotDef): RobotState {
   return {
     id: r.id, kind: r.kind, x: r.x, y: r.y, facing: r.facing, mode: "patrol", route: r.route, routeIndex: 0,
     target: null, path: [], pathGoal: null, arrived: false, dwell: 0, dwellTotal: 0, lookBase: r.facing,
-    suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false, task: null, jammedUntil: 0,
+    suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false, task: null, jammedUntil: 0, destroyed: false,
   };
 }
 

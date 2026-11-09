@@ -61,6 +61,10 @@ export function robotPerception(ctx: Ctx): void {
   for (const robot of state.robots) {
     const prof = profile(config, robot);
     const dist = Math.hypot(player.x - robot.x, player.y - robot.y);
+    if (robot.destroyed) {
+      robot.sees = false;
+      continue;
+    }
     if (robot.busy > 0) robot.busy -= 1;
     if (state.tick < robot.jammedUntil) {
       // Knocked out by a Burst Jammer: sees and hears nothing, and forgets what it was suspicious of.
@@ -227,7 +231,7 @@ export function robotBehavior(ctx: Ctx): void {
   const { state, config, world, events } = ctx;
   for (const robot of state.robots) {
     const prof = profile(config, robot);
-    if (state.tick < robot.jammedUntil) continue;
+    if (robot.destroyed || state.tick < robot.jammedUntil) continue;
     if (robot.kind === "mender") {
       menderStep(ctx, robot);
       continue;

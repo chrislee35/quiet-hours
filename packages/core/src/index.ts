@@ -30,3 +30,4 @@ export * from "./nav.ts";
 export * from "./repairs.ts";
 export * from "./augments.ts";
 export * from "./economy.ts";
+export * from "./combat.ts";

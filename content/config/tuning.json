@@ -45,11 +45,17 @@
   },
   "demerits": {
     "restrictedZonePoints": 3,
+    "assaultPoints": 3,
     "curfewPoints": 2,
     "cooldownSeconds": 8,
     "decayPerSecond": 0.05,
     "checkThreshold": 5,
     "enforcerThreshold": 10
+  },
+  "combat": {
+    "fightAlert": 2,
+    "lethalAlert": 3,
+    "creditLossFraction": 0.25
   },
   "economy": {
     "loanInterestPerDay": 0.25,

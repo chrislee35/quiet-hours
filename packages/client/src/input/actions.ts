@@ -3,11 +3,11 @@ import { safeStorage } from "../storage.ts";
 
 /** Logical actions (ACC-1). The game logic only ever sees these; physical keys and buttons map onto them. */
 export type HeldAction = "up" | "down" | "left" | "right" | "run" | "sneak";
-export type PressAction = "interact" | "notebook" | "gear" | "pulse" | "zones" | "cancel";
+export type PressAction = "interact" | "notebook" | "gear" | "pulse" | "tool" | "zones" | "cancel";
 export type Action = HeldAction | PressAction;
 
 export const HELD_ACTIONS: readonly HeldAction[] = ["up", "down", "left", "right", "run", "sneak"];
-export const PRESS_ACTIONS: readonly PressAction[] = ["interact", "notebook", "gear", "pulse", "zones", "cancel"];
+export const PRESS_ACTIONS: readonly PressAction[] = ["interact", "notebook", "gear", "pulse", "tool", "zones", "cancel"];
 export const ACTIONS: readonly Action[] = [...HELD_ACTIONS, ...PRESS_ACTIONS];
 
 export type HeldActions = Record<HeldAction, boolean>;
@@ -26,6 +26,7 @@ export const DEFAULT_KEYS: KeyBindings = {
   notebook: ["KeyN"],
   gear: ["KeyG"],
   pulse: ["KeyF"],
+  tool: ["KeyQ"],
   zones: ["KeyZ"],
   cancel: ["Escape"],
 };
@@ -42,6 +43,7 @@ export const DEFAULT_PAD: PadBindings = {
   notebook: [3],
   gear: [9],
   pulse: [2],
+  tool: [10],
   zones: [8],
   cancel: [1],
 };

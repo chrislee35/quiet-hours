@@ -26,6 +26,7 @@ Do not open `index.html` from disk; browsers block modules on `file://`.
 | Notebook | N | Y |
 | Wrist band and belongings | G | Start |
 | Fire Burst Jammer | F | X |
+| Use the ready tool | Q | right stick click |
 | Zone overlay | Z | Back |
 
 **Touch screens (for playtesters).** On a touch device the game shows on-screen controls: a thumb stick (left) to move, a big **Use** button, **Run** and **Sneak** toggles (tap to turn on, tap again to turn off; they are exclusive), **Notes** for the notebook, **Gear** for the wrist band, **Pulse** for the Burst Jammer and **Back** to close windows. You can steer and tap at the same time. Use landscape orientation. Dialogue options and the terminal puzzle are tapped directly. Append `?touch=1` to the URL to force the controls on (for example to try them with a mouse) or `?touch=0` to hide them.

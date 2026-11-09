@@ -311,7 +311,10 @@ class QuietScene extends Phaser.Scene {
       if (this.uiOpenAtFrameStart || this.sim.state.conversation || this.sim.state.terminal) return;
       if (action === "interact") this.pending.push({ type: "Interact" });
       else if (action === "zones") this.zoneLayer.setVisible(!this.zoneLayer.visible);
-      else if (action === "pulse") {
+      else if (action === "tool") {
+        const id = this.deps.toolbelt.ready;
+        if (id) this.pending.push({ type: "UseItem", id, dx: Math.cos(this.facing), dy: Math.sin(this.facing) });
+      } else if (action === "pulse") {
         const id = this.sim.state.augments.equipped.find((a) => this.sim.content.augments[a]?.jam);
         if (id) this.pending.push({ type: "UseAugment", id });
       }
@@ -328,7 +331,8 @@ class QuietScene extends Phaser.Scene {
       const prev = this.prevRobots.get(r.id) ?? r;
       const x = (prev.x + (r.x - prev.x) * alpha) * TILE;
       const y = (prev.y + (r.y - prev.y) * alpha) * TILE;
-      this.robotSprites.get(r.id)?.setPosition(x, y).setRotation(r.facing);
+      this.robotSprites.get(r.id)?.setPosition(x, y).setRotation(r.facing).setVisible(!r.destroyed);
+      if (r.destroyed) continue;
       const prof = config.robots[r.kind];
       const half = (prof.coneDegrees * Math.PI) / 360;
       const jammed = state.tick < r.jammedUntil;

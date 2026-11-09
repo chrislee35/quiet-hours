@@ -5,6 +5,8 @@ import type { Hud } from "../ui/hud.ts";
 export interface RenderDeps {
   controller: InputController;
   hud: Hud;
+  /** Which tool item is ready to use with the Tool action (chosen in the Gear panel). */
+  toolbelt: { ready: string | null };
 }
 
 /**

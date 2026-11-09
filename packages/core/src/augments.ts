@@ -8,6 +8,7 @@
 import { secondsToTicks, type Ctx } from "./ctx.ts";
 import { resolvePass, type ScanOptions, type ScanResult } from "./identity.ts";
 import type { Content } from "./dialogue/types.ts";
+import type { ToolSpec } from "./combat.ts";
 import type { SimState } from "./state.ts";
 import type { ZoneDef } from "./world.ts";
 
@@ -37,6 +38,8 @@ export interface ItemDef {
   stackable: boolean;
   tags: string[];
   description: string;
+  /** If present, the item can be used with the UseItem command (T2.6). */
+  tool?: ToolSpec;
 }
 
 export const ITEM_TYPES: readonly ItemType[] = ["tool", "key", "consumable", "contraband", "junk"];

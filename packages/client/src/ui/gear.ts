@@ -17,6 +17,8 @@ export class GearPanel {
   private readonly sim: Sim;
   private readonly root: HTMLElement;
   private note = "";
+  /** The tool item the Tool action uses; chosen here with "Ready". */
+  readonly toolbelt: { ready: string | null } = { ready: null };
 
   constructor(sim: Sim, host: HTMLElement) {
     this.sim = sim;
@@ -28,6 +30,7 @@ export class GearPanel {
     sim.bus.subscribe((e) => {
       if (e.type === "AugmentRefused") this.note = REFUSAL[e.reason];
       else if (e.type === "AugmentEquipped" || e.type === "AugmentUnequipped") this.note = "";
+      if (e.type === "ToolRefused") this.note = ({ not_a_tool: "That is not a tool.", none_left: "None left.", no_target: "Nothing in reach to use it on." })[e.reason];
       if (e.type.startsWith("Augment") || e.type === "BandUpgraded" || e.type === "ItemsChanged" || e.type === "CreditsChanged" || e.type === "PassGained" || e.type === "PassLost") this.refresh();
     });
   }
@@ -89,10 +92,31 @@ export class GearPanel {
     root.append(ul);
     if (this.note) root.append(this.el("p", this.note, "note"));
     root.append(this.el("h3", "Carrying"));
-    const items = Object.entries(state.inventory.items).map(([id, n]) => `${content.items[id]?.name ?? id.replace(/_/g, " ")}${n > 1 ? ` x${n}` : ""}`);
     root.append(this.el("p", `Credits ${state.inventory.credits}`));
-    root.append(this.el("p", items.length > 0 ? items.join(", ") : "Nothing else.", "hint"));
+    if (this.toolbelt.ready && (state.inventory.items[this.toolbelt.ready] ?? 0) < 1) this.toolbelt.ready = null;
+    const list = this.el("ul");
+    for (const [id, n] of Object.entries(state.inventory.items)) {
+      const def = content.items[id];
+      const li = this.el("li");
+      const head = this.el("div", "", "head");
+      head.append(this.el("span", `${def?.name ?? id.replace(/_/g, " ")}${n > 1 ? ` x${n}` : ""}`));
+      if (def?.tool) {
+        const ready = this.toolbelt.ready === id;
+        const b = this.el("button", ready ? "Ready ✓" : "Ready");
+        b.type = "button";
+        b.addEventListener("click", () => {
+          this.toolbelt.ready = ready ? null : id;
+          this.refresh();
+        });
+        head.append(b);
+      }
+      li.append(head);
+      if (def?.description) li.append(this.el("div", def.description, "desc"));
+      list.append(li);
+    }
+    root.append(list);
+    if (list.children.length === 0) root.append(this.el("p", "Nothing else.", "hint"));
     if (state.passes.length > 0) root.append(this.el("p", `Passes: ${state.passes.map((p) => p.label).join(", ")}`, "hint"));
-    root.append(this.el("p", "G or Esc closes. Burst Jammer fires with F.", "hint"));
+    root.append(this.el("p", "G or Esc closes. F fires the Burst Jammer. Q uses the ready tool.", "hint"));
   }
 }

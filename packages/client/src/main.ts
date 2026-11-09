@@ -49,7 +49,7 @@ const terminal = new TerminalWindow(sim, document.body);
 const gear = new GearPanel(sim, document.body);
 bindUi(controller, sim, { dialogue, terminal, notebook, gear });
 
-new PhaserRenderer().start(host, sim, { controller, hud });
+new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt });
 
 if (__QH_DEBUG__) {
   void import("./debug/overlay.ts").then((m) => m.mountDebugOverlay(sim));
