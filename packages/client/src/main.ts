@@ -1,6 +1,7 @@
 import { Sim, buildWorld, importTiled, validateConfig } from "@qh/core";
 import tuning from "../../../content/config/tuning.json" with { type: "json" };
 import stacksSlice from "../../../content/maps/stacks_slice.json" with { type: "json" };
+import robotRange from "../../../content/maps/robot_range.json" with { type: "json" };
 import { loadContent } from "./content.ts";
 import { PhaserRenderer } from "./render/PhaserRenderer.ts";
 import { DialogueWindow } from "./ui/dialogue.ts";
@@ -15,7 +16,11 @@ import { TerminalWindow } from "./ui/terminal.ts";
 import { OVERLAY_CSS } from "./ui/styles.ts";
 
 const config = validateConfig(tuning);
-const world = buildWorld(importTiled(stacksSlice, "stacks_slice"));
+// `?map=range` loads the robot test range (one of every robot type) instead of the slice.
+const useRange = new URLSearchParams(location.search).get("map") === "range";
+const world = useRange
+  ? buildWorld(importTiled(robotRange, "robot_range"))
+  : buildWorld(importTiled(stacksSlice, "stacks_slice"));
 const sim = new Sim(config, Date.now() >>> 0, { world, content: loadContent() });
 const host = document.getElementById("game");
 if (!host) throw new Error("missing #game element");
