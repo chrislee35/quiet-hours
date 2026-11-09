@@ -46,6 +46,9 @@ export type Condition =
   | { has_record: boolean }
   /** The player owes this lender, or "*" for any lender. */
   | { in_debt: string }
+  /** Curfew is in force / it is Quiet Hours (02:00-05:00 by default). */
+  | { is_curfew: boolean }
+  | { is_quiet_hours: boolean }
   /** A district value equals this. */
   | { district_is: [district: string, key: string, value: FlagValue] }
   | { metric_gte: [metric: "order" | "power" | "contentment", value: number] }
@@ -110,6 +113,8 @@ export function evalCondition(c: Condition, state: Readonly<SimState>, config: C
   if ("district_is" in c) return state.district[c.district_is[0]]?.[c.district_is[1]] === c.district_is[2];
   if ("metric_gte" in c) return state.metrics[c.metric_gte[0]] >= c.metric_gte[1];
   if ("metric_lte" in c) return state.metrics[c.metric_lte[0]] <= c.metric_lte[1];
+  if ("is_curfew" in c) return gameTimeAt(state.tick, config).isCurfew === c.is_curfew;
+  if ("is_quiet_hours" in c) return gameTimeAt(state.tick, config).isQuietHours === c.is_quiet_hours;
   if ("in_debt" in c) return totalOwed(state, c.in_debt === "*" ? undefined : c.in_debt) > 0;
   if ("has_clue" in c) return state.clues[c.has_clue] !== undefined;
   if ("clue_state" in c) return state.clues[c.clue_state[0]]?.status === c.clue_state[1];
@@ -341,6 +346,8 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
     case "metric_lte":
       if (!isTuple(a, 2) || !["order", "power", "contentment"].includes(a[0] as string) || !isInt(a[1], 0, 100)) bad("expected [order|power|contentment, 0-100]");
       break;
+    case "is_curfew":
+    case "is_quiet_hours":
     case "has_record":
       if (typeof a !== "boolean") bad("expected true or false");
       break;

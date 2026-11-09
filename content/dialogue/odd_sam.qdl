@@ -24,6 +24,7 @@ node: wares
   > [credits>=10, augment:slow_tongue, !clue:pump4_shift] "Haggle, slowly and soothingly. (10 credits)" {-credits:10, +clue:pump4_shift(odd_sam)} -> haggled
   > [!clue:pump4_shift_old] "Take the free sample." {+clue:pump4_shift_old(odd_sam)} -> sample
   > "Ask about papers. (40 credits)" {service:forge_stacks_pass} -> deal
+  > [quiet] "Ask about the night records. (15 credits)" {service:quiet_hours_forgery} -> deal
   > "Sell scrap wire. (2 bundles)" {service:sell_scrap} -> deal
   > [!debt:odd_sam] "Ask for a loan. (40 credits, and I owe more every day)" {loan:odd_sam*40} -> loaned
   > [debt:odd_sam, credits>=1] "Pay back some of what I owe. (up to 30)" {repay:odd_sam*30} -> deal

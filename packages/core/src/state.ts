@@ -52,6 +52,8 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** Where each person is. Moves by routine (npcs.ts); absent people are `away`. */
+  npcs: Record<string, NpcState>;
   /** Per-district named values: power, lockdown, patrol sets. Changed by effects only. */
   district: Record<string, Record<string, FlagValue>>;
   /** City metrics 0-100 (hidden from the player as numbers) and the last in-game hour recovery ran. */
@@ -184,6 +186,22 @@ export interface PendingAlert {
   deliverTick: number;
 }
 
+export interface NpcState {
+  x: number;
+  y: number;
+  facing: number;
+  path: { x: number; y: number }[];
+  pathGoal: { x: number; y: number } | null;
+  /** The spot of their routine they are at or headed to; null if they have no routine. */
+  spot: string | null;
+  /** Off duty: not in the district (not drawn, cannot be talked to). */
+  away: boolean;
+}
+
+export function createNpcState(x: number, y: number): NpcState {
+  return { x, y, facing: 0, path: [], pathGoal: null, spot: null, away: false };
+}
+
 export function createCameraState(c: CameraDef): CameraState {
   return {
     id: c.id, x: c.x + 0.5, y: c.y + 0.5, facing: c.facing, heading: c.facing, suspicion: 0, sees: false,
@@ -224,6 +242,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },
+    npcs: Object.fromEntries(world.npcs.map((n) => [n.id, createNpcState(n.x + 0.5, n.y + 0.5)])),
     district: {},
     metrics: { order: config.metrics.orderStart, power: config.metrics.powerStart, contentment: config.metrics.contentmentStart, lastHour: 0 },
     loans: { debts: [], lastDay: t.day },

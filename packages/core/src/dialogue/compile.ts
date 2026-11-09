@@ -55,6 +55,8 @@ function parseConditions(text: string, allowReliability: boolean, fail: (m: stri
     else if ((m = t.match(new RegExp(`^owns:(${ID})$`)))) c = { has_augment: m[1]! };
     else if ((m = t.match(new RegExp(`^can:(${ID})$`)))) c = { can_service: m[1]! };
     else if (t === "record") c = { has_record: true };
+    else if (t === "curfew") c = { is_curfew: true };
+    else if (t === "quiet") c = { is_quiet_hours: true };
     else if ((m = t.match(new RegExp(`^debt:(${ID}|\\*)$`)))) c = { in_debt: m[1]! };
     else if ((m = t.match(/^credits>=(\d+)$/))) c = { credits_gte: Number(m[1]) };
     else if ((m = t.match(new RegExp(`^trust:(${ID})>=(-?\\d|distrusts|unsure|trusts)$`)))) {

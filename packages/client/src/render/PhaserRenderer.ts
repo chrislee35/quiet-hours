@@ -71,6 +71,7 @@ class QuietScene extends Phaser.Scene {
   private robotSprites = new Map<string, Phaser.GameObjects.Image>();
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
+  private npcMarks = new Map<string, [Phaser.GameObjects.Image, Phaser.GameObjects.Text]>();
   private pickupMarks = new Map<string, Phaser.GameObjects.GameObject[]>();
   private promptText!: Phaser.GameObjects.Text;
   private readonly deps: RenderDeps;
@@ -245,11 +246,12 @@ class QuietScene extends Phaser.Scene {
         .setDepth(60);
     }
     for (const n of this.sim.world.npcs) {
-      this.add.image((n.x + 0.5) * TILE, (n.y + 0.5) * TILE, "npc").setLighting(true).setDepth(8);
-      this.add
+      const sprite = this.add.image((n.x + 0.5) * TILE, (n.y + 0.5) * TILE, "npc").setLighting(true).setDepth(8);
+      const label = this.add
         .text((n.x + 0.5) * TILE, n.y * TILE - 4, n.id.replace(/_/g, " "), { fontFamily: "monospace", fontSize: "10px", color: "#9fd0ff" })
         .setOrigin(0.5, 1)
         .setDepth(60);
+      this.npcMarks.set(n.id, [sprite, label]);
     }
     for (const r of this.sim.state.robots) {
       this.robotSprites.set(
@@ -444,6 +446,12 @@ class QuietScene extends Phaser.Scene {
     this.cone.setPosition(x, y).setConeRotation(this.facing);
 
     this.drawRobots(a);
+    for (const [id, [sprite, label]] of this.npcMarks) {
+      const n = this.sim.state.npcs[id];
+      if (!n) continue;
+      sprite.setPosition(n.x * TILE, n.y * TILE).setVisible(!n.away);
+      label.setPosition(n.x * TILE, (n.y - 0.5) * TILE - 4).setVisible(!n.away);
+    }
     for (const [id, marks] of this.pickupMarks) for (const m of marks) (m as Phaser.GameObjects.Components.Visible & Phaser.GameObjects.GameObject).setVisible(!this.sim.state.flags[`picked_${id}`]);
 
     const prompt = this.sim.prompt();

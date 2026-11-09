@@ -1,3 +1,4 @@
+import { gameTimeAt } from "./clock.ts";
 import type { Ctx } from "./ctx.ts";
 import { applyEffect } from "./rules.ts";
 import type { SimState } from "./state.ts";
@@ -23,7 +24,8 @@ export function recordInfraction(state: SimState, config: Config, events: GameEv
   const cooldown = Math.round(config.demerits.cooldownSeconds * config.sim.ticksPerSecond);
   const last = state.demerits.last[kind];
   if (last !== undefined && state.tick - last < cooldown) return false;
-  const points = POINTS(config)[kind];
+  const quiet = kind === "curfew" && gameTimeAt(state.tick, config).isQuietHours;
+  const points = POINTS(config)[kind] * (quiet ? config.demerits.quietHoursCurfewFactor : 1);
   state.demerits.last[kind] = state.tick;
   state.demerits.points += points;
   events.push({ type: "InfractionRecorded", tick: state.tick, kind, points, total: Math.round(state.demerits.points * 100) / 100 });

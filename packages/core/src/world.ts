@@ -1,3 +1,4 @@
+import type { RoutineEntry } from "./npcs.ts";
 import type { Effect } from "./rules.ts";
 
 /**
@@ -26,6 +27,8 @@ export interface MapData {
   cameras: CameraDef[];
   /** Things lying in the world to pick up. Optional in map data (none by default). */
   pickups?: PickupDef[];
+  /** Named points people walk between (see npcs.ts). Optional in map data. */
+  spots?: SpotDef[];
 }
 
 /**
@@ -47,6 +50,13 @@ export function pickupEffect(grant: string): Effect | null {
   if (kind === "item" && id && (n === undefined || /^[1-9]\d*$/.test(n))) return { add_item: [id, n === undefined ? 1 : Number(n)] };
   if (kind === "credits" && id && /^[1-9]\d*$/.test(id) && n === undefined) return { add_credits: Number(id) };
   return null;
+}
+
+/** A named point on the map, used by NPC routines. */
+export interface SpotDef {
+  id: string;
+  x: number;
+  y: number;
 }
 
 /** A fixed camera. It may be mounted in a wall tile; its view starts from the tile centre. */
@@ -75,6 +85,8 @@ export interface NpcDef {
   y: number;
   /** Conversation (a compiled `.qdl`) started by Interact. */
   dialogue: string;
+  /** Daily routine: where they are through the day (see npcs.ts). Without one they stand still. */
+  routine?: RoutineEntry[];
 }
 
 /** Where items confiscated by processing can be recovered (FAIL-3). */
@@ -148,6 +160,8 @@ export interface World {
   terminals: readonly TerminalPlacement[];
   cameras: readonly CameraDef[];
   pickups: readonly PickupDef[];
+  spots: readonly SpotDef[];
+  spotById: ReadonlyMap<string, SpotDef>;
   doorByTile: ReadonlyMap<number, DoorDef>;
   doorById: ReadonlyMap<string, DoorDef>;
 }
@@ -171,6 +185,8 @@ export const OPEN_WORLD: World = {
   terminals: [],
   cameras: [],
   pickups: [],
+  spots: [],
+  spotById: new Map(),
   doorByTile: new Map(),
   doorById: new Map(),
 };
@@ -246,6 +262,14 @@ export function buildWorld(data: MapData): World {
     else if (wall[tileKey(probe, l.x, l.y)]) errors.push(`locker "${l.id}" is inside a wall`);
   }
 
+  const spotIds = new Set<string>();
+  for (const sp of data.spots ?? []) {
+    if (spotIds.has(sp.id)) errors.push(`duplicate spot id "${sp.id}"`);
+    spotIds.add(sp.id);
+    if (!inBounds(probe, sp.x, sp.y)) errors.push(`spot "${sp.id}" is out of bounds`);
+    else if (wall[tileKey(probe, sp.x, sp.y)]) errors.push(`spot "${sp.id}" is inside a wall`);
+  }
+
   const pickupIds = new Set<string>();
   for (const p of data.pickups ?? []) {
     if (pickupIds.has(p.id)) errors.push(`duplicate pickup id "${p.id}"`);
@@ -277,6 +301,10 @@ export function buildWorld(data: MapData): World {
     if (!inBounds(probe, n.x, n.y)) errors.push(`npc "${n.id}" is out of bounds`);
     else if (wall[tileKey(probe, n.x, n.y)]) errors.push(`npc "${n.id}" is inside a wall`);
     if (n.dialogue === "") errors.push(`npc "${n.id}" needs a dialogue`);
+    for (const e of n.routine ?? []) {
+      if (!/^([01]?\d|2[0-3]):[0-5]\d$/.test(e.at)) errors.push(`npc "${n.id}" routine has a bad time "${e.at}" (expected HH:MM)`);
+      if (e.spot !== "away" && !(data.spots ?? []).some((s) => s.id === e.spot)) errors.push(`npc "${n.id}" routine goes to unknown spot "${e.spot}"`);
+    }
   }
 
   const routeById = new Map<string, RouteDef>();
@@ -321,6 +349,8 @@ export function buildWorld(data: MapData): World {
     terminals: data.terminals,
     cameras: data.cameras,
     pickups: data.pickups ?? [],
+    spots: data.spots ?? [],
+    spotById: new Map((data.spots ?? []).map((s) => [s.id, s])),
     doorByTile,
     doorById,
   };

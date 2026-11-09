@@ -1,6 +1,13 @@
 import type { Ctx } from "./ctx.ts";
 import { findPath } from "./pathfind.ts";
-import type { RobotState } from "./state.ts";
+/** Anything that walks paths: robots, maintenance units, people. */
+export interface Walker {
+  x: number;
+  y: number;
+  facing: number;
+  path: { x: number; y: number }[];
+  pathGoal: { x: number; y: number } | null;
+}
 
 /** Path following shared by every robot that walks (patrols, hunters, maintenance units). */
 const ARRIVE_EPS = 1e-6;
@@ -19,7 +26,7 @@ export function passableForRobot(ctx: Ctx) {
 }
 
 /** Walk toward (gx, gy), planning an A* path when the goal changes. */
-export function goTo(ctx: Ctx, robot: RobotState, gx: number, gy: number, speed: number): Progress {
+export function goTo(ctx: Ctx, robot: Walker, gx: number, gy: number, speed: number): Progress {
   const { world, state, config, events } = ctx;
   const passable = passableForRobot(ctx);
   const goal = { x: Math.floor(gx), y: Math.floor(gy) };

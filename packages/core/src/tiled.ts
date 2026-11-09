@@ -1,4 +1,4 @@
-import { ROBOT_KINDS, type PickupDef, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type CameraDef, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
+import { ROBOT_KINDS, type SpotDef, type PickupDef, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type CameraDef, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
 
 /**
  * Importer for maps authored in Tiled (https://www.mapeditor.org/), exported as JSON.
@@ -11,11 +11,13 @@ import { ROBOT_KINDS, type PickupDef, type DoorDef, type LockerDef, type MapData
  *  - Object layer "objects": points or rectangles whose Class/Type is "door" or "spawn",
  *    named with the entity id. Doors take bool properties `open` and `locked` (default false).
  *    Class "npc": a person to talk to; Name is the npc id, string property `dialogue` is the conversation id.
+ *    An npc may have a string `routine`: "06:00=spot_a,12:00=spot_b,22:00=away" (see npcs.ts).
  *    Class "terminal": a hackable terminal; Name is the terminal id (defined in content/terminals).
  *    Class "camera": a fixed camera; Name is its id, number property `facing` in degrees (like robots).
  *    Class "pickup": something lying around; Name is its id, string property `grant` is what it gives
  *    ("augment:ID", "item:ID[:COUNT]" or "credits:N").
  *    Robots and cameras may have a string `activeWhen` ("district:key=value"): they exist only while it holds.
+ *    Class "spot": a named point (Name is its id) that NPC routines send people to.
  *    Class "locker": where confiscated items are recovered after processing.
  *    Class "robot": string `kind` (default "warden"), number `facing` in degrees (0 = east, 90 = south,
  *    default 0), optional string `route`. Class "waypoint": string `route`, number `order` (default:
@@ -120,6 +122,7 @@ export function importTiled(raw: unknown, id: string): MapData {
   const terminals: TerminalPlacement[] = [];
   const cameras: CameraDef[] = [];
   const pickups: PickupDef[] = [];
+  const spots: SpotDef[] = [];
   const waypoints = new Map<string, { order: number; seq: number; x: number; y: number }[]>();
   let seq = 0;
   for (const o of layer("objects", "objectgroup")?.objects ?? []) {
@@ -159,11 +162,21 @@ export function importTiled(raw: unknown, id: string): MapData {
         errors.push(`npc "${oid}" needs a string property "dialogue"`);
         continue;
       }
-      npcs.push({ id: oid, x: tx, y: ty, dialogue: dlg });
+      const routineText = prop(o, "routine");
+      const routine =
+        typeof routineText === "string" && routineText !== ""
+          ? routineText.split(",").map((part) => {
+              const [at, spot] = part.trim().split("=");
+              return { at: at ?? "", spot: spot ?? "" };
+            })
+          : undefined;
+      npcs.push({ id: oid, x: tx, y: ty, dialogue: dlg, ...(routine ? { routine } : {}) });
     } else if (kind === "camera") {
       const degrees = prop(o, "facing");
       const when = prop(o, "activeWhen");
       cameras.push({ id: oid, x: tx, y: ty, facing: ((typeof degrees === "number" ? degrees : 0) * Math.PI) / 180, ...(typeof when === "string" ? { activeWhen: when } : {}) });
+    } else if (kind === "spot") {
+      spots.push({ id: oid, x: tx, y: ty });
     } else if (kind === "pickup") {
       const grant = prop(o, "grant");
       if (typeof grant !== "string") {
@@ -193,7 +206,7 @@ export function importTiled(raw: unknown, id: string): MapData {
         ...(typeof prop(o, "activeWhen") === "string" ? { activeWhen: prop(o, "activeWhen") as string } : {}),
       });
     } else {
-      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, terminal, camera, pickup, robot or waypoint)`);
+      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, terminal, camera, pickup, spot, robot or waypoint)`);
     }
   }
 
@@ -205,5 +218,5 @@ export function importTiled(raw: unknown, id: string): MapData {
     }));
 
   if (errors.length > 0) throw new TiledImportError(`map "${id}": ${errors.join("; ")}`);
-  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers, npcs, terminals, cameras, pickups };
+  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers, npcs, terminals, cameras, pickups, spots };
 }

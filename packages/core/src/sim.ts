@@ -5,6 +5,7 @@ import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
 import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
 import { useItem } from "./combat.ts";
+import { npcSystem } from "./npcs.ts";
 import { reactionSystem } from "./districts.ts";
 import { economySystem } from "./economy.ts";
 import { cameraSystem } from "./cameras.ts";
@@ -68,7 +69,12 @@ function nearestInteractable(state: SimState, world: World, reach: number) {
   };
   for (const door of world.doors) consider("door", door.id, door.x, door.y);
   for (const l of world.lockers) consider("locker", l.id, l.x, l.y);
-  for (const n of world.npcs) consider("npc", n.id, n.x, n.y, n.dialogue);
+  for (const n of world.npcs) {
+    const at = state.npcs[n.id];
+    if (at?.away) continue;
+    // People move (npcs.ts): reach is measured from where they stand now, as a tile-centre offset like the rest.
+    consider("npc", n.id, (at?.x ?? n.x + 0.5) - 0.5, (at?.y ?? n.y + 0.5) - 0.5, n.dialogue);
+  }
   for (const t of world.terminals) consider("terminal", t.id, t.x, t.y);
   for (const p of world.pickups) if (!state.flags[`picked_${p.id}`]) consider("pickup", p.id, p.x, p.y);
   return best;
@@ -259,7 +265,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "zones", run: trackZone },
   { name: "clock", run: advanceClock },
   { name: "economy", run: economySystem },
-  { name: "npcs", run: notYet },
+  { name: "npcs", run: npcSystem },
   { name: "robot-perception", run: robotPerception },
   { name: "robot-behavior", run: robotBehavior },
   { name: "cameras", run: cameraSystem },

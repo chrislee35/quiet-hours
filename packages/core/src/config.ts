@@ -96,6 +96,8 @@ export interface Config {
     restrictedZonePoints: number;
     /** Points for attacking a robot (only people with a record can earn demerits). */
     assaultPoints: number;
+    /** Multiplier on curfew points during Quiet Hours, when the city is strictest (WLD-8). */
+    quietHoursCurfewFactor: number;
     curfewPoints: number;
     /** Minimum seconds between two infractions of the same kind being recorded. */
     cooldownSeconds: number;
@@ -141,6 +143,10 @@ export interface Config {
     relockDelaySeconds: number;
     /** Seconds a maintenance robot spends on the job once it arrives. */
     repairSeconds: number;
+  };
+  npcs: {
+    /** Tiles per second people walk between the spots of their routine. */
+    walkSpeed: number;
   };
   /** City metrics (WLD-4). */
   metrics: {
@@ -209,6 +215,7 @@ const SHAPE: Shape = {
   demerits: {
     restrictedZonePoints: "number",
     assaultPoints: "number",
+    quietHoursCurfewFactor: "number",
     curfewPoints: "number",
     cooldownSeconds: "number",
     decayPerSecond: "number",
@@ -220,6 +227,7 @@ const SHAPE: Shape = {
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },
   band: { slots: "number", powerBudget: "number" },
+  npcs: { walkSpeed: "number" },
   metrics: { orderStart: "number", powerStart: "number", contentmentStart: "number", recoverPerHour: "number" },
   combat: { fightAlert: "number", lethalAlert: "number", creditLossFraction: "number" },
   economy: { loanInterestPerDay: "number", loanDueDays: "number", garnishFraction: "number" },

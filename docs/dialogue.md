@@ -44,6 +44,7 @@ Prefix any with `!` to negate.
 | `credits>=N` | at least N credits |
 | `trust:NPC>=trusts` | trust at least `distrusts`, `unsure` or `trusts` |
 | `augment:ID` / `owns:ID` | the augment is worn / owned |
+| `quiet` / `curfew` | it is Quiet Hours / curfew is in force |
 | `can:ID` | the service can be used right now (see `docs/economy.md`) |
 | `record` / `!record` | any identity on file / the null state |
 | `debt:LENDER` / `debt:*` | owes that lender / anyone |

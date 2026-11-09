@@ -46,11 +46,15 @@
   "demerits": {
     "restrictedZonePoints": 3,
     "assaultPoints": 3,
+    "quietHoursCurfewFactor": 2,
     "curfewPoints": 2,
     "cooldownSeconds": 8,
     "decayPerSecond": 0.05,
     "checkThreshold": 5,
     "enforcerThreshold": 10
+  },
+  "npcs": {
+    "walkSpeed": 1.4
   },
   "metrics": {
     "orderStart": 70,

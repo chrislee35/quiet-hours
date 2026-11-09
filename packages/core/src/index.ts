@@ -32,3 +32,4 @@ export * from "./augments.ts";
 export * from "./economy.ts";
 export * from "./combat.ts";
 export * from "./districts.ts";
+export * from "./npcs.ts";

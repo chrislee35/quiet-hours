@@ -7,9 +7,18 @@
     "legitimate": true,
     "once": false,
     "requires": [],
-    "effects": [{ "set_flag": ["has_ticket", true] }],
+    "effects": [
+      {
+        "set_flag": [
+          "has_ticket",
+          true
+        ]
+      }
+    ],
     "successText": "The turnstile accepts your band and clicks. A ticket prints.",
-    "refusals": { "null_state": "The turnstile reads your band, finds nothing, and displays: PENDING REVIEW. Please wait for an officer." }
+    "refusals": {
+      "null_state": "The turnstile reads your band, finds nothing, and displays: PENDING REVIEW. Please wait for an officer."
+    }
   },
   {
     "id": "forge_stacks_pass",
@@ -19,7 +28,20 @@
     "legitimate": false,
     "once": false,
     "requires": [],
-    "effects": [{ "give_pass": { "id": "stacks_forged", "label": "Stacks day pass (forged)", "level": 1, "zones": ["stacks_street"], "expiresInMinutes": 360, "origin": "forged" } }],
+    "effects": [
+      {
+        "give_pass": {
+          "id": "stacks_forged",
+          "label": "Stacks day pass (forged)",
+          "level": 1,
+          "zones": [
+            "stacks_street"
+          ],
+          "expiresInMinutes": 360,
+          "origin": "forged"
+        }
+      }
+    ],
     "successText": "Sam slides a card across the counter. It looks real. It is not."
   },
   {
@@ -29,10 +51,29 @@
     "price": 0,
     "legitimate": false,
     "once": false,
-    "requires": [{ "has_item": ["scrap_wire", 2] }],
-    "effects": [{ "remove_item": ["scrap_wire", 2] }, { "add_credits": 12 }],
+    "requires": [
+      {
+        "has_item": [
+          "scrap_wire",
+          2
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "scrap_wire",
+          2
+        ]
+      },
+      {
+        "add_credits": 12
+      }
+    ],
     "successText": "Two bundles of wire for twelve credits. Sam weighs it twice.",
-    "refusals": { "requirements": "Sam wants at least two bundles of scrap wire." }
+    "refusals": {
+      "requirements": "Sam wants at least two bundles of scrap wire."
+    }
   },
   {
     "id": "bribe_clerk",
@@ -42,7 +83,44 @@
     "legitimate": false,
     "once": true,
     "requires": [],
-    "effects": [{ "give_pass": { "id": "clerk_borrowed", "label": "Borrowed resident record", "level": 1, "origin": "borrowed" } }],
+    "effects": [
+      {
+        "give_pass": {
+          "id": "clerk_borrowed",
+          "label": "Borrowed resident record",
+          "level": 1,
+          "origin": "borrowed"
+        }
+      }
+    ],
     "successText": "The clerk never looks up. Your band now carries a record. It is not yours."
+  },
+  {
+    "id": "quiet_hours_forgery",
+    "name": "Quiet Hours forgery",
+    "description": "During reconciliation the records are in flux, and a pass slips in cheaply. Only works between 02:00 and 05:00.",
+    "price": 15,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "is_quiet_hours": true
+      }
+    ],
+    "effects": [
+      {
+        "give_pass": {
+          "id": "night_forged",
+          "label": "Night record (forged)",
+          "level": 1,
+          "expiresInMinutes": 120,
+          "origin": "forged"
+        }
+      }
+    ],
+    "successText": "The record flickers while it is written. By morning it will be gone, but tonight it holds.",
+    "refusals": {
+      "requirements": "Not now. The records are steady outside Quiet Hours, and nobody forges anything on a steady record."
+    }
   }
 ]
