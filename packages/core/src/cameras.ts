@@ -3,7 +3,8 @@ import { broadcastAlert } from "./comms.ts";
 import type { Ctx } from "./ctx.ts";
 import { secondsToTicks } from "./ctx.ts";
 import { recordInfraction } from "./demerits.ts";
-import { curfewExempt, resolvePass } from "./identity.ts";
+import { scanFor } from "./augments.ts";
+import { curfewExempt } from "./identity.ts";
 import { canSee } from "./vision.ts";
 import { isSolid, zoneAt } from "./world.ts";
 
@@ -25,6 +26,11 @@ export function cameraSystem(ctx: Ctx): void {
 
   for (const cam of state.cameras) {
     if (cam.broken) continue;
+    if (state.tick < cam.jammedUntil) {
+      cam.sees = false;
+      cam.suspicion = 0;
+      continue;
+    }
     const sweep = (cfg.sweepDegrees * Math.PI) / 180;
     cam.heading = cam.facing + (sweep > 0 ? Math.sin((t * 2 * Math.PI) / cfg.sweepSeconds) * sweep : 0);
     cam.sees = canSee({ x: cam.x, y: cam.y, facing: cam.heading }, player, cfg.coneDegrees, cfg.rangeTiles, blocked);
@@ -32,7 +38,7 @@ export function cameraSystem(ctx: Ctx): void {
       cam.suspicion = Math.max(0, cam.suspicion - vis.suspicionDecayPerSecond * dt);
       continue;
     }
-    const scan = resolvePass(state, zone);
+    const scan = scanFor(ctx, zone);
     // Cameras witness infractions like robots do; only people with a record can earn them.
     if (state.passes.length > 0) {
       if ((scan.outcome === "Violation" || scan.outcome === "Expired") && zone && zone.requiredPermission > 0) {

@@ -3,6 +3,7 @@ import { alertSystem } from "./alert.ts";
 import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
+import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
 import { cameraSystem } from "./cameras.ts";
 import { commsSystem } from "./comms.ts";
 import { repairSystem } from "./repairs.ts";
@@ -17,7 +18,7 @@ import { EventBus, type GameEvent } from "./events.ts";
 import { stateHash } from "./hash.ts";
 import { moveWithCollision, overlapsTile } from "./movement.ts";
 import { createInitialState, type SimState } from "./state.ts";
-import { OPEN_WORLD, isSolid, zoneAt, type World } from "./world.ts";
+import { OPEN_WORLD, isSolid, pickupEffect, zoneAt, type World } from "./world.ts";
 import type { MoveMode } from "./events.ts";
 
 // ---- Commands: the only way the outside world changes the simulation ----------------------
@@ -37,6 +38,11 @@ export type Command =
   /** Quarter-turn a cell of the open terminal's puzzle. */
   | { type: "TerminalRotate"; index: number }
   | { type: "ExitTerminal" }
+  /** Wear an owned augment if the band has the slots and power (AUG-2). */
+  | { type: "EquipAugment"; id: string }
+  | { type: "UnequipAugment"; id: string }
+  /** Fire a worn augment's active ability (Burst Jammer). */
+  | { type: "UseAugment"; id: string }
   /** Run effects as if triggered by content (dialogue, quest scripts). Also used by scenarios to set up state. */
   | { type: "ApplyEffects"; effects: Effect[] };
 
@@ -50,8 +56,8 @@ export interface StepResult {
 
 /** Nearest interactable (door, locker, or person) within `reach` of the player; earlier kinds win ties. */
 function nearestInteractable(state: SimState, world: World, reach: number) {
-  let best: { kind: "door" | "locker" | "npc" | "terminal"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
-  const consider = (kind: "door" | "locker" | "npc" | "terminal", id: string, x: number, y: number, dialogue?: string) => {
+  let best: { kind: "door" | "locker" | "npc" | "terminal" | "pickup"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
+  const consider = (kind: "door" | "locker" | "npc" | "terminal" | "pickup", id: string, x: number, y: number, dialogue?: string) => {
     const d = Math.hypot(x + 0.5 - state.player.x, y + 0.5 - state.player.y);
     if (d <= reach && (best === undefined || d < best.d)) best = { kind, id, x, y, d, ...(dialogue ? { dialogue } : {}) };
   };
@@ -59,11 +65,12 @@ function nearestInteractable(state: SimState, world: World, reach: number) {
   for (const l of world.lockers) consider("locker", l.id, l.x, l.y);
   for (const n of world.npcs) consider("npc", n.id, n.x, n.y, n.dialogue);
   for (const t of world.terminals) consider("terminal", t.id, t.x, t.y);
+  for (const p of world.pickups) if (!state.flags[`picked_${p.id}`]) consider("pickup", p.id, p.x, p.y);
   return best;
 }
 
 export interface InteractionPrompt {
-  kind: "door" | "locker" | "npc" | "terminal";
+  kind: "door" | "locker" | "npc" | "terminal" | "pickup";
   id: string;
   /** Tile position of the thing, for placing the prompt in the world. */
   x: number;
@@ -83,6 +90,11 @@ export function interactionPrompt(state: Readonly<SimState>, world: World, confi
   const base = { kind: t.kind, id: t.id, x: t.x, y: t.y };
   if (t.kind === "npc") return { ...base, label: `Talk to ${t.id.replace(/_/g, " ")}` };
   if (t.kind === "terminal") return { ...base, label: "Use terminal" };
+  if (t.kind === "pickup") {
+    const grant = world.pickups.find((x) => x.id === t.id)?.grant ?? "";
+    const what = grant.split(":")[1] ?? "it";
+    return { ...base, label: `Take ${(grant.startsWith("credits") ? "credits" : what).replace(/_/g, " ")}` };
+  }
   if (t.kind === "locker") {
     const l = state.locker;
     return Object.keys(l.items).length > 0 || l.credits > 0 || l.passes.length > 0 ? { ...base, label: "Recover belongings" } : null;
@@ -98,6 +110,15 @@ function interact(ctx: Ctx): void {
   if (!target) return;
   if (target.kind === "terminal") {
     openTerminal(ctx, target.id);
+    return;
+  }
+  if (target.kind === "pickup") {
+    const pickup = world.pickups.find((x) => x.id === target.id);
+    const effect = pickup ? pickupEffect(pickup.grant) : null;
+    if (!pickup || !effect) return;
+    state.flags[`picked_${pickup.id}`] = true;
+    applyEffects([effect], state, events, config);
+    events.push({ type: "PickedUp", tick: state.tick, pickupId: pickup.id });
     return;
   }
   if (target.kind === "npc") {
@@ -159,11 +180,20 @@ function applyCommands(ctx: Ctx): void {
       case "Interact":
         if (!held) interact(ctx);
         break;
+      case "EquipAugment":
+        equipAugment(ctx, cmd.id);
+        break;
+      case "UnequipAugment":
+        unequipAugment(ctx, cmd.id);
+        break;
+      case "UseAugment":
+        if (!held) useAugment(ctx, cmd.id);
+        break;
     }
   }
 }
 
-function movePlayer({ state, config, world, events }: Ctx): void {
+function movePlayer({ state, config, world, content, events }: Ctx): void {
   if (state.tick < state.processingUntil) return;
   const { intent } = state.player;
   if (intent.dx === 0 && intent.dy === 0) return;
@@ -185,7 +215,8 @@ function movePlayer({ state, config, world, events }: Ctx): void {
   if (to.x === from.x && to.y === from.y) return;
   const noise = config.noise;
   const radius =
-    intent.mode === "run" ? noise.runRadius : intent.mode === "sneak" ? noise.sneakRadius : noise.walkRadius;
+    (intent.mode === "run" ? noise.runRadius : intent.mode === "sneak" ? noise.sneakRadius : noise.walkRadius) *
+    modifier(state, content, "noise.mult");
   events.push({ type: "NoiseEmitted", tick: state.tick, x: to.x, y: to.y, radius, source: "player" });
 }
 

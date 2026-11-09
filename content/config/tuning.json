@@ -51,6 +51,10 @@
     "checkThreshold": 5,
     "enforcerThreshold": 10
   },
+  "band": {
+    "slots": 2,
+    "powerBudget": 3
+  },
   "robots": {
     "warden": {
       "coneDegrees": 90,

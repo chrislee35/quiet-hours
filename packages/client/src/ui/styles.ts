@@ -27,6 +27,19 @@ export const OVERLAY_CSS = `
 .qh-notebook .status { font-size: .8em; margin-left: .4em; }
 .qh-notebook .verified { color: #7fe08a; } .qh-notebook .disproved { color: #ff7a8a; text-decoration: line-through; }
 .qh-notebook .hint { color: #9aa0c4; font-size: .8em; margin-top: 8px; }
+.qh-gear { left: 16px; top: 120px; width: min(380px, calc(100vw - 32px)); max-height: calc(100vh - 140px); overflow: auto; }
+.qh-gear h2 { margin: 0 0 8px; font-size: 1.1em; color: #ffd36b; }
+.qh-gear h3 { margin: 12px 0 4px; font-size: .95em; color: #8fd3ff; }
+.qh-gear .meters { font-weight: 600; color: #8ff6ff; margin: 0 0 6px; }
+.qh-gear ul { list-style: none; margin: 0; padding: 0; }
+.qh-gear li { padding: 6px 0; border-top: 1px solid #2a2f48; }
+.qh-gear .head { display: flex; gap: .5em; align-items: baseline; flex-wrap: wrap; }
+.qh-gear .head button { margin-left: auto; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.qh-gear .head button:hover, .qh-gear .head button:focus-visible { background: #2a3050; outline: 2px solid #ffd36b; }
+.qh-gear .cost, .qh-gear .desc, .qh-gear .hint { color: #9aa0c4; font-size: .8em; }
+.qh-gear .note { color: #ff9a9a; margin: 6px 0 0; }
+.qh-gear p { margin: .3em 0; }
+.qh-touch-on .qh-gear { top: 84px; }
 .qh-terminal { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 24px); overflow: auto; }
 @media (max-height: 560px) { :root { --cell: 2.9em; } .qh-terminal .hint { display: none; } }
 .qh-terminal h2 { margin: 0 0 6px; font-size: 1.1em; color: #7be3ff; }

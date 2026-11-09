@@ -3,11 +3,11 @@ import { safeStorage } from "../storage.ts";
 
 /** Logical actions (ACC-1). The game logic only ever sees these; physical keys and buttons map onto them. */
 export type HeldAction = "up" | "down" | "left" | "right" | "run" | "sneak";
-export type PressAction = "interact" | "notebook" | "zones" | "cancel";
+export type PressAction = "interact" | "notebook" | "gear" | "pulse" | "zones" | "cancel";
 export type Action = HeldAction | PressAction;
 
 export const HELD_ACTIONS: readonly HeldAction[] = ["up", "down", "left", "right", "run", "sneak"];
-export const PRESS_ACTIONS: readonly PressAction[] = ["interact", "notebook", "zones", "cancel"];
+export const PRESS_ACTIONS: readonly PressAction[] = ["interact", "notebook", "gear", "pulse", "zones", "cancel"];
 export const ACTIONS: readonly Action[] = [...HELD_ACTIONS, ...PRESS_ACTIONS];
 
 export type HeldActions = Record<HeldAction, boolean>;
@@ -24,11 +24,13 @@ export const DEFAULT_KEYS: KeyBindings = {
   sneak: ["ControlLeft", "KeyC"],
   interact: ["KeyE"],
   notebook: ["KeyN"],
+  gear: ["KeyG"],
+  pulse: ["KeyF"],
   zones: ["KeyZ"],
   cancel: ["Escape"],
 };
 
-/** D-pad moves; right bumper/trigger runs; left bumper/trigger sneaks; A uses; B cancels; Y notebook; Back zones. */
+/** D-pad moves; right bumper/trigger runs; left bumper/trigger sneaks; A uses; B cancels; Y notebook; X pulse; Start gear; Back zones. */
 export const DEFAULT_PAD: PadBindings = {
   up: [12],
   down: [13],
@@ -38,6 +40,8 @@ export const DEFAULT_PAD: PadBindings = {
   sneak: [4, 6],
   interact: [0],
   notebook: [3],
+  gear: [9],
+  pulse: [2],
   zones: [8],
   cancel: [1],
 };

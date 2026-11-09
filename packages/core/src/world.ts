@@ -1,3 +1,5 @@
+import type { Effect } from "./rules.ts";
+
 /**
  * Static world data (T1.1). A World is immutable level geometry injected into the sim, like Config.
  * Anything that changes during play (door open/closed, locks) lives in SimState instead (DESIGN §3.2).
@@ -22,6 +24,29 @@ export interface MapData {
   npcs: NpcDef[];
   terminals: TerminalPlacement[];
   cameras: CameraDef[];
+  /** Things lying in the world to pick up. Optional in map data (none by default). */
+  pickups?: PickupDef[];
+}
+
+/**
+ * Something to pick up. `grant` names what the player receives: "augment:ID", "item:ID" or "item:ID:COUNT",
+ * or "credits:N". Once taken, the flag `picked_<id>` is set and it is gone for good.
+ */
+export interface PickupDef {
+  id: string;
+  x: number;
+  y: number;
+  grant: string;
+}
+
+/** The effect a pickup's `grant` string means, or null if it is malformed. */
+export function pickupEffect(grant: string): Effect | null {
+  const [kind, id, n] = grant.split(":");
+  if (!id && kind !== "credits") return null;
+  if (kind === "augment" && id && n === undefined) return { grant_augment: id };
+  if (kind === "item" && id && (n === undefined || /^[1-9]\d*$/.test(n))) return { add_item: [id, n === undefined ? 1 : Number(n)] };
+  if (kind === "credits" && id && /^[1-9]\d*$/.test(id) && n === undefined) return { add_credits: Number(id) };
+  return null;
 }
 
 /** A fixed camera. It may be mounted in a wall tile; its view starts from the tile centre. */
@@ -118,6 +143,7 @@ export interface World {
   npcs: readonly NpcDef[];
   terminals: readonly TerminalPlacement[];
   cameras: readonly CameraDef[];
+  pickups: readonly PickupDef[];
   doorByTile: ReadonlyMap<number, DoorDef>;
   doorById: ReadonlyMap<string, DoorDef>;
 }
@@ -140,6 +166,7 @@ export const OPEN_WORLD: World = {
   npcs: [],
   terminals: [],
   cameras: [],
+  pickups: [],
   doorByTile: new Map(),
   doorById: new Map(),
 };
@@ -215,6 +242,15 @@ export function buildWorld(data: MapData): World {
     else if (wall[tileKey(probe, l.x, l.y)]) errors.push(`locker "${l.id}" is inside a wall`);
   }
 
+  const pickupIds = new Set<string>();
+  for (const p of data.pickups ?? []) {
+    if (pickupIds.has(p.id)) errors.push(`duplicate pickup id "${p.id}"`);
+    pickupIds.add(p.id);
+    if (pickupEffect(p.grant) === null) errors.push(`pickup "${p.id}" has an invalid grant "${p.grant}" (expected augment:ID, item:ID[:COUNT] or credits:N)`);
+    if (!inBounds(probe, p.x, p.y)) errors.push(`pickup "${p.id}" is out of bounds`);
+    else if (wall[tileKey(probe, p.x, p.y)]) errors.push(`pickup "${p.id}" is inside a wall`);
+  }
+
   const cameraIds = new Set<string>();
   for (const cam of data.cameras) {
     if (cameraIds.has(cam.id)) errors.push(`duplicate camera id "${cam.id}"`);
@@ -280,6 +316,7 @@ export function buildWorld(data: MapData): World {
     npcs: data.npcs,
     terminals: data.terminals,
     cameras: data.cameras,
+    pickups: data.pickups ?? [],
     doorByTile,
     doorById,
   };

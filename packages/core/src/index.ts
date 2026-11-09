@@ -28,3 +28,4 @@ export * from "./cameras.ts";
 export * from "./comms.ts";
 export * from "./nav.ts";
 export * from "./repairs.ts";
+export * from "./augments.ts";

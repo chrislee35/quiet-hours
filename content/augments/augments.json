@@ -1,0 +1,50 @@
+[
+  {
+    "id": "quiet_step",
+    "name": "Quiet Step",
+    "description": "Dampens your footsteps. Everything you do makes half the noise.",
+    "slotCost": 1,
+    "power": 1,
+    "modifiers": { "noise.mult": 0.5 }
+  },
+  {
+    "id": "ghost_tag",
+    "name": "Ghost Tag",
+    "description": "Answers the first failing ID scan with a valid-looking record, then holds the lie for a few seconds. It needs a long time to recharge.",
+    "slotCost": 1,
+    "power": 2,
+    "spoof": { "windowSeconds": 8, "rechargeSeconds": 90 }
+  },
+  {
+    "id": "signal_lens",
+    "name": "Signal Lens",
+    "description": "Shows what robots and cameras can see: their view cones, drawn over the world.",
+    "slotCost": 1,
+    "power": 1,
+    "tags": ["reveal_cones"]
+  },
+  {
+    "id": "slow_tongue",
+    "name": "Slow Tongue",
+    "description": "Slows your speech into something officials find reassuring. Opens extra things to say to them.",
+    "slotCost": 1,
+    "power": 1,
+    "tags": ["slow_tongue"]
+  },
+  {
+    "id": "burst_jammer",
+    "name": "Burst Jammer",
+    "description": "A pulse that knocks nearby robots and cameras offline for a few seconds. Use it, then get away.",
+    "slotCost": 1,
+    "power": 2,
+    "jam": { "radiusTiles": 6, "seconds": 6, "cooldownSeconds": 40 }
+  },
+  {
+    "id": "memory_anchor",
+    "name": "Memory Anchor",
+    "description": "Keeps your notebook from dulling in the Lull. It has no effect anywhere else.",
+    "slotCost": 1,
+    "power": 2,
+    "tags": ["notebook_anchor"]
+  }
+]

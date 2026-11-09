@@ -71,12 +71,59 @@ export const terminalSchema = {
   },
 } as const;
 
+export const augmentSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "name", "description", "slotCost", "power"],
+  properties: {
+    id,
+    name: { type: "string", minLength: 1 },
+    description: { type: "string", minLength: 1 },
+    slotCost: { type: "integer", minimum: 1 },
+    power: { type: "integer", minimum: 0 },
+    modifiers: { type: "object", additionalProperties: { type: "number", exclusiveMinimum: 0 } },
+    tags: { type: "array", items: id },
+    spoof: {
+      type: "object",
+      additionalProperties: false,
+      required: ["windowSeconds", "rechargeSeconds"],
+      properties: { windowSeconds: { type: "number", exclusiveMinimum: 0 }, rechargeSeconds: { type: "number", minimum: 0 } },
+    },
+    jam: {
+      type: "object",
+      additionalProperties: false,
+      required: ["radiusTiles", "seconds", "cooldownSeconds"],
+      properties: {
+        radiusTiles: { type: "number", exclusiveMinimum: 0 },
+        seconds: { type: "number", exclusiveMinimum: 0 },
+        cooldownSeconds: { type: "number", minimum: 0 },
+      },
+    },
+  },
+} as const;
+
+export const itemSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "name", "type", "stackable", "tags", "description"],
+  properties: {
+    id,
+    name: { type: "string", minLength: 1 },
+    type: { enum: ["tool", "key", "consumable", "contraband", "junk"] },
+    stackable: { type: "boolean" },
+    tags: { type: "array", items: id },
+    description: { type: "string" },
+  },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
   npcs: npcSchema,
   puzzles: puzzleSchema,
   terminals: terminalSchema,
+  augments: augmentSchema,
+  items: itemSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

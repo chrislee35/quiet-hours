@@ -140,6 +140,8 @@ export interface Config {
     /** Seconds a maintenance robot spends on the job once it arrives. */
     repairSeconds: number;
   };
+  /** The wrist band's starting capacity (AUG-2); upgrades raise it through effects. */
+  band: { slots: number; powerBudget: number };
   /** One behaviour profile per robot type (ROB-3): how it sees, moves, and what it can do. */
   robots: Record<RobotKind, RobotProfile>;
 
@@ -188,6 +190,7 @@ const SHAPE: Shape = {
   comms: { rangeTiles: "number", latencySeconds: "number", primedSuspicion: "number", memorySeconds: "number" },
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },
+  band: { slots: "number", powerBudget: "number" },
   robots: Object.fromEntries(ROBOT_KINDS.map((k) => [k, PROFILE_SHAPE])) as Shape,
 };
 

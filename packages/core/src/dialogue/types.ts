@@ -1,3 +1,4 @@
+import type { AugmentDef, ItemDef } from "../augments.ts";
 import type { PuzzleDef } from "../puzzles/power-routing.ts";
 import type { Condition, Effect } from "../rules.ts";
 
@@ -80,6 +81,8 @@ export interface Content {
   clues: Record<string, ClueDef>;
   puzzles: Record<string, PuzzleDef>;
   terminals: Record<string, TerminalDef>;
+  augments: Record<string, AugmentDef>;
+  items: Record<string, ItemDef>;
 }
 
-export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {} };
+export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {}, augments: {}, items: {} };

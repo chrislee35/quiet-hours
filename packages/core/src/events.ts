@@ -58,6 +58,16 @@ export type GameEvent =
   | { type: "LockerOpened"; tick: number; lockerId: string; items: Record<string, number>; credits: number }
   | { type: "InfractionRecorded"; tick: number; kind: "restricted_zone" | "curfew"; points: number; total: number }
   | { type: "DemeritThreshold"; tick: number; level: "check" | "enforcer" }
+  | { type: "AugmentGained"; tick: number; augmentId: string }
+  | { type: "AugmentEquipped"; tick: number; augmentId: string }
+  | { type: "AugmentUnequipped"; tick: number; augmentId: string }
+  | { type: "AugmentRefused"; tick: number; augmentId: string; reason: "unknown" | "not_owned" | "already_equipped" | "no_slots" | "no_power" | "recharging" }
+  | { type: "BandUpgraded"; tick: number; slots: number; powerBudget: number }
+  /** Ghost Tag opened a window in which ID scans read as valid. */
+  | { type: "GhostTagSpoofed"; tick: number; augmentId: string }
+  | { type: "BurstJammerFired"; tick: number; augmentId: string; robots: string[]; cameras: string[] }
+  /** The player picked something up from the world. */
+  | { type: "PickedUp"; tick: number; pickupId: string }
   | { type: "PassGained"; tick: number; passId: string }
   | { type: "PassLost"; tick: number; passId: string }
   | { type: "ConversationStarted"; tick: number; dialogueId: string; npc: string }

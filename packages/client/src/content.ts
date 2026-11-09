@@ -1,4 +1,4 @@
-import { compileDialogue, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
+import { compileDialogue, type AugmentDef, type ItemDef, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
 
 /**
  * Loads dialogue (.qdl) and clue definitions from content/ at startup. The same compiler and checks run in
@@ -9,6 +9,8 @@ const clueFiles = import.meta.glob("../../../content/clues/*.json", { import: "d
 
 const puzzleFiles = import.meta.glob("../../../content/puzzles/*.json", { import: "default", eager: true }) as Record<string, PuzzleDef[]>;
 const terminalFiles = import.meta.glob("../../../content/terminals/*.json", { import: "default", eager: true }) as Record<string, TerminalDef[]>;
+const augmentFiles = import.meta.glob("../../../content/augments/*.json", { import: "default", eager: true }) as Record<string, AugmentDef[]>;
+const itemFiles = import.meta.glob("../../../content/items/*.json", { import: "default", eager: true }) as Record<string, ItemDef[]>;
 
 export function loadContent(): Content {
   const clues: Record<string, ClueDef> = {};
@@ -24,5 +26,9 @@ export function loadContent(): Content {
   for (const list of Object.values(puzzleFiles)) for (const p of list) puzzles[p.id] = p;
   const terminals: Content["terminals"] = {};
   for (const list of Object.values(terminalFiles)) for (const t of list) terminals[t.id] = t;
-  return { dialogues, clues, puzzles, terminals };
+  const augments: Content["augments"] = {};
+  for (const list of Object.values(augmentFiles)) for (const a of list) augments[a.id] = a;
+  const items: Content["items"] = {};
+  for (const list of Object.values(itemFiles)) for (const i of list) items[i.id] = i;
+  return { dialogues, clues, puzzles, terminals, augments, items };
 }

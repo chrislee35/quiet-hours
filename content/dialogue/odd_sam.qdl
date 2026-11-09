@@ -21,12 +21,17 @@ node: return_visit
 node: wares
   odd_sam: "Rumours, mostly. The Pump 4 night shift, for twenty credits. Or a free sample, if you don't mind it being stale."
   > [credits>=20, !clue:pump4_shift] "Buy the Pump 4 rumour. (20 credits)" {-credits:20, +clue:pump4_shift(odd_sam)} -> sold
+  > [credits>=10, augment:slow_tongue, !clue:pump4_shift] "Haggle, slowly and soothingly. (10 credits)" {-credits:10, +clue:pump4_shift(odd_sam)} -> haggled
   > [!clue:pump4_shift_old] "Take the free sample." {+clue:pump4_shift_old(odd_sam)} -> sample
   > "Not now." -> return_visit
 
 node: sold
   odd_sam (smug): "A pleasure. Remember, you never heard it from me."
   > "Understood." -> return_visit
+
+node: haggled
+  odd_sam (unsettled): "You talk like a government pamphlet. Fine, ten. It is a pleasure and a little frightening."
+  > "Thank you." -> return_visit
 
 node: sample
   odd_sam (shrugging): "It was true once. That is the most anyone can say for most information."

@@ -107,7 +107,7 @@ export class TouchControls {
 
     const top = document.createElement("div");
     top.className = "qh-top";
-    top.append(this.button("Notes", "", () => sink.pressTouch("notebook")), this.button("Back", "", () => sink.pressTouch("cancel")));
+    top.append(this.button("Gear", "", () => sink.pressTouch("gear")), this.button("Pulse", "", () => sink.pressTouch("pulse")), this.button("Notes", "", () => sink.pressTouch("notebook")), this.button("Back", "", () => sink.pressTouch("cancel")));
 
     this.root.append(stick, buttons, top);
     host.append(this.root);

@@ -35,7 +35,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [] };
 
   if (bundle.config) {
     try {
@@ -84,7 +84,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -143,6 +143,19 @@ export function validateContent(bundle: ContentBundle): Issue[] {
     for (const n of map.npcs) {
       if (!npcIds.has(n.id)) issues.push({ file, message: `npc "${n.id}" is not defined in content/npcs` });
       if (!dialogueIds.has(n.dialogue)) issues.push({ file, message: `npc "${n.id}" uses unknown dialogue "${n.dialogue}"` });
+    }
+  }
+
+  // Augments and items: a non-stackable item holds at most one; pickups must grant things that exist.
+  for (const { file, map } of mapData) {
+    for (const p of map.pickups ?? []) {
+      const [kind, id] = p.grant.split(":");
+      if (kind === "augment" && !ids.augments.has(id ?? "")) issues.push({ file, message: `pickup "${p.id}" grants unknown augment "${id}"` });
+      if (kind === "item" && !ids.items.has(id ?? "")) issues.push({ file, message: `pickup "${p.id}" grants unknown item "${id}"` });
+      if (kind === "item" && p.grant.split(":")[2] !== undefined) {
+        const item = entities.items.find(({ entity }) => entity.id === id)?.entity;
+        if (item && item.stackable === false) issues.push({ file, message: `pickup "${p.id}" grants several of non-stackable item "${id}"` });
+      }
     }
   }
 

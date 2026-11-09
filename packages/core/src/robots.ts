@@ -4,7 +4,8 @@ import { secondsToTicks } from "./ctx.ts";
 import { recordInfraction } from "./demerits.ts";
 import { gameTimeAt } from "./clock.ts";
 import type { GameEvent } from "./events.ts";
-import { consumePass, curfewExempt, resolvePass, type ScanResult } from "./identity.ts";
+import { isContraband, scanFor } from "./augments.ts";
+import { consumePass, curfewExempt, type ScanResult } from "./identity.ts";
 import { broadcastAlert, freshLastKnown } from "./comms.ts";
 import { goTo } from "./nav.ts";
 import { menderStep } from "./repairs.ts";
@@ -61,6 +62,12 @@ export function robotPerception(ctx: Ctx): void {
     const prof = profile(config, robot);
     const dist = Math.hypot(player.x - robot.x, player.y - robot.y);
     if (robot.busy > 0) robot.busy -= 1;
+    if (state.tick < robot.jammedUntil) {
+      // Knocked out by a Burst Jammer: sees and hears nothing, and forgets what it was suspicious of.
+      robot.sees = false;
+      robot.suspicion = 0;
+      continue;
+    }
     robot.sees = canSee(robot, player, prof.coneDegrees, prof.rangeTiles, blocked);
     robot.unseenTicks = robot.sees ? 0 : robot.unseenTicks + 1;
     if (robot.unseenTicks > secondsToTicks(3, config)) robot.checked = false;
@@ -81,7 +88,7 @@ export function robotPerception(ctx: Ctx): void {
     }
 
     if (robot.sees) {
-      const scan = resolvePass(state, zone, { thorough: prof.thorough });
+      const scan = scanFor(ctx, zone, { thorough: prof.thorough });
       witnessInfractions(state, config, events, zone, scan);
 
       if (robot.kind === "checker") {
@@ -94,8 +101,8 @@ export function robotPerception(ctx: Ctx): void {
           } else if (!robot.checked) {
             robot.checked = true;
             events.push({ type: "ScanPerformed", tick: state.tick, robotId: robot.id, outcome: scan.outcome });
-            if (scan.outcome === "Allowed" && scan.passId) consumePass(state, scan.passId);
-            else robot.suspicion = 1;
+            if (scan.outcome !== "Allowed") robot.suspicion = 1;
+            else if (scan.passId) consumePass(state, scan.passId);
           }
         }
       } else {
@@ -111,8 +118,8 @@ export function robotPerception(ctx: Ctx): void {
       if (robot.kind === "auditor" && robot.busy === 0 && dist <= prof.checkRangeTiles) {
         const perTick = prof.checkChancePerSecond * (quiet ? prof.quietHoursCheckFactor : 1) * dt;
         if (rng.chance(perTick)) {
-          const thorough = resolvePass(state, zone, { thorough: true });
-          const contraband = Object.keys(state.inventory.items).some((id) => id.startsWith("contraband_"));
+          const thorough = scanFor(ctx, zone, { thorough: true });
+          const contraband = Object.keys(state.inventory.items).some((id) => isContraband(ctx.content, id));
           const failed = contraband || thorough.outcome === "Violation" || thorough.outcome === "Expired";
           robot.busy = secondsToTicks(prof.auditSeconds, config);
           if (failed) {
@@ -220,6 +227,7 @@ export function robotBehavior(ctx: Ctx): void {
   const { state, config, world, events } = ctx;
   for (const robot of state.robots) {
     const prof = profile(config, robot);
+    if (state.tick < robot.jammedUntil) continue;
     if (robot.kind === "mender") {
       menderStep(ctx, robot);
       continue;

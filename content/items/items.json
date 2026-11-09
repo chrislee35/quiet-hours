@@ -1,0 +1,5 @@
+[
+  { "id": "scrap_wire", "name": "Scrap wire", "type": "junk", "stackable": true, "tags": ["craft"], "description": "Bits of copper. Doc Perrin pays for it." },
+  { "id": "contraband_radio", "name": "Pirate radio", "type": "contraband", "stackable": false, "tags": [], "description": "Illegal to own. An audit will find it." },
+  { "id": "fuse_kit", "name": "Fuse kit", "type": "tool", "stackable": true, "tags": ["craft"], "description": "Spare fuses for the power grid." }
+]

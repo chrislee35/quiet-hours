@@ -37,8 +37,8 @@ describe("default bindings", () => {
 describe("rebindKey", () => {
   it("replaces the action's keys and does not mutate the original", () => {
     const before = JSON.stringify(DEFAULT_KEYS);
-    const { map, displaced } = rebindKey(DEFAULT_KEYS, "interact", "KeyF");
-    expect(map.interact).toEqual(["KeyF"]);
+    const { map, displaced } = rebindKey(DEFAULT_KEYS, "interact", "KeyY");
+    expect(map.interact).toEqual(["KeyY"]);
     expect(displaced).toEqual([]);
     expect(JSON.stringify(DEFAULT_KEYS)).toBe(before);
   });

@@ -6,6 +6,21 @@ import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type CameraDef, type
 
 export const STATE_VERSION = 1;
 
+export interface AugmentState {
+  /** Augments found, bought or crafted, in the order acquired. */
+  owned: string[];
+  /** The subset currently worn; limited by `slots` and `powerBudget`. */
+  equipped: string[];
+  slots: number;
+  powerBudget: number;
+  /** Ghost Tag: every ID scan up to this tick reads as valid. */
+  spoofUntil: number;
+  /** Ghost Tag: the tag cannot start another spoof before this tick. */
+  spoofReadyAt: number;
+  /** Burst Jammer: cannot fire again before this tick. */
+  jamReadyAt: number;
+}
+
 /** Plain, JSON-serializable data only (SAV-2): no classes, functions, or Maps. */
 export interface SimState {
   version: number;
@@ -33,6 +48,8 @@ export interface SimState {
   /** The notebook: every clue the player knows, by clue id. */
   clues: Record<string, NotebookEntry>;
   inventory: { credits: number; items: Record<string, number> };
+  /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
+  augments: AugmentState;
   /** Passes the player holds. Empty means the null state: no record at all (STE-3). */
   passes: Pass[];
   /** Infraction ledger: points drain over time; `level` tracks which threshold has fired. */
@@ -111,6 +128,8 @@ export interface RobotState {
   dispatched: boolean;
   /** Maintenance robots: the repair job being carried out. */
   task: RepairTask | null;
+  /** Tick until which a Burst Jammer has knocked it out (0 = not jammed). */
+  jammedUntil: number;
 }
 
 export interface RepairTask {
@@ -137,6 +156,8 @@ export interface CameraState {
   claimed: boolean;
   /** Tick before which it cannot raise another alarm. */
   quietUntil: number;
+  /** Tick until which a Burst Jammer has knocked it out (0 = not jammed). */
+  jammedUntil: number;
 }
 
 /** An alert on its way to a robot (comms latency). */
@@ -151,7 +172,7 @@ export interface PendingAlert {
 export function createCameraState(c: CameraDef): CameraState {
   return {
     id: c.id, x: c.x + 0.5, y: c.y + 0.5, facing: c.facing, heading: c.facing, suspicion: 0, sees: false,
-    broken: false, brokenAt: 0, claimed: false, quietUntil: 0,
+    broken: false, brokenAt: 0, claimed: false, quietUntil: 0, jammedUntil: 0,
   };
 }
 
@@ -159,7 +180,7 @@ export function createRobotState(r: RobotDef): RobotState {
   return {
     id: r.id, kind: r.kind, x: r.x, y: r.y, facing: r.facing, mode: "patrol", route: r.route, routeIndex: 0,
     target: null, path: [], pathGoal: null, arrived: false, dwell: 0, dwellTotal: 0, lookBase: r.facing,
-    suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false, task: null,
+    suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false, task: null, jammedUntil: 0,
   };
 }
 
@@ -187,6 +208,10 @@ export function createInitialState(seed: number, config: Config, world: World = 
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },
+    augments: {
+      owned: [], equipped: [], slots: config.band.slots, powerBudget: config.band.powerBudget,
+      spoofUntil: 0, spoofReadyAt: 0, jamReadyAt: 0,
+    },
     passes: [],
     demerits: { points: 0, level: 0 as const, last: {} },
     trust: {},

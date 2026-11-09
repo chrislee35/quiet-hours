@@ -11,6 +11,7 @@ import { TouchControls, wantsTouchControls } from "./input/touch.ts";
 import { safeStorage } from "./storage.ts";
 import { Hud } from "./ui/hud.ts";
 import { bindUi } from "./ui/nav.ts";
+import { GearPanel } from "./ui/gear.ts";
 import { NotebookPanel } from "./ui/notebook.ts";
 import { TerminalWindow } from "./ui/terminal.ts";
 import { OVERLAY_CSS } from "./ui/styles.ts";
@@ -45,7 +46,8 @@ const hud = new Hud(sim, document.body, controller);
 const dialogue = new DialogueWindow(sim, document.body);
 const notebook = new NotebookPanel(sim, document.body);
 const terminal = new TerminalWindow(sim, document.body);
-bindUi(controller, sim, { dialogue, terminal, notebook });
+const gear = new GearPanel(sim, document.body);
+bindUi(controller, sim, { dialogue, terminal, notebook, gear });
 
 new PhaserRenderer().start(host, sim, { controller, hud });
 

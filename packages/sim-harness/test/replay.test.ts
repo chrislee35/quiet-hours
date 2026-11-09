@@ -24,7 +24,7 @@ function recordSession() {
  */
 // The hash changes whenever the shape of the saved state does (zones, doors, robots, alert, inventory,
 // conversation and terminal state so far); behavior-only changes must not move it.
-const GOLDEN_HASH = "18f9eabd8f7c30";
+const GOLDEN_HASH = "161d0a95ebc312";
 
 describe("Replay", () => {
   it("replaying a recording reproduces the final state hash", () => {

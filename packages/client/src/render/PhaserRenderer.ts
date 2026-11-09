@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { isSolid, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
+import { hasTag, isSolid, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
 import { FixedStepper } from "../loop.ts";
 import { intentFromActions, sameIntent, type MoveIntent } from "../input/actions.ts";
 import type { RenderDeps, Renderer } from "./Renderer.ts";
@@ -71,6 +71,7 @@ class QuietScene extends Phaser.Scene {
   private robotSprites = new Map<string, Phaser.GameObjects.Image>();
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
+  private pickupMarks = new Map<string, Phaser.GameObjects.GameObject[]>();
   private promptText!: Phaser.GameObjects.Text;
   private readonly deps: RenderDeps;
   /** Whether a window was open when this frame began; presses handled mid-frame must not leak into the world. */
@@ -258,6 +259,16 @@ class QuietScene extends Phaser.Scene {
       this.prevRobots.set(r.id, { x: r.x, y: r.y });
     }
     this.cones = this.add.graphics().setDepth(40);
+    for (const pk of this.sim.world.pickups) {
+      const cx = (pk.x + 0.5) * TILE;
+      const cy = (pk.y + 0.5) * TILE;
+      const gem = this.add.graphics().setDepth(7);
+      gem.fillStyle(0x7be3ff, 0.9).fillTriangle(cx, cy - 9, cx + 8, cy, cx, cy + 9).fillTriangle(cx, cy - 9, cx - 8, cy, cx, cy + 9);
+      gem.lineStyle(2, 0xffffff, 0.8).strokeCircle(cx, cy, 13);
+      const name = this.sim.content.augments[pk.grant.split(":")[1] ?? ""]?.name ?? (pk.grant.split(":")[1] ?? pk.grant).replace(/_/g, " ");
+      const label = this.add.text(cx, cy - 16, name, { fontFamily: "monospace", fontSize: "10px", color: "#7be3ff" }).setOrigin(0.5, 1).setDepth(60);
+      this.pickupMarks.set(pk.id, [gem, label]);
+    }
     // In-world interaction prompt (CORE-5): appears above whatever Interact would act on.
     this.promptText = this.add
       .text(0, 0, "", { fontFamily: "monospace", fontSize: "11px", color: "#10121c", backgroundColor: "#ffd36b", padding: { x: 4, y: 2 } })
@@ -300,6 +311,10 @@ class QuietScene extends Phaser.Scene {
       if (this.uiOpenAtFrameStart || this.sim.state.conversation || this.sim.state.terminal) return;
       if (action === "interact") this.pending.push({ type: "Interact" });
       else if (action === "zones") this.zoneLayer.setVisible(!this.zoneLayer.visible);
+      else if (action === "pulse") {
+        const id = this.sim.state.augments.equipped.find((a) => this.sim.content.augments[a]?.jam);
+        if (id) this.pending.push({ type: "UseAugment", id });
+      }
     });
   }
 
@@ -307,6 +322,7 @@ class QuietScene extends Phaser.Scene {
   private drawRobots(alpha: number): void {
     const { state, config, world } = this.sim;
     const rays = 28;
+    const lens = hasTag(state, this.sim.content, "reveal_cones");
     this.cones.clear();
     for (const r of state.robots) {
       const prev = this.prevRobots.get(r.id) ?? r;
@@ -315,6 +331,9 @@ class QuietScene extends Phaser.Scene {
       this.robotSprites.get(r.id)?.setPosition(x, y).setRotation(r.facing);
       const prof = config.robots[r.kind];
       const half = (prof.coneDegrees * Math.PI) / 360;
+      const jammed = state.tick < r.jammedUntil;
+      this.robotSprites.get(r.id)?.setAlpha(jammed ? 0.35 : 1);
+      if (jammed || !this.showsCone(r.x, r.y, lens, 7)) continue;
 
       // Cone polygon: march each ray until it meets a wall or closed door, so the shape is what the robot truly sees.
       const pts: Phaser.Math.Vector2[] = [new Phaser.Math.Vector2(x, y)];
@@ -338,6 +357,56 @@ class QuietScene extends Phaser.Scene {
         this.cones.fillStyle(r.suspicion >= 1 ? 0xff3355 : 0xffd36b, 1);
         this.cones.fillRect(x - 12, y - 22, 24 * r.suspicion, 4);
       }
+    }
+    this.drawCameras(lens);
+  }
+
+  /** Is there a clear line between the player and this point? */
+  private clearLine(x: number, y: number): boolean {
+    const { state, world } = this.sim;
+    const p = state.player;
+    const d = Math.hypot(x - p.x, y - p.y);
+    for (let t = 0.2; t < d; t += 0.2) {
+      if (isSolid(world, state.doors, Math.floor(p.x + ((x - p.x) * t) / d), Math.floor(p.y + ((y - p.y) * t) / d))) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Whether to draw a view cone. You can read cones that are close or that you can see; the Signal Lens
+   * shows every cone, through walls and from any distance.
+   */
+  private showsCone(x: number, y: number, lens: boolean, near: number): boolean {
+    if (lens) return true;
+    const p = this.sim.state.player;
+    return Math.hypot(x - p.x, y - p.y) <= near || this.clearLine(x, y);
+  }
+
+  /** Fixed cameras: a small housing always, and the view cone when it is near, in sight, or the Signal Lens is worn. */
+  private drawCameras(lens: boolean): void {
+    const { state, config, world } = this.sim;
+    const cfg = config.cameras;
+    const half = (cfg.coneDegrees * Math.PI) / 360;
+    for (const c of state.cameras) {
+      const x = c.x * TILE;
+      const y = c.y * TILE;
+      const off = c.broken || state.tick < c.jammedUntil;
+      this.cones.fillStyle(off ? 0x555555 : 0xff3355, 1).fillRect(x - 5, y - 5, 10, 10);
+      this.cones.lineStyle(2, 0x10121c, 1).strokeRect(x - 5, y - 5, 10, 10);
+      if (off || !this.showsCone(c.x, c.y, lens, 5)) continue;
+      const pts: Phaser.Math.Vector2[] = [new Phaser.Math.Vector2(x, y)];
+      for (let i = 0; i <= 24; i++) {
+        const ang = c.heading - half + (2 * half * i) / 24;
+        let d = 0.6; // starts clear of its own wall tile
+        while (d < cfg.rangeTiles) {
+          const nd = d + 0.2;
+          if (isSolid(world, state.doors, Math.floor(c.x + Math.cos(ang) * nd), Math.floor(c.y + Math.sin(ang) * nd))) break;
+          d = nd;
+        }
+        pts.push(new Phaser.Math.Vector2(x + Math.cos(ang) * d * TILE, y + Math.sin(ang) * d * TILE));
+      }
+      this.cones.fillStyle(0xff3355, 0.12 + 0.25 * c.suspicion);
+      this.cones.fillPoints(pts, true);
     }
   }
 
@@ -371,6 +440,7 @@ class QuietScene extends Phaser.Scene {
     this.cone.setPosition(x, y).setConeRotation(this.facing);
 
     this.drawRobots(a);
+    for (const [id, marks] of this.pickupMarks) for (const m of marks) (m as Phaser.GameObjects.Components.Visible & Phaser.GameObjects.GameObject).setVisible(!this.sim.state.flags[`picked_${id}`]);
 
     const prompt = this.sim.prompt();
     if (prompt) {

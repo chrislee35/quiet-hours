@@ -33,7 +33,11 @@ export type Condition =
   | { time_between: [startMinute: number, endMinute: number] }
   | { arrest_count_gte: number }
   /** The player holds a pass with this id (valid or not: validity is the resolver's business). */
-  | { has_pass: string };
+  | { has_pass: string }
+  /** The augment is owned. */
+  | { has_augment: string }
+  /** The augment is owned and currently worn (e.g. Slow Tongue unlocking dialogue options). */
+  | { augment_equipped: string };
 
 export type Effect =
   | { give_clue: { id: string; from: string } }
@@ -66,7 +70,12 @@ export type Effect =
   | { disable_camera: string }
   | { enable_camera: string }
   /** Clears a door's lock (the door stays closed until opened). */
-  | { unlock_door: string };
+  | { unlock_door: string }
+  /** The player now owns this augment (found, bought or crafted). Wearing it is a separate choice. */
+  | { grant_augment: string }
+  | { revoke_augment: string }
+  /** Upgrades the wrist band's capacity. */
+  | { add_band_capacity: { slots?: number; power?: number } };
 
 export class RuleError extends Error {}
 
@@ -91,6 +100,8 @@ export function evalCondition(c: Condition, state: Readonly<SimState>, config: C
     return inWindow(gameTimeAt(state.tick, config).minuteOfDay, c.time_between[0], c.time_between[1]);
   }
   if ("arrest_count_gte" in c) return state.arrestCount >= c.arrest_count_gte;
+  if ("has_augment" in c) return state.augments.owned.includes(c.has_augment);
+  if ("augment_equipped" in c) return state.augments.equipped.includes(c.augment_equipped);
   if ("has_pass" in c) return state.passes.some((p) => p.id === c.has_pass);
   throw new RuleError(`unknown condition ${JSON.stringify(c)}`);
 }
@@ -195,6 +206,23 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       door.unlockedAt = tick;
       events.push({ type: "DoorUnlocked", tick, doorId: effect.unlock_door });
     }
+  } else if ("grant_augment" in effect) {
+    if (!state.augments.owned.includes(effect.grant_augment)) {
+      state.augments.owned.push(effect.grant_augment);
+      events.push({ type: "AugmentGained", tick, augmentId: effect.grant_augment });
+    }
+  } else if ("revoke_augment" in effect) {
+    const id = effect.revoke_augment;
+    const was = state.augments.equipped.indexOf(id);
+    if (was >= 0) {
+      state.augments.equipped.splice(was, 1);
+      events.push({ type: "AugmentUnequipped", tick, augmentId: id });
+    }
+    state.augments.owned = state.augments.owned.filter((a) => a !== id);
+  } else if ("add_band_capacity" in effect) {
+    state.augments.slots += effect.add_band_capacity.slots ?? 0;
+    state.augments.powerBudget += effect.add_band_capacity.power ?? 0;
+    events.push({ type: "BandUpgraded", tick, slots: state.augments.slots, powerBudget: state.augments.powerBudget });
   } else {
     throw new RuleError(`unknown effect ${JSON.stringify(effect)}`);
   }
@@ -242,6 +270,8 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
     case "has_clue":
     case "flag":
     case "has_pass":
+    case "has_augment":
+    case "augment_equipped":
       if (!isStr(a)) bad("expected a string id");
       break;
     case "clue_state":
@@ -306,6 +336,8 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
     case "disprove_clue":
     case "emit":
     case "unlock_door":
+    case "grant_augment":
+    case "revoke_augment":
       if (!isStr(a)) bad("expected a string");
       break;
     case "set_flag":
@@ -324,6 +356,12 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
     case "raise_alert_to":
       if (!isInt(a, 0, 3)) bad("expected an alert level 0-3");
       break;
+    case "add_band_capacity": {
+      const o = a as Record<string, unknown> | null;
+      if (typeof o !== "object" || o === null || (o.slots === undefined && o.power === undefined)) bad("expected { slots?, power? }");
+      else if ((o.slots !== undefined && !isInt(o.slots, 0)) || (o.power !== undefined && !isInt(o.power, 0))) bad("slots and power must be whole numbers >= 0");
+      break;
+    }
     default:
       errors.push(`${path}: unknown effect "${op}"`);
   }
