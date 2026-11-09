@@ -4,6 +4,7 @@ import { chooseOption, dialogueView, endConversation, notebookEntries, presentCl
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
 import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
+import { economySystem } from "./economy.ts";
 import { cameraSystem } from "./cameras.ts";
 import { commsSystem } from "./comms.ts";
 import { repairSystem } from "./repairs.ts";
@@ -117,7 +118,7 @@ function interact(ctx: Ctx): void {
     const effect = pickup ? pickupEffect(pickup.grant) : null;
     if (!pickup || !effect) return;
     state.flags[`picked_${pickup.id}`] = true;
-    applyEffects([effect], state, events, config);
+    applyEffects([effect], state, events, config, ctx.content);
     events.push({ type: "PickedUp", tick: state.tick, pickupId: pickup.id });
     return;
   }
@@ -162,7 +163,7 @@ function applyCommands(ctx: Ctx): void {
   for (const cmd of commands) {
     switch (cmd.type) {
       case "ApplyEffects":
-        applyEffects(cmd.effects, state, events, config);
+        applyEffects(cmd.effects, state, events, config, ctx.content);
         break;
       case "SetMove": {
         if (held) break;
@@ -250,6 +251,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "player", run: movePlayer },
   { name: "zones", run: trackZone },
   { name: "clock", run: advanceClock },
+  { name: "economy", run: economySystem },
   { name: "npcs", run: notYet },
   { name: "robot-perception", run: robotPerception },
   { name: "robot-behavior", run: robotBehavior },
@@ -286,7 +288,7 @@ export function step(
       else if (cmd.type === "EndConversation") endConversation(ctx);
       else if (cmd.type === "TerminalRotate") rotateCell(ctx, cmd.index);
       else if (cmd.type === "ExitTerminal") closeTerminal(ctx);
-      else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events, config);
+      else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events, config, content);
     }
     return { state, events };
   }

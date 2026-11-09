@@ -116,6 +116,28 @@ export const itemSchema = {
   },
 } as const;
 
+export const serviceSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "name", "description", "price", "legitimate", "once", "requires", "effects", "successText"],
+  properties: {
+    id,
+    name: { type: "string", minLength: 1 },
+    description: { type: "string" },
+    price: { type: "integer", minimum: 0 },
+    legitimate: { type: "boolean" },
+    once: { type: "boolean" },
+    requires: { type: "array" },
+    effects: { type: "array" },
+    successText: { type: "string" },
+    refusals: {
+      type: "object",
+      additionalProperties: false,
+      properties: { null_state: { type: "string" }, requirements: { type: "string" }, funds: { type: "string" }, once: { type: "string" } },
+    },
+  },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -124,6 +146,7 @@ export const kinds = {
   terminals: terminalSchema,
   augments: augmentSchema,
   items: itemSchema,
+  services: serviceSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

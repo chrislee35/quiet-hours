@@ -51,6 +51,11 @@
     "checkThreshold": 5,
     "enforcerThreshold": 10
   },
+  "economy": {
+    "loanInterestPerDay": 0.25,
+    "loanDueDays": 2,
+    "garnishFraction": 0.5
+  },
   "band": {
     "slots": 2,
     "powerBudget": 3

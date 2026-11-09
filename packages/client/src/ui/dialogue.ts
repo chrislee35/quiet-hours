@@ -102,6 +102,13 @@ export class DialogueWindow {
       p.append(line.text);
       root.append(p);
     }
+    if (view.notice) {
+      const n = document.createElement("p");
+      n.className = "notice";
+      n.setAttribute("role", "status");
+      n.textContent = view.notice;
+      root.append(n);
+    }
 
     if (this.picking) {
       this.renderPicker(view);

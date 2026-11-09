@@ -23,7 +23,20 @@ node: wares
   > [credits>=20, !clue:pump4_shift] "Buy the Pump 4 rumour. (20 credits)" {-credits:20, +clue:pump4_shift(odd_sam)} -> sold
   > [credits>=10, augment:slow_tongue, !clue:pump4_shift] "Haggle, slowly and soothingly. (10 credits)" {-credits:10, +clue:pump4_shift(odd_sam)} -> haggled
   > [!clue:pump4_shift_old] "Take the free sample." {+clue:pump4_shift_old(odd_sam)} -> sample
+  > "Ask about papers. (40 credits)" {service:forge_stacks_pass} -> deal
+  > "Sell scrap wire. (2 bundles)" {service:sell_scrap} -> deal
+  > [!debt:odd_sam] "Ask for a loan. (40 credits, and I owe more every day)" {loan:odd_sam*40} -> loaned
+  > [debt:odd_sam, credits>=1] "Pay back some of what I owe. (up to 30)" {repay:odd_sam*30} -> deal
   > "Not now." -> return_visit
+
+node: deal
+  odd_sam: "Business is business."
+  > "Anything else?" -> wares
+  > "That will do." -> return_visit
+
+node: loaned
+  odd_sam (warm): "Forty, in your hand. I charge a quarter a day, and after two days I send someone to collect. Nothing personal. I am simply fond of arithmetic."
+  > "Understood." -> return_visit
 
 node: sold
   odd_sam (smug): "A pleasure. Remember, you never heard it from me."

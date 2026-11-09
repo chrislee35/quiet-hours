@@ -10,6 +10,8 @@
 import { gameTimeAt, inWindow } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, GameEvent, TrustLevel } from "./events.ts";
+import type { Content } from "./dialogue/types.ts";
+import { repayLoan, serviceStatus, takeLoan, totalOwed, useService } from "./economy.ts";
 import type { SimState } from "./state.ts";
 import { ticksPerGameMinute, type PassOrigin } from "./identity.ts";
 
@@ -37,7 +39,13 @@ export type Condition =
   /** The augment is owned. */
   | { has_augment: string }
   /** The augment is owned and currently worn (e.g. Slow Tongue unlocking dialogue options). */
-  | { augment_equipped: string };
+  | { augment_equipped: string }
+  /** The service can be used right now (it exists, requirements hold, a record is on file if it needs one, and the player can pay). */
+  | { can_service: string }
+  /** The player has any identity on file (true) or is in the null state (false). */
+  | { has_record: boolean }
+  /** The player owes this lender, or "*" for any lender. */
+  | { in_debt: string };
 
 export type Effect =
   | { give_clue: { id: string; from: string } }
@@ -75,16 +83,24 @@ export type Effect =
   | { grant_augment: string }
   | { revoke_augment: string }
   /** Upgrades the wrist band's capacity. */
-  | { add_band_capacity: { slots?: number; power?: number } };
+  | { add_band_capacity: { slots?: number; power?: number } }
+  /** Uses a service: charge, apply its effects, and say what happened (needs content). */
+  | { use_service: string }
+  | { take_loan: [lender: string, amount: number] }
+  /** Pays up to this much of what is owed, limited by the credits held. */
+  | { repay_loan: [lender: string, amount: number] };
 
 export class RuleError extends Error {}
 
 // ---- Conditions --------------------------------------------------------------------------
 
-export function evalCondition(c: Condition, state: Readonly<SimState>, config: Config): boolean {
-  if ("all" in c) return c.all.every((x) => evalCondition(x, state, config));
-  if ("any" in c) return c.any.some((x) => evalCondition(x, state, config));
-  if ("not" in c) return !evalCondition(c.not, state, config);
+export function evalCondition(c: Condition, state: Readonly<SimState>, config: Config, content?: Content): boolean {
+  if ("all" in c) return c.all.every((x) => evalCondition(x, state, config, content));
+  if ("any" in c) return c.any.some((x) => evalCondition(x, state, config, content));
+  if ("not" in c) return !evalCondition(c.not, state, config, content);
+  if ("can_service" in c) return content !== undefined && serviceStatus(state, content, config, c.can_service).ok;
+  if ("has_record" in c) return (state.passes.length > 0) === c.has_record;
+  if ("in_debt" in c) return totalOwed(state, c.in_debt === "*" ? undefined : c.in_debt) > 0;
   if ("has_clue" in c) return state.clues[c.has_clue] !== undefined;
   if ("clue_state" in c) return state.clues[c.clue_state[0]]?.status === c.clue_state[1];
   if ("flag" in c) return Boolean(state.flags[c.flag]);
@@ -107,9 +123,9 @@ export function evalCondition(c: Condition, state: Readonly<SimState>, config: C
 }
 
 /** An absent condition means "always"; a list means all of them. */
-export function evalAll(conds: Condition | Condition[] | undefined, state: Readonly<SimState>, config: Config): boolean {
+export function evalAll(conds: Condition | Condition[] | undefined, state: Readonly<SimState>, config: Config, content?: Content): boolean {
   if (conds === undefined) return true;
-  return (Array.isArray(conds) ? conds : [conds]).every((c) => evalCondition(c, state, config));
+  return (Array.isArray(conds) ? conds : [conds]).every((c) => evalCondition(c, state, config, content));
 }
 
 // ---- Effects -----------------------------------------------------------------------------
@@ -117,7 +133,7 @@ export function evalAll(conds: Condition | Condition[] | undefined, state: Reado
 const clampTrust = (n: number): TrustLevel => (n <= -1 ? -1 : n >= 1 ? 1 : 0);
 
 /** Applies one effect to `state` (mutating it) and appends the resulting events. */
-export function applyEffect(effect: Effect, state: SimState, events: GameEvent[], config?: Config): void {
+export function applyEffect(effect: Effect, state: SimState, events: GameEvent[], config?: Config, content?: Content): void {
   const tick = state.tick;
   if ("give_clue" in effect) {
     const { id, from } = effect.give_clue;
@@ -206,6 +222,14 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       door.unlockedAt = tick;
       events.push({ type: "DoorUnlocked", tick, doorId: effect.unlock_door });
     }
+  } else if ("use_service" in effect) {
+    if (!config || !content) throw new RuleError("use_service needs the game config and content");
+    useService(state, content, config, events, effect.use_service);
+  } else if ("take_loan" in effect) {
+    if (!config) throw new RuleError("take_loan needs the game config");
+    takeLoan(state, config, events, effect.take_loan[0], effect.take_loan[1]);
+  } else if ("repay_loan" in effect) {
+    repayLoan(state, events, effect.repay_loan[0], effect.repay_loan[1]);
   } else if ("grant_augment" in effect) {
     if (!state.augments.owned.includes(effect.grant_augment)) {
       state.augments.owned.push(effect.grant_augment);
@@ -228,8 +252,8 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
   }
 }
 
-export function applyEffects(effects: readonly Effect[], state: SimState, events: GameEvent[], config?: Config): void {
-  for (const e of effects) applyEffect(e, state, events, config);
+export function applyEffects(effects: readonly Effect[], state: SimState, events: GameEvent[], config?: Config, content?: Content): void {
+  for (const e of effects) applyEffect(e, state, events, config, content);
 }
 
 // ---- Validation (for content tools; mirrors the runtime exactly) ---------------------------
@@ -272,6 +296,8 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
     case "has_pass":
     case "has_augment":
     case "augment_equipped":
+    case "can_service":
+    case "in_debt":
       if (!isStr(a)) bad("expected a string id");
       break;
     case "clue_state":
@@ -282,6 +308,9 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
       break;
     case "has_item":
       if (!(isStr(a) || (isTuple(a, 2) && isStr(a[0]) && isInt(a[1], 1)))) bad("expected an item id or [itemId, minimum >= 1]");
+      break;
+    case "has_record":
+      if (typeof a !== "boolean") bad("expected true or false");
       break;
     case "credits_gte":
     case "arrest_count_gte":
@@ -338,6 +367,7 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
     case "unlock_door":
     case "grant_augment":
     case "revoke_augment":
+    case "use_service":
       if (!isStr(a)) bad("expected a string");
       break;
     case "set_flag":
@@ -355,6 +385,10 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
       break;
     case "raise_alert_to":
       if (!isInt(a, 0, 3)) bad("expected an alert level 0-3");
+      break;
+    case "take_loan":
+    case "repay_loan":
+      if (!isTuple(a, 2) || !isStr(a[0]) || !isInt(a[1], 1)) bad("expected [lender, amount >= 1]");
       break;
     case "add_band_capacity": {
       const o = a as Record<string, unknown> | null;

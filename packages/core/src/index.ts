@@ -29,3 +29,4 @@ export * from "./comms.ts";
 export * from "./nav.ts";
 export * from "./repairs.ts";
 export * from "./augments.ts";
+export * from "./economy.ts";

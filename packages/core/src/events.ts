@@ -58,6 +58,13 @@ export type GameEvent =
   | { type: "LockerOpened"; tick: number; lockerId: string; items: Record<string, number>; credits: number }
   | { type: "InfractionRecorded"; tick: number; kind: "restricted_zone" | "curfew"; points: number; total: number }
   | { type: "DemeritThreshold"; tick: number; level: "check" | "enforcer" }
+  | { type: "ServiceUsed"; tick: number; serviceId: string; price: number }
+  | { type: "ServiceRefused"; tick: number; serviceId: string; reason: "unknown" | "null_state" | "requirements" | "funds" | "once"; text: string }
+  | { type: "LoanTaken"; tick: number; lender: string; amount: number; owed: number }
+  | { type: "LoanRepaid"; tick: number; lender: string; paid: number; owed: number }
+  | { type: "InterestAccrued"; tick: number; lender: string; owed: number }
+  /** Collectors visited an overdue debtor, took a share of their credits and raised the alert. */
+  | { type: "CollectorsCame"; tick: number; lender: string; taken: number; owed: number }
   | { type: "AugmentGained"; tick: number; augmentId: string }
   | { type: "AugmentEquipped"; tick: number; augmentId: string }
   | { type: "AugmentUnequipped"; tick: number; augmentId: string }

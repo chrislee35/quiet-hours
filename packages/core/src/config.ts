@@ -140,6 +140,15 @@ export interface Config {
     /** Seconds a maintenance robot spends on the job once it arrives. */
     repairSeconds: number;
   };
+  /** Loans and collectors (ECO-2). */
+  economy: {
+    /** Interest added to what is owed, compounding once per in-game day. */
+    loanInterestPerDay: number;
+    /** In-game days after borrowing before collectors start coming. */
+    loanDueDays: number;
+    /** Fraction of the credits carried that collectors take on each visit (never more than is owed). */
+    garnishFraction: number;
+  };
   /** The wrist band's starting capacity (AUG-2); upgrades raise it through effects. */
   band: { slots: number; powerBudget: number };
   /** One behaviour profile per robot type (ROB-3): how it sees, moves, and what it can do. */
@@ -191,6 +200,7 @@ const SHAPE: Shape = {
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },
   band: { slots: "number", powerBudget: "number" },
+  economy: { loanInterestPerDay: "number", loanDueDays: "number", garnishFraction: "number" },
   robots: Object.fromEntries(ROBOT_KINDS.map((k) => [k, PROFILE_SHAPE])) as Shape,
 };
 

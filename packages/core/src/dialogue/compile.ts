@@ -53,6 +53,9 @@ function parseConditions(text: string, allowReliability: boolean, fail: (m: stri
     else if ((m = t.match(new RegExp(`^item:(${ID})$`)))) c = { has_item: m[1]! };
     else if ((m = t.match(new RegExp(`^augment:(${ID})$`)))) c = { augment_equipped: m[1]! };
     else if ((m = t.match(new RegExp(`^owns:(${ID})$`)))) c = { has_augment: m[1]! };
+    else if ((m = t.match(new RegExp(`^can:(${ID})$`)))) c = { can_service: m[1]! };
+    else if (t === "record") c = { has_record: true };
+    else if ((m = t.match(new RegExp(`^debt:(${ID}|\\*)$`)))) c = { in_debt: m[1]! };
     else if ((m = t.match(/^credits>=(\d+)$/))) c = { credits_gte: Number(m[1]) };
     else if ((m = t.match(new RegExp(`^trust:(${ID})>=(-?\\d|distrusts|unsure|trusts)$`)))) {
       const lvl = m[2]! in TRUST_WORDS ? TRUST_WORDS[m[2]!]! : Number(m[2]);
@@ -97,6 +100,9 @@ function parseEffects(text: string, defaultFrom: string, fail: (m: string) => vo
     } else if ((m = token.match(/^([+-])credits:(\d+)$/))) e = { add_credits: (m[1] === "-" ? -1 : 1) * Number(m[2]) };
     else if ((m = token.match(new RegExp(`^trust:(${ID})([+-]\\d+)$`)))) e = { adjust_trust: [m[1]!, Number(m[2])] };
     else if ((m = token.match(new RegExp(`^\\+augment:(${ID})$`)))) e = { grant_augment: m[1]! };
+    else if ((m = token.match(new RegExp(`^service:(${ID})$`)))) e = { use_service: m[1]! };
+    else if ((m = token.match(new RegExp(`^loan:(${ID})\\*(\\d+)$`)))) e = { take_loan: [m[1]!, Number(m[2])] };
+    else if ((m = token.match(new RegExp(`^repay:(${ID})\\*(\\d+)$`)))) e = { repay_loan: [m[1]!, Number(m[2])] };
     else if ((m = token.match(new RegExp(`^-pass:(${ID})$`)))) e = { revoke_pass: m[1]! };
     else if ((m = token.match(/^alert:([0-3])$/))) e = { raise_alert_to: Number(m[1]) as 0 | 1 | 2 | 3 };
     else if ((m = token.match(new RegExp(`^emit:(${ID})$`)))) e = { emit: m[1]! };

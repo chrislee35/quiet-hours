@@ -33,6 +33,8 @@ export interface DialogueView {
   canLeave: boolean;
   /** The single trust status line, or null when this NPC does not show one (CMP-3). */
   trustLine: string | null;
+  /** What a service just said (a receipt or a refusal), shown with this node; null if nothing. */
+  notice: string | null;
 }
 
 export function trustLine(name: string, level: TrustLevel): string {
@@ -47,10 +49,10 @@ export function notebookEntries(state: Readonly<SimState>, content: Content): No
     .map(([clueId, e]) => ({ clueId, text: content.clues[clueId]?.text ?? `(unknown clue ${clueId})`, from: e.from, status: e.status }));
 }
 
-function visibleChoices(node: DialogueNode, state: Readonly<SimState>, config: Config) {
+function visibleChoices(node: DialogueNode, state: Readonly<SimState>, config: Config, content: Content) {
   return node.choices
     .map((c, i) => ({ c, i }))
-    .filter(({ c }) => evalAll(c.if, state, config))
+    .filter(({ c }) => evalAll(c.if, state, config, content))
     .map(({ c }, index) => ({ index, choice: c }));
 }
 
@@ -67,10 +69,11 @@ export function dialogueView(state: Readonly<SimState>, content: Content, config
     name: d.name,
     mood: npcLines.at(-1)?.mood ?? null,
     lines: node.lines,
-    choices: visibleChoices(node, state, config).map(({ index, choice }) => ({ index, text: choice.text })),
+    choices: visibleChoices(node, state, config, content).map(({ index, choice }) => ({ index, text: choice.text })),
     canPresent: node.present !== null,
     presentable: node.present !== null ? notebookEntries(state, content) : [],
     canLeave: node.end,
+    notice: conv.notice ?? null,
     trustLine: d.trackTrust ? trustLine(d.name, state.trust[d.npc] ?? 0) : null,
   };
 }
@@ -83,16 +86,18 @@ function enterNode(ctx: Ctx, d: Dialogue, nodeId: string): void {
     endConversation(ctx);
     return;
   }
-  state.conversation = { dialogueId: d.id, node: nodeId };
+  // A service result said during the choice that led here is carried onto this node, then forgotten.
+  const notice = state.conversation?.notice;
+  state.conversation = { dialogueId: d.id, node: nodeId, ...(notice ? { notice } : {}) };
   events.push({ type: "ConversationNode", tick: state.tick, dialogueId: d.id, node: nodeId });
-  applyEffects(node.onEnter, state, events, ctx.config);
+  applyEffects(node.onEnter, state, events, ctx.config, ctx.content);
 }
 
 export function startConversation(ctx: Ctx, dialogueId: string): boolean {
   const { state, config, content, events } = ctx;
   const d = content.dialogues[dialogueId];
   if (!d || state.conversation) return false;
-  const entry = d.start.find((s) => evalAll(s.if, state, config));
+  const entry = d.start.find((s) => evalAll(s.if, state, config, content));
   if (!entry) return false;
   state.player.intent = { dx: 0, dy: 0, mode: "walk" };
   events.push({ type: "ConversationStarted", tick: state.tick, dialogueId: d.id, npc: d.npc });
@@ -123,9 +128,10 @@ function follow(ctx: Ctx, d: Dialogue, goto: string): void {
 export function chooseOption(ctx: Ctx, index: number): void {
   const cur = currentNode(ctx);
   if (!cur) return;
-  const picked = visibleChoices(cur.node, ctx.state, ctx.config).find((v) => v.index === index);
+  const picked = visibleChoices(cur.node, ctx.state, ctx.config, ctx.content).find((v) => v.index === index);
   if (!picked) return;
-  applyEffects(picked.choice.effects, ctx.state, ctx.events, ctx.config);
+  if (ctx.state.conversation) delete ctx.state.conversation.notice;
+  applyEffects(picked.choice.effects, ctx.state, ctx.events, ctx.config, ctx.content);
   follow(ctx, cur.d, picked.choice.goto);
 }
 
@@ -138,10 +144,11 @@ export function presentClue(ctx: Ctx, clueId: string): void {
     (r) =>
       (r.clue === "*" || r.clue === clueId) &&
       (r.reliability === undefined || r.reliability === reliability) &&
-      evalAll(r.if, ctx.state, ctx.config),
+      evalAll(r.if, ctx.state, ctx.config, ctx.content),
   );
   if (!reaction) return;
   ctx.events.push({ type: "CluePresented", tick: ctx.state.tick, clueId, npc: cur.d.npc });
-  applyEffects(reaction.effects, ctx.state, ctx.events, ctx.config);
+  if (ctx.state.conversation) delete ctx.state.conversation.notice;
+  applyEffects(reaction.effects, ctx.state, ctx.events, ctx.config, ctx.content);
   follow(ctx, cur.d, reaction.goto);
 }

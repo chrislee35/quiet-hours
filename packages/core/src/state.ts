@@ -2,6 +2,7 @@ import { gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, MoveMode, TrustLevel } from "./events.ts";
 import type { Pass } from "./identity.ts";
+import type { Loan } from "./economy.ts";
 import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type CameraDef, type DoorState, type RobotDef, type RobotKind, type World } from "./world.ts";
 
 export const STATE_VERSION = 1;
@@ -50,6 +51,8 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** Outstanding loans, and the last in-game day interest was applied. */
+  loans: { debts: Loan[]; lastDay: number };
   /** Passes the player holds. Empty means the null state: no record at all (STE-3). */
   passes: Pass[];
   /** Infraction ledger: points drain over time; `level` tracks which threshold has fired. */
@@ -67,7 +70,7 @@ export interface SimState {
   /** The terminal currently being used, if any. While set, the world is frozen like a conversation. */
   terminal: string | null;
   /** Active conversation, if any. While set, the world is frozen (CORE-4). */
-  conversation: { dialogueId: string; node: string } | null;
+  conversation: { dialogueId: string; node: string; /** A line of outcome text (a service result) shown with the current node. */ notice?: string } | null;
   alert: {
     level: AlertLevel;
     /** Tick of the last sighting, raise, or decay step; decay counts out-of-sight time from here. */
@@ -208,6 +211,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },
+    loans: { debts: [], lastDay: t.day },
     augments: {
       owned: [], equipped: [], slots: config.band.slots, powerBudget: config.band.powerBudget,
       spoofUntil: 0, spoofReadyAt: 0, jamReadyAt: 0,

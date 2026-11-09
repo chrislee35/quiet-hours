@@ -1,5 +1,5 @@
 import Ajv from "ajv";
-import { ConfigError, TiledImportError, WorldError, buildWorld, compileDialogue, importTiled, validateConfig, type Dialogue, type MapData } from "@qh/core";
+import { validateCondition, validateEffect, ConfigError, TiledImportError, WorldError, buildWorld, compileDialogue, importTiled, validateConfig, type Dialogue, type MapData } from "@qh/core";
 import { clueGates, cluesGiven } from "./dialogue-checks.ts";
 import { checkPuzzles, checkTerminals } from "./terminal-checks.ts";
 import { kinds, type Kind } from "./schemas.ts";
@@ -35,7 +35,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [] };
 
   if (bundle.config) {
     try {
@@ -84,7 +84,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -156,6 +156,27 @@ export function validateContent(bundle: ContentBundle): Issue[] {
         const item = entities.items.find(({ entity }) => entity.id === id)?.entity;
         if (item && item.stackable === false) issues.push({ file, message: `pickup "${p.id}" grants several of non-stackable item "${id}"` });
       }
+    }
+  }
+
+  // Services: conditions and effects must be well formed and refer to things that exist.
+  for (const { file, entity } of entities.services) {
+    (entity.requires as unknown[]).forEach((c, i) => {
+      for (const m of validateCondition(c, `requires[${i}]`)) issues.push({ file, message: `service "${entity.id}": ${m}` });
+    });
+    (entity.effects as unknown[]).forEach((e, i) => {
+      for (const m of validateEffect(e, `effects[${i}]`)) issues.push({ file, message: `service "${entity.id}": ${m}` });
+      const eff = e as Record<string, unknown>;
+      if (typeof eff.grant_augment === "string" && !ids.augments.has(eff.grant_augment)) issues.push({ file, message: `service "${entity.id}" grants unknown augment "${eff.grant_augment}"` });
+      const item = (eff.add_item ?? eff.remove_item) as unknown[] | undefined;
+      if (Array.isArray(item) && !ids.items.has(String(item[0]))) issues.push({ file, message: `service "${entity.id}" uses unknown item "${String(item[0])}"` });
+      if (eff.use_service !== undefined) issues.push({ file, message: `service "${entity.id}" cannot use another service` });
+    });
+  }
+  // Dialogue may only use services that exist.
+  for (const { file, dialogue } of compiled) {
+    for (const m of JSON.stringify(dialogue).matchAll(/"(?:use_service|can_service)":"([^"]+)"/g)) {
+      if (!ids.services.has(m[1]!)) issues.push({ file, message: `uses unknown service "${m[1]}"` });
     }
   }
 

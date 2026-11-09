@@ -59,7 +59,7 @@ function grantAccess(ctx: Ctx, terminalId: string, via: "puzzle" | "bypass"): vo
   if (!ts || !def || ts.solved) return;
   ts.solved = true;
   events.push({ type: "TerminalSolved", tick: state.tick, terminalId, via });
-  applyEffects(def.onSolve, state, events, ctx.config);
+  applyEffects(def.onSolve, state, events, ctx.config, ctx.content);
 }
 
 export function openTerminal(ctx: Ctx, terminalId: string): boolean {
@@ -72,7 +72,7 @@ export function openTerminal(ctx: Ctx, terminalId: string): boolean {
   state.terminal = terminalId;
   events.push({ type: "TerminalOpened", tick: state.tick, terminalId });
   // An alternative way in (a code or pass the player already holds) skips the puzzle entirely.
-  if (def.bypass.length > 0 && evalAll(def.bypass, state, config)) grantAccess(ctx, terminalId, "bypass");
+  if (def.bypass.length > 0 && evalAll(def.bypass, state, config, ctx.content)) grantAccess(ctx, terminalId, "bypass");
   return true;
 }
 

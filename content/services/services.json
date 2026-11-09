@@ -1,0 +1,48 @@
+[
+  {
+    "id": "transit_fare",
+    "name": "Transit fare",
+    "description": "A ticket on the municipal rail. Needs a record on file.",
+    "price": 5,
+    "legitimate": true,
+    "once": false,
+    "requires": [],
+    "effects": [{ "set_flag": ["has_ticket", true] }],
+    "successText": "The turnstile accepts your band and clicks. A ticket prints.",
+    "refusals": { "null_state": "The turnstile reads your band, finds nothing, and displays: PENDING REVIEW. Please wait for an officer." }
+  },
+  {
+    "id": "forge_stacks_pass",
+    "name": "Forged Stacks day pass",
+    "description": "A pass for the Stacks that will fool a basic scan, and not a thorough one.",
+    "price": 40,
+    "legitimate": false,
+    "once": false,
+    "requires": [],
+    "effects": [{ "give_pass": { "id": "stacks_forged", "label": "Stacks day pass (forged)", "level": 1, "zones": ["stacks_street"], "expiresInMinutes": 360, "origin": "forged" } }],
+    "successText": "Sam slides a card across the counter. It looks real. It is not."
+  },
+  {
+    "id": "sell_scrap",
+    "name": "Sell scrap wire",
+    "description": "Trade scrap wire for credits.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [{ "has_item": ["scrap_wire", 2] }],
+    "effects": [{ "remove_item": ["scrap_wire", 2] }, { "add_credits": 12 }],
+    "successText": "Two bundles of wire for twelve credits. Sam weighs it twice.",
+    "refusals": { "requirements": "Sam wants at least two bundles of scrap wire." }
+  },
+  {
+    "id": "bribe_clerk",
+    "name": "Bribe the records clerk",
+    "description": "A clerk opens a record for you, in someone else's name.",
+    "price": 60,
+    "legitimate": false,
+    "once": true,
+    "requires": [],
+    "effects": [{ "give_pass": { "id": "clerk_borrowed", "label": "Borrowed resident record", "level": 1, "origin": "borrowed" } }],
+    "successText": "The clerk never looks up. Your band now carries a record. It is not yours."
+  }
+]

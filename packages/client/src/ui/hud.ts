@@ -1,5 +1,5 @@
 import type { InputController } from "../input/controller.ts";
-import { ALERT_NAMES, formatTime, gameTimeAt, standing, type Sim } from "@qh/core";
+import { ALERT_NAMES, formatTime, gameTimeAt, standing, totalOwed, type Sim } from "@qh/core";
 
 const fmt = (items: Record<string, number>) => Object.entries(items).map(([k, n]) => `${k} x${n}`).join(", ");
 
@@ -48,11 +48,12 @@ export class Hud {
     const level = s.alert.level;
     const dots = "●".repeat(level + 1) + "○".repeat(3 - level);
     const lk = s.locker;
+    const owed = totalOwed(s);
     const locker = [lk.credits > 0 ? `${lk.credits} credits` : "", fmt(lk.items)].filter(Boolean).join(", ");
     const next = [
       `Alert: ${ALERT_NAMES[level]} ${dots}`,
       `${formatTime(t)}${t.isCurfew ? "  CURFEW" : ""}${t.isQuietHours ? "  QUIET HOURS" : ""}   Zone: ${s.player.zone ?? "none"}`,
-      `Credits ${s.inventory.credits}   Items: ${fmt(s.inventory.items) || "none"}${locker ? `   [Locker: ${locker}]` : ""}` +
+      `Credits ${s.inventory.credits}${owed > 0 ? `   Owe ${owed}` : ""}   Items: ${fmt(s.inventory.items) || "none"}${locker ? `   [Locker: ${locker}]` : ""}` +
         (s.passes.length > 0 ? `   Passes: ${s.passes.map((p) => p.label).join(", ")}   Standing: ${standing(s.demerits.points, this.sim.config)}` : "   (no record on file)"),
       performance.now() < this.messageUntil ? `» ${this.message}` : "",
       this.controller.lastSource === "touch"

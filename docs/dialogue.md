@@ -43,6 +43,10 @@ Prefix any with `!` to negate.
 | `item:ID` / `item:ID>=N` | holds the item (at least N) |
 | `credits>=N` | at least N credits |
 | `trust:NPC>=trusts` | trust at least `distrusts`, `unsure` or `trusts` |
+| `augment:ID` / `owns:ID` | the augment is worn / owned |
+| `can:ID` | the service can be used right now (see `docs/economy.md`) |
+| `record` / `!record` | any identity on file / the null state |
+| `debt:LENDER` / `debt:*` | owes that lender / anyone |
 | `pass:ID` | the player holds a pass with this id (whether it is valid is the resolver's business) |
 | `alert>=N` | alert level 0 Calm, 1 Suspicious, 2 Hunting, 3 Lockdown |
 | `arrests>=N` | arrested at least N times |
@@ -58,6 +62,9 @@ Prefix any with `!` to negate.
 | `+item:ID` / `+item:ID*N` / `-item:ID*N` | add or remove items |
 | `+credits:N` / `-credits:N` | add or remove credits (never below 0) |
 | `trust:NPC+1` / `trust:NPC-1` | move trust one step (clamped; always recoverable) |
+| `+augment:ID` | give an augment |
+| `service:ID` | use a service (charge, effects, and a notice line shown with the next node) |
+| `loan:LENDER*N` / `repay:LENDER*N` | borrow / repay |
 | `-pass:ID` | take a pass away (granting passes is done in terminal `onSolve` or service definitions, which can set levels, zones, expiry and origin) |
 | `alert:N` | raise the alert to at least N |
 | `emit:NAME` | raise a custom event for scripted content |

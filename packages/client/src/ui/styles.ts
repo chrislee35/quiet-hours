@@ -12,6 +12,7 @@ export const OVERLAY_CSS = `
 .qh-dialogue .mood { font-weight: 400; color: #9aa0c4; font-size: .85em; margin-left: .4em; }
 .qh-dialogue .trust { color: #9aa0c4; font-size: .85em; margin: 0 0 8px; font-style: italic; }
 .qh-dialogue p { margin: .4em 0; }
+.qh-dialogue .notice { margin: 8px 0; padding: 6px 10px; border-left: 3px solid #ffd36b; background: #1b1f33; color: #ffe9a8; font-size: .9em; }
 .qh-dialogue .speaker { color: #8fd3ff; }
 .qh-choices { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .qh-choices button, .qh-picker button { text-align: left; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c;
