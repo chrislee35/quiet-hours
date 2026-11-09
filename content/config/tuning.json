@@ -52,6 +52,18 @@
     "checkThreshold": 5,
     "enforcerThreshold": 10
   },
+  "metrics": {
+    "orderStart": 70,
+    "powerStart": 80,
+    "contentmentStart": 60,
+    "recoverPerHour": 2
+  },
+  "metrics": {
+    "orderStart": 70,
+    "powerStart": 80,
+    "contentmentStart": 60,
+    "recoverPerHour": 2
+  },
   "combat": {
     "fightAlert": 2,
     "lethalAlert": 3,

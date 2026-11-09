@@ -1,0 +1,13 @@
+[
+  { "id": "stun_unsettles", "on": "RobotStunned", "effects": [{ "adjust_metric": ["order", -8] }] },
+  { "id": "destroy_unsettles", "on": "RobotDestroyed", "effects": [{ "adjust_metric": ["order", -15] }, { "adjust_metric": ["contentment", -8] }] },
+  { "id": "camera_cut_unsettles", "on": "CameraDisabled", "effects": [{ "adjust_metric": ["order", -3] }] },
+  { "id": "sabotage_power", "on": "Custom", "match": { "name": "sabotage_power" }, "effects": [
+      { "set_district": ["stacks", "power", "off"] }, { "adjust_metric": ["power", -50] }, { "adjust_metric": ["order", -5] }, { "adjust_metric": ["contentment", -5] } ] },
+  { "id": "restore_power", "on": "Custom", "match": { "name": "restore_power" }, "effects": [
+      { "set_district": ["stacks", "power", "on"] }, { "adjust_metric": ["power", 50] } ] },
+  { "id": "meridian_reinforces", "on": "MetricChanged", "if": [{ "metric_lte": ["order", 45] }, { "not": { "district_is": ["stacks", "patrolSet", "reinforced"] } }],
+    "effects": [{ "set_district": ["stacks", "patrolSet", "reinforced"] }] },
+  { "id": "meridian_relaxes", "on": "MetricChanged", "if": [{ "metric_gte": ["order", 60] }, { "district_is": ["stacks", "patrolSet", "reinforced"] }],
+    "effects": [{ "set_district": ["stacks", "patrolSet", "base"] }] }
+]

@@ -5,6 +5,7 @@ import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
 import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
 import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
 import { useItem } from "./combat.ts";
+import { reactionSystem } from "./districts.ts";
 import { economySystem } from "./economy.ts";
 import { cameraSystem } from "./cameras.ts";
 import { commsSystem } from "./comms.ts";
@@ -267,7 +268,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "alert", run: alertSystem },
   { name: "demerits", run: demeritSystem },
   { name: "processing", run: processingSystem },
-  { name: "district-reactions", run: notYet },
+  { name: "district-reactions", run: reactionSystem },
 ];
 
 // ---- Stepping ----------------------------------------------------------------------------
@@ -296,6 +297,8 @@ export function step(
       else if (cmd.type === "ExitTerminal") closeTerminal(ctx);
       else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events, config, content);
     }
+    // Effects run from a conversation or terminal can trigger reactions too, even though the world is frozen.
+    reactionSystem(ctx);
     return { state, events };
   }
   // Advance the tick first: systems and emitted events all see the tick the new state will have,

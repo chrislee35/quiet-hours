@@ -34,8 +34,8 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
-  const ajv = new Ajv({ allErrors: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [] };
+  const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [] };
 
   if (bundle.config) {
     try {
@@ -84,7 +84,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -171,6 +171,14 @@ export function validateContent(bundle: ContentBundle): Issue[] {
       const item = (eff.add_item ?? eff.remove_item) as unknown[] | undefined;
       if (Array.isArray(item) && !ids.items.has(String(item[0]))) issues.push({ file, message: `service "${entity.id}" uses unknown item "${String(item[0])}"` });
       if (eff.use_service !== undefined) issues.push({ file, message: `service "${entity.id}" cannot use another service` });
+    });
+  }
+  for (const { file, entity } of entities.reactions) {
+    ((entity.if as unknown[] | undefined) ?? []).forEach((c, i) => {
+      for (const m of validateCondition(c, `if[${i}]`)) issues.push({ file, message: `reaction "${entity.id}": ${m}` });
+    });
+    (entity.effects as unknown[]).forEach((e, i) => {
+      for (const m of validateEffect(e, `effects[${i}]`)) issues.push({ file, message: `reaction "${entity.id}": ${m}` });
     });
   }
   // Dialogue may only use services that exist.

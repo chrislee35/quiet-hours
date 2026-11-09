@@ -56,6 +56,8 @@ export interface CameraDef {
   y: number;
   /** Radians; 0 faces east (+x), pi/2 faces south (+y). */
   facing: number;
+  /** "district:key=value": the camera works only while that holds (a power cut blinds it). */
+  activeWhen?: string;
 }
 
 /** Where a terminal stands; its behaviour lives in content (`TerminalDef`), keyed by the same id. */
@@ -95,6 +97,8 @@ export interface RobotDef {
   facing: number;
   /** Patrol route id; a robot without one stands guard. */
   route: string | null;
+  /** "district:key=value": the robot exists only while that district state holds (reinforcements, lockdown patrols). */
+  activeWhen?: string;
 }
 
 export interface RouteDef {

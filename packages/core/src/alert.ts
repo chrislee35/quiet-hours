@@ -11,7 +11,7 @@ import type { AlertLevel } from "./events.ts";
 export function alertSystem(ctx: Ctx): void {
   const { state, config, events } = ctx;
   const a = state.alert;
-  const anySees = state.robots.some((r) => r.sees) || state.cameras.some((c) => !c.broken && c.sees);
+  const anySees = state.robots.some((r) => r.sees) || state.cameras.some((c) => !c.broken && !c.dormant && c.sees);
   if (anySees) a.quietSince = state.tick;
 
   const spotted = events.some((e) => (e.type === "RobotSpotted" || e.type === "CameraSpotted") && e.tick === state.tick);

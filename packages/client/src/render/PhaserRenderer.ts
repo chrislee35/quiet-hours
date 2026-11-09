@@ -331,8 +331,8 @@ class QuietScene extends Phaser.Scene {
       const prev = this.prevRobots.get(r.id) ?? r;
       const x = (prev.x + (r.x - prev.x) * alpha) * TILE;
       const y = (prev.y + (r.y - prev.y) * alpha) * TILE;
-      this.robotSprites.get(r.id)?.setPosition(x, y).setRotation(r.facing).setVisible(!r.destroyed);
-      if (r.destroyed) continue;
+      this.robotSprites.get(r.id)?.setPosition(x, y).setRotation(r.facing).setVisible(!r.destroyed && !r.dormant);
+      if (r.destroyed || r.dormant) continue;
       const prof = config.robots[r.kind];
       const half = (prof.coneDegrees * Math.PI) / 360;
       const jammed = state.tick < r.jammedUntil;
@@ -394,7 +394,7 @@ class QuietScene extends Phaser.Scene {
     for (const c of state.cameras) {
       const x = c.x * TILE;
       const y = c.y * TILE;
-      const off = c.broken || state.tick < c.jammedUntil;
+      const off = c.broken || c.dormant || state.tick < c.jammedUntil;
       this.cones.fillStyle(off ? 0x555555 : 0xff3355, 1).fillRect(x - 5, y - 5, 10, 10);
       this.cones.lineStyle(2, 0x10121c, 1).strokeRect(x - 5, y - 5, 10, 10);
       if (off || !this.showsCone(c.x, c.y, lens, 5)) continue;

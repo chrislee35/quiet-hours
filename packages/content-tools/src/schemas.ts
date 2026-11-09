@@ -150,6 +150,20 @@ export const serviceSchema = {
   },
 } as const;
 
+export const reactionSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "on", "effects"],
+  properties: {
+    id,
+    on: { type: "string", pattern: "^[A-Z][A-Za-z]+$" },
+    match: { type: "object", additionalProperties: { type: ["string", "number", "boolean"] } },
+    if: { type: "array" },
+    effects: { type: "array", minItems: 1 },
+    once: { type: "boolean" },
+  },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -159,6 +173,7 @@ export const kinds = {
   augments: augmentSchema,
   items: itemSchema,
   services: serviceSchema,
+  reactions: reactionSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

@@ -25,7 +25,7 @@ export function cameraSystem(ctx: Ctx): void {
   const zone = zoneAt(world, Math.floor(player.x), Math.floor(player.y));
 
   for (const cam of state.cameras) {
-    if (cam.broken) continue;
+    if (cam.broken || cam.dormant) continue;
     if (state.tick < cam.jammedUntil) {
       cam.sees = false;
       cam.suspicion = 0;

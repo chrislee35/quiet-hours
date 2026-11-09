@@ -44,7 +44,7 @@ function nearestRobot(ctx: Ctx, range: number): RobotState | null {
   let best: RobotState | null = null;
   let bestD = Infinity;
   for (const r of state.robots) {
-    if (r.destroyed) continue;
+    if (r.destroyed || r.dormant) continue;
     const d = Math.hypot(r.x - p.x, r.y - p.y);
     if (d <= range && d < bestD && lineOfSight(p.x, p.y, r.x, r.y, blocked)) {
       best = r;

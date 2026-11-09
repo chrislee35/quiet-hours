@@ -15,6 +15,7 @@ import { ROBOT_KINDS, type PickupDef, type DoorDef, type LockerDef, type MapData
  *    Class "camera": a fixed camera; Name is its id, number property `facing` in degrees (like robots).
  *    Class "pickup": something lying around; Name is its id, string property `grant` is what it gives
  *    ("augment:ID", "item:ID[:COUNT]" or "credits:N").
+ *    Robots and cameras may have a string `activeWhen` ("district:key=value"): they exist only while it holds.
  *    Class "locker": where confiscated items are recovered after processing.
  *    Class "robot": string `kind` (default "warden"), number `facing` in degrees (0 = east, 90 = south,
  *    default 0), optional string `route`. Class "waypoint": string `route`, number `order` (default:
@@ -161,7 +162,8 @@ export function importTiled(raw: unknown, id: string): MapData {
       npcs.push({ id: oid, x: tx, y: ty, dialogue: dlg });
     } else if (kind === "camera") {
       const degrees = prop(o, "facing");
-      cameras.push({ id: oid, x: tx, y: ty, facing: ((typeof degrees === "number" ? degrees : 0) * Math.PI) / 180 });
+      const when = prop(o, "activeWhen");
+      cameras.push({ id: oid, x: tx, y: ty, facing: ((typeof degrees === "number" ? degrees : 0) * Math.PI) / 180, ...(typeof when === "string" ? { activeWhen: when } : {}) });
     } else if (kind === "pickup") {
       const grant = prop(o, "grant");
       if (typeof grant !== "string") {
@@ -188,6 +190,7 @@ export function importTiled(raw: unknown, id: string): MapData {
         y: ty + 0.5,
         facing: ((typeof degrees === "number" ? degrees : 0) * Math.PI) / 180,
         route: typeof route === "string" && route !== "" ? route : null,
+        ...(typeof prop(o, "activeWhen") === "string" ? { activeWhen: prop(o, "activeWhen") as string } : {}),
       });
     } else {
       errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, terminal, camera, pickup, robot or waypoint)`);

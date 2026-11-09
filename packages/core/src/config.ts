@@ -142,6 +142,14 @@ export interface Config {
     /** Seconds a maintenance robot spends on the job once it arrives. */
     repairSeconds: number;
   };
+  /** City metrics (WLD-4). */
+  metrics: {
+    orderStart: number;
+    powerStart: number;
+    contentmentStart: number;
+    /** Points per in-game hour that order and contentment drift back toward their start. */
+    recoverPerHour: number;
+  };
   /** What fighting costs (CMB-2). */
   combat: {
     /** Alert level a fight raises the city to (Hunting). */
@@ -212,6 +220,7 @@ const SHAPE: Shape = {
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },
   band: { slots: "number", powerBudget: "number" },
+  metrics: { orderStart: "number", powerStart: "number", contentmentStart: "number", recoverPerHour: "number" },
   combat: { fightAlert: "number", lethalAlert: "number", creditLossFraction: "number" },
   economy: { loanInterestPerDay: "number", loanDueDays: "number", garnishFraction: "number" },
   robots: Object.fromEntries(ROBOT_KINDS.map((k) => [k, PROFILE_SHAPE])) as Shape,

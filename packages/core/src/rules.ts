@@ -45,7 +45,11 @@ export type Condition =
   /** The player has any identity on file (true) or is in the null state (false). */
   | { has_record: boolean }
   /** The player owes this lender, or "*" for any lender. */
-  | { in_debt: string };
+  | { in_debt: string }
+  /** A district value equals this. */
+  | { district_is: [district: string, key: string, value: FlagValue] }
+  | { metric_gte: [metric: "order" | "power" | "contentment", value: number] }
+  | { metric_lte: [metric: "order" | "power" | "contentment", value: number] };
 
 export type Effect =
   | { give_clue: { id: string; from: string } }
@@ -88,7 +92,10 @@ export type Effect =
   | { use_service: string }
   | { take_loan: [lender: string, amount: number] }
   /** Pays up to this much of what is owed, limited by the credits held. */
-  | { repay_loan: [lender: string, amount: number] };
+  | { repay_loan: [lender: string, amount: number] }
+  | { set_district: [district: string, key: string, value: FlagValue] }
+  /** Moves a city metric, clamped to 0-100. */
+  | { adjust_metric: [metric: "order" | "power" | "contentment", delta: number] };
 
 export class RuleError extends Error {}
 
@@ -100,6 +107,9 @@ export function evalCondition(c: Condition, state: Readonly<SimState>, config: C
   if ("not" in c) return !evalCondition(c.not, state, config, content);
   if ("can_service" in c) return content !== undefined && serviceStatus(state, content, config, c.can_service).ok;
   if ("has_record" in c) return (state.passes.length > 0) === c.has_record;
+  if ("district_is" in c) return state.district[c.district_is[0]]?.[c.district_is[1]] === c.district_is[2];
+  if ("metric_gte" in c) return state.metrics[c.metric_gte[0]] >= c.metric_gte[1];
+  if ("metric_lte" in c) return state.metrics[c.metric_lte[0]] <= c.metric_lte[1];
   if ("in_debt" in c) return totalOwed(state, c.in_debt === "*" ? undefined : c.in_debt) > 0;
   if ("has_clue" in c) return state.clues[c.has_clue] !== undefined;
   if ("clue_state" in c) return state.clues[c.clue_state[0]]?.status === c.clue_state[1];
@@ -222,6 +232,21 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       door.unlockedAt = tick;
       events.push({ type: "DoorUnlocked", tick, doorId: effect.unlock_door });
     }
+  } else if ("set_district" in effect) {
+    const [district, key, value] = effect.set_district;
+    const bag = (state.district[district] ??= {});
+    if (bag[key] !== value) {
+      bag[key] = value;
+      events.push({ type: "DistrictChanged", tick, district, key, value });
+    }
+  } else if ("adjust_metric" in effect) {
+    const [metric, delta] = effect.adjust_metric;
+    const from = state.metrics[metric];
+    const to = Math.max(0, Math.min(100, from + delta));
+    if (to !== from) {
+      state.metrics[metric] = to;
+      events.push({ type: "MetricChanged", tick, metric, from, to });
+    }
   } else if ("use_service" in effect) {
     if (!config || !content) throw new RuleError("use_service needs the game config and content");
     useService(state, content, config, events, effect.use_service);
@@ -309,6 +334,13 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
     case "has_item":
       if (!(isStr(a) || (isTuple(a, 2) && isStr(a[0]) && isInt(a[1], 1)))) bad("expected an item id or [itemId, minimum >= 1]");
       break;
+    case "district_is":
+      if (!isTuple(a, 3) || !isStr(a[0]) || !isStr(a[1]) || !isFlagValue(a[2])) bad("expected [district, key, boolean|number|string]");
+      break;
+    case "metric_gte":
+    case "metric_lte":
+      if (!isTuple(a, 2) || !["order", "power", "contentment"].includes(a[0] as string) || !isInt(a[1], 0, 100)) bad("expected [order|power|contentment, 0-100]");
+      break;
     case "has_record":
       if (typeof a !== "boolean") bad("expected true or false");
       break;
@@ -385,6 +417,12 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
       break;
     case "raise_alert_to":
       if (!isInt(a, 0, 3)) bad("expected an alert level 0-3");
+      break;
+    case "set_district":
+      if (!isTuple(a, 3) || !isStr(a[0]) || !isStr(a[1]) || !isFlagValue(a[2])) bad("expected [district, key, boolean|number|string]");
+      break;
+    case "adjust_metric":
+      if (!isTuple(a, 2) || !["order", "power", "contentment"].includes(a[0] as string) || !isInt(a[1], -100, 100)) bad("expected [order|power|contentment, delta -100..100]");
       break;
     case "take_loan":
     case "repay_loan":

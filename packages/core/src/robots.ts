@@ -61,7 +61,7 @@ export function robotPerception(ctx: Ctx): void {
   for (const robot of state.robots) {
     const prof = profile(config, robot);
     const dist = Math.hypot(player.x - robot.x, player.y - robot.y);
-    if (robot.destroyed) {
+    if (robot.destroyed || robot.dormant) {
       robot.sees = false;
       continue;
     }
@@ -231,7 +231,7 @@ export function robotBehavior(ctx: Ctx): void {
   const { state, config, world, events } = ctx;
   for (const robot of state.robots) {
     const prof = profile(config, robot);
-    if (robot.destroyed || state.tick < robot.jammedUntil) continue;
+    if (robot.destroyed || robot.dormant || state.tick < robot.jammedUntil) continue;
     if (robot.kind === "mender") {
       menderStep(ctx, robot);
       continue;

@@ -3,6 +3,7 @@ import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, MoveMode, TrustLevel } from "./events.ts";
 import type { Pass } from "./identity.ts";
 import type { Loan } from "./economy.ts";
+import { parseActiveWhen, type ActiveWhen } from "./districts.ts";
 import { initialDoorStates, OPEN_WORLD, spawnPoint, zoneAt, type CameraDef, type DoorState, type RobotDef, type RobotKind, type World } from "./world.ts";
 
 export const STATE_VERSION = 1;
@@ -51,6 +52,10 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** Per-district named values: power, lockdown, patrol sets. Changed by effects only. */
+  district: Record<string, Record<string, FlagValue>>;
+  /** City metrics 0-100 (hidden from the player as numbers) and the last in-game hour recovery ran. */
+  metrics: { order: number; power: number; contentment: number; lastHour: number };
   /** Outstanding loans, and the last in-game day interest was applied. */
   loans: { debts: Loan[]; lastDay: number };
   /** Passes the player holds. Empty means the null state: no record at all (STE-3). */
@@ -135,6 +140,9 @@ export interface RobotState {
   jammedUntil: number;
   /** Destroyed by lethal force: out for good. */
   destroyed: boolean;
+  /** Placed with `activeWhen` and the condition does not hold right now: absent from the world. */
+  dormant: boolean;
+  activeWhen: ActiveWhen | null;
 }
 
 export interface RepairTask {
@@ -163,6 +171,8 @@ export interface CameraState {
   quietUntil: number;
   /** Tick until which a Burst Jammer has knocked it out (0 = not jammed). */
   jammedUntil: number;
+  dormant: boolean;
+  activeWhen: ActiveWhen | null;
 }
 
 /** An alert on its way to a robot (comms latency). */
@@ -177,7 +187,7 @@ export interface PendingAlert {
 export function createCameraState(c: CameraDef): CameraState {
   return {
     id: c.id, x: c.x + 0.5, y: c.y + 0.5, facing: c.facing, heading: c.facing, suspicion: 0, sees: false,
-    broken: false, brokenAt: 0, claimed: false, quietUntil: 0, jammedUntil: 0,
+    broken: false, brokenAt: 0, claimed: false, quietUntil: 0, jammedUntil: 0, dormant: false, activeWhen: c.activeWhen ? parseActiveWhen(c.activeWhen) : null,
   };
 }
 
@@ -186,6 +196,7 @@ export function createRobotState(r: RobotDef): RobotState {
     id: r.id, kind: r.kind, x: r.x, y: r.y, facing: r.facing, mode: "patrol", route: r.route, routeIndex: 0,
     target: null, path: [], pathGoal: null, arrived: false, dwell: 0, dwellTotal: 0, lookBase: r.facing,
     suspicion: 0, sees: false, home: { x: r.x, y: r.y, facing: r.facing }, busy: 0, checked: false, unseenTicks: 0, dispatched: false, task: null, jammedUntil: 0, destroyed: false,
+    activeWhen: r.activeWhen ? parseActiveWhen(r.activeWhen) : null, dormant: false,
   };
 }
 
@@ -213,6 +224,8 @@ export function createInitialState(seed: number, config: Config, world: World = 
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },
+    district: {},
+    metrics: { order: config.metrics.orderStart, power: config.metrics.powerStart, contentment: config.metrics.contentmentStart, lastHour: 0 },
     loans: { debts: [], lastDay: t.day },
     augments: {
       owned: [], equipped: [], slots: config.band.slots, powerBudget: config.band.powerBudget,

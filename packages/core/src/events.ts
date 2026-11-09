@@ -65,6 +65,14 @@ export type GameEvent =
   | { type: "InterestAccrued"; tick: number; lender: string; owed: number }
   /** Collectors visited an overdue debtor, took a share of their credits and raised the alert. */
   | { type: "CollectorsCame"; tick: number; lender: string; taken: number; owed: number }
+  | { type: "DistrictChanged"; tick: number; district: string; key: string; value: FlagValue }
+  | { type: "MetricChanged"; tick: number; metric: "order" | "power" | "contentment"; from: number; to: number }
+  | { type: "ReactionFired"; tick: number; reactionId: string }
+  /** Robots placed with `activeWhen` arrive and leave as district state changes. */
+  | { type: "RobotActivated"; tick: number; robotId: string }
+  | { type: "RobotStoodDown"; tick: number; robotId: string }
+  | { type: "CameraPowerLost"; tick: number; cameraId: string }
+  | { type: "CameraPowerRestored"; tick: number; cameraId: string }
   | { type: "ToolUsed"; tick: number; itemId: string; kind: "stun" | "decoy" | "cutters" | "lethal" }
   | { type: "ToolRefused"; tick: number; itemId: string; reason: "not_a_tool" | "none_left" | "no_target" }
   | { type: "RobotStunned"; tick: number; robotId: string }
