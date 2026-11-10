@@ -63,7 +63,8 @@ export type Effect =
   | { remove_item: [itemId: string, count: number] }
   | { add_credits: number }
   /** Moves trust by whole steps, clamped to [-1, 1]. */
-  | { adjust_trust: [npc: string, delta: number] }
+  /** One act moves trust one whole step, either way (-1 or +1); `cause` goes in the trust log (CMP-4). */
+  | { adjust_trust: [npc: string, delta: number, cause?: string] }
   /** Raises alert to at least this level (never lowers it). */
   | { raise_alert_to: AlertLevel }
   | { emit: string }
@@ -145,6 +146,9 @@ export function evalAll(conds: Condition | Condition[] | undefined, state: Reado
 
 // ---- Effects -----------------------------------------------------------------------------
 
+/** The trust log keeps the most recent causes (for the debug inspector and tests; never shown to the player). */
+export const TRUST_LOG_LIMIT = 200;
+
 const clampTrust = (n: number): TrustLevel => (n <= -1 ? -1 : n >= 1 ? 1 : 0);
 
 /** Applies one effect to `state` (mutating it) and appends the resulting events. */
@@ -187,12 +191,15 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
     state.inventory.credits = total;
     events.push({ type: "CreditsChanged", tick, delta, total });
   } else if ("adjust_trust" in effect) {
-    const [npc, delta] = effect.adjust_trust;
+    const [npc, delta, cause = "unspecified"] = effect.adjust_trust;
     const from = state.trust[npc] ?? 0;
-    const to = clampTrust(from + delta);
+    // One act is at most one step, whatever the number says.
+    const to = clampTrust(from + Math.sign(delta));
     if (to !== from) {
       state.trust[npc] = to;
-      events.push({ type: "TrustChanged", tick, npc, from, to });
+      state.trustLog.push({ tick, npc, from, to, cause });
+      if (state.trustLog.length > TRUST_LOG_LIMIT) state.trustLog.shift();
+      events.push({ type: "TrustChanged", tick, npc, from, to, cause });
     }
   } else if ("raise_alert_to" in effect) {
     const from = state.alert.level;
@@ -420,7 +427,7 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
       if (!isInt(a, -1_000_000, 1_000_000)) bad("expected a whole number of credits");
       break;
     case "adjust_trust":
-      if (!isTuple(a, 2) || !isStr(a[0]) || !isInt(a[1], -2, 2)) bad("expected [npcId, delta -2..2]");
+      if (!(isTuple(a, 2) || isTuple(a, 3)) || !isStr(a[0]) || !(a[1] === 1 || a[1] === -1) || (a.length === 3 && !isStr(a[2]))) bad("expected [npcId, +1 or -1, cause?]: one act is one step");
       break;
     case "raise_alert_to":
       if (!isInt(a, 0, 3)) bad("expected an alert level 0-3");

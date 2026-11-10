@@ -49,7 +49,7 @@ export type GameEvent =
   | { type: "FlagSet"; tick: number; flag: string; value: FlagValue }
   | { type: "ItemsChanged"; tick: number; itemId: string; delta: number; total: number }
   | { type: "CreditsChanged"; tick: number; delta: number; total: number }
-  | { type: "TrustChanged"; tick: number; npc: string; from: TrustLevel; to: TrustLevel }
+  | { type: "TrustChanged"; tick: number; npc: string; from: TrustLevel; to: TrustLevel; cause: string }
   /** Free-form hook raised by an effect, for scripted content to react to. */
   | { type: "Custom"; tick: number; name: string }
   /** The player was processed after being caught: confiscation, holding, setback (FAIL-1/2). */

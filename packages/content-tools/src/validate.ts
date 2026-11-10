@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import { validateCondition, validateEffect, ConfigError, TiledImportError, WorldError, buildWorld, compileDialogue, importTiled, validateConfig, type Dialogue, type MapData } from "@qh/core";
-import { clueGates, cluesGiven } from "./dialogue-checks.ts";
+import { clueGates, cluesGiven, unrecoverableTrust } from "./dialogue-checks.ts";
 import { checkPuzzles, checkTerminals } from "./terminal-checks.ts";
 import { kinds, type Kind } from "./schemas.ts";
 
@@ -135,6 +135,11 @@ export function validateContent(bundle: ContentBundle): Issue[] {
         issues.push({ file, message: `${where} needs clue "${clue}", but no conversation ever gives it (source ${source})` });
       }
     }
+  }
+
+  // Trust must always be recoverable: anyone whose trust can be lowered must be someone it can be raised with.
+  for (const npc of unrecoverableTrust(compiled.map((c) => c.dialogue))) {
+    issues.push({ file: `npc ${npc}`, message: `trust in "${npc}" can be lowered but there is no way to raise it from the worst state (CMP-4)` });
   }
 
   // Map NPCs must point at a real conversation and a real npc.

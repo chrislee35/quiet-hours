@@ -86,7 +86,7 @@ function parseConditions(text: string, allowReliability: boolean, fail: (m: stri
 }
 
 /** Parses the inside of `{ ... }`. */
-function parseEffects(text: string, defaultFrom: string, fail: (m: string) => void): Effect[] {
+function parseEffects(text: string, defaultFrom: string, fail: (m: string) => void, where = ""): Effect[] {
   const out: Effect[] = [];
   for (const token of text.split(",").map((t) => t.trim()).filter(Boolean)) {
     let e: Effect | null = null;
@@ -100,7 +100,7 @@ function parseEffects(text: string, defaultFrom: string, fail: (m: string) => vo
       const n = m[3] ? Number(m[3]) : 1;
       e = m[1] === "+" ? { add_item: [m[2]!, n] } : { remove_item: [m[2]!, n] };
     } else if ((m = token.match(/^([+-])credits:(\d+)$/))) e = { add_credits: (m[1] === "-" ? -1 : 1) * Number(m[2]) };
-    else if ((m = token.match(new RegExp(`^trust:(${ID})([+-]\\d+)$`)))) e = { adjust_trust: [m[1]!, Number(m[2])] };
+    else if ((m = token.match(new RegExp(`^trust:(${ID})([+-]\\d+)(?:\\(([^)]+)\\))?$`)))) e = { adjust_trust: [m[1]!, Number(m[2]), m[3]?.trim() || where || "dialogue"] };
     else if ((m = token.match(new RegExp(`^\\+augment:(${ID})$`)))) e = { grant_augment: m[1]! };
     else if ((m = token.match(new RegExp(`^service:(${ID})$`)))) e = { use_service: m[1]! };
     else if ((m = token.match(new RegExp(`^loan:(${ID})\\*(\\d+)$`)))) e = { take_loan: [m[1]!, Number(m[2])] };
@@ -189,7 +189,7 @@ export function compileDialogue(source: string, opts: CompileOptions): { dialogu
       const reaction: Reaction = {
         clue: m[1]!,
         if: parsed.items,
-        effects: m[3] ? parseEffects(m[3], npc, fail) : [],
+        effects: m[3] ? parseEffects(m[3], npc, fail, `${opts.id}.${cur.node.id}`) : [],
         goto: m[4]!,
       };
       if (parsed.reliability) reaction.reliability = parsed.reliability;
@@ -199,7 +199,7 @@ export function compileDialogue(source: string, opts: CompileOptions): { dialogu
     }
     inPresent = false;
 
-    if ((m = line.match(/^on_enter:\s*\{([^}]*)\}\s*$/))) node.onEnter.push(...parseEffects(m[1]!, npc, fail));
+    if ((m = line.match(/^on_enter:\s*\{([^}]*)\}\s*$/))) node.onEnter.push(...parseEffects(m[1]!, npc, fail, `${opts.id}.${cur.node.id}`));
     else if (line === "end") node.end = true;
     else if (line === "present:") {
       if (node.present) fail("a node can have only one present: block");
@@ -211,7 +211,7 @@ export function compileDialogue(source: string, opts: CompileOptions): { dialogu
       const choice: Choice = {
         text,
         if: m[1] ? parseConditions(m[1], false, fail).items : [],
-        effects: m[3] ? parseEffects(m[3], npc, fail) : [],
+        effects: m[3] ? parseEffects(m[3], npc, fail, `${opts.id}.${cur.node.id}`) : [],
         goto: m[4]!,
       };
       node.choices.push(choice);

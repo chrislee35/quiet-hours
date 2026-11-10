@@ -10,6 +10,6 @@ export function mountDebugOverlay(sim: Sim): void {
   document.body.append(el);
   setInterval(() => {
     const s = sim.state;
-    el.textContent = `tick ${s.tick}\npos ${s.player.x.toFixed(2)}, ${s.player.y.toFixed(2)}\nhash ${sim.hash}`;
+    el.textContent = `tick ${s.tick}\npos ${s.player.x.toFixed(2)}, ${s.player.y.toFixed(2)}\nhash ${sim.hash}\n${s.trustLog.slice(-4).map((e) => `trust ${e.npc} ${e.from}>${e.to}: ${e.cause}`).join("\n")}`;
   }, 250);
 }

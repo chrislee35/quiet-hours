@@ -3,7 +3,9 @@ import { cpSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { compileDialogue } from "@qh/core";
 import { loadContent, validateContent } from "../src/index.ts";
+import { unrecoverableTrust } from "../src/dialogue-checks.ts";
 
 const realContent = new URL("../../../content", import.meta.url).pathname;
 
@@ -125,5 +127,24 @@ describe("content validation", () => {
     const msgs = issues.map((i) => i.message);
     expect(msgs).toContain('npc "nobody" is not defined in content/npcs');
     expect(msgs).toContain('npc "nobody" uses unknown dialogue "missing_talk"');
+  });
+});
+
+describe("trust recoverability (CMP-4)", () => {
+  const compileOk = (src: string) => compileDialogue(src, { id: "t" }).dialogue!;
+  it("flags an NPC whose trust can fall but never rise, and accepts one that can recover", () => {
+    const down = compileOk(`npc: pallas\nnode: a\n  > "Betray." {trust:pallas-1} -> a\n  > "Bye." -> b\nnode: b\n  end\n`);
+    expect(unrecoverableTrust([down])).toEqual(["pallas"]);
+    const up = compileOk(`npc: pallas\nnode: a\n  > "Betray." {trust:pallas-1} -> a\n  > "Apologise." {trust:pallas+1} -> a\n  > "Bye." -> b\nnode: b\n  end\n`);
+    expect(unrecoverableTrust([up])).toEqual([]);
+  });
+  it("does not count a recovery that is itself gated on already being trusted", () => {
+    const gated = compileOk(`npc: pallas\nnode: a\n  > "Betray." {trust:pallas-1} -> a\n  > [trust:pallas>=trusts] "Reinforce." {trust:pallas+1} -> a\n  > "Bye." -> b\nnode: b\n  end\n`);
+    expect(unrecoverableTrust([gated])).toEqual(["pallas"]);
+    const open = compileOk(`npc: pallas\nnode: a\n  > "Betray." {trust:pallas-1} -> a\n  > [trust:pallas>=distrusts] "Apologise." {trust:pallas+1} -> a\n  > "Bye." -> b\nnode: b\n  end\n`);
+    expect(unrecoverableTrust([open])).toEqual([]);
+  });
+  it("shipped dialogue passes", () => {
+    expect(validateContent(loadContent(realContent).bundle).filter((i) => i.message.includes("CMP-4"))).toEqual([]);
   });
 });

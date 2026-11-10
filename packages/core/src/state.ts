@@ -66,6 +66,8 @@ export interface SimState {
   demerits: { points: number; level: 0 | 1 | 2; last: Record<string, number> };
   /** Hidden three-level trust per NPC; absent means 0 (unsure). */
   trust: Record<string, TrustLevel>;
+  /** Why trust moved, most recent last: for tests and the debug inspector, never for the player. */
+  trustLog: { tick: number; npc: string; from: TrustLevel; to: TrustLevel; cause: string }[];
   /** Times the player has been caught and processed. */
   arrestCount: number;
   /** While tick < processingUntil the player is held and cannot act; 0 when free. */
@@ -253,6 +255,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
     passes: [],
     demerits: { points: 0, level: 0 as const, last: {} },
     trust: {},
+    trustLog: [],
     arrestCount: 0,
     processingUntil: 0,
     locker: { credits: 0, items: {}, passes: [] },

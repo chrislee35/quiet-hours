@@ -62,7 +62,7 @@ Prefix any with `!` to negate.
 | `flag:ID` / `flag:ID=VALUE` | set a flag |
 | `+item:ID` / `+item:ID*N` / `-item:ID*N` | add or remove items |
 | `+credits:N` / `-credits:N` | add or remove credits (never below 0) |
-| `trust:NPC+1` / `trust:NPC-1` | move trust one step (clamped; always recoverable) |
+| `trust:NPC+1` / `trust:NPC-1` | move trust one step (clamped; always recoverable). Add a cause for the log: `trust:NPC+1(kept the promise)` (no commas in it). Without one the cause is `dialogue.node`. Only +1 and -1 are allowed: one act is one step. |
 | `+augment:ID` | give an augment |
 | `service:ID` | use a service (charge, effects, and a notice line shown with the next node) |
 | `loan:LENDER*N` / `repay:LENDER*N` | borrow / repay |

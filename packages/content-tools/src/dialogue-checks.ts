@@ -34,3 +34,37 @@ export function clueGates(d: Dialogue): { clue: string; where: string }[] {
   }
   return out;
 }
+
+/** True if the condition can only hold when trust in `npc` is above the worst state (so it is unavailable to a distrusted player). */
+function needsTrustAbove(c: Condition, npc: string): boolean {
+  if ("all" in c) return c.all.some((x) => needsTrustAbove(x, npc));
+  if ("any" in c) return c.any.every((x) => needsTrustAbove(x, npc));
+  if ("trust_gte" in c) return c.trust_gte[0] === npc && c.trust_gte[1] > -1;
+  return false;
+}
+
+/**
+ * Trust must be recoverable (CMP-4): for every NPC that some dialogue can lower trust with, some dialogue must
+ * be able to raise it that a player at the worst state can still reach (its choice is not itself gated on
+ * trust above the worst). Returns the NPCs that can be lowered but not recovered.
+ */
+export function unrecoverableTrust(dialogues: Dialogue[]): string[] {
+  const lowers = new Set<string>();
+  const raisers = new Map<string, boolean>(); // npc -> some raiser available at the worst state
+  const scan = (effects: Effect[], gates: Condition[]) => {
+    for (const e of effects) {
+      if (!("adjust_trust" in e)) continue;
+      const [npc, delta] = e.adjust_trust;
+      if (delta < 0) lowers.add(npc);
+      else if (!gates.some((c) => needsTrustAbove(c, npc))) raisers.set(npc, true);
+    }
+  };
+  for (const d of dialogues) {
+    for (const n of Object.values(d.nodes)) {
+      scan(n.onEnter, []);
+      n.choices.forEach((c) => scan(c.effects, c.if));
+      n.present?.forEach((r) => scan(r.effects, r.if));
+    }
+  }
+  return [...lowers].filter((npc) => !raisers.get(npc)).sort();
+}

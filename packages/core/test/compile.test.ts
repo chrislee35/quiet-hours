@@ -68,8 +68,9 @@ describe("compileDialogue: valid input", () => {
       ["-item:wire*2", { remove_item: ["wire", 2] }],
       ["+credits:20", { add_credits: 20 }],
       ["-credits:5", { add_credits: -5 }],
-      ["trust:pallas+1", { adjust_trust: ["pallas", 1] }],
-      ["trust:pallas-1", { adjust_trust: ["pallas", -1] }],
+      ["trust:pallas+1", { adjust_trust: ["pallas", 1, "t.a"] }], // default cause: dialogue.node
+      ["trust:pallas-1", { adjust_trust: ["pallas", -1, "t.a"] }],
+      ["trust:pallas+1(kept the promise)", { adjust_trust: ["pallas", 1, "kept the promise"] }],
       ["-pass:work_permit", { revoke_pass: "work_permit" }],
       ["alert:2", { raise_alert_to: 2 }],
       ["emit:alarm", { emit: "alarm" }],
