@@ -6,8 +6,8 @@ import { Scenario } from "../src/index.ts";
 import { config } from "./helpers.ts";
 
 const read = (rel: string) => readFileSync(new URL(`../../../content/${rel}`, import.meta.url), "utf8");
-const puzzles = Object.fromEntries([...(JSON.parse(read("puzzles/range_puzzles.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/range_puzzles2.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/maint_power.json")) as PuzzleDef[])].map((p) => [p.id, p]));
-const terminals = Object.fromEntries([...(JSON.parse(read("terminals/range_terminals.json")) as TerminalDef[]), ...(JSON.parse(read("terminals/range_terminals2.json")) as TerminalDef[])].map((t) => [t.id, t]));
+const puzzles = Object.fromEntries([...(JSON.parse(read("puzzles/range_puzzles.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/range_puzzles2.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/nerd_puzzles.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/maint_power.json")) as PuzzleDef[])].map((p) => [p.id, p]));
+const terminals = Object.fromEntries([...(JSON.parse(read("terminals/range_terminals.json")) as TerminalDef[]), ...(JSON.parse(read("terminals/range_terminals2.json")) as TerminalDef[]), ...(JSON.parse(read("terminals/nerd_terminals.json")) as TerminalDef[])].map((t) => [t.id, t]));
 const content: Content = { ...EMPTY_CONTENT, puzzles, terminals };
 const world = buildWorld(importTiled(JSON.parse(read("maps/robot_range.json")), "robot_range"));
 

@@ -95,6 +95,25 @@ export const OVERLAY_CSS = `
 .qh-sched .name:hover:not(:disabled), .qh-sched .name:focus-visible { background: #2a3050; outline: 2px solid #ffd36b; }
 .qh-sched .reqs { list-style: none; margin: 6px 0 0; padding: 0; color: #ffe9a8; font-size: .85em; }
 .qh-sched .reqs .met { color: #8dfbb4; }
+.qh-board .brow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+.qh-board .blabel { color: #9aa0c4; font-size: .85em; min-width: 5em; }
+.qh-board .bctl { min-width: 2.4em; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.qh-board .bctl.on { background: #0f2b35; border-color: #1d8da3; color: #dff9ff; }
+.qh-board .bctl.static { background: transparent; border-color: transparent; cursor: default; color: #dfe2f3; }
+.qh-board .bctl:hover:not(:disabled), .qh-board .bctl:focus-visible { outline: 2px solid #ffd36b; }
+.qh-board .bctl:disabled:not(.static) { opacity: .75; cursor: default; }
+.qh-board .bplay { margin: 4px 0 6px; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+.qh-board .bplay:hover, .qh-board .bplay:focus-visible { outline: 2px solid #ffd36b; }
+.qh-board .bline { margin: 3px 0; font-size: .9em; color: #c8cce6; }
+.qh-board .bline.mono { font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+.qh-board .bline.good { color: #8dfbb4; }
+.qh-board .bline.bad { color: #ff9a9a; }
+.qh-board .bline.hint { color: #9aa0c4; font-size: .8em; }
+.qh-board .bplot { width: min(220px, 100%); height: auto; display: block; margin: 8px 0; border: 1px solid #2f3452; }
+.qh-board .bplot .zin { fill: #1d8da3; opacity: .35; }
+.qh-board .bplot .zout { fill: #8a3a5a; opacity: .25; }
+.qh-board .bplot .pt { stroke: #dfe2f3; stroke-width: 1.4; fill: #dfe2f3; }
+.qh-board .bplot .pt.test { fill: none; }
 .qh-lock .lockhint { color: #ffe9a8; font-size: .9em; margin: 0 0 8px; text-align: center; }
 .qh-lock .dials { display: flex; gap: 8px; justify-content: center; margin: 8px 0 12px; }
 .qh-lock .dial { width: 2.6em; height: 3.2em; background: #151827; color: #8ff6ff; font: 700 1.6em/1 monospace; border: 1px solid #3a3f5c; border-radius: 6px; cursor: pointer; }

@@ -1,0 +1,76 @@
+[
+  {
+    "id": "cipher_caesar",
+    "kind": "cipher",
+    "method": "caesar",
+    "plaintext": "MERIDIAN COUNTS EVERYONE EXCEPT YOU",
+    "key": "K",
+    "hint": "the first word is the name of the city's mind."
+  },
+  {
+    "id": "cipher_vigenere",
+    "kind": "cipher",
+    "method": "vigenere",
+    "plaintext": "THE SERVICE DOOR IS NEVER LOCKED AT NIGHT",
+    "key": "NULL",
+    "hint": "the keyword is what you are, to the city (four letters)."
+  },
+  {
+    "id": "magic_three",
+    "kind": "magic_square",
+    "givens": ["2.6", "...", "4.."]
+  },
+  {
+    "id": "crunch_24",
+    "kind": "arithmetic",
+    "numbers": [8, 3, 5, 2, 4],
+    "ops": "+-*/",
+    "target": 24,
+    "hint": "Try dividing early."
+  },
+  {
+    "id": "balance_propane",
+    "kind": "chem_balance",
+    "reactants": ["C3H8", "O2"],
+    "products": ["CO2", "H2O"]
+  },
+  {
+    "id": "balance_phosphate",
+    "kind": "chem_balance",
+    "reactants": ["Ca(OH)2", "H3PO4"],
+    "products": ["Ca3(PO4)2", "H2O"]
+  },
+  {
+    "id": "river_tongue",
+    "kind": "translation",
+    "examples": [
+      { "foreign": ["ka", "mi", "to"], "english": ["fox", "eats", "fish"] },
+      { "foreign": ["su", "ka", "no", "va"], "english": ["big", "fox", "sees", "bird"] },
+      { "foreign": ["va", "mi", "to"], "english": ["bird", "eats", "fish"] },
+      { "foreign": ["su", "re"], "english": ["big", "river"] },
+      { "foreign": ["ka", "no", "re"], "english": ["fox", "sees", "river"] },
+      { "foreign": ["re", "no", "va"], "english": ["river", "sees", "bird"] },
+      { "foreign": ["su", "to"], "english": ["big", "fish"] }
+    ],
+    "target": ["va", "no", "ka"],
+    "choices": [["bird", "fox", "fish"], ["eats", "sees", "big"], ["fox", "river", "bird"]]
+  },
+  {
+    "id": "homeward_tune",
+    "kind": "melody",
+    "root": 60,
+    "scale": "major",
+    "length": 5,
+    "fixed": { "0": 0, "2": 7 },
+    "rules": { "inScale": true, "endOnTonic": true, "maxLeap": 5, "arch": true, "noRepeats": true }
+  },
+  {
+    "id": "ring_controller",
+    "kind": "neural_net",
+    "budget": 7,
+    "threshold": 0.87,
+    "noise": 0.1,
+    "seeds": { "train": 11, "test": 99, "init": 7 },
+    "hint": "Wider is not always better, and every neuron costs power."
+  }
+]

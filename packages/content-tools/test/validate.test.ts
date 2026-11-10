@@ -176,6 +176,19 @@ describe("puzzle kinds", () => {
     expect(messages(loop)).toEqual(expect.arrayContaining([expect.stringContaining("earlier gate")]));
   });
 
+  it("proves the nerdy kinds too: an ambiguous language puzzle, an impossible network and an unbalanceable equation are errors", () => {
+    const e = { foreign: ["ka", "mi"], english: ["fox", "eats"] };
+    const lang = { id: "lang", kind: "translation", examples: [e, e, e], target: ["ka", "mi"], choices: [["fox", "eats"], ["eats", "fox"]] };
+    expect(messages(lang)).toEqual(expect.arrayContaining([expect.stringContaining("pin down")]));
+    const net = { id: "net", kind: "neural_net", budget: 2, threshold: 0.99, noise: 0.1, seeds: { train: 1, test: 2, init: 3 } };
+    expect(messages(net)).toEqual(expect.arrayContaining([expect.stringContaining("not solvable")]));
+    const chem = { id: "chem", kind: "chem_balance", reactants: ["H2", "O2"], products: ["H2O"] };
+    expect(messages(chem).filter((m) => m.includes('"chem"'))).toEqual([]);
+    expect(messages({ ...chem, id: "chem2", products: ["CO2"] })).toEqual(expect.arrayContaining([expect.stringContaining("same elements")]));
+    const cipher = { id: "ci", kind: "cipher", method: "caesar", plaintext: "short", key: "C" };
+    expect(messages(cipher)).toEqual(expect.arrayContaining([expect.stringContaining("12 letters")]));
+  });
+
   it("accepts a good puzzle of a new kind", () => {
     const good = { id: "ok", kind: "schedule_align", slots: 4, exclusive: true, tracks: [{ id: "a", name: "A", pattern: "#...", locked: true }, { id: "b", name: "B", pattern: "#..." }] };
     expect(messages(good).filter((m) => m.includes('"ok"'))).toEqual([]);

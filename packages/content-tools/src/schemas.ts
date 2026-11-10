@@ -49,7 +49,7 @@ export const puzzleSchema = {
   required: ["id", "kind"],
   properties: {
     id,
-    kind: { enum: ["power_routing", "signal_path", "schedule_align", "rule_contradiction", "code_lock", "lights_out", "logic_circuit"] },
+    kind: { enum: ["power_routing", "signal_path", "schedule_align", "rule_contradiction", "code_lock", "lights_out", "logic_circuit", "cipher", "magic_square", "arithmetic", "chem_balance", "translation", "melody", "neural_net"] },
   },
 } as const;
 

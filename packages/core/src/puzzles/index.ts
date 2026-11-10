@@ -7,13 +7,28 @@
  *   solve(def, values)        the fewest taps that solve it, or null if none can (used at build time)
  *   view(def, values)         what the client draws
  */
+import * as arithmetic from "./arithmetic.ts";
+import * as chemBalance from "./chem-balance.ts";
+import * as cipher from "./cipher.ts";
 import * as codeLock from "./code-lock.ts";
 import * as lightsOut from "./lights-out.ts";
 import * as logicCircuit from "./logic-circuit.ts";
+import * as magicSquare from "./magic-square.ts";
+import * as melody from "./melody.ts";
+import * as neuralNet from "./neural-net.ts";
 import * as powerRouting from "./power-routing.ts";
 import * as ruleContradiction from "./rule-contradiction.ts";
 import * as scheduleAlign from "./schedule-align.ts";
 import * as signalPath from "./signal-path.ts";
+import * as translation from "./translation.ts";
+import type { BoardView } from "./board.ts";
+import type { ArithmeticDef } from "./arithmetic.ts";
+import type { ChemBalanceDef } from "./chem-balance.ts";
+import type { CipherDef } from "./cipher.ts";
+import type { MagicSquareDef } from "./magic-square.ts";
+import type { MelodyDef } from "./melody.ts";
+import type { NeuralNetDef } from "./neural-net.ts";
+import type { TranslationDef } from "./translation.ts";
 import type { CodeLockDef, CodeLockView } from "./code-lock.ts";
 import type { LightsOutDef, LightsOutView } from "./lights-out.ts";
 import type { LogicCircuitDef, LogicView } from "./logic-circuit.ts";
@@ -22,9 +37,12 @@ import type { ScheduleAlignDef, ScheduleView } from "./schedule-align.ts";
 import type { SignalCell, SignalPathDef } from "./signal-path.ts";
 
 export type PowerRoutingDef = powerRouting.PuzzleDef;
-export type PuzzleDef = PowerRoutingDef | SignalPathDef | ScheduleAlignDef | RuleContradictionDef | CodeLockDef | LightsOutDef | LogicCircuitDef;
+export type PuzzleDef = PowerRoutingDef | SignalPathDef | ScheduleAlignDef | RuleContradictionDef | CodeLockDef | LightsOutDef | LogicCircuitDef
+  | CipherDef | MagicSquareDef | ArithmeticDef | ChemBalanceDef | TranslationDef | MelodyDef | NeuralNetDef;
 export type PuzzleKind = PuzzleDef["kind"];
-export const PUZZLE_KINDS: readonly PuzzleKind[] = ["power_routing", "signal_path", "schedule_align", "rule_contradiction", "code_lock", "lights_out", "logic_circuit"];
+export const PUZZLE_KINDS: readonly PuzzleKind[] = ["power_routing", "signal_path", "schedule_align", "rule_contradiction", "code_lock", "lights_out", "logic_circuit",
+  "cipher", "magic_square", "arithmetic", "chem_balance", "translation", "melody", "neural_net",
+];
 
 export interface RoutingCell {
   piece: string;
@@ -41,7 +59,8 @@ export type PuzzleView =
   | ({ kind: "rule_contradiction" } & RuleView)
   | ({ kind: "code_lock" } & CodeLockView)
   | ({ kind: "lights_out" } & LightsOutView)
-  | ({ kind: "logic_circuit" } & LogicView);
+  | ({ kind: "logic_circuit" } & LogicView)
+  | BoardView;
 
 export interface PuzzleModule {
   validate(def: PuzzleDef): string[];
@@ -130,7 +149,29 @@ const circuit: PuzzleModule = {
   view: (d, v) => ({ kind: "logic_circuit", ...logicCircuit.view(d as LogicCircuitDef, v) }),
 };
 
+/** Adapts a module whose functions take its own definition type, and whose view is a BoardView. */
+function board<D>(m: {
+  validate(d: D): string[]; init(d: D): number[]; tap(d: D, v: readonly number[], i: number): number[] | null;
+  isSolved(d: D, v: readonly number[]): boolean; solve(d: D, v: readonly number[]): number[] | null; view(d: D, v: readonly number[]): BoardView;
+}): PuzzleModule {
+  return {
+    validate: (d) => m.validate(d as unknown as D),
+    init: (d) => m.init(d as unknown as D),
+    tap: (d, v, i) => m.tap(d as unknown as D, v, i),
+    isSolved: (d, v) => m.isSolved(d as unknown as D, v),
+    solve: (d, v) => m.solve(d as unknown as D, v),
+    view: (d, v) => m.view(d as unknown as D, v),
+  };
+}
+
 const MODULES: Record<PuzzleKind, PuzzleModule> = {
+  cipher: board<CipherDef>(cipher),
+  magic_square: board<MagicSquareDef>(magicSquare),
+  arithmetic: board<ArithmeticDef>(arithmetic),
+  chem_balance: board<ChemBalanceDef>(chemBalance),
+  translation: board<TranslationDef>(translation),
+  melody: board<MelodyDef>(melody),
+  neural_net: board<NeuralNetDef>(neuralNet),
   power_routing: routing, signal_path: signal, schedule_align: schedule, rule_contradiction: rules,
   code_lock: lock, lights_out: fuses, logic_circuit: circuit,
 };
@@ -140,5 +181,7 @@ export function puzzleModule(def: { kind: string }): PuzzleModule | undefined {
   return (MODULES as Record<string, PuzzleModule | undefined>)[def.kind];
 }
 
-export { powerRouting, signalPath, scheduleAlign, ruleContradiction, codeLock, lightsOut, logicCircuit };
+export { powerRouting, signalPath, scheduleAlign, ruleContradiction, codeLock, lightsOut, logicCircuit, cipher, magicSquare, arithmetic, chemBalance, translation, melody, neuralNet };
+export type { BoardView, BoardControl, BoardRow, BoardLine, BoardPlot } from "./board.ts";
+export type { ArithmeticDef, ChemBalanceDef, CipherDef, MagicSquareDef, MelodyDef, NeuralNetDef, TranslationDef };
 export type { RuleContradictionDef, ScheduleAlignDef, SignalPathDef, RuleView, ScheduleView, SignalCell, CodeLockDef, CodeLockView, LightsOutDef, LightsOutView, LogicCircuitDef, LogicView };

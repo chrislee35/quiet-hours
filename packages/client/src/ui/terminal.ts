@@ -1,4 +1,5 @@
-import { powerRouting, type PuzzleView, type Sim, type TerminalView } from "@qh/core";
+import { powerRouting, type BoardView, type PuzzleView, type Sim, type TerminalView } from "@qh/core";
+import { playNotes } from "../sound.ts";
 
 const SIDE_NAMES = ["N", "E", "S", "W"] as const;
 const PIECE_NAMES: Record<string, string> = { I: "straight pipe", L: "corner", T: "tee junction", "+": "cross junction", E: "dead end", ".": "empty" };
@@ -138,6 +139,10 @@ export class TerminalWindow {
       status = `Clashing slots: ${clashes}. Unmet requirements: ${unmet}.`;
       hint = "Each tap slides a track one slot later (it wraps around). Make sure no two tracks are busy in the same slot, and every requirement (★) is met.";
       body = this.schedule(p, view.solved, controls);
+    } else if (p.kind === "board") {
+      status = p.status;
+      hint = p.hint;
+      body = this.board(p, view.solved, controls);
     } else if (p.kind === "code_lock") {
       status = p.correct === null ? "The lock gives nothing away." : `Dials right: ${p.correct} of ${p.dials.length}`;
       hint = "Turn each dial (tap) to the right digit. The code is something you have to find out.";
@@ -241,6 +246,59 @@ export class TerminalWindow {
       wrap.append(req);
     }
     return wrap;
+  }
+
+  /** The generic board: rows of buttons, lines of text, an optional plot and an optional Play button. */
+  private board(p: BoardView, solved: boolean, controls: HTMLButtonElement[]): HTMLElement {
+    const wrap = this.el("div", "", `qh-board of-${p.of}`);
+    for (const row of p.rows) {
+      const r = this.el("div", "", "brow");
+      if (row.label) r.append(this.el("span", row.label, "blabel"));
+      for (const c of row.controls) {
+        const b = this.el("button", c.text, `bctl${c.tone ? ` ${c.tone}` : ""}${c.index < 0 ? " static" : ""}`);
+        b.type = "button";
+        b.setAttribute("aria-label", c.aria);
+        b.disabled = c.disabled === true || solved;
+        if (c.index >= 0) {
+          b.addEventListener("click", () => {
+            this.tap(c.index);
+            if (c.midi !== undefined) playNotes([c.midi]);
+          });
+          controls[c.index] = b;
+        } else b.tabIndex = -1;
+        r.append(b);
+      }
+      wrap.append(r);
+    }
+    if (p.play && p.play.length > 0) {
+      const notes = p.play;
+      const play = this.el("button", "▶ Play", "bplay");
+      play.type = "button";
+      play.setAttribute("aria-label", "Play the melody");
+      play.addEventListener("click", () => playNotes(notes));
+      wrap.append(play);
+    }
+    if (p.plot) wrap.append(this.plot(p.plot));
+    for (const l of p.lines) wrap.append(this.el("p", l.text, `bline${l.tone ? ` ${l.tone}` : ""}`));
+    return wrap;
+  }
+
+  /** A small decision map: predicted class as tinted cells, readings as shapes (circle = inside, square = outside; hollow = held-out test). */
+  private plot(pl: NonNullable<BoardView["plot"]>): SVGElement {
+    const size = 200;
+    const root = svg("svg", { viewBox: `0 0 ${size} ${size}`, class: "bplot", role: "img", "aria-label": "Map of the controller's decisions and the readings" });
+    const cw = size / pl.cols;
+    const ch = size / pl.rows;
+    pl.cells.forEach((v, i) => {
+      root.append(svg("rect", { x: (i % pl.cols) * cw, y: Math.floor(i / pl.cols) * ch, width: cw, height: ch, class: v > 0 ? "zin" : "zout" }));
+    });
+    for (const p of pl.points) {
+      const x = ((p.x + 1) / 2) * size;
+      const y = ((p.y + 1) / 2) * size;
+      const cls = `pt ${p.t > 0 ? "in" : "out"}${p.test ? " test" : ""}`;
+      root.append(p.t > 0 ? svg("circle", { cx: x, cy: y, r: 3.2, class: cls }) : svg("rect", { x: x - 3, y: y - 3, width: 6, height: 6, class: cls }));
+    }
+    return root;
   }
 
   private lock(p: Lock, solved: boolean, controls: HTMLButtonElement[]): HTMLElement {

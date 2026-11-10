@@ -2,7 +2,7 @@
 
 A terminal (`content/terminals/*.json`) gates information or controls behind a puzzle (`content/puzzles/*.json`). The world is frozen while one is open. Solving the puzzle, or already meeting the terminal's `bypass` conditions, runs its `onSolve` effects exactly once. There is **no confirm button**: the terminal unlocks itself the moment the puzzle is solved. No puzzle involves chance or timing (PUZ-3).
 
-All seven types share one interface (`packages/core/src/puzzles/index.ts`): `init`, `tap` (what tapping control *i* does), `isSolved`, `solve` (the fewest taps that solve it) and `view`. The state is a vector of whole numbers the type understands, so saves, replay and the client treat them alike. The command is `TerminalTap {index}`.
+All fourteen types share one interface (`packages/core/src/puzzles/index.ts`): `init`, `tap` (what tapping control *i* does), `isSolved`, `solve` (the fewest taps that solve it) and `view`. The state is a vector of whole numbers the type understands, so saves, replay and the client treat them alike. The command is `TerminalTap {index}`.
 
 | Kind | You see | Tap does | Solved when |
 |---|---|---|---|
@@ -33,5 +33,32 @@ For every puzzle of every kind: it is well formed, it does **not** start solved,
 - **Fuse board** is the classic: tapping flips a fuse and its orthogonal neighbours. Its solver is exact (linear algebra over GF(2)), so an unsolvable board is caught at build time. Build a solvable one by tapping an all-dark board and writing down what is lit. `layout` rows use `#` lit, `o` dark, `.` no fuse; at most 7x7.
 - **Logic circuit**: `inputs` (switches, with `value`/`locked`), `gates` listed in order (`AND OR NOT XOR NAND NOR`, each reading switches or *earlier* gates, so no loops), `goals: [{name, node, want}]`. Up to 12 switches.
 `content/puzzles/range_puzzles2.json` has one of each, with three more terminals in the first room of `?map=range`.
+
+## The "nerd" set: ciphers, mathematics, chemistry, language, music, machine learning
+These share one generic **board** view (rows of buttons, lines of text, an optional plot), so each is pure logic plus a solver. Every one has a solver that `pnpm validate` runs; where deduction is the point the validator also proves the answer is **unique**, so it can be worked out and never guessed (PUZ-3).
+
+| Kind | The puzzle | Tools it gives you | What validate proves |
+|---|---|---|---|
+| `cipher` | decode a Caesar or Vigenère message by turning key dials | live decoding, a letter-frequency table, a crib hint | key exists; message long enough to be solvable |
+| `magic_square` | fill 1-9 so every row, column and diagonal sums to 15 | per-line sums | **exactly one** solution |
+| `arithmetic` | choose operators between numbers to hit a target (exact fractions, real precedence) | a live total | a solution exists and it does not start solved |
+| `chem_balance` | balance a chemical equation in the smallest whole numbers (parentheses allowed) | an atom-count table per element | both sides have the same elements; a solution exists |
+| `translation` | translate a sentence in an unknown language from example sentences glossed as unordered bags of words | the examples | exactly **one** consistent dictionary, and the answer is among the choices |
+| `melody` | complete a tune that obeys rules of key, leaps, shape and ending | each rule checked in words, a Play button, tones on tap | a legal tune exists |
+| `neural_net` | size two hidden layers within a neuron budget so a tiny network, trained on noisy readings, scores above a threshold on clean held-out ones | train/test accuracy, a map of its decisions | some size within budget passes |
+
+**The neural network** is trained *inside the puzzle*, deterministically: a leaky-ReLU network with seeded initial weights, plain full-batch gradient descent, and nothing but exact arithmetic (+ - x /, comparisons, a square root of a constant), no `exp` or `tanh`, so every browser produces bit-identical numbers and the sim stays deterministic. Results are cached by sizes. The first lesson it teaches: more neurons is not automatically better (budget), and a layer of one neuron is a bottleneck. Tune with `budget`, `threshold`, `noise` and the three seeds; `neuralNet.passing(def)` lists every passing size.
+
+**Sound** (melody): notes are synthesised in the browser with WebAudio on a player gesture and are never required; the rules are always shown as text.
+
+### Authoring notes
+- **cipher:** `method`, `plaintext`, `key` (one letter for Caesar, 2-6 for Vigenère), optional `hint` (a crib). The ciphertext is derived, so it cannot disagree.
+- **translation:** each example `{foreign: [...], english: [...]}` (the English is a bag); to pin a word down, make sure it appears in sentences whose other words are known. The validator tells you if more than one dictionary fits.
+- **chem_balance:** `reactants`, `products` as formula strings (`Ca(OH)2`).
+- **melody:** `root` (MIDI, 60 = middle C), `scale` (major/minor), `length` 3-6, `fixed` (`{"0": 0}`), `rules` (`inScale`, `endOnTonic`, `maxLeap`, `arch`, `noRepeats`).
+`content/puzzles/nerd_puzzles.json` has one or two of each, and nine terminals along the south wall of the first room on `?map=range`.
+
+### More realms to come
+The same interface fits: a **frequency/logic deduction grid**, **unit-conversion** and **circuit** puzzles, **chord and interval** identification, **morphology** (agreement and tense rules), **number-base and modular** locks, a **k-means or decision-tree** "sort the readings" puzzle for machine learning, and **titration/stoichiometry** for chemistry.
 
 Skip-after-attempts assist (HAK-3) arrives with the settings work (T2.13). Every critical puzzle also needs a second, non-puzzle way in (PUZ-1): that is what a terminal's `bypass` is for, checked by the solvability checker (T2.15).

@@ -1,0 +1,11 @@
+[
+  { "id": "cipher_a", "title": "Maintenance log (Caesar)", "puzzle": "cipher_caesar", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["caesar_read", true] }], "solvedText": "The log decrypts. Someone has been keeping score of the unregistered." },
+  { "id": "cipher_b", "title": "Service-door memo (Vigenère)", "puzzle": "cipher_vigenere", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["vigenere_read", true] }], "solvedText": "The memo reads plainly now. The service door really is never locked at night." },
+  { "id": "square_panel", "title": "Load-balancer square", "puzzle": "magic_three", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["square_balanced", true] }], "solvedText": "Every line carries the same load. The panel relaxes." },
+  { "id": "crunch_panel", "title": "Fare calculator", "puzzle": "crunch_24", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["fare_computed", true] }], "solvedText": "The fare comes to exactly twenty-four. The turnstile is satisfied." },
+  { "id": "chem_a", "title": "Fuel valve (propane)", "puzzle": "balance_propane", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["propane_balanced", true] }], "solvedText": "The burner settles to a clean blue flame." },
+  { "id": "chem_b", "title": "Lime mixer (phosphate)", "puzzle": "balance_phosphate", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["phosphate_balanced", true] }], "solvedText": "The mixer drops a pale precipitate and goes quiet." },
+  { "id": "tongue_panel", "title": "Foreign broadcast", "puzzle": "river_tongue", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["tongue_understood", true] }], "solvedText": "You understand the broadcast. It was a weather report about birds." },
+  { "id": "tune_panel", "title": "Door chime", "puzzle": "homeward_tune", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["chime_played", true] }], "solvedText": "The chime plays a tune that goes home. The latch lifts." },
+  { "id": "net_panel", "title": "Ring sensor controller", "puzzle": "ring_controller", "bypass": [], "onSolve": [{ "add_credits": 20 }, { "set_flag": ["controller_trained", true] }], "solvedText": "The controller separates inside from outside. It is inordinately proud." }
+]
