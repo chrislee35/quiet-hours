@@ -1,0 +1,43 @@
+[
+  {
+    "id": "relay_alignment",
+    "kind": "signal_path",
+    "width": 9,
+    "height": 7,
+    "cells": ["#########", "#/X.../.#", "#.......#", "#../....#", "#.P..../#", "#P..../\\#", "#########"],
+    "sources": [{ "x": 5, "y": 1, "dir": "E" }],
+    "targets": [[3, 4]]
+  },
+  {
+    "id": "night_timetable",
+    "kind": "schedule_align",
+    "slots": 12,
+    "labels": ["22", "23", "00", "01", "02", "03", "04", "05", "06", "07", "08", "09"],
+    "exclusive": true,
+    "tracks": [
+      { "id": "express", "name": "Night express", "pattern": "###.........", "locked": true },
+      { "id": "freight", "name": "Freight", "pattern": "#..#........" },
+      { "id": "works", "name": "Track works", "pattern": "##.##......." },
+      { "id": "mail", "name": "Mail van", "pattern": "#..........." }
+    ],
+    "require": [{ "track": "freight", "slot": 6 }]
+  },
+  {
+    "id": "gate_logic",
+    "kind": "rule_contradiction",
+    "inputs": [
+      { "id": "curfew", "name": "It is curfew", "value": true, "locked": true },
+      { "id": "pass", "name": "Holds a pass" },
+      { "id": "resident", "name": "Is a resident" },
+      { "id": "visitor", "name": "Is a visitor" }
+    ],
+    "outputs": [{ "id": "gate", "name": "Gate" }, { "id": "alarm", "name": "Alarm" }],
+    "rules": [
+      { "id": "r1", "text": "Anyone holding a pass may enter.", "if": { "pass": true }, "then": { "gate": true } },
+      { "id": "r2", "text": "Residents may not enter during curfew.", "if": { "curfew": true, "resident": true }, "then": { "gate": false } },
+      { "id": "r3", "text": "Visitors may not enter during curfew.", "if": { "curfew": true, "visitor": true }, "then": { "gate": false } },
+      { "id": "r4", "text": "No one is both a resident and a visitor.", "if": { "resident": true, "visitor": true }, "then": { "alarm": true } }
+    ],
+    "goal": "gate"
+  }
+]

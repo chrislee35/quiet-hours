@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  EMPTY_CONTENT, buildWorld, importTiled, powerRouting, type Content, type PuzzleDef, type TerminalDef,
+  EMPTY_CONTENT, buildWorld, importTiled, powerRouting, type Content, type PowerRoutingDef, type PuzzleDef, type TerminalDef,
 } from "@qh/core";
 import { Scenario, asciiWorld } from "../src/index.ts";
 import { config } from "./helpers.ts";
@@ -22,17 +22,19 @@ const content: Content = { ...EMPTY_CONTENT, puzzles: { p: puzzle }, terminals: 
 const world = () => asciiWorld(["#########", "#S.....L#", "#########"], [], { terminals: [{ id: "panel", x: 2, y: 1 }] });
 const start = () => new Scenario(config, 1, world(), content).command({ type: "Interact" });
 const solveMoves = () => powerRouting.solve(puzzle)!;
-const rotateAll = (s: Scenario, moves: number[]) => moves.forEach((index) => s.command({ type: "TerminalRotate", index }));
+const rotateAll = (s: Scenario, moves: number[]) => moves.forEach((index) => s.command({ type: "TerminalTap", index }));
 
 describe("using a terminal", () => {
   it("Interact opens the puzzle; the view describes the grid and what is powered", () => {
     const s = start();
     s.expectEvent("TerminalOpened", { terminalId: "panel" });
     const v = s.sim.terminal()!;
-    expect(v).toMatchObject({ id: "panel", title: "Panel", width: 3, height: 1, solved: false });
-    expect(v.cells.map((c) => c.piece)).toEqual(["E", "I", "E"]);
-    expect(v.cells[0]).toMatchObject({ isSource: true, powered: true });
-    expect(v.cells[2]).toMatchObject({ isTarget: true, powered: false });
+    expect(v).toMatchObject({ id: "panel", title: "Panel", solved: false });
+    const p = v.puzzle as Extract<typeof v.puzzle, { kind: "power_routing" }>;
+    expect(p).toMatchObject({ kind: "power_routing", width: 3, height: 1 });
+    expect(p.cells.map((c) => c.piece)).toEqual(["E", "I", "E"]);
+    expect(p.cells[0]).toMatchObject({ isSource: true, powered: true });
+    expect(p.cells[2]).toMatchObject({ isTarget: true, powered: false });
   });
 
   it("freezes the world while open and resumes after leaving", () => {
@@ -49,8 +51,8 @@ describe("using a terminal", () => {
 
   it("rotating without solving changes the lit cells but unlocks nothing", () => {
     const s = start();
-    s.command({ type: "TerminalRotate", index: 0 });
-    expect(s.sim.terminal()!.cells[0]!.rotation).toBe(1);
+    s.command({ type: "TerminalTap", index: 0 });
+    expect((s.sim.terminal()!.puzzle as { cells: { rotation: number }[] }).cells[0]!.rotation).toBe(1);
     expect(s.sim.state.doors.door_7_1!.locked).toBe(true);
     s.expectNoEvent("TerminalSolved");
   });
@@ -63,17 +65,17 @@ describe("using a terminal", () => {
     expect(s.sim.state.doors.door_7_1!.locked).toBe(false);
     expect(s.sim.terminal()).toMatchObject({ solved: true, solvedText: "Unlocked." });
     const events = s.eventsOfType("TerminalSolved").length;
-    s.command({ type: "TerminalRotate", index: 0 }); // ignored once solved
-    expect(s.sim.state.terminals.panel!.rotations).toEqual([1, 1, 3]);
+    s.command({ type: "TerminalTap", index: 0 }); // ignored once solved
+    expect(s.sim.state.terminals.panel!.values).toEqual([1, 1, 3]);
     s.command({ type: "ExitTerminal" }).command({ type: "Interact" });
     expect(s.eventsOfType("TerminalSolved")).toHaveLength(events);
   });
 
   it("progress is kept when leaving and returning", () => {
     const s = start();
-    s.command({ type: "TerminalRotate", index: 0 }).command({ type: "TerminalRotate", index: 1 });
+    s.command({ type: "TerminalTap", index: 0 }).command({ type: "TerminalTap", index: 1 });
     s.command({ type: "ExitTerminal" }).command({ type: "Interact" });
-    expect(s.sim.state.terminals.panel!.rotations).toEqual([1, 1, 0]);
+    expect(s.sim.state.terminals.panel!.values).toEqual([1, 1, 0]);
   });
 
   it("the unlocked door can then be opened by the player", () => {
@@ -85,9 +87,9 @@ describe("using a terminal", () => {
 
   it("ignores invalid rotations and terminal commands with no terminal open", () => {
     const s = start();
-    s.command({ type: "TerminalRotate", index: 9 }).command({ type: "TerminalRotate", index: -1 });
-    expect(s.sim.state.terminals.panel!.rotations).toEqual([0, 0, 0]);
-    const idle = new Scenario(config, 1, world(), content).command({ type: "TerminalRotate", index: 0 });
+    s.command({ type: "TerminalTap", index: 9 }).command({ type: "TerminalTap", index: -1 });
+    expect(s.sim.state.terminals.panel!.values).toEqual([0, 0, 0]);
+    const idle = new Scenario(config, 1, world(), content).command({ type: "TerminalTap", index: 0 });
     expect(idle.events).toEqual([]);
   });
 
@@ -119,7 +121,7 @@ describe("shipped content", () => {
     const s = new Scenario(config, 1, map, { ...EMPTY_CONTENT, puzzles, terminals }).player(13.5, 3.5).command({ type: "Interact" });
     expect(s.sim.state.terminal).toBe("maint_panel");
     expect(s.sim.state.doors.door_maint_locked!.locked).toBe(true);
-    rotateAll(s, powerRouting.solve(puzzles.maint_power!)!);
+    rotateAll(s, powerRouting.solve(puzzles.maint_power! as PowerRoutingDef)!);
     expect(s.sim.state.doors.door_maint_locked!.locked).toBe(false);
     expect(s.sim.state.flags.maint_panel_hacked).toBe(true);
   });

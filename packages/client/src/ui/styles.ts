@@ -76,6 +76,34 @@ export const OVERLAY_CSS = `
 .qh-grid .target { fill: none; stroke: #ffd36b; stroke-width: 6; }
 .qh-grid .target.on { fill: #8ff6ff; stroke: #ffd36b; }
 .qh-grid .bolt { fill: #ffd36b; stroke: #10121c; stroke-width: 2; }
+.qh-grid .sig .wall { fill: #3a3f5c; stroke: #5b6288; stroke-width: 3; }
+.qh-grid .sig .mirror { stroke: #9aa0c4; stroke-width: 9; stroke-linecap: round; }
+.qh-grid .sig.on .mirror { stroke: #8ff6ff; }
+.qh-grid .sig .beam { fill: #1d8da3; opacity: .55; }
+.qh-grid .sig .hazard { stroke: #ff7a8a; stroke-width: 9; stroke-linecap: round; }
+.qh-grid .sig .hazard.hot { stroke: #ff3355; stroke-width: 14; }
+.qh-grid .sig.flip { outline: 1px dashed #5b6288; outline-offset: -4px; }
+.qh-grid .sig .bolt { fill: none; stroke: #ffd36b; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.qh-sched { overflow-x: auto; margin: 8px 0 12px; }
+.qh-sched .row { display: grid; grid-template-columns: 8em repeat(var(--slots, 12), 1.8em); gap: 2px; align-items: center; margin-bottom: 4px; }
+.qh-sched .slot { text-align: center; color: #5b6288; font-size: .85em; }
+.qh-sched .head .slot { color: #9aa0c4; font-size: .7em; }
+.qh-sched .slot.busy { color: #8ff6ff; background: #0f2b35; border-radius: 3px; }
+.qh-sched .slot.clash { color: #ff3355; background: #3a1220; font-weight: 700; }
+.qh-sched .name { text-align: left; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 4px 6px; }
+.qh-sched .name:not(:disabled) { cursor: pointer; }
+.qh-sched .name:hover:not(:disabled), .qh-sched .name:focus-visible { background: #2a3050; outline: 2px solid #ffd36b; }
+.qh-sched .reqs { list-style: none; margin: 6px 0 0; padding: 0; color: #ffe9a8; font-size: .85em; }
+.qh-sched .reqs .met { color: #8dfbb4; }
+.qh-rules h3 { margin: 10px 0 4px; font-size: .9em; color: #8fd3ff; }
+.qh-rules .inputs { display: flex; flex-wrap: wrap; gap: 6px; }
+.qh-rules .input { background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 5px 9px; cursor: pointer; }
+.qh-rules .input.on { background: #0f2b35; border-color: #1d8da3; }
+.qh-rules .input:hover:not(:disabled), .qh-rules .input:focus-visible { outline: 2px solid #ffd36b; }
+.qh-rules ul { list-style: none; margin: 0; padding: 0; font-size: .9em; }
+.qh-rules li { padding: 3px 0; color: #9aa0c4; }
+.qh-rules li.applies { color: #dfe2f3; }
+.qh-rules li.bad { color: #ff9a9a; font-weight: 700; }
 .qh-terminal .leave { width: 100%; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 7px 10px; cursor: pointer; }
 .qh-terminal .leave:hover, .qh-terminal .leave:focus-visible { background: #2a3050; outline: 2px solid #ffd36b; }
 `;

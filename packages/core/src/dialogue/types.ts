@@ -1,7 +1,7 @@
 import type { AugmentDef, ItemDef } from "../augments.ts";
 import type { ReactionDef } from "../districts.ts";
 import type { ServiceDef } from "../economy.ts";
-import type { PuzzleDef } from "../puzzles/power-routing.ts";
+import type { PuzzleDef } from "../puzzles/index.ts";
 import type { Condition, Effect } from "../rules.ts";
 
 export type Reliability = "true" | "false" | "outdated" | "planted";

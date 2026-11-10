@@ -1,0 +1,26 @@
+[
+  {
+    "id": "relay_panel",
+    "title": "Relay alignment",
+    "puzzle": "relay_alignment",
+    "bypass": [],
+    "onSolve": [{ "add_credits": 20 }, { "set_flag": ["relay_aligned", true] }],
+    "solvedText": "The relay lines up. Twenty credits fall out of the maintenance float."
+  },
+  {
+    "id": "timetable_panel",
+    "title": "Night timetable",
+    "puzzle": "night_timetable",
+    "bypass": [],
+    "onSolve": [{ "add_credits": 20 }, { "set_flag": ["timetable_fixed", true] }],
+    "solvedText": "No two services share a slot. The timetable is, briefly, consistent."
+  },
+  {
+    "id": "gate_panel",
+    "title": "Gate policy",
+    "puzzle": "gate_logic",
+    "bypass": [],
+    "onSolve": [{ "add_credits": 20 }, { "set_flag": ["gate_confused", true] }],
+    "solvedText": "The gate controller halts, unable to decide. It waves you through while it thinks."
+  }
+]

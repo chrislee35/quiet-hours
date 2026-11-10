@@ -75,7 +75,7 @@ export interface SimState {
   /** Items and credits confiscated by processing, recoverable at a locker. */
   locker: { credits: number; items: Record<string, number>; passes: Pass[] };
   /** Terminal progress by terminal id, created the first time a terminal is opened. */
-  terminals: Record<string, { rotations: number[]; solved: boolean }>;
+  terminals: Record<string, { values: number[]; solved: boolean }>;
   /** The terminal currently being used, if any. While set, the world is frozen like a conversation. */
   terminal: string | null;
   /** Active conversation, if any. While set, the world is frozen (CORE-4). */

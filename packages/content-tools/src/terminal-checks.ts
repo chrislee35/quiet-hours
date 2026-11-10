@@ -1,4 +1,4 @@
-import { powerRouting, validateCondition, validateEffect, type Effect, type MapData, type PuzzleDef } from "@qh/core";
+import { puzzleModule, validateCondition, validateEffect, type Effect, type MapData, type PuzzleDef } from "@qh/core";
 import type { Issue } from "./validate.ts";
 
 interface Found {
@@ -6,17 +6,28 @@ interface Found {
   entity: { id: string; [key: string]: unknown };
 }
 
-/** Each puzzle must be well-formed, not already solved, and *proven solvable* by the solver. */
+/** Each puzzle must be well-formed, not already solved, and *proven solvable* by its type's solver. */
 export function checkPuzzles(puzzles: Found[]): Issue[] {
   const issues: Issue[] = [];
   for (const { file, entity } of puzzles) {
     const def = entity as unknown as PuzzleDef;
-    const problems = powerRouting.validatePuzzleDef(def);
-    for (const p of problems) issues.push({ file, message: `puzzle "${def.id}": ${p}` });
+    const say = (m: string) => issues.push({ file, message: `puzzle "${def.id}": ${m}` });
+    const mod = puzzleModule(def);
+    if (!mod) {
+      say(`unknown kind "${String(def.kind)}"`);
+      continue;
+    }
+    let problems: string[];
+    try {
+      problems = mod.validate(def);
+    } catch (e) {
+      problems = [`malformed definition (${(e as Error).message})`];
+    }
+    for (const p of problems) say(p);
     if (problems.length > 0) continue;
-    const start = powerRouting.init(def);
-    if (powerRouting.isSolved(def, start)) issues.push({ file, message: `puzzle "${def.id}" starts already solved` });
-    else if (powerRouting.solve(def, start) === null) issues.push({ file, message: `puzzle "${def.id}" is not solvable (or too large for the solver to prove)` });
+    const start = mod.init(def);
+    if (mod.isSolved(def, start)) say("starts already solved");
+    else if (mod.solve(def, start) === null) say("is not solvable (or too large for the solver to prove)");
   }
   return issues;
 }

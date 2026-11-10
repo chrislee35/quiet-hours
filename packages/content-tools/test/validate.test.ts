@@ -148,3 +148,27 @@ describe("trust recoverability (CMP-4)", () => {
     expect(validateContent(loadContent(realContent).bundle).filter((i) => i.message.includes("CMP-4"))).toEqual([]);
   });
 });
+
+describe("puzzle kinds", () => {
+  const messages = (puzzle: object) =>
+    fixture((dir) => writeFileSync(join(dir, "puzzles", "extra.json"), JSON.stringify([puzzle]))).map((i) => i.message);
+
+  it("rejects an unknown kind", () => {
+    expect(messages({ id: "bad", kind: "slider" })).toEqual(expect.arrayContaining([expect.stringContaining("kind")]));
+  });
+
+  it("proves every kind solvable: an unsolvable or already-solved puzzle is an error", () => {
+    const signal = { id: "sig", kind: "signal_path", width: 5, height: 3, cells: ["#####", "#./.#", "#####"], sources: [{ x: 1, y: 1, dir: "E" }], targets: [[3, 1]] };
+    // The mirror can only deflect into a wall: the target can never be lit.
+    expect(messages(signal)).toEqual(expect.arrayContaining([expect.stringContaining('puzzle "sig"')]));
+    const schedule = { id: "sch", kind: "schedule_align", slots: 4, exclusive: true, tracks: [{ id: "a", name: "A", pattern: "####", locked: true }, { id: "b", name: "B", pattern: "#..." }] };
+    expect(messages(schedule)).toEqual(expect.arrayContaining([expect.stringContaining("not solvable")]));
+    const rules = { id: "ru", kind: "rule_contradiction", inputs: [{ id: "a", name: "A", value: true }], outputs: [{ id: "x", name: "X" }], rules: [{ id: "1", text: "", if: { a: true }, then: { x: true } }, { id: "2", text: "", if: { a: true }, then: { x: false } }] };
+    expect(messages(rules)).toEqual(expect.arrayContaining([expect.stringContaining("already solved")]));
+  });
+
+  it("accepts a good puzzle of a new kind", () => {
+    const good = { id: "ok", kind: "schedule_align", slots: 4, exclusive: true, tracks: [{ id: "a", name: "A", pattern: "#...", locked: true }, { id: "b", name: "B", pattern: "#..." }] };
+    expect(messages(good).filter((m) => m.includes('"ok"'))).toEqual([]);
+  });
+});

@@ -2,7 +2,7 @@ import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
 import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
-import { closeTerminal, openTerminal, rotateCell, terminalView, type TerminalView } from "./terminal.ts";
+import { closeTerminal, openTerminal, tapCell, terminalView, type TerminalView } from "./terminal.ts";
 import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
 import { useItem } from "./combat.ts";
 import { npcSystem } from "./npcs.ts";
@@ -39,8 +39,8 @@ export type Command =
   /** Show the NPC a notebook clue (DLG-3). */
   | { type: "Present"; clueId: string }
   | { type: "EndConversation" }
-  /** Quarter-turn a cell of the open terminal's puzzle. */
-  | { type: "TerminalRotate"; index: number }
+  /** Tap a cell, switch or track of the open terminal's puzzle (what that does depends on the puzzle type). */
+  | { type: "TerminalTap"; index: number }
   | { type: "ExitTerminal" }
   /** Wear an owned augment if the band has the slots and power (AUG-2). */
   | { type: "EquipAugment"; id: string }
@@ -299,7 +299,7 @@ export function step(
       if (cmd.type === "Choose") chooseOption(ctx, cmd.index);
       else if (cmd.type === "Present") presentClue(ctx, cmd.clueId);
       else if (cmd.type === "EndConversation") endConversation(ctx);
-      else if (cmd.type === "TerminalRotate") rotateCell(ctx, cmd.index);
+      else if (cmd.type === "TerminalTap") tapCell(ctx, cmd.index);
       else if (cmd.type === "ExitTerminal") closeTerminal(ctx);
       else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events, config, content);
     }

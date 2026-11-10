@@ -1,6 +1,6 @@
 // covers: HAK-2, PUZ-1 (solver proves solvability)
 import { describe, expect, it } from "vitest";
-import { Rng, powerRouting as pr, type PuzzleDef } from "../src/index.ts";
+import { Rng, powerRouting as pr, type PowerRoutingDef as PuzzleDef } from "../src/index.ts";
 
 const def = (over: Partial<PuzzleDef> = {}): PuzzleDef => ({
   id: "t", kind: "power_routing", width: 3, height: 1,

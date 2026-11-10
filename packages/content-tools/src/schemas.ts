@@ -40,19 +40,16 @@ export const npcSchema = {
 
 const tile = { type: "array", items: { type: "integer" }, minItems: 2, maxItems: 2 };
 
+/**
+ * Every puzzle names its kind; the rest of its shape is checked by that kind's own validator in core (the same
+ * code the game runs), so the two can never disagree.
+ */
 export const puzzleSchema = {
   type: "object",
-  additionalProperties: false,
-  required: ["id", "kind", "width", "height", "pieces", "rotations", "source", "targets"],
+  required: ["id", "kind"],
   properties: {
     id,
-    kind: { const: "power_routing" },
-    width: { type: "integer" },
-    height: { type: "integer" },
-    pieces: { type: "array", items: { type: "string" } },
-    rotations: { type: "array", items: { type: "string" } },
-    source: tile,
-    targets: { type: "array", items: tile },
+    kind: { enum: ["power_routing", "signal_path", "schedule_align", "rule_contradiction"] },
   },
 } as const;
 
