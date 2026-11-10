@@ -167,6 +167,15 @@ describe("puzzle kinds", () => {
     expect(messages(rules)).toEqual(expect.arrayContaining([expect.stringContaining("already solved")]));
   });
 
+  it("catches bad puzzles of the other kinds too", () => {
+    const stuck = { id: "stuck", kind: "lights_out", width: 2, height: 2, layout: ["#o", ".."] };
+    expect(messages(stuck)).toEqual(expect.arrayContaining([expect.stringContaining("not solvable")]));
+    const open = { id: "open", kind: "code_lock", code: "00", feedback: "none" };
+    expect(messages(open)).toEqual(expect.arrayContaining([expect.stringContaining("already solved")]));
+    const loop = { id: "loopy", kind: "logic_circuit", inputs: [{ id: "a", name: "A" }], gates: [{ id: "g", op: "NOT", in: ["h"] }, { id: "h", op: "NOT", in: ["g"] }], goals: [{ name: "x", node: "g", want: true }] };
+    expect(messages(loop)).toEqual(expect.arrayContaining([expect.stringContaining("earlier gate")]));
+  });
+
   it("accepts a good puzzle of a new kind", () => {
     const good = { id: "ok", kind: "schedule_align", slots: 4, exclusive: true, tracks: [{ id: "a", name: "A", pattern: "#...", locked: true }, { id: "b", name: "B", pattern: "#..." }] };
     expect(messages(good).filter((m) => m.includes('"ok"'))).toEqual([]);

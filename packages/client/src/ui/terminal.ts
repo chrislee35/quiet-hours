@@ -37,6 +37,9 @@ type Routing = Extract<PuzzleView, { kind: "power_routing" }>;
 type Signal = Extract<PuzzleView, { kind: "signal_path" }>;
 type Schedule = Extract<PuzzleView, { kind: "schedule_align" }>;
 type Rules = Extract<PuzzleView, { kind: "rule_contradiction" }>;
+type Lock = Extract<PuzzleView, { kind: "code_lock" }>;
+type Fuses = Extract<PuzzleView, { kind: "lights_out" }>;
+type Circuit = Extract<PuzzleView, { kind: "logic_circuit" }>;
 
 /** A signal-path cell: wall block, hazard cross, mirror stroke, with a beam glow when lit. Shape, not colour, carries meaning. */
 function signalSvg(glyph: string, lit: boolean, isSource: boolean, isTarget: boolean): SVGElement {
@@ -135,6 +138,18 @@ export class TerminalWindow {
       status = `Clashing slots: ${clashes}. Unmet requirements: ${unmet}.`;
       hint = "Each tap slides a track one slot later (it wraps around). Make sure no two tracks are busy in the same slot, and every requirement (★) is met.";
       body = this.schedule(p, view.solved, controls);
+    } else if (p.kind === "code_lock") {
+      status = p.correct === null ? "The lock gives nothing away." : `Dials right: ${p.correct} of ${p.dials.length}`;
+      hint = "Turn each dial (tap) to the right digit. The code is something you have to find out.";
+      body = this.lock(p, view.solved, controls);
+    } else if (p.kind === "lights_out") {
+      status = `Fuses still lit: ${p.cells.filter((c) => c.lit).length}`;
+      hint = "Tapping a fuse flips it and the fuses directly above, below and beside it. Switch every fuse off (○).";
+      body = this.fuses(p, view.solved, controls);
+    } else if (p.kind === "logic_circuit") {
+      status = `Lamps right: ${p.goals.filter((g) => g.met).length} of ${p.goals.length}`;
+      hint = "Flip the switches so every lamp shows what it needs to. Each gate reads the things listed beside it.";
+      body = this.circuit(p, view.solved, controls);
     } else {
       const bad = p.outputs.filter((o) => o.forced === "contradiction").length;
       status = bad > 0 ? "The rules now contradict each other." : "The rules agree with themselves. Find an input that makes two of them demand opposite things.";
@@ -225,6 +240,62 @@ export class TerminalWindow {
       for (const r of p.requirements) req.append(this.el("li", `★ ${r.track} must run at ${p.labels[r.slot]}: ${r.met ? "met" : "not yet"}`, r.met ? "met" : ""));
       wrap.append(req);
     }
+    return wrap;
+  }
+
+  private lock(p: Lock, solved: boolean, controls: HTMLButtonElement[]): HTMLElement {
+    const wrap = this.el("div", "", "qh-lock");
+    if (p.hint) wrap.append(this.el("p", p.hint, "lockhint"));
+    const dials = this.el("div", "", "dials");
+    for (const d of p.dials) {
+      const b = this.el("button", String(d.digit), "dial");
+      b.type = "button";
+      b.disabled = solved;
+      b.setAttribute("aria-label", `Dial ${d.index + 1} of ${p.dials.length}, showing ${d.digit}. Tap to turn it up one.`);
+      b.addEventListener("click", () => this.tap(d.index));
+      dials.append(b);
+      controls[d.index] = b;
+    }
+    wrap.append(dials);
+    return wrap;
+  }
+
+  private fuses(p: Fuses, solved: boolean, controls: HTMLButtonElement[]): HTMLElement {
+    const grid = this.el("div", "", "qh-grid");
+    grid.dataset.cols = String(p.width);
+    grid.style.setProperty("--cols", String(p.width));
+    p.cells.forEach((c, i) => {
+      const b = this.el("button", c.present ? (c.lit ? "●" : "○") : "", `cell fuse${c.lit ? " on" : ""}`);
+      b.type = "button";
+      b.disabled = !c.present || solved;
+      b.setAttribute("aria-label", c.present ? `Fuse, ${c.lit ? "lit" : "dark"}` : "no fuse");
+      b.addEventListener("click", () => this.tap(i));
+      grid.append(b);
+      controls[i] = b;
+    });
+    return grid;
+  }
+
+  private circuit(p: Circuit, solved: boolean, controls: HTMLButtonElement[]): HTMLElement {
+    const wrap = this.el("div", "", "qh-rules");
+    wrap.append(this.el("h3", "Switches"));
+    const inputs = this.el("div", "", "inputs");
+    for (const i of p.inputs) {
+      const b = this.el("button", `${i.value ? "☑" : "☐"} ${i.name}${i.locked ? " (fixed)" : ""}`, `input${i.value ? " on" : ""}`);
+      b.type = "button";
+      b.disabled = i.locked || solved;
+      b.setAttribute("aria-pressed", String(i.value));
+      b.addEventListener("click", () => this.tap(i.index));
+      inputs.append(b);
+      controls[i.index] = b;
+    }
+    wrap.append(inputs, this.el("h3", "Gates"));
+    const gates = this.el("ul", "", "rulelist");
+    for (const g of p.gates) gates.append(this.el("li", `${g.id} = ${g.op}(${g.reads.join(", ")}) → ${g.value ? "ON" : "off"}`, g.value ? "applies" : ""));
+    wrap.append(gates, this.el("h3", "Lamps"));
+    const goals = this.el("ul", "", "outputs");
+    for (const g of p.goals) goals.append(this.el("li", `${g.met ? "✓" : "✗"} ${g.name}: needs ${g.want ? "ON" : "off"}, is ${g.value ? "ON" : "off"}`, g.met ? "" : "bad"));
+    wrap.append(goals);
     return wrap;
   }
 

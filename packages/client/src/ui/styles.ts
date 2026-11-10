@@ -95,6 +95,12 @@ export const OVERLAY_CSS = `
 .qh-sched .name:hover:not(:disabled), .qh-sched .name:focus-visible { background: #2a3050; outline: 2px solid #ffd36b; }
 .qh-sched .reqs { list-style: none; margin: 6px 0 0; padding: 0; color: #ffe9a8; font-size: .85em; }
 .qh-sched .reqs .met { color: #8dfbb4; }
+.qh-lock .lockhint { color: #ffe9a8; font-size: .9em; margin: 0 0 8px; text-align: center; }
+.qh-lock .dials { display: flex; gap: 8px; justify-content: center; margin: 8px 0 12px; }
+.qh-lock .dial { width: 2.6em; height: 3.2em; background: #151827; color: #8ff6ff; font: 700 1.6em/1 monospace; border: 1px solid #3a3f5c; border-radius: 6px; cursor: pointer; }
+.qh-lock .dial:hover:not(:disabled), .qh-lock .dial:focus-visible { outline: 2px solid #ffd36b; background: #1c2036; }
+.qh-grid .fuse { font-size: 1.6em; color: #5b6288; }
+.qh-grid .fuse.on { color: #ffd36b; background: #2a2410; }
 .qh-rules h3 { margin: 10px 0 4px; font-size: .9em; color: #8fd3ff; }
 .qh-rules .inputs { display: flex; flex-wrap: wrap; gap: 6px; }
 .qh-rules .input { background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 5px 9px; cursor: pointer; }

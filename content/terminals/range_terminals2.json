@@ -1,0 +1,26 @@
+[
+  {
+    "id": "lock_panel",
+    "title": "Stash lock",
+    "puzzle": "stash_lock",
+    "bypass": [],
+    "onSolve": [{ "add_credits": 20 }, { "set_flag": ["stash_opened", true] }],
+    "solvedText": "The lock clicks. Someone left twenty credits in the tin."
+  },
+  {
+    "id": "fuse_panel",
+    "title": "Fuse board",
+    "puzzle": "fuse_board",
+    "bypass": [],
+    "onSolve": [{ "add_credits": 20 }, { "set_flag": ["fuses_reset", true] }],
+    "solvedText": "Every fuse is dark. The board hums, satisfied."
+  },
+  {
+    "id": "circuit_panel",
+    "title": "Door circuit",
+    "puzzle": "door_circuit",
+    "bypass": [],
+    "onSolve": [{ "add_credits": 20 }, { "set_flag": ["circuit_wired", true] }],
+    "solvedText": "The door lamp lights and the alarm stays quiet."
+  }
+]

@@ -1,0 +1,40 @@
+[
+  {
+    "id": "stash_lock",
+    "kind": "code_lock",
+    "code": "4172",
+    "feedback": "none",
+    "hint": "Pump 4. The night shift. Someone scratched the numbers inside the cover of a locker."
+  },
+  {
+    "id": "fuse_board",
+    "kind": "lights_out",
+    "width": 4,
+    "height": 4,
+    "layout": ["##o#", "ooo#", "#ooo", "##o#"]
+  },
+  {
+    "id": "door_circuit",
+    "kind": "logic_circuit",
+    "inputs": [
+      { "id": "a", "name": "Switch A", "value": true },
+      { "id": "b", "name": "Switch B" },
+      { "id": "c", "name": "Switch C (fixed)", "value": true, "locked": true },
+      { "id": "d", "name": "Switch D", "value": true }
+    ],
+    "gates": [
+      { "id": "g1", "op": "XOR", "in": ["a", "b"] },
+      { "id": "g2", "op": "AND", "in": ["c", "d"] },
+      { "id": "g3", "op": "NOT", "in": ["g2"] },
+      { "id": "g5", "op": "AND", "in": ["g1", "g3"] },
+      { "id": "g6", "op": "NOR", "in": ["a", "d"] },
+      { "id": "g7", "op": "XOR", "in": ["b", "d"] }
+    ],
+    "goals": [
+      { "name": "Door", "node": "g5", "want": true },
+      { "name": "Alarm", "node": "g2", "want": false },
+      { "name": "Hall light", "node": "g6", "want": true },
+      { "name": "Siren", "node": "g7", "want": true }
+    ]
+  }
+]

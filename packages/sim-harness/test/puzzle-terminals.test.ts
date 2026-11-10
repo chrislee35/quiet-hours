@@ -6,8 +6,8 @@ import { Scenario } from "../src/index.ts";
 import { config } from "./helpers.ts";
 
 const read = (rel: string) => readFileSync(new URL(`../../../content/${rel}`, import.meta.url), "utf8");
-const puzzles = Object.fromEntries([...(JSON.parse(read("puzzles/range_puzzles.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/maint_power.json")) as PuzzleDef[])].map((p) => [p.id, p]));
-const terminals = Object.fromEntries((JSON.parse(read("terminals/range_terminals.json")) as TerminalDef[]).map((t) => [t.id, t]));
+const puzzles = Object.fromEntries([...(JSON.parse(read("puzzles/range_puzzles.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/range_puzzles2.json")) as PuzzleDef[]), ...(JSON.parse(read("puzzles/maint_power.json")) as PuzzleDef[])].map((p) => [p.id, p]));
+const terminals = Object.fromEntries([...(JSON.parse(read("terminals/range_terminals.json")) as TerminalDef[]), ...(JSON.parse(read("terminals/range_terminals2.json")) as TerminalDef[])].map((t) => [t.id, t]));
 const content: Content = { ...EMPTY_CONTENT, puzzles, terminals };
 const world = buildWorld(importTiled(JSON.parse(read("maps/robot_range.json")), "robot_range"));
 
@@ -83,6 +83,41 @@ describe("each type through the terminal view", () => {
     s.command({ type: "TerminalTap", index: 0 }); // curfew is fixed
     expect(v().inputs[0]!.value).toBe(true);
     s.command({ type: "TerminalTap", index: 2 }); // resident: curfew says no
+    s.expectEvent("TerminalSolved");
+  });
+
+  it("code lock: no feedback, dials wrap, and only the right code opens it", () => {
+    const s = open("lock_panel");
+    const v = () => s.sim.terminal()!.puzzle as unknown as { kind: string; dials: { digit: number }[]; correct: number | null; hint: string };
+    expect(v().kind).toBe("code_lock");
+    expect(v().correct).toBeNull();
+    expect(v().hint).toContain("Pump 4");
+    for (let i = 0; i < 10; i++) s.command({ type: "TerminalTap", index: 0 });
+    expect(v().dials[0]!.digit).toBe(0); // ten taps wrap a base-10 dial
+    for (const [i, n] of [[0, 4], [1, 1], [2, 7]] as const) for (let k = 0; k < n; k++) s.command({ type: "TerminalTap", index: i });
+    s.expectNoEvent("TerminalSolved"); // 4, 1, 7, 0: one dial short
+    s.command({ type: "TerminalTap", index: 3 }).command({ type: "TerminalTap", index: 3 });
+    s.expectEvent("TerminalSolved");
+  });
+
+  it("fuse board: a tap flips the fuse and its neighbours, and the solution is the five taps it was built from", () => {
+    const s = open("fuse_panel");
+    const v = () => s.sim.terminal()!.puzzle as unknown as { kind: string; cells: { lit: boolean }[] };
+    expect(v().cells.filter((c) => c.lit)).toHaveLength(8);
+    s.command({ type: "TerminalTap", index: 5 });
+    expect(v().cells.filter((c) => c.lit).length).not.toBe(8);
+    s.command({ type: "TerminalTap", index: 5 });
+    expect(v().cells.filter((c) => c.lit)).toHaveLength(8); // tapping twice undoes it
+  });
+
+  it("logic circuit: lamps show what is met, a fixed switch does not move, and the right switches open it", () => {
+    const s = open("circuit_panel");
+    const v = () => s.sim.terminal()!.puzzle as unknown as { kind: string; inputs: { value: boolean }[]; goals: { name: string; met: boolean }[]; gates: { id: string; value: boolean }[] };
+    expect(v().goals.filter((g) => g.met).length).toBeLessThan(4);
+    s.command({ type: "TerminalTap", index: 2 });
+    expect(v().inputs[2]!.value).toBe(true);
+    s.command({ type: "TerminalTap", index: 0 }).command({ type: "TerminalTap", index: 1 }).command({ type: "TerminalTap", index: 3 });
+    expect(v().goals.every((g) => g.met)).toBe(true);
     s.expectEvent("TerminalSolved");
   });
 

@@ -171,3 +171,138 @@ describe("the registry", () => {
     expect(puzzleModule({ kind: "slider" })).toBeUndefined();
   });
 });
+
+import { codeLock as cl, lightsOut as lo, logicCircuit as lc, type CodeLockDef, type LightsOutDef, type LogicCircuitDef } from "../src/index.ts";
+
+describe("code lock", () => {
+  const def = (over: Partial<CodeLockDef> = {}): CodeLockDef => ({ id: "c", kind: "code_lock", code: "729", feedback: "none", ...over });
+
+  it("dials count up one per tap and wrap at the base", () => {
+    const d = def();
+    expect(cl.tap(d, [0, 0, 0], 1)).toEqual([0, 1, 0]);
+    expect(cl.tap(d, [0, 9, 0], 1)).toEqual([0, 0, 0]);
+    expect(cl.tap(def({ base: 3, code: "21" }), [0, 2], 1)).toEqual([0, 0]);
+    expect(cl.tap(d, [0, 0, 0], 3)).toBeNull();
+    expect(cl.tap(d, [0, 0, 0], -1)).toBeNull();
+  });
+
+  it("opens only on the exact code; the solver turns each dial the shortest way up", () => {
+    const d = def();
+    expect(cl.isSolved(d, [7, 2, 9])).toBe(true);
+    expect(cl.isSolved(d, [7, 2, 8])).toBe(false);
+    expect(cl.solve(d)).toHaveLength(7 + 2 + 9);
+    expect(cl.solve(d, [7, 2, 8])).toEqual([2]);
+  });
+
+  it("gives feedback only when asked to", () => {
+    expect(cl.view(def(), [7, 0, 0]).correct).toBeNull();
+    expect(cl.view(def({ feedback: "count" }), [7, 0, 9]).correct).toBe(2);
+    expect(cl.view(def({ hint: "look up" }), [0, 0, 0]).hint).toBe("look up");
+  });
+
+  it("validates the code, the base and the start", () => {
+    expect(cl.validate(def())).toEqual([]);
+    expect(cl.validate(def({ code: "7" }))).not.toEqual([]);
+    expect(cl.validate(def({ code: "78", base: 5 }))).not.toEqual([]);
+    expect(cl.validate(def({ start: "12" }))).not.toEqual([]);
+    expect(cl.validate(def({ feedback: "maybe" as never }))).not.toEqual([]);
+  });
+});
+
+describe("fuse board (lights out)", () => {
+  const def = (layout: string[]): LightsOutDef => ({ id: "l", kind: "lights_out", width: layout[0]!.length, height: layout.length, layout });
+
+  it("a tap flips the fuse and its orthogonal neighbours, and tapping twice undoes it", () => {
+    const d = def(["ooo", "ooo", "ooo"]);
+    const once = lo.tap(d, lo.init(d), 4)!;
+    expect(once).toEqual([0, 1, 0, 1, 1, 1, 0, 1, 0]);
+    expect(lo.tap(d, once, 4)).toEqual(lo.init(d));
+    expect(lo.tap(d, lo.init(d), 0)).toEqual([1, 1, 0, 1, 0, 0, 0, 0, 0]); // a corner has two neighbours
+  });
+
+  it("cells with no fuse cannot be tapped and are never flipped", () => {
+    const d = def(["o.o", "ooo"]);
+    expect(lo.tap(d, lo.init(d), 1)).toBeNull();
+    expect(lo.tap(d, lo.init(d), 4)).toEqual([0, 0, 0, 1, 1, 1]);
+  });
+
+  it("the solver is exact: it finds the taps a board was built from, and proves unsolvable boards unsolvable", () => {
+    const d = def(["ooo", "ooo", "ooo"]);
+    let v = lo.init(d);
+    for (const t of [0, 4, 8]) v = lo.tap(d, v, t)!;
+    const board = def([0, 1, 2].map((y) => v.slice(y * 3, y * 3 + 3).map((x) => (x ? "#" : "o")).join("")));
+    const taps = lo.solve(board)!;
+    expect(taps.length).toBeLessThanOrEqual(3);
+    let w = lo.init(board);
+    for (const t of taps) w = lo.tap(board, w, t)!;
+    expect(lo.isSolved(board, w)).toBe(true);
+    // Two fuses side by side with nothing else: a single tap flips both, so one lit fuse can never go dark.
+    expect(lo.solve(def(["#o", ".."]))).toBeNull();
+  });
+
+  it("an all-dark board is already solved and needs no taps", () => {
+    const d = def(["oo", "oo"]);
+    expect(lo.isSolved(d, lo.init(d))).toBe(true);
+    expect(lo.solve(d)).toEqual([]);
+  });
+
+  it("validates the layout", () => {
+    expect(lo.validate(def(["oo", "oo"]))).toEqual([]);
+    expect(lo.validate({ ...def(["oo", "oo"]), width: 9 })).not.toEqual([]);
+    expect(lo.validate(def(["ox", "oo"]))).not.toEqual([]);
+  });
+});
+
+describe("logic circuit", () => {
+  const def = (over: Partial<LogicCircuitDef> = {}): LogicCircuitDef => ({
+    id: "g", kind: "logic_circuit",
+    inputs: [{ id: "a", name: "A" }, { id: "b", name: "B" }, { id: "k", name: "K", value: true, locked: true }],
+    gates: [{ id: "x", op: "XOR", in: ["a", "b"] }, { id: "n", op: "NOT", in: ["x"] }, { id: "y", op: "AND", in: ["n", "k"] }],
+    goals: [{ name: "lamp", node: "y", want: true }, { name: "other", node: "x", want: false }],
+    ...over,
+  });
+
+  it("every gate computes its truth table", () => {
+    const ops = (op: LogicCircuitDef["gates"][number]["op"], a: number, b: number) =>
+      lc.evaluate({ id: "t", kind: "logic_circuit", inputs: [{ id: "a", name: "a" }, { id: "b", name: "b" }], gates: [{ id: "o", op, in: op === "NOT" ? ["a"] : ["a", "b"] }], goals: [{ name: "o", node: "o", want: true }] }, [a, b]).o;
+    expect([[0, 0], [0, 1], [1, 0], [1, 1]].map(([a, b]) => ops("AND", a!, b!))).toEqual([false, false, false, true]);
+    expect([[0, 0], [0, 1], [1, 0], [1, 1]].map(([a, b]) => ops("OR", a!, b!))).toEqual([false, true, true, true]);
+    expect([[0, 0], [0, 1], [1, 0], [1, 1]].map(([a, b]) => ops("XOR", a!, b!))).toEqual([false, true, true, false]);
+    expect([[0, 0], [0, 1], [1, 0], [1, 1]].map(([a, b]) => ops("NAND", a!, b!))).toEqual([true, true, true, false]);
+    expect([[0, 0], [0, 1], [1, 0], [1, 1]].map(([a, b]) => ops("NOR", a!, b!))).toEqual([true, false, false, false]);
+    expect([0, 1].map((a) => ops("NOT", a, 0))).toEqual([true, false]);
+  });
+
+  it("solved only when every goal is met; the solver flips the fewest switches and never the fixed one", () => {
+    const d = def();
+    expect(lc.isSolved(d, lc.init(d))).toBe(true); // A=B=0: XOR 0, NOT 1, AND with K = 1
+    const harder = def({ inputs: [{ id: "a", name: "A", value: true }, { id: "b", name: "B" }, { id: "k", name: "K", value: true, locked: true }] });
+    expect(lc.isSolved(harder, lc.init(harder))).toBe(false);
+    expect(lc.solve(harder)).toHaveLength(1);
+    expect(lc.tap(harder, lc.init(harder), 2)).toBeNull();
+  });
+
+  it("reports an impossible circuit as unsolvable", () => {
+    expect(lc.solve(def({ goals: [{ name: "x", node: "x", want: true }, { name: "n", node: "n", want: true }] }))).toBeNull();
+  });
+
+  it("rejects gates that read something that does not exist yet, wrong arities and unknown operations", () => {
+    expect(lc.validate(def())).toEqual([]);
+    expect(lc.validate(def({ gates: [{ id: "x", op: "AND", in: ["a", "later"] }, { id: "later", op: "NOT", in: ["a"] }] }))).not.toEqual([]);
+    expect(lc.validate(def({ gates: [{ id: "x", op: "NOT", in: ["a", "b"] }] }))).not.toEqual([]);
+    expect(lc.validate(def({ gates: [{ id: "x", op: "MAYBE" as never, in: ["a", "b"] }] }))).not.toEqual([]);
+    expect(lc.validate(def({ goals: [] }))).not.toEqual([]);
+  });
+
+  it("the view shows each gate's reading and each lamp's state", () => {
+    const v = lc.view(def(), [0, 0, 1]);
+    expect(v.gates.find((g) => g.id === "n")).toMatchObject({ op: "NOT", reads: ["x"], value: true });
+    expect(v.goals.map((g) => g.met)).toEqual([true, true]);
+  });
+});
+
+describe("the registry knows the new kinds", () => {
+  it("includes them", () => {
+    for (const kind of ["code_lock", "lights_out", "logic_circuit"]) expect(puzzleModule({ kind })).toBeDefined();
+  });
+});

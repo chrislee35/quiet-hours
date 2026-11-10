@@ -7,18 +7,24 @@
  *   solve(def, values)        the fewest taps that solve it, or null if none can (used at build time)
  *   view(def, values)         what the client draws
  */
+import * as codeLock from "./code-lock.ts";
+import * as lightsOut from "./lights-out.ts";
+import * as logicCircuit from "./logic-circuit.ts";
 import * as powerRouting from "./power-routing.ts";
 import * as ruleContradiction from "./rule-contradiction.ts";
 import * as scheduleAlign from "./schedule-align.ts";
 import * as signalPath from "./signal-path.ts";
+import type { CodeLockDef, CodeLockView } from "./code-lock.ts";
+import type { LightsOutDef, LightsOutView } from "./lights-out.ts";
+import type { LogicCircuitDef, LogicView } from "./logic-circuit.ts";
 import type { RuleContradictionDef, RuleView } from "./rule-contradiction.ts";
 import type { ScheduleAlignDef, ScheduleView } from "./schedule-align.ts";
 import type { SignalCell, SignalPathDef } from "./signal-path.ts";
 
 export type PowerRoutingDef = powerRouting.PuzzleDef;
-export type PuzzleDef = PowerRoutingDef | SignalPathDef | ScheduleAlignDef | RuleContradictionDef;
+export type PuzzleDef = PowerRoutingDef | SignalPathDef | ScheduleAlignDef | RuleContradictionDef | CodeLockDef | LightsOutDef | LogicCircuitDef;
 export type PuzzleKind = PuzzleDef["kind"];
-export const PUZZLE_KINDS: readonly PuzzleKind[] = ["power_routing", "signal_path", "schedule_align", "rule_contradiction"];
+export const PUZZLE_KINDS: readonly PuzzleKind[] = ["power_routing", "signal_path", "schedule_align", "rule_contradiction", "code_lock", "lights_out", "logic_circuit"];
 
 export interface RoutingCell {
   piece: string;
@@ -32,7 +38,10 @@ export type PuzzleView =
   | { kind: "power_routing"; width: number; height: number; cells: RoutingCell[] }
   | ({ kind: "signal_path"; width: number; height: number; cells: SignalCell[] })
   | ({ kind: "schedule_align" } & ScheduleView)
-  | ({ kind: "rule_contradiction" } & RuleView);
+  | ({ kind: "rule_contradiction" } & RuleView)
+  | ({ kind: "code_lock" } & CodeLockView)
+  | ({ kind: "lights_out" } & LightsOutView)
+  | ({ kind: "logic_circuit" } & LogicView);
 
 export interface PuzzleModule {
   validate(def: PuzzleDef): string[];
@@ -94,12 +103,42 @@ const rules: PuzzleModule = {
   view: (d, v) => ({ kind: "rule_contradiction", ...ruleContradiction.view(d as RuleContradictionDef, v) }),
 };
 
-const MODULES: Record<PuzzleKind, PuzzleModule> = { power_routing: routing, signal_path: signal, schedule_align: schedule, rule_contradiction: rules };
+const lock: PuzzleModule = {
+  validate: (d) => codeLock.validate(d as CodeLockDef),
+  init: (d) => codeLock.init(d as CodeLockDef),
+  tap: (d, v, i) => codeLock.tap(d as CodeLockDef, v, i),
+  isSolved: (d, v) => codeLock.isSolved(d as CodeLockDef, v),
+  solve: (d, v) => codeLock.solve(d as CodeLockDef, v),
+  view: (d, v) => ({ kind: "code_lock", ...codeLock.view(d as CodeLockDef, v) }),
+};
+
+const fuses: PuzzleModule = {
+  validate: (d) => lightsOut.validate(d as LightsOutDef),
+  init: (d) => lightsOut.init(d as LightsOutDef),
+  tap: (d, v, i) => lightsOut.tap(d as LightsOutDef, v, i),
+  isSolved: (d, v) => lightsOut.isSolved(d as LightsOutDef, v),
+  solve: (d, v) => lightsOut.solve(d as LightsOutDef, v),
+  view: (d, v) => ({ kind: "lights_out", ...lightsOut.view(d as LightsOutDef, v) }),
+};
+
+const circuit: PuzzleModule = {
+  validate: (d) => logicCircuit.validate(d as LogicCircuitDef),
+  init: (d) => logicCircuit.init(d as LogicCircuitDef),
+  tap: (d, v, i) => logicCircuit.tap(d as LogicCircuitDef, v, i),
+  isSolved: (d, v) => logicCircuit.isSolved(d as LogicCircuitDef, v),
+  solve: (d, v) => logicCircuit.solve(d as LogicCircuitDef, v),
+  view: (d, v) => ({ kind: "logic_circuit", ...logicCircuit.view(d as LogicCircuitDef, v) }),
+};
+
+const MODULES: Record<PuzzleKind, PuzzleModule> = {
+  power_routing: routing, signal_path: signal, schedule_align: schedule, rule_contradiction: rules,
+  code_lock: lock, lights_out: fuses, logic_circuit: circuit,
+};
 
 /** The module for a puzzle definition, or undefined for an unknown kind. */
 export function puzzleModule(def: { kind: string }): PuzzleModule | undefined {
   return (MODULES as Record<string, PuzzleModule | undefined>)[def.kind];
 }
 
-export { powerRouting, signalPath, scheduleAlign, ruleContradiction };
-export type { RuleContradictionDef, ScheduleAlignDef, SignalPathDef, RuleView, ScheduleView, SignalCell };
+export { powerRouting, signalPath, scheduleAlign, ruleContradiction, codeLock, lightsOut, logicCircuit };
+export type { RuleContradictionDef, ScheduleAlignDef, SignalPathDef, RuleView, ScheduleView, SignalCell, CodeLockDef, CodeLockView, LightsOutDef, LightsOutView, LogicCircuitDef, LogicView };
