@@ -11,7 +11,7 @@ interface Toggleable {
 
 /** Buttons the player can currently move between: the open window's enabled buttons, in order. */
 function focusables(): HTMLButtonElement[] {
-  const panel = document.querySelector<HTMLElement>(".qh-dialogue:not([hidden]), .qh-terminal:not([hidden]), .qh-gear:not([hidden])");
+  const panel = document.querySelector<HTMLElement>(".qh-dialogue:not([hidden]), .qh-terminal:not([hidden]), .qh-gear:not([hidden]), .qh-menu:not([hidden])");
   return panel ? [...panel.querySelectorAll<HTMLButtonElement>("button:not(:disabled)")] : [];
 }
 
@@ -46,16 +46,18 @@ function moveFocus(dx: number, dy: number): void {
 export function bindUi(
   controller: InputController,
   sim: Sim,
-  ui: { dialogue: Closable; terminal: Closable; notebook: Toggleable; gear: Closable & Toggleable },
+  ui: { dialogue: Closable; terminal: Closable; notebook: Toggleable; gear: Closable & Toggleable; menu: Closable & Toggleable },
 ): void {
   controller.onPress((action, source) => {
-    const windowOpen = sim.state.conversation !== null || sim.state.terminal !== null;
+    const windowOpen = sim.state.conversation !== null || sim.state.terminal !== null || ui.menu.visible;
     if (action === "notebook") {
       ui.notebook.toggle();
     } else if (action === "gear") {
       if (!windowOpen) ui.gear.toggle();
     } else if (action === "cancel") {
-      if (!ui.terminal.cancel() && !ui.dialogue.cancel() && !ui.gear.cancel() && ui.notebook.visible) ui.notebook.toggle();
+      if (ui.terminal.cancel() || ui.dialogue.cancel() || ui.gear.cancel() || ui.menu.cancel()) return;
+      if (ui.notebook.visible) ui.notebook.toggle();
+      else ui.menu.toggle(); // nothing left to close: Esc / Back opens the menu
     } else if (windowOpen || (ui.gear.visible && source === "pad")) {
       if (action === "up") moveFocus(0, -1);
       else if (action === "down") moveFocus(0, 1);

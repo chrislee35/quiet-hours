@@ -51,7 +51,7 @@ export function asciiWorld(
     height,
     collision,
     zoneGrid,
-    zones: zones.map(({ id: zid, requiredPermission, curfew }) => ({ id: zid, requiredPermission, ...(curfew ? { curfew } : {}) })),
+    zones: zones.map(({ id: zid, requiredPermission, curfew, safe }) => ({ id: zid, requiredPermission, ...(curfew ? { curfew } : {}), ...(safe ? { safe } : {}) })),
     doors,
     spawns,
     robots: extras.robots ?? [],

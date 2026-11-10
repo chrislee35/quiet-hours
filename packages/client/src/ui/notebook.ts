@@ -13,7 +13,7 @@ export class NotebookPanel {
     this.root.hidden = true;
     host.append(this.root);
     sim.bus.subscribe((e) => {
-      if (e.type === "ClueGained" || e.type === "ClueStatusChanged") this.refresh();
+      if (e.type === "ClueGained" || e.type === "ClueStatusChanged" || e.type === "GameLoaded") this.refresh();
     });
   }
 

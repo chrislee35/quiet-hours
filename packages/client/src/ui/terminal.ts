@@ -52,7 +52,7 @@ export class TerminalWindow {
     host.append(this.root);
     sim.bus.subscribe((e) => {
       if (e.type === "TerminalOpened") this.focusIndex = 0;
-      if (e.type === "TerminalOpened" || e.type === "TerminalClosed" || e.type === "TerminalSolved") this.refresh();
+      if (e.type === "TerminalOpened" || e.type === "TerminalClosed" || e.type === "TerminalSolved" || e.type === "GameLoaded") this.refresh();
     });
   }
 

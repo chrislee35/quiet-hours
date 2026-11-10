@@ -56,6 +56,10 @@
   "npcs": {
     "walkSpeed": 1.4
   },
+  "save": {
+    "requireSafeZone": false,
+    "autosaveSeconds": 60
+  },
   "metrics": {
     "orderStart": 70,
     "powerStart": 80,

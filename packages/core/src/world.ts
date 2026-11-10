@@ -125,6 +125,8 @@ export interface ZoneDef {
   requiredPermission: number;
   /** Curfew applies here: being seen out during curfew is an infraction for anyone with a record. */
   curfew?: boolean;
+  /** A place where manual saving is always allowed (the Safehouse). */
+  safe?: boolean;
 }
 
 export interface DoorDef {

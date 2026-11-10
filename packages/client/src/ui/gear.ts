@@ -28,6 +28,8 @@ export class GearPanel {
     this.root.hidden = true;
     host.append(this.root);
     sim.bus.subscribe((e) => {
+      if (e.type === "GameLoaded") this.toolbelt.ready = null;
+      if (e.type === "GameLoaded") this.refresh();
       if (e.type === "AugmentRefused") this.note = REFUSAL[e.reason];
       else if (e.type === "AugmentEquipped" || e.type === "AugmentUnequipped") this.note = "";
       if (e.type === "ToolRefused") this.note = ({ not_a_tool: "That is not a tool.", none_left: "None left.", no_target: "Nothing in reach to use it on." })[e.reason];

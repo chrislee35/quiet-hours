@@ -7,7 +7,7 @@ import { ROBOT_KINDS, type SpotDef, type PickupDef, type DoorDef, type LockerDef
  * Authoring conventions (see docs/maps.md):
  *  - Tile layer "collision": any non-zero tile is a wall.
  *  - Object layer "zones": rectangles with custom properties `zone` (string id),
- *    `permission` (int, default 0) and `curfew` (bool, default false). Later rectangles overwrite earlier ones.
+ *    `permission` (int, default 0), `curfew` (bool, default false) and `safe` (bool: manual saving always allowed). Later rectangles overwrite earlier ones.
  *  - Object layer "objects": points or rectangles whose Class/Type is "door" or "spawn",
  *    named with the entity id. Doors take bool properties `open` and `locked` (default false).
  *    Class "npc": a person to talk to; Name is the npc id, string property `dialogue` is the conversation id.
@@ -98,11 +98,12 @@ export function importTiled(raw: unknown, id: string): MapData {
       continue;
     }
     const curfew = prop(o, "curfew") === true;
+    const safe = prop(o, "safe") === true;
     let idx = zones.findIndex((z) => z.id === zid);
     if (idx === -1) {
-      zones.push({ id: zid, requiredPermission: permission, ...(curfew ? { curfew: true } : {}) });
+      zones.push({ id: zid, requiredPermission: permission, ...(curfew ? { curfew: true } : {}), ...(safe ? { safe: true } : {}) });
       idx = zones.length - 1;
-    } else if (zones[idx]!.requiredPermission !== permission || (zones[idx]!.curfew === true) !== curfew) {
+    } else if (zones[idx]!.requiredPermission !== permission || (zones[idx]!.curfew === true) !== curfew || (zones[idx]!.safe === true) !== safe) {
       errors.push(`zone "${zid}" is given conflicting permissions or curfew settings`);
     }
     const x0 = Math.floor(o.x / tilewidth);

@@ -148,6 +148,13 @@ export interface Config {
     /** Tiles per second people walk between the spots of their routine. */
     walkSpeed: number;
   };
+  /** Saving (SAV-1). */
+  save: {
+    /** If true, manual saves only work in `safe` zones (the Safehouse); otherwise also anywhere calm. */
+    requireSafeZone: boolean;
+    /** Real seconds of play between autosaves (taken only when calm). */
+    autosaveSeconds: number;
+  };
   /** City metrics (WLD-4). */
   metrics: {
     orderStart: number;
@@ -228,6 +235,7 @@ const SHAPE: Shape = {
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },
   band: { slots: "number", powerBudget: "number" },
   npcs: { walkSpeed: "number" },
+  save: { requireSafeZone: "boolean", autosaveSeconds: "number" },
   metrics: { orderStart: "number", powerStart: "number", contentmentStart: "number", recoverPerHour: "number" },
   combat: { fightAlert: "number", lethalAlert: "number", creditLossFraction: "number" },
   economy: { loanInterestPerDay: "number", loanDueDays: "number", garnishFraction: "number" },

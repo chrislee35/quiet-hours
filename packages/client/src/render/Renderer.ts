@@ -7,6 +7,8 @@ export interface RenderDeps {
   hud: Hud;
   /** Which tool item is ready to use with the Tool action (chosen in the Gear panel). */
   toolbelt: { ready: string | null };
+  /** True while a menu has paused the game (the world stands still, like a conversation). */
+  isPaused: () => boolean;
 }
 
 /**

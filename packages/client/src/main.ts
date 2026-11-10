@@ -11,7 +11,9 @@ import { TouchControls, wantsTouchControls } from "./input/touch.ts";
 import { safeStorage } from "./storage.ts";
 import { Hud } from "./ui/hud.ts";
 import { bindUi } from "./ui/nav.ts";
+import { Autosaver, Game, SaveStore } from "./saves.ts";
 import { GearPanel } from "./ui/gear.ts";
+import { MenuPanel } from "./ui/menu.ts";
 import { NotebookPanel } from "./ui/notebook.ts";
 import { TerminalWindow } from "./ui/terminal.ts";
 import { OVERLAY_CSS } from "./ui/styles.ts";
@@ -27,8 +29,13 @@ const host = document.getElementById("game");
 if (!host) throw new Error("missing #game element");
 
 // Slice scaffolding: give the player something to lose, so soft failure (confiscation) is visible.
-// Removed once real pickups and shops exist (T2.4/T2.5).
-sim.tick([{ type: "ApplyEffects", effects: [{ add_credits: 50 }, { add_item: ["scrap_wire", 2] }] }]);
+// Removed once real pickups and shops exist (T2.4/T2.5). New games start the same way.
+const SCAFFOLD: Parameters<typeof sim.tick>[0] = [{ type: "ApplyEffects", effects: [{ add_credits: 50 }, { add_item: ["scrap_wire", 2] }] }];
+sim.tick(SCAFFOLD);
+const saves = new SaveStore(safeStorage(typeof localStorage === "undefined" ? undefined : localStorage), world.id);
+const game = new Game(sim, saves, { build: __QH_BUILD_ID__, newGameEffects: SCAFFOLD });
+const autosaver = new Autosaver(game, { everyMs: config.save.autosaveSeconds * 1000 });
+setInterval(() => autosaver.poll(), 1000);
 
 const style = document.createElement("style");
 style.textContent = OVERLAY_CSS;
@@ -47,9 +54,11 @@ const dialogue = new DialogueWindow(sim, document.body);
 const notebook = new NotebookPanel(sim, document.body);
 const terminal = new TerminalWindow(sim, document.body);
 const gear = new GearPanel(sim, document.body);
-bindUi(controller, sim, { dialogue, terminal, notebook, gear });
+const menu = new MenuPanel(game, document.body, __QH_BUILD_ID__);
+bindUi(controller, sim, { dialogue, terminal, notebook, gear, menu });
+if (saves.info("autosave")) menu.show("An autosave was found. Load it to continue, or close this menu to play a new game.");
 
-new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt });
+new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => menu.visible });
 
 if (__QH_DEBUG__) {
   void import("./debug/overlay.ts").then((m) => m.mountDebugOverlay(sim));

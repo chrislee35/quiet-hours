@@ -41,6 +41,20 @@ export const OVERLAY_CSS = `
 .qh-gear .note { color: #ff9a9a; margin: 6px 0 0; }
 .qh-gear p { margin: .3em 0; }
 .qh-touch-on .qh-gear { top: 84px; }
+.qh-menu { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px)); max-height: calc(100vh - 24px); overflow: auto; z-index: 5; }
+.qh-menu h2 { margin: 0 0 8px; font-size: 1.1em; color: #ffd36b; }
+.qh-menu h3 { margin: 12px 0 4px; font-size: .95em; color: #8fd3ff; }
+.qh-menu ul { list-style: none; margin: 0; padding: 0; }
+.qh-menu li { padding: 6px 0; border-top: 1px solid #2a2f48; }
+.qh-menu .head { display: flex; gap: .5em; align-items: baseline; flex-wrap: wrap; }
+.qh-menu button { background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+.qh-menu li .head button:first-of-type { margin-left: auto; }
+.qh-menu button:hover:not(:disabled), .qh-menu button:focus-visible { background: #2a3050; outline: 2px solid #ffd36b; }
+.qh-menu button:disabled { opacity: .45; cursor: default; }
+.qh-menu .desc, .qh-menu .hint { color: #9aa0c4; font-size: .8em; }
+.qh-menu .note { color: #ffe9a8; margin: 6px 0 0; }
+.qh-menu p { margin: .4em 0; }
+.qh-menu input[type=file] { color: #9aa0c4; font-size: .8em; max-width: 100%; }
 .qh-terminal { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 24px); overflow: auto; }
 @media (max-height: 560px) { :root { --cell: 2.9em; } .qh-terminal .hint { display: none; } }
 .qh-terminal h2 { margin: 0 0 6px; font-size: 1.1em; color: #7be3ff; }

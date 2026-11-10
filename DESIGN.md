@@ -139,10 +139,10 @@ node: intro
 - **Awakening:** every candidate has an awakening event with three delivery variants (in person, message, handed notebook); the chosen variant is picked from state and always fires before the finale for non-escapees [CMP-6].
 
 ## 9. Save system [SAV-*]
-- Save = `{ version, seed, tick, state, meta }` as JSON. State is plain data (no class instances, no functions).
+- Save = `{ format, version, seed, tick, map, state, meta }` as JSON (see `docs/saves.md`). State is plain data (no class instances, no functions).
 - **Migrations:** an ordered list `migrate_vN_to_vN+1`, tested with committed fixture saves from every released version.
 - **Autosave:** on district transitions and every N minutes at safe moments; **checkpoints** at flagged danger-zone doors. Manual save only in the Safehouse.
-- Storage: IndexedDB via the client; the core only produces/consumes the JSON.
+- Storage: the client keeps saves behind a small `SaveStore` interface, currently in `localStorage` under `quiet-hours:save:<map>:<slot>` (saves are small, and a synchronous store keeps the code simple and testable); the core only produces/consumes the JSON. If saves ever outgrow `localStorage`, an IndexedDB store drops in behind the same interface. Export/Import remain the durable copy (§16.6).
 - Unknown/corrupt saves are rejected with a typed error and never partially loaded [SAV-3].
 
 ## 10. Client [Rendering, UI, input, audio]

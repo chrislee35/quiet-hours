@@ -381,6 +381,12 @@ export class Sim {
     this.current = copy;
   }
 
+  /** Replaces the whole state with a loaded one (already validated by `loadSave`) and tells listeners. */
+  load(state: SimState): void {
+    this.current = deepClone(state);
+    this.bus.emit([{ type: "GameLoaded", tick: state.tick }]);
+  }
+
   /** Deep copy for rendering or saving; callers cannot mutate sim state through it. */
   snapshot(): SimState {
     return deepClone(this.current);

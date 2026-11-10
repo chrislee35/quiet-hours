@@ -300,6 +300,13 @@ class QuietScene extends Phaser.Scene {
     this.lights.addLight(2 * TILE, 12 * TILE, 4 * TILE, 0x2affd5, 1);
     this.lights.addLight(20 * TILE, 7 * TILE, 5 * TILE, 0xffaa22, 1.1);
 
+    this.sim.bus.subscribe((e) => {
+      if (e.type !== "GameLoaded") return;
+      // A loaded or new game jumps everything: do not interpolate from the old positions.
+      const p = this.sim.state.player;
+      this.prev = { x: p.x, y: p.y };
+      for (const r of this.sim.state.robots) this.prevRobots.set(r.id, { x: r.x, y: r.y });
+    });
     this.stepper = new FixedStepper(this.sim.config.sim.ticksPerSecond);
     this.prev = { x: this.sim.state.player.x, y: this.sim.state.player.y };
 
@@ -310,7 +317,7 @@ class QuietScene extends Phaser.Scene {
     cam.startFollow(this.player, true, 0.12, 0.12);
 
     this.deps.controller.onPress((action) => {
-      if (this.uiOpenAtFrameStart || this.sim.state.conversation || this.sim.state.terminal) return;
+      if (this.uiOpenAtFrameStart || this.sim.state.conversation || this.sim.state.terminal || this.deps.isPaused()) return;
       if (action === "interact") this.pending.push({ type: "Interact" });
       else if (action === "zones") this.zoneLayer.setVisible(!this.zoneLayer.visible);
       else if (action === "tool") {
@@ -417,7 +424,7 @@ class QuietScene extends Phaser.Scene {
   }
 
   override update(_time: number, delta: number): void {
-    this.uiOpenAtFrameStart = this.sim.state.conversation !== null || this.sim.state.terminal !== null;
+    this.uiOpenAtFrameStart = this.sim.state.conversation !== null || this.sim.state.terminal !== null || this.deps.isPaused();
     this.deps.controller.poll();
     const intent = intentFromActions(this.deps.controller.held);
     if (!sameIntent(intent, this.lastIntent)) {
@@ -427,7 +434,7 @@ class QuietScene extends Phaser.Scene {
     }
 
     // While a conversation is open the world is frozen (CORE-4): do not advance or queue world commands.
-    const talking = this.sim.state.conversation !== null || this.sim.state.terminal !== null;
+    const talking = this.sim.state.conversation !== null || this.sim.state.terminal !== null || this.deps.isPaused();
     if (talking) this.pending = [];
     const ticks = this.stepper.advance(talking ? 0 : delta);
     for (let i = 0; i < ticks; i++) {

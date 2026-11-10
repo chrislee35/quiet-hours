@@ -22,7 +22,7 @@ export class DialogueWindow {
     this.root.hidden = true;
     host.append(this.root);
     sim.bus.subscribe((e) => {
-      if (e.type === "ConversationStarted" || e.type === "ConversationNode" || e.type === "ConversationEnded") this.refresh();
+      if (e.type === "ConversationStarted" || e.type === "ConversationNode" || e.type === "ConversationEnded" || e.type === "GameLoaded") this.refresh();
     });
     window.addEventListener("keydown", (e) => this.onKey(e));
   }
