@@ -85,9 +85,11 @@ export const OVERLAY_CSS = `
 .qh-grid .sig.flip { outline: 1px dashed #5b6288; outline-offset: -4px; }
 .qh-grid .sig .bolt { fill: none; stroke: #ffd36b; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
 .qh-sched { overflow-x: auto; margin: 8px 0 12px; }
-.qh-sched .row { display: grid; grid-template-columns: 8em repeat(var(--slots, 12), 1.8em); gap: 2px; align-items: center; margin-bottom: 4px; }
+.qh-terminal.wide { width: min(720px, calc(100vw - 32px)); }
+.qh-sched .row { display: grid; grid-template-columns: 9em repeat(var(--slots, 12), minmax(2.2em, 1fr)); gap: 2px; align-items: center; margin-bottom: 4px; }
 .qh-sched .slot { text-align: center; color: #5b6288; font-size: .85em; }
-.qh-sched .head .slot { color: #9aa0c4; font-size: .7em; }
+.qh-sched .head .slot { color: #9aa0c4; font-size: .8em; white-space: nowrap; }
+.qh-sched .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .qh-sched .slot.busy { color: #8ff6ff; background: #0f2b35; border-radius: 3px; }
 .qh-sched .slot.clash { color: #ff3355; background: #3a1220; font-weight: 700; }
 .qh-sched .name { text-align: left; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 4px 6px; }

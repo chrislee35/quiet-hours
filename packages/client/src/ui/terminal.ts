@@ -119,6 +119,8 @@ export class TerminalWindow {
     const root = this.root;
     root.replaceChildren(this.el("h2", view.title));
     const p = view.puzzle;
+    // Wide puzzles (a timetable with a column per hour, text-heavy boards) get a wider window than the grid puzzles.
+    root.classList.toggle("wide", ["schedule_align", "board", "rule_contradiction", "logic_circuit"].includes(p.kind));
     const controls: HTMLButtonElement[] = [];
     let status = "";
     let hint = "";
