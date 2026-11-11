@@ -6,9 +6,10 @@
  * using the same path-following as robots, so a person is somewhere real at every moment and the player can
  * learn who is where, when.
  */
-import { gameTimeAt } from "./clock.ts";
+import { MINUTES_PER_HOUR, gameTimeAt } from "./clock.ts";
 import type { Ctx } from "./ctx.ts";
 import { goTo } from "./nav.ts";
+import { HALF_TILE } from "./world.ts";
 import type { NpcState } from "./state.ts";
 
 export interface RoutineEntry {
@@ -21,8 +22,8 @@ export interface RoutineEntry {
 export const AWAY = "away";
 
 export const minuteOf = (hhmm: string): number => {
-  const m = hhmm.match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
-  return m ? Number(m[1]) * 60 + Number(m[2]) : -1;
+  const m = hhmm.match(/^([01]?\d|2[0-3]):([0-5]\d)$/); // tuning-ok: the 24-hour HH:MM format
+  return m ? Number(m[1]) * MINUTES_PER_HOUR + Number(m[2]) : -1;
 };
 
 /** The spot a routine puts someone at for this minute of the day, or null if the routine is empty. */
@@ -53,12 +54,12 @@ export function npcSystem(ctx: Ctx): void {
     if (npc.away) {
       // Coming back on duty: appear at the spot instead of walking in from nowhere.
       npc.away = false;
-      npc.x = spot.x + 0.5;
-      npc.y = spot.y + 0.5;
+      npc.x = spot.x + HALF_TILE;
+      npc.y = spot.y + HALF_TILE;
       npc.path = [];
       npc.pathGoal = null;
       continue;
     }
-    goTo(ctx, npc as NpcState, spot.x + 0.5, spot.y + 0.5, config.npcs.walkSpeed);
+    goTo(ctx, npc as NpcState, spot.x + HALF_TILE, spot.y + HALF_TILE, config.npcs.walkSpeed);
   }
 }

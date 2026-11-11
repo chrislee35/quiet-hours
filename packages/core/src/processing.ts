@@ -1,6 +1,6 @@
 import type { Ctx } from "./ctx.ts";
 import { secondsToTicks } from "./ctx.ts";
-import type { GameEvent } from "./events.ts";
+import type { AlertLevel, GameEvent } from "./events.ts";
 import { spawnPoint } from "./world.ts";
 
 /**
@@ -61,7 +61,7 @@ export function processingSystem(ctx: Ctx): void {
   state.messages = [];
 
   const before = state.alert.level;
-  const level = Math.max(before, config.failure.alertAfterProcessing) as 0 | 1 | 2 | 3;
+  const level = Math.max(before, config.failure.alertAfterProcessing) as AlertLevel;
   state.alert.quietSince = state.tick;
   if (level !== before) {
     state.alert.level = level;

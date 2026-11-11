@@ -5,7 +5,7 @@ import { secondsToTicks } from "./ctx.ts";
 import { recordInfraction } from "./demerits.ts";
 import { scanFor } from "./augments.ts";
 import { curfewExempt } from "./identity.ts";
-import { canSee } from "./vision.ts";
+import { canSee, degToRad } from "./vision.ts";
 import { isSolid, zoneAt } from "./world.ts";
 
 /**
@@ -31,7 +31,7 @@ export function cameraSystem(ctx: Ctx): void {
       cam.suspicion = 0;
       continue;
     }
-    const sweep = (cfg.sweepDegrees * Math.PI) / 180;
+    const sweep = degToRad(cfg.sweepDegrees);
     cam.heading = cam.facing + (sweep > 0 ? Math.sin((t * 2 * Math.PI) / cfg.sweepSeconds) * sweep : 0);
     cam.sees = canSee({ x: cam.x, y: cam.y, facing: cam.heading }, player, cfg.coneDegrees, cfg.rangeTiles, blocked);
     if (!cam.sees) {

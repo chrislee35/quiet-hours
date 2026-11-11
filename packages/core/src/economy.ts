@@ -8,7 +8,7 @@
  * Loans are a ledger: interest compounds once per in-game day, and past the due date collectors come each day,
  * take a share of what the player carries, and raise the alert.
  */
-import { gameTimeAt } from "./clock.ts";
+import { MINUTES_PER_DAY, gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { Content } from "./dialogue/types.ts";
 import type { Ctx } from "./ctx.ts";
@@ -80,7 +80,7 @@ export function useService(state: SimState, content: Content, config: Config, ev
 }
 
 export function takeLoan(state: SimState, config: Config, events: GameEvent[], lender: string, amount: number): void {
-  const due = state.tick + Math.round(config.economy.loanDueDays * 1440 * ticksPerGameMinute(config));
+  const due = state.tick + Math.round(config.economy.loanDueDays * MINUTES_PER_DAY * ticksPerGameMinute(config));
   const existing = state.loans.debts.find((l) => l.lender === lender);
   if (existing) {
     existing.principal += amount;

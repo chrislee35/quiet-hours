@@ -11,7 +11,8 @@ export interface GameTime {
   isQuietHours: boolean;
 }
 
-const MINUTES_PER_DAY = 1440;
+export const MINUTES_PER_HOUR = 60;
+export const MINUTES_PER_DAY = 1440;
 
 /** True when `minute` lies in [start, end), where the window may wrap past midnight. */
 export function inWindow(minute: number, start: number, end: number): boolean {

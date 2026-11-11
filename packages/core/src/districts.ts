@@ -13,7 +13,7 @@
  * conditions hold, the effects run. Reactions can chain (a metric change can trigger the next reaction) up to a
  * small depth, so a bad rule can never loop forever.
  */
-import { gameTimeAt, inWindow } from "./clock.ts";
+import { MINUTES_PER_DAY, MINUTES_PER_HOUR, gameTimeAt, inWindow } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { Ctx } from "./ctx.ts";
 import type { Content } from "./dialogue/types.ts";
@@ -49,9 +49,9 @@ export type ActiveWhen =
 export function parseActiveWhen(text: string): ActiveWhen | null {
   const t = text.match(/^(!?)time:(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
   if (t) {
-    const start = Number(t[2]) * 60 + Number(t[3]);
-    const end = Number(t[4]) * 60 + Number(t[5]);
-    return start < 1440 && end <= 1440 && Number(t[3]) < 60 && Number(t[5]) < 60 ? { kind: "time", start, end, not: t[1] === "!" } : null;
+    const start = Number(t[2]) * MINUTES_PER_HOUR + Number(t[3]);
+    const end = Number(t[4]) * MINUTES_PER_HOUR + Number(t[5]);
+    return start < MINUTES_PER_DAY && end <= MINUTES_PER_DAY && Number(t[3]) < MINUTES_PER_HOUR && Number(t[5]) < MINUTES_PER_HOUR ? { kind: "time", start, end, not: t[1] === "!" } : null;
   }
   const m = text.match(/^([a-z][a-z0-9_]*):([A-Za-z][A-Za-z0-9_]*)(!?=)(.+)$/);
   if (!m) return null;
@@ -75,6 +75,7 @@ function matches(event: GameEvent, r: ReactionDef): boolean {
   return Object.entries(r.match ?? {}).every(([k, v]) => e[k] === v);
 }
 
+/** How many rounds of reactions one tick may chain (a bad rule set must never loop forever). */
 const MAX_CHAIN = 4;
 
 /** Runs reactions for the events of this tick, including events the reactions themselves cause. */
@@ -131,7 +132,7 @@ function syncActivity({ state, config, events }: Ctx): void {
 
 /** Each in-game hour, order and contentment drift back toward where they started (a city heals). */
 function recoverMetrics({ state, config, events }: Ctx): void {
-  const hour = Math.floor((state.tick / config.sim.ticksPerSecond) * (config.clock.gameMinutesPerRealSecond / 60));
+  const hour = Math.floor((state.tick / config.sim.ticksPerSecond) * (config.clock.gameMinutesPerRealSecond / MINUTES_PER_HOUR));
   const m = state.metrics;
   if (hour === m.lastHour) return;
   m.lastHour = hour;

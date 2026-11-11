@@ -1,6 +1,7 @@
 import type { Ctx } from "./ctx.ts";
 import { secondsToTicks } from "./ctx.ts";
-import { goTo, passableForRobot } from "./nav.ts";
+import { AT_POST_DISTANCE, goTo, passableForRobot } from "./nav.ts";
+import { HALF_TILE } from "./world.ts";
 import { overlapsTile } from "./movement.ts";
 import type { RobotState } from "./state.ts";
 
@@ -20,8 +21,8 @@ function cameraSpot(ctx: Ctx, x: number, y: number): { x: number; y: number } | 
       const tx = Math.floor(x) + dx;
       const ty = Math.floor(y) + dy;
       if (!passable(tx, ty)) continue;
-      const d = Math.hypot(tx + 0.5 - x, ty + 0.5 - y);
-      if (best === null || d < best.d) best = { x: tx + 0.5, y: ty + 0.5, d };
+      const d = Math.hypot(tx + HALF_TILE - x, ty + HALF_TILE - y);
+      if (best === null || d < best.d) best = { x: tx + HALF_TILE, y: ty + HALF_TILE, d };
     }
   }
   return best;
@@ -31,7 +32,7 @@ function doorSpot(ctx: Ctx, tx: number, ty: number): { x: number; y: number } | 
   const passable = passableForRobot(ctx);
   const doorTile = (x: number, y: number) => x === tx && y === ty;
   for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]] as const) {
-    if (passable(tx + dx, ty + dy) && !doorTile(tx + dx, ty + dy)) return { x: tx + dx + 0.5, y: ty + dy + 0.5 };
+    if (passable(tx + dx, ty + dy) && !doorTile(tx + dx, ty + dy)) return { x: tx + dx + HALF_TILE, y: ty + dy + HALF_TILE };
   }
   return null;
 }
@@ -52,7 +53,7 @@ export function repairSystem(ctx: Ctx): void {
     const d = state.doors[def.id];
     const claimed = state.robots.some((r) => r.task?.kind === "door" && r.task.targetId === def.id);
     if (def.locked && d && !d.locked && d.unlockedAt !== undefined && !claimed && state.tick - d.unlockedAt >= relockDelay) {
-      jobs.push({ kind: "door", id: def.id, x: def.x + 0.5, y: def.y + 0.5 });
+      jobs.push({ kind: "door", id: def.id, x: def.x + HALF_TILE, y: def.y + HALF_TILE });
     }
   }
 
@@ -81,7 +82,7 @@ export function menderStep(ctx: Ctx, robot: RobotState): void {
   const task = robot.task;
 
   if (!task) {
-    if (Math.hypot(robot.x - robot.home.x, robot.y - robot.home.y) > 0.05) {
+    if (Math.hypot(robot.x - robot.home.x, robot.y - robot.home.y) > AT_POST_DISTANCE) {
       if (goTo(ctx, robot, robot.home.x, robot.home.y, speed) !== "moving") {
         robot.x = robot.home.x;
         robot.y = robot.home.y;

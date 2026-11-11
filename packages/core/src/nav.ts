@@ -1,5 +1,6 @@
 import type { Ctx } from "./ctx.ts";
 import { findPath } from "./pathfind.ts";
+import { HALF_TILE } from "./world.ts";
 /** Anything that walks paths: robots, maintenance units, people. */
 export interface Walker {
   x: number;
@@ -11,6 +12,8 @@ export interface Walker {
 
 /** Path following shared by every robot that walks (patrols, hunters, maintenance units). */
 const ARRIVE_EPS = 1e-6;
+/** A robot within this many tiles of its post counts as being at it. */
+export const AT_POST_DISTANCE = 0.05;
 
 export type Progress = "moving" | "arrived" | "blocked";
 
@@ -48,7 +51,7 @@ export function goTo(ctx: Ctx, robot: Walker, gx: number, gy: number, speed: num
         robot.path = [];
         return "blocked";
       }
-      robot.path = tiles.map((t) => ({ x: t.x + 0.5, y: t.y + 0.5 }));
+      robot.path = tiles.map((t) => ({ x: t.x + HALF_TILE, y: t.y + HALF_TILE }));
       // Finish at the exact target rather than the centre of its tile.
       robot.path.push({ x: gx, y: gy });
     }

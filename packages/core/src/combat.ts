@@ -18,6 +18,9 @@ import type { RobotState } from "./state.ts";
 import { lineOfSight } from "./vision.ts";
 import { isSolid } from "./world.ts";
 
+/** How far a thrown object advances per step when finding where it lands (a quarter tile). */
+const THROW_STEP = 0.25;
+
 export type ToolKind = "stun" | "decoy" | "cutters" | "lethal";
 
 export interface ToolSpec {
@@ -62,7 +65,7 @@ function landingPoint(ctx: Ctx, dx: number, dy: number, range: number): { x: num
   const uy = dx === 0 && dy === 0 ? 0 : dy / len;
   let x = state.player.x;
   let y = state.player.y;
-  for (let d = 0.25; d <= range; d += 0.25) {
+  for (let d = THROW_STEP; d <= range; d += THROW_STEP) {
     const nx = state.player.x + ux * d;
     const ny = state.player.y + uy * d;
     if (isSolid(world, state.doors, Math.floor(nx), Math.floor(ny))) break;
@@ -120,13 +123,13 @@ export function useItem(ctx: Ctx, itemId: string, dx: number, dy: number): void 
 
   switch (spec.kind) {
     case "decoy":
-      events.push({ type: "NoiseEmitted", tick, x: landing.x, y: landing.y, radius: spec.noiseRadius ?? 8, source: "decoy" });
+      events.push({ type: "NoiseEmitted", tick, x: landing.x, y: landing.y, radius: spec.noiseRadius ?? config.combat.defaultDecoyNoise, source: "decoy" });
       break;
     case "cutters":
       applyEffects([{ disable_camera: camera!.id }], state, events, config);
       break;
     case "stun":
-      robot!.jammedUntil = tick + secondsToTicks(spec.seconds ?? 8, config);
+      robot!.jammedUntil = tick + secondsToTicks(spec.seconds ?? config.combat.defaultStunSeconds, config);
       robot!.suspicion = 0;
       robot!.sees = false;
       events.push({ type: "RobotStunned", tick, robotId: robot!.id });
@@ -138,7 +141,7 @@ export function useItem(ctx: Ctx, itemId: string, dx: number, dy: number): void 
       robot!.suspicion = 0;
       state.flags.lethal_force_used = true;
       state.flags.robots_destroyed = (typeof state.flags.robots_destroyed === "number" ? state.flags.robots_destroyed : 0) + 1;
-      events.push({ type: "NoiseEmitted", tick, x: p.x, y: p.y, radius: spec.noiseRadius ?? 14, source: "weapon" });
+      events.push({ type: "NoiseEmitted", tick, x: p.x, y: p.y, radius: spec.noiseRadius ?? config.combat.defaultLethalNoise, source: "weapon" });
       events.push({ type: "RobotDestroyed", tick, robotId: robot!.id });
       events.push({ type: "FlagSet", tick, flag: "lethal_force_used", value: true });
       fightConsequences(ctx, robot!, config.combat.lethalAlert);

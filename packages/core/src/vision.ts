@@ -2,6 +2,14 @@
  * Line of sight and view cones (T1.3). Pure geometry over a `blocked(tx, ty)` predicate, so the same
  * code serves robots (vision) and hearing occlusion.
  */
+/** Degrees in half a turn, for converting configured view angles (in degrees) to radians. */
+const DEGREES_PER_HALF_TURN = 180;
+export const degToRad = (degrees: number): number => (degrees * Math.PI) / DEGREES_PER_HALF_TURN;
+/** Distances below this are "the same point" (floating point noise). */
+const GEOMETRY_EPS = 1e-6;
+/** Extra steps the grid walk may take beyond the straight-line count, so a corner graze never ends it early. */
+const RAY_SLACK_STEPS = 4;
+
 export type BlockedFn = (tx: number, ty: number) => boolean;
 
 /**
@@ -23,7 +31,7 @@ export function lineOfSight(ax: number, ay: number, bx: number, by: number, bloc
   let tMaxX = dx > 0 ? (tx + 1 - ax) / dx : dx < 0 ? (ax - tx) / -dx : Infinity;
   let tMaxY = dy > 0 ? (ty + 1 - ay) / dy : dy < 0 ? (ay - ty) / -dy : Infinity;
 
-  let guard = Math.abs(ex - tx) + Math.abs(ey - ty) + 4;
+  let guard = Math.abs(ex - tx) + Math.abs(ey - ty) + RAY_SLACK_STEPS;
   while ((tx !== ex || ty !== ey) && guard-- > 0) {
     if (tMaxX < tMaxY) {
       tx += stepX;
@@ -68,9 +76,9 @@ export function canSee(
 ): boolean {
   const dist = Math.hypot(target.x - viewer.x, target.y - viewer.y);
   if (dist > rangeTiles) return false;
-  if (dist > 1e-6) {
+  if (dist > GEOMETRY_EPS) {
     const bearing = Math.atan2(target.y - viewer.y, target.x - viewer.x);
-    if (angleDiff(bearing, viewer.facing) > (coneDegrees * Math.PI) / 360) return false;
+    if (angleDiff(bearing, viewer.facing) > degToRad(coneDegrees) / 2) return false;
   }
   return lineOfSight(viewer.x, viewer.y, target.x, target.y, blocked);
 }

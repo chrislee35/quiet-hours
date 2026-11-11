@@ -1,6 +1,6 @@
 import type { Ctx } from "./ctx.ts";
 import { secondsToTicks } from "./ctx.ts";
-import type { AlertLevel } from "./events.ts";
+import { MAX_ALERT_LEVEL, type AlertLevel } from "./events.ts";
 
 /**
  * Alert state machine (T1.5, ALR-1/2). Calm -> Suspicious -> Hunting -> Lockdown.
@@ -16,7 +16,7 @@ export function alertSystem(ctx: Ctx): void {
 
   const spotted = events.some((e) => (e.type === "RobotSpotted" || e.type === "CameraSpotted") && e.tick === state.tick);
   const cooldown = secondsToTicks(config.alert.sightingCooldownSeconds, config);
-  if (spotted && a.level < 3 && state.tick - a.lastRaise >= cooldown) {
+  if (spotted && a.level < MAX_ALERT_LEVEL && state.tick - a.lastRaise >= cooldown) {
     const from = a.level;
     a.level = (a.level + 1) as AlertLevel;
     a.lastRaise = state.tick;

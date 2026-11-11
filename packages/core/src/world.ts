@@ -107,6 +107,9 @@ export interface LockerDef {
 }
 
 export type RobotKind = "warden" | "sentry" | "checker" | "hound" | "auditor" | "heavy" | "mender";
+/** Tile coordinates are the tile's corner; its centre is half a tile in. */
+export const HALF_TILE = 0.5;
+
 export const ROBOT_KINDS: readonly RobotKind[] = ["warden", "sentry", "checker", "hound", "auditor", "heavy", "mender"];
 
 export interface RobotDef {

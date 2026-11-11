@@ -7,11 +7,11 @@ import type { GameEvent } from "./events.ts";
 import { isContraband, scanFor } from "./augments.ts";
 import { consumePass, curfewExempt, type ScanResult } from "./identity.ts";
 import { broadcastAlert, freshLastKnown } from "./comms.ts";
-import { goTo } from "./nav.ts";
+import { AT_POST_DISTANCE, goTo } from "./nav.ts";
 import { menderStep } from "./repairs.ts";
 import { Rng } from "./rng.ts";
 import type { RobotState, SimState } from "./state.ts";
-import { canSee, lineOfSight } from "./vision.ts";
+import { canSee, degToRad, lineOfSight } from "./vision.ts";
 import { isSolid, zoneAt, type ZoneDef } from "./world.ts";
 
 /**
@@ -74,7 +74,7 @@ export function robotPerception(ctx: Ctx): void {
     }
     robot.sees = canSee(robot, player, prof.coneDegrees, prof.rangeTiles, blocked);
     robot.unseenTicks = robot.sees ? 0 : robot.unseenTicks + 1;
-    if (robot.unseenTicks > secondsToTicks(3, config)) robot.checked = false;
+    if (robot.unseenTicks > secondsToTicks(config.ai.forgetSeconds, config)) robot.checked = false;
 
     // Hounds are sent by the alert: once it reaches their dispatch level they hunt to where the player is.
     if (prof.dispatchAlert > 0) {
@@ -206,14 +206,14 @@ function resumePatrol(robot: RobotState): void {
 /** Sweep the facing slowly left and right around where the robot was looking (about +/-63 degrees). */
 function lookAround(ctx: Ctx, robot: RobotState): void {
   const elapsed = (robot.dwellTotal - robot.dwell) / ctx.config.sim.ticksPerSecond;
-  robot.facing = robot.lookBase + Math.sin((elapsed * 2 * Math.PI) / 4) * 1.1;
+  robot.facing = robot.lookBase + Math.sin((elapsed * 2 * Math.PI) / ctx.config.ai.lookAroundSeconds) * ctx.config.ai.lookAroundRadians;
 }
 
 /** A robot with no route stands at its post, sweeping its view if its type does (Sentry). */
 function idleAtPost(ctx: Ctx, robot: RobotState, prof: RobotProfile): void {
   const { state, config } = ctx;
   const home = robot.home;
-  if (prof.patrolSpeed > 0 && Math.hypot(robot.x - home.x, robot.y - home.y) > 0.05) {
+  if (prof.patrolSpeed > 0 && Math.hypot(robot.x - home.x, robot.y - home.y) > AT_POST_DISTANCE) {
     if (goTo(ctx, robot, home.x, home.y, prof.patrolSpeed) !== "moving") {
       robot.x = home.x;
       robot.y = home.y;
@@ -222,9 +222,9 @@ function idleAtPost(ctx: Ctx, robot: RobotState, prof: RobotProfile): void {
     }
     return;
   }
-  const sweep = (prof.sweepDegrees * Math.PI) / 180;
+  const sweep = degToRad(prof.sweepDegrees);
   const t = state.tick / config.sim.ticksPerSecond;
-  robot.facing = home.facing + (sweep > 0 ? Math.sin((t * 2 * Math.PI) / 8) * sweep : 0);
+  robot.facing = home.facing + (sweep > 0 ? Math.sin((t * 2 * Math.PI) / config.ai.postSweepSeconds) * sweep : 0);
 }
 
 export function robotBehavior(ctx: Ctx): void {
@@ -273,7 +273,7 @@ export function robotBehavior(ctx: Ctx): void {
             beginLookAround(robot, ticks);
             break;
           }
-          const result = goTo(ctx, robot, t.x, t.y, prof.patrolSpeed * 1.4);
+          const result = goTo(ctx, robot, t.x, t.y, prof.patrolSpeed * config.ai.investigateSpeedFactor);
           if (result !== "moving") beginLookAround(robot, ticks);
         } else if (robot.dwell > 0) {
           robot.dwell--;

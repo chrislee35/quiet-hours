@@ -11,6 +11,11 @@ import type { GameEvent } from "./events.ts";
  * Only people *with* a record can earn demerits: a null has nothing on file to mark (STE-3).
  */
 
+/** Display rounding for the ledger total: two decimal places. */
+const ROUND_TO = 100;
+/** Points below this are zero for standing purposes (floating point drain). */
+const NEARLY_ZERO = 0.0001;
+
 export type InfractionKind = "restricted_zone" | "curfew" | "assault";
 
 const POINTS = (config: Config): Record<InfractionKind, number> => ({
@@ -28,13 +33,13 @@ export function recordInfraction(state: SimState, config: Config, events: GameEv
   const points = POINTS(config)[kind] * (quiet ? config.demerits.quietHoursCurfewFactor : 1);
   state.demerits.last[kind] = state.tick;
   state.demerits.points += points;
-  events.push({ type: "InfractionRecorded", tick: state.tick, kind, points, total: Math.round(state.demerits.points * 100) / 100 });
+  events.push({ type: "InfractionRecorded", tick: state.tick, kind, points, total: Math.round(state.demerits.points * ROUND_TO) / ROUND_TO });
   return true;
 }
 
 /** Standing in words, for the UI: demerits are never shown as a raw number. */
 export function standing(points: number, config: Config): "clean" | "noted" | "flagged" | "wanted" {
-  if (points <= 0.0001) return "clean";
+  if (points <= NEARLY_ZERO) return "clean";
   if (points < config.demerits.checkThreshold) return "noted";
   if (points < config.demerits.enforcerThreshold) return "flagged";
   return "wanted";

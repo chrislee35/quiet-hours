@@ -23,7 +23,7 @@ import { EventBus, type GameEvent } from "./events.ts";
 import { stateHash } from "./hash.ts";
 import { moveWithCollision, overlapsTile } from "./movement.ts";
 import { createInitialState, type SimState } from "./state.ts";
-import { OPEN_WORLD, isSolid, pickupEffect, zoneAt, type World } from "./world.ts";
+import { HALF_TILE, OPEN_WORLD, isSolid, pickupEffect, zoneAt, type World } from "./world.ts";
 import type { MoveMode } from "./events.ts";
 
 // ---- Commands: the only way the outside world changes the simulation ----------------------
@@ -72,7 +72,7 @@ export interface StepResult {
 function nearestInteractable(state: SimState, world: World, reach: number) {
   let best: { kind: "door" | "locker" | "npc" | "terminal" | "pickup"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
   const consider = (kind: "door" | "locker" | "npc" | "terminal" | "pickup", id: string, x: number, y: number, dialogue?: string) => {
-    const d = Math.hypot(x + 0.5 - state.player.x, y + 0.5 - state.player.y);
+    const d = Math.hypot(x + HALF_TILE - state.player.x, y + HALF_TILE - state.player.y);
     if (d <= reach && (best === undefined || d < best.d)) best = { kind, id, x, y, d, ...(dialogue ? { dialogue } : {}) };
   };
   for (const door of world.doors) consider("door", door.id, door.x, door.y);
@@ -81,7 +81,7 @@ function nearestInteractable(state: SimState, world: World, reach: number) {
     const at = state.npcs[n.id];
     if (at?.away) continue;
     // People move (npcs.ts): reach is measured from where they stand now, as a tile-centre offset like the rest.
-    consider("npc", n.id, (at?.x ?? n.x + 0.5) - 0.5, (at?.y ?? n.y + 0.5) - 0.5, n.dialogue);
+    consider("npc", n.id, (at?.x ?? n.x + HALF_TILE) - HALF_TILE, (at?.y ?? n.y + HALF_TILE) - HALF_TILE, n.dialogue);
   }
   for (const t of world.terminals) consider("terminal", t.id, t.x, t.y);
   for (const p of world.pickups) if (!state.flags[`picked_${p.id}`]) consider("pickup", p.id, p.x, p.y);

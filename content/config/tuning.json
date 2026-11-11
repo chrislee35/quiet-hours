@@ -75,7 +75,17 @@
     "contentmentStart": 60,
     "recoverPerHour": 2
   },
+  "ai": {
+    "forgetSeconds": 3,
+    "lookAroundSeconds": 4,
+    "lookAroundRadians": 1.1,
+    "postSweepSeconds": 8,
+    "investigateSpeedFactor": 1.4
+  },
   "combat": {
+    "defaultDecoyNoise": 8,
+    "defaultStunSeconds": 8,
+    "defaultLethalNoise": 14,
     "fightAlert": 2,
     "lethalAlert": 3,
     "creditLossFraction": 0.25

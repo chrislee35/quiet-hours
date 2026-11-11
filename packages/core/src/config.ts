@@ -168,8 +168,24 @@ export interface Config {
     /** Points per in-game hour that order and contentment drift back toward their start. */
     recoverPerHour: number;
   };
+  /** How robots look around, wait and hurry (the "feel" of their behaviour). */
+  ai: {
+    /** Seconds out of sight before a robot treats the player as a new arrival (Checkers re-check). */
+    forgetSeconds: number;
+    /** A robot looking around sweeps back and forth with this period (seconds) and amplitude (radians). */
+    lookAroundSeconds: number;
+    lookAroundRadians: number;
+    /** A post-bound robot's sweep period (seconds). */
+    postSweepSeconds: number;
+    /** Robots hurry to investigate noise at this multiple of their patrol speed. */
+    investigateSpeedFactor: number;
+  };
   /** What fighting costs (CMB-2). */
   combat: {
+    /** Defaults for a tool that does not say: decoy noise radius, stun seconds, lethal-shot noise radius. */
+    defaultDecoyNoise: number;
+    defaultStunSeconds: number;
+    defaultLethalNoise: number;
     /** Alert level a fight raises the city to (Hunting). */
     fightAlert: number;
     /** Alert level lethal force raises it to (Lockdown). */
@@ -243,7 +259,8 @@ const SHAPE: Shape = {
   assist: { skipAfterTaps: "number" },
   save: { requireSafeZone: "boolean", autosaveSeconds: "number" },
   metrics: { orderStart: "number", powerStart: "number", contentmentStart: "number", recoverPerHour: "number" },
-  combat: { fightAlert: "number", lethalAlert: "number", creditLossFraction: "number" },
+  ai: { forgetSeconds: "number", lookAroundSeconds: "number", lookAroundRadians: "number", postSweepSeconds: "number", investigateSpeedFactor: "number" },
+  combat: { fightAlert: "number", lethalAlert: "number", creditLossFraction: "number", defaultDecoyNoise: "number", defaultStunSeconds: "number", defaultLethalNoise: "number" },
   economy: { loanInterestPerDay: "number", loanDueDays: "number", garnishFraction: "number" },
   robots: Object.fromEntries(ROBOT_KINDS.map((k) => [k, PROFILE_SHAPE])) as Shape,
 };

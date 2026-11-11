@@ -5,6 +5,9 @@ export type ClueStatus = "unverified" | "verified" | "disproved";
 
 export type MoveMode = "walk" | "sneak" | "run";
 
+/** The highest alert level (Lockdown). The four named levels are part of the design, not a tuning knob. */
+export const MAX_ALERT_LEVEL = 3;
+
 /** 0 Calm, 1 Suspicious, 2 Hunting, 3 Lockdown (ALR-1). */
 export type AlertLevel = 0 | 1 | 2 | 3;
 export const ALERT_NAMES = ["Calm", "Suspicious", "Hunting", "Lockdown"] as const;
