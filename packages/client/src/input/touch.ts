@@ -60,7 +60,7 @@ const TOUCH_CSS = `
 .qh-touch-on .qh-choices button, .qh-touch-on .qh-picker button, .qh-touch-on .qh-terminal .leave { min-height: 48px; }
 .qh-touch-on .qh-dialogue { bottom: calc(190px + env(safe-area-inset-bottom, 0px)); max-height: 42vh; }
 .qh-touch-on .qh-hud { font-size: .75em; }
-.qh-touch-on .qh-notebook { top: 84px; }
+.qh-touch-on .qh-notebook { top: calc(50% + 40px); }
 `;
 
 /**

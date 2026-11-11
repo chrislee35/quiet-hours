@@ -67,6 +67,8 @@ export class InputController {
   }
 
   private onKeyDown(e: KeyboardEvent): void {
+    // Typing in a text field (the notebook search) must not walk the character or trigger actions; Escape still works.
+    if (isTyping(e.target) && e.code !== "Escape") return;
     if (ARROWS.has(e.code)) e.preventDefault(); // arrows must not scroll the page
     if (e.repeat) return;
     this.down.add(e.code);
@@ -97,4 +99,11 @@ export function browserPad(nav: Navigator): () => PadSnapshot | null {
     const pad = pads.find((p): p is Gamepad => p !== null && p.connected);
     return pad ? { axes: pad.axes, buttons: pad.buttons } : null;
   };
+}
+
+/** True when the key press is going into a text box, a list or a text area. */
+export function isTyping(target: EventTarget | null): boolean {
+  const el = target as { tagName?: string; isContentEditable?: boolean } | null;
+  const tag = el?.tagName?.toUpperCase();
+  return tag === "TEXTAREA" || tag === "SELECT" || (tag === "INPUT" && !["button", "checkbox", "radio", "file", "submit"].includes(String((target as HTMLInputElement).type))) || el?.isContentEditable === true;
 }

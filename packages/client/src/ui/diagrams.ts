@@ -1,4 +1,4 @@
-import type { PuzzleView } from "@qh/core";
+import type { AnnotatedMap, PuzzleView } from "@qh/core";
 
 type Circuit = Extract<PuzzleView, { kind: "logic_circuit" }>["diagram"];
 type Rules = Extract<PuzzleView, { kind: "rule_contradiction" }>["diagram"];
@@ -68,4 +68,30 @@ export function ruleMarkup(d: Rules, solved: boolean): string {
     })
     .join("");
   return `<svg viewBox="0 -4 ${d.width} ${d.height + 8}" class="qh-diagram" role="img" aria-label="Rule diagram: inputs feed MERIDIAN's rules, and rules force decisions. The lists below give the same in words.">${heads}${wires}${nodes}</svg>`;
+}
+
+/**
+ * The notebook map: walls, the zones you know, and a pin for every place, person and for you. Shapes carry meaning
+ * (diamond = place, circle = person, triangle = you) and every pin is labelled, so colour is never the only signal.
+ */
+export function mapMarkup(m: AnnotatedMap): string {
+  const T = 14;
+  const walls: string[] = [];
+  m.walls.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === "#") walls.push(`<rect x="${x * T}" y="${y * T}" width="${T}" height="${T}" class="mwall"/>`); }));
+  const zones = m.zones
+    .map((z) => {
+      const rects = z.tiles.map(([x, y]) => `<rect x="${x * T}" y="${y * T}" width="${T}" height="${T}"/>`).join("");
+      const [fx, fy] = z.tiles[0] ?? [0, 0];
+      return `<g class="mzone p${Math.min(3, z.permission)}">${rects}</g>` + text((fx + 0.3) * T, (fy + 1.4) * T, z.label, "mzlabel left");
+    })
+    .join("");
+  const pins = m.pins
+    .map((p) => {
+      const cx = (p.x + 0.5) * T;
+      const cy = (p.y + 0.5) * T;
+      const mark = p.kind === "place" ? `<path d="M${cx} ${cy - 7} L${cx + 7} ${cy} L${cx} ${cy + 7} L${cx - 7} ${cy} Z" class="mpin place"/>` : p.kind === "person" ? `<circle cx="${cx}" cy="${cy}" r="5.5" class="mpin person"/>` : `<path d="M${cx} ${cy - 7} L${cx + 6} ${cy + 5} L${cx - 6} ${cy + 5} Z" class="mpin you"/>`;
+      return mark + text(cx, cy - 10, p.label, `mlabel ${p.kind}`);
+    })
+    .join("");
+  return `<svg viewBox="0 0 ${m.width * T} ${m.height * T}" class="qh-map" role="img" aria-label="Map of what you know. The list below describes each place, person and zone.">${walls.join("")}${zones}${pins}</svg>`;
 }

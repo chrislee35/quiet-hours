@@ -66,6 +66,8 @@ export type GameEvent =
   /** Collectors visited an overdue debtor, took a share of their credits and raised the alert. */
   | { type: "CollectorsCame"; tick: number; lender: string; taken: number; owed: number }
   /** The state was replaced by a saved or new game; views should redraw from scratch. */
+  | { type: "CluesLinked"; tick: number; a: string; b: string }
+  | { type: "CluesUnlinked"; tick: number; a: string; b: string }
   | { type: "GameLoaded"; tick: number }
   | { type: "DistrictChanged"; tick: number; district: string; key: string; value: FlagValue }
   | { type: "MetricChanged"; tick: number; metric: "order" | "power" | "contentment"; from: number; to: number }

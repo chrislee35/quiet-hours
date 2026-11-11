@@ -52,6 +52,11 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** The player's own cross-references between clues, as sorted id pairs. */
+  notebook: { links: [string, string][] };
+  /** Zones the player has been in, and people they have spoken to (for the annotated map). */
+  visited: string[];
+  met: string[];
   /** Where each person is. Moves by routine (npcs.ts); absent people are `away`. */
   npcs: Record<string, NpcState>;
   /** Per-district named values: power, lockdown, patrol sets. Changed by effects only. */
@@ -245,6 +250,9 @@ export function createInitialState(seed: number, config: Config, world: World = 
     clues: {},
     inventory: { credits: 0, items: {} },
     npcs: Object.fromEntries(world.npcs.map((n) => [n.id, createNpcState(n.x + 0.5, n.y + 0.5)])),
+    notebook: { links: [] },
+    visited: (zoneAt(world, Math.floor(x), Math.floor(y))?.id ?? null) === null ? [] : [zoneAt(world, Math.floor(x), Math.floor(y))!.id],
+    met: [],
     district: {},
     metrics: { order: config.metrics.orderStart, power: config.metrics.powerStart, contentment: config.metrics.contentmentStart, lastHour: 0 },
     loans: { debts: [], lastDay: t.day },

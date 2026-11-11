@@ -20,14 +20,44 @@ export const OVERLAY_CSS = `
 .qh-choices button:hover, .qh-choices button:focus-visible, .qh-picker button:hover, .qh-picker button:focus-visible { background: #2a3050; outline: 2px solid #ffd36b; }
 .qh-choices .key { color: #ffd36b; margin-right: .6em; }
 .qh-picker { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
-.qh-notebook { right: 16px; top: 16px; width: min(380px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; }
+.qh-notebook { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; z-index: 4; }
 .qh-notebook h2 { margin: 0 0 8px; font-size: 1.1em; color: #ffd36b; }
 .qh-notebook ul { list-style: none; margin: 0; padding: 0; }
-.qh-notebook li { padding: 6px 0; border-top: 1px solid #2a2f48; }
+.qh-notebook li { padding: 7px 0; border-top: 1px solid #2a2f48; }
 .qh-notebook .from { color: #9aa0c4; font-size: .8em; }
 .qh-notebook .status { font-size: .8em; margin-left: .4em; }
 .qh-notebook .verified { color: #7fe08a; } .qh-notebook .disproved { color: #ff7a8a; text-decoration: line-through; }
 .qh-notebook .hint { color: #9aa0c4; font-size: .8em; margin-top: 8px; }
+.qh-notebook .tabs { display: flex; gap: 6px; margin: 0 0 10px; }
+.qh-notebook button, .qh-notebook select, .qh-notebook input[type=search] { background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 5px 10px; }
+.qh-notebook button { cursor: pointer; }
+.qh-notebook button.on { background: #0f2b35; border-color: #1d8da3; color: #dff9ff; }
+.qh-notebook button.small { font-size: .8em; padding: 2px 8px; margin: 3px 4px 0 0; }
+.qh-notebook button:hover, .qh-notebook button:focus-visible, .qh-notebook input:focus-visible, .qh-notebook select:focus-visible { outline: 2px solid #ffd36b; }
+.qh-notebook .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.qh-notebook .bar input { flex: 1 1 12em; min-width: 0; }
+.qh-notebook .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.qh-notebook .conflict { margin: 6px 0; padding: 6px 10px; border-left: 3px solid #ff7a8a; background: #2a1620; color: #ffd6de; font-size: .9em; }
+.qh-notebook .conflict.settled { border-color: #7fe08a; background: #14281c; color: #c8f5d2; }
+.qh-notebook .linking { margin: 6px 0; padding: 6px 10px; border-left: 3px solid #ffd36b; background: #2a2410; color: #ffe9a8; font-size: .9em; }
+.qh-notebook .rel { color: #bcc3e6; font-size: .8em; margin-top: 2px; }
+.qh-notebook .rel.contradicts { color: #ffb0bd; }
+.qh-notebook .rel.mine { color: #ffe39a; }
+.qh-notebook .quests > li.complete .qhead strong, .qh-notebook .quests > li.failed .qhead strong { opacity: .7; }
+.qh-notebook .steps { margin: 4px 0 0 .4em; }
+.qh-notebook .steps li { border: 0; padding: 1px 0; color: #c8cce6; font-size: .9em; }
+.qh-notebook .steps li.done { color: #8dfbb4; }
+.qh-notebook .legend li { border-top: 1px solid #2a2f48; }
+.qh-map { width: 100%; height: auto; display: block; background: #0a0c18; border: 1px solid #2f3452; border-radius: 6px; margin-bottom: 8px; }
+.qh-map .mwall { fill: #2c3150; }
+.qh-map .mzone rect { fill: #1d8da3; opacity: .22; }
+.qh-map .mzone.p1 rect, .qh-map .mzone.p2 rect { fill: #e0b43c; opacity: .25; }
+.qh-map .mzone.p3 rect { fill: #ff6b86; opacity: .28; }
+.qh-map text { font: 600 10px system-ui, sans-serif; fill: #e9ecff; text-anchor: middle; paint-order: stroke; stroke: #0a0c18; stroke-width: 3px; pointer-events: none; }
+.qh-map text.left { text-anchor: start; fill: #b9c2f0; font-weight: 500; }
+.qh-map .mpin.place { fill: #ffd36b; stroke: #0a0c18; stroke-width: 1.5; }
+.qh-map .mpin.person { fill: #8fd3ff; stroke: #0a0c18; stroke-width: 1.5; }
+.qh-map .mpin.you { fill: #7fe08a; stroke: #0a0c18; stroke-width: 1.5; }
 .qh-gear { left: 16px; top: 120px; width: min(380px, calc(100vw - 32px)); max-height: calc(100vh - 140px); overflow: auto; }
 .qh-gear h2 { margin: 0 0 8px; font-size: 1.1em; color: #ffd36b; }
 .qh-gear h3 { margin: 12px 0 4px; font-size: .95em; color: #8fd3ff; }

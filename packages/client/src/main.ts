@@ -58,7 +58,7 @@ const menu = new MenuPanel(game, document.body, __QH_BUILD_ID__);
 bindUi(controller, sim, { dialogue, terminal, notebook, gear, menu });
 if (saves.info("autosave")) menu.show("An autosave was found. Load it to continue, or close this menu to play a new game.");
 
-new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => menu.visible });
+new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => menu.visible || notebook.visible });
 
 if (__QH_DEBUG__) {
   void import("./debug/overlay.ts").then((m) => m.mountDebugOverlay(sim));

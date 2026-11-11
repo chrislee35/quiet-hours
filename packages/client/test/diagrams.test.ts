@@ -61,3 +61,53 @@ describe("drawings", () => {
     }
   });
 });
+
+import { mapMarkup } from "../src/ui/diagrams.ts";
+import { isTyping } from "../src/input/controller.ts";
+import type { AnnotatedMap } from "@qh/core";
+
+describe("notebook map drawing", () => {
+  const map: AnnotatedMap = {
+    width: 4, height: 3, walls: ["####", "#..#", "####"],
+    zones: [{ id: "z", label: "Zone <1>", permission: 2, tiles: [[1, 1], [2, 1]] }],
+    pins: [
+      { kind: "place", id: "p", label: "Pump & 4", x: 1, y: 1, notes: [] },
+      { kind: "person", id: "n", label: "Sam", x: 2, y: 1, notes: [] },
+      { kind: "you", id: "you", label: "You", x: 2, y: 1, notes: [] },
+    ],
+    schedules: [],
+  };
+
+  it("draws walls, zones and one labelled pin per place, person and you, with different shapes", () => {
+    const svg = mapMarkup(map);
+    expect((svg.match(/class="mwall"/g) ?? []).length).toBe(10);
+    expect(svg).toContain('class="mpin place"');
+    expect(svg).toContain('class="mpin person"');
+    expect(svg).toContain('class="mpin you"');
+    expect(svg).toContain(">Pump &amp; 4<");
+    expect(svg).toContain('class="mzone p2"');
+    expect(svg).toContain('role="img"');
+  });
+
+  it("escapes zone and place names", () => {
+    expect(mapMarkup(map)).toContain("Zone &lt;1&gt;");
+    expect(mapMarkup(map)).not.toContain("<1>");
+  });
+
+  it("an empty map still draws", () => {
+    expect(mapMarkup({ ...map, zones: [], pins: [] }).startsWith("<svg ")).toBe(true);
+  });
+});
+
+describe("typing in a field does not drive the character", () => {
+  it("recognises text fields, selects and text areas, but not buttons or checkboxes", () => {
+    expect(isTyping({ tagName: "INPUT", type: "search" } as unknown as EventTarget)).toBe(true);
+    expect(isTyping({ tagName: "INPUT", type: "text" } as unknown as EventTarget)).toBe(true);
+    expect(isTyping({ tagName: "TEXTAREA" } as unknown as EventTarget)).toBe(true);
+    expect(isTyping({ tagName: "SELECT" } as unknown as EventTarget)).toBe(true);
+    expect(isTyping({ tagName: "DIV", isContentEditable: true } as unknown as EventTarget)).toBe(true);
+    expect(isTyping({ tagName: "INPUT", type: "checkbox" } as unknown as EventTarget)).toBe(false);
+    expect(isTyping({ tagName: "BUTTON" } as unknown as EventTarget)).toBe(false);
+    expect(isTyping(null)).toBe(false);
+  });
+});

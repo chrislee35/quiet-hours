@@ -100,6 +100,7 @@ export function startConversation(ctx: Ctx, dialogueId: string): boolean {
   const entry = d.start.find((s) => evalAll(s.if, state, config, content));
   if (!entry) return false;
   state.player.intent = { dx: 0, dy: 0, mode: "walk" };
+  if (!state.met.includes(d.npc)) state.met.push(d.npc);
   events.push({ type: "ConversationStarted", tick: state.tick, dialogueId: d.id, npc: d.npc });
   enterNode(ctx, d, entry.goto);
   return true;

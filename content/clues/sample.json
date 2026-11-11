@@ -6,12 +6,13 @@
     "reliability": "true",
     "tags": [
       "place:pump4",
-      "schedule:night_shift"
+      "schedule:night_shift",
+      "person:odd_sam"
     ],
     "links": [
       {
         "to": "pump4_shift_old",
-        "kind": "updates"
+        "kind": "contradicts"
       }
     ]
   },

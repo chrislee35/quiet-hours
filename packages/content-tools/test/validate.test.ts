@@ -194,3 +194,24 @@ describe("puzzle kinds", () => {
     expect(messages(good).filter((m) => m.includes('"ok"'))).toEqual([]);
   });
 });
+
+describe("quests", () => {
+  const messages = (quest: object) => fixture((dir) => writeFileSync(join(dir, "quests", "extra.json"), JSON.stringify([quest]))).map((i) => i.message);
+  const good = { id: "q", title: "T", summary: "S", start: [], steps: [{ id: "a", text: "Do it", done: [{ flag: "x" }] }], complete: [{ flag: "x" }] };
+
+  it("accepts a well-formed quest", () => {
+    expect(messages(good).filter((m) => m.includes('quest "q"'))).toEqual([]);
+  });
+
+  it("rejects bad conditions, unknown clues and duplicate step ids", () => {
+    expect(messages({ ...good, complete: [{ nonsense: 1 }] })).toEqual(expect.arrayContaining([expect.stringContaining('quest "q"')]));
+    expect(messages({ ...good, start: [{ has_clue: "no_such_clue" }] })).toEqual(expect.arrayContaining([expect.stringContaining("unknown clue")]));
+    expect(messages({ ...good, failed: [{ clue_state: ["ghost", "verified"] }] })).toEqual(expect.arrayContaining([expect.stringContaining("unknown clue")]));
+    expect(messages({ ...good, steps: [good.steps[0], good.steps[0]] })).toEqual(expect.arrayContaining([expect.stringContaining("duplicate step")]));
+  });
+
+  it("a quest needs a way to finish and at least one step", () => {
+    expect(messages({ ...good, complete: [] }).length).toBeGreaterThan(0);
+    expect(messages({ ...good, steps: [] }).length).toBeGreaterThan(0);
+  });
+});

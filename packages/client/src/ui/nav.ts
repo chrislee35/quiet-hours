@@ -11,7 +11,7 @@ interface Toggleable {
 
 /** Buttons the player can currently move between: the open window's enabled buttons, in order. */
 function focusables(): HTMLButtonElement[] {
-  const panel = document.querySelector<HTMLElement>(".qh-dialogue:not([hidden]), .qh-terminal:not([hidden]), .qh-gear:not([hidden]), .qh-menu:not([hidden])");
+  const panel = document.querySelector<HTMLElement>(".qh-dialogue:not([hidden]), .qh-terminal:not([hidden]), .qh-gear:not([hidden]), .qh-menu:not([hidden]), .qh-notebook:not([hidden])");
   return panel ? [...panel.querySelectorAll<HTMLButtonElement>("button:not(:disabled)")] : [];
 }
 
@@ -49,7 +49,7 @@ export function bindUi(
   ui: { dialogue: Closable; terminal: Closable; notebook: Toggleable; gear: Closable & Toggleable; menu: Closable & Toggleable },
 ): void {
   controller.onPress((action, source) => {
-    const windowOpen = sim.state.conversation !== null || sim.state.terminal !== null || ui.menu.visible;
+    const windowOpen = sim.state.conversation !== null || sim.state.terminal !== null || ui.menu.visible || ui.notebook.visible;
     if (action === "notebook") {
       ui.notebook.toggle();
     } else if (action === "gear") {

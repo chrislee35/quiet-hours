@@ -35,7 +35,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [] };
 
   if (bundle.config) {
     try {
@@ -84,7 +84,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -185,6 +185,29 @@ export function validateContent(bundle: ContentBundle): Issue[] {
     (entity.effects as unknown[]).forEach((e, i) => {
       for (const m of validateEffect(e, `effects[${i}]`)) issues.push({ file, message: `reaction "${entity.id}": ${m}` });
     });
+  }
+  // Quests: well-formed conditions, only about clues that exist, unique step ids.
+  const clueRefs = (c: unknown): string[] => {
+    if (typeof c !== "object" || c === null) return [];
+    const o = c as Record<string, unknown>;
+    if (typeof o.has_clue === "string") return [o.has_clue];
+    if (Array.isArray(o.clue_state)) return [String(o.clue_state[0])];
+    if (Array.isArray(o.all)) return o.all.flatMap(clueRefs);
+    if (Array.isArray(o.any)) return o.any.flatMap(clueRefs);
+    return o.not !== undefined ? clueRefs(o.not) : [];
+  };
+  for (const { file, entity } of entities.quests) {
+    const say = (m: string) => issues.push({ file, message: `quest "${entity.id}": ${m}` });
+    const lists: [string, unknown[]][] = [["start", entity.start as unknown[]], ["complete", entity.complete as unknown[]], ["failed", (entity.failed as unknown[] | undefined) ?? []]];
+    for (const step of entity.steps as { id: string; done: unknown[] }[]) lists.push([`step "${step.id}"`, step.done]);
+    for (const [where, conds] of lists) {
+      conds.forEach((c, i) => {
+        for (const m of validateCondition(c, `${where}[${i}]`)) say(m);
+        for (const id of clueRefs(c)) if (!ids.clues.has(id)) say(`${where}[${i}] refers to unknown clue "${id}"`);
+      });
+    }
+    const stepIds = (entity.steps as { id: string }[]).map((s) => s.id);
+    if (new Set(stepIds).size !== stepIds.length) say("has a duplicate step id");
   }
   // Dialogue may only use services that exist.
   for (const { file, dialogue } of compiled) {

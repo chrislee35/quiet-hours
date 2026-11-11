@@ -161,6 +161,25 @@ export const reactionSchema = {
   },
 } as const;
 
+export const questSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "title", "summary", "start", "steps", "complete"],
+  properties: {
+    id,
+    title: { type: "string", minLength: 1 },
+    summary: { type: "string" },
+    start: { type: "array" },
+    steps: {
+      type: "array",
+      minItems: 1,
+      items: { type: "object", additionalProperties: false, required: ["id", "text", "done"], properties: { id, text: { type: "string", minLength: 1 }, done: { type: "array" } } },
+    },
+    complete: { type: "array", minItems: 1 },
+    failed: { type: "array" },
+  },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -171,6 +190,7 @@ export const kinds = {
   items: itemSchema,
   services: serviceSchema,
   reactions: reactionSchema,
+  quests: questSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

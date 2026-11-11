@@ -1,4 +1,5 @@
 import type { AugmentDef, ItemDef } from "../augments.ts";
+import type { QuestDef } from "../notebook.ts";
 import type { ReactionDef } from "../districts.ts";
 import type { ServiceDef } from "../economy.ts";
 import type { PuzzleDef } from "../puzzles/index.ts";
@@ -87,6 +88,7 @@ export interface Content {
   items: Record<string, ItemDef>;
   services: Record<string, ServiceDef>;
   reactions: Record<string, ReactionDef>;
+  quests: Record<string, QuestDef>;
 }
 
-export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {}, augments: {}, items: {}, services: {}, reactions: {} };
+export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {}, augments: {}, items: {}, services: {}, reactions: {}, quests: {} };

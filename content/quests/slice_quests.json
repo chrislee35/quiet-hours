@@ -1,0 +1,25 @@
+[
+  {
+    "id": "maintenance_wing",
+    "title": "Through the maintenance door",
+    "summary": "The east end of the Stacks is sealed behind a maintenance door. Something there is worth a look.",
+    "start": [],
+    "steps": [
+      { "id": "meet_sam", "text": "Talk to Odd Sam about what he sells", "done": [{ "flag": "met_sam" }] },
+      { "id": "open_door", "text": "Get the maintenance door open", "done": [{ "flag": "maint_panel_hacked" }] }
+    ],
+    "complete": [{ "flag": "maint_panel_hacked" }]
+  },
+  {
+    "id": "pump4_rumour",
+    "title": "The Pump 4 rumour",
+    "summary": "Someone says the night shift at Pump 4 leaves a door open. Rumours are cheap; be sure before you rely on one.",
+    "start": [{ "any": [{ "has_clue": "pump4_shift" }, { "has_clue": "pump4_shift_old" }] }],
+    "steps": [
+      { "id": "hear", "text": "Hear what is said about Pump 4", "done": [{ "any": [{ "has_clue": "pump4_shift" }, { "has_clue": "pump4_shift_old" }] }] },
+      { "id": "check", "text": "Check the rumour with someone who would know", "done": [{ "clue_state": ["pump4_shift", "verified"] }] }
+    ],
+    "complete": [{ "clue_state": ["pump4_shift", "verified"] }],
+    "failed": [{ "clue_state": ["pump4_shift", "disproved"] }]
+  }
+]

@@ -29,6 +29,8 @@ export interface MapData {
   pickups?: PickupDef[];
   /** Named points people walk between (see npcs.ts). Optional in map data. */
   spots?: SpotDef[];
+  /** Named places that appear on the notebook map once the player learns of them. */
+  places?: PlaceDef[];
 }
 
 /**
@@ -50,6 +52,14 @@ export function pickupEffect(grant: string): Effect | null {
   if (kind === "item" && id && (n === undefined || /^[1-9]\d*$/.test(n))) return { add_item: [id, n === undefined ? 1 : Number(n)] };
   if (kind === "credits" && id && /^[1-9]\d*$/.test(id) && n === undefined) return { add_credits: Number(id) };
   return null;
+}
+
+/** A named place (a pump house, a checkpoint): shown on the notebook map when a clue tagged `place:<id>` is known. */
+export interface PlaceDef {
+  id: string;
+  x: number;
+  y: number;
+  label: string;
 }
 
 /** A named point on the map, used by NPC routines. */
@@ -162,6 +172,7 @@ export interface World {
   terminals: readonly TerminalPlacement[];
   cameras: readonly CameraDef[];
   pickups: readonly PickupDef[];
+  places: readonly PlaceDef[];
   spots: readonly SpotDef[];
   spotById: ReadonlyMap<string, SpotDef>;
   doorByTile: ReadonlyMap<number, DoorDef>;
@@ -187,6 +198,7 @@ export const OPEN_WORLD: World = {
   terminals: [],
   cameras: [],
   pickups: [],
+  places: [],
   spots: [],
   spotById: new Map(),
   doorByTile: new Map(),
@@ -262,6 +274,13 @@ export function buildWorld(data: MapData): World {
     lockerIds.add(l.id);
     if (!inBounds(probe, l.x, l.y)) errors.push(`locker "${l.id}" is out of bounds`);
     else if (wall[tileKey(probe, l.x, l.y)]) errors.push(`locker "${l.id}" is inside a wall`);
+  }
+
+  const placeIds = new Set<string>();
+  for (const p of data.places ?? []) {
+    if (placeIds.has(p.id)) errors.push(`duplicate place id "${p.id}"`);
+    placeIds.add(p.id);
+    if (!inBounds(probe, p.x, p.y)) errors.push(`place "${p.id}" is out of bounds`);
   }
 
   const spotIds = new Set<string>();
@@ -351,6 +370,7 @@ export function buildWorld(data: MapData): World {
     terminals: data.terminals,
     cameras: data.cameras,
     pickups: data.pickups ?? [],
+    places: data.places ?? [],
     spots: data.spots ?? [],
     spotById: new Map((data.spots ?? []).map((s) => [s.id, s])),
     doorByTile,

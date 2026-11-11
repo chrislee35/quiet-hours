@@ -7,6 +7,7 @@ import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.t
 import { useItem } from "./combat.ts";
 import { npcSystem } from "./npcs.ts";
 import { reactionSystem } from "./districts.ts";
+import { annotatedMap, conflicts, linkClues, notebookItems, questLog, unlinkClues, type AnnotatedMap, type Conflict, type NotebookItem, type QuestView } from "./notebook.ts";
 import { economySystem } from "./economy.ts";
 import { cameraSystem } from "./cameras.ts";
 import { commsSystem } from "./comms.ts";
@@ -42,6 +43,9 @@ export type Command =
   /** Tap a cell, switch or track of the open terminal's puzzle (what that does depends on the puzzle type). */
   | { type: "TerminalTap"; index: number }
   | { type: "ExitTerminal" }
+  /** The player links or unlinks two clues they know (the notebook; takes no game time). */
+  | { type: "LinkClues"; a: string; b: string }
+  | { type: "UnlinkClues"; a: string; b: string }
   /** Wear an owned augment if the band has the slots and power (AUG-2). */
   | { type: "EquipAugment"; id: string }
   | { type: "UnequipAugment"; id: string }
@@ -239,7 +243,10 @@ function trackZone({ state, world, events }: Ctx): void {
   const before = state.player.zone;
   if (now === before) return;
   if (before !== null) events.push({ type: "ZoneExited", tick: state.tick, zone: before });
-  if (now !== null) events.push({ type: "ZoneEntered", tick: state.tick, zone: now });
+  if (now !== null) {
+    events.push({ type: "ZoneEntered", tick: state.tick, zone: now });
+    if (!state.visited.includes(now)) state.visited.push(now);
+  }
   state.player.zone = now;
 }
 
@@ -292,6 +299,14 @@ export function step(
 ): StepResult {
   const state = deepClone(prev);
   const events: GameEvent[] = [];
+  // Notebook edits take no game time: a step made only of them leaves the clock, robots and player alone.
+  if (commands.length > 0 && commands.every((c) => c.type === "LinkClues" || c.type === "UnlinkClues")) {
+    for (const cmd of commands) {
+      if (cmd.type === "LinkClues" && linkClues(state, cmd.a, cmd.b)) events.push({ type: "CluesLinked", tick: state.tick, a: cmd.a, b: cmd.b });
+      else if (cmd.type === "UnlinkClues" && unlinkClues(state, cmd.a, cmd.b)) events.push({ type: "CluesUnlinked", tick: state.tick, a: cmd.a, b: cmd.b });
+    }
+    return { state, events };
+  }
   if (state.conversation || state.terminal) {
     // Dialogue and terminals freeze the world: the clock, robots and player do not advance (CORE-4).
     const ctx: Ctx = { state, config, world, content, events, commands };
@@ -301,6 +316,8 @@ export function step(
       else if (cmd.type === "EndConversation") endConversation(ctx);
       else if (cmd.type === "TerminalTap") tapCell(ctx, cmd.index);
       else if (cmd.type === "ExitTerminal") closeTerminal(ctx);
+      else if (cmd.type === "LinkClues") linkClues(state, cmd.a, cmd.b);
+      else if (cmd.type === "UnlinkClues") unlinkClues(state, cmd.a, cmd.b);
       else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events, config, content);
     }
     // Effects run from a conversation or terminal can trigger reactions too, even though the world is frozen.
@@ -367,6 +384,23 @@ export class Sim {
   }
 
   /** The notebook as the UI shows it (reliability hidden). */
+  /** Everything the notebook screen shows, derived from state and content. */
+  notebookItems(): NotebookItem[] {
+    return notebookItems(this.current, this.content);
+  }
+
+  conflicts(): Conflict[] {
+    return conflicts(this.current, this.content);
+  }
+
+  questLog(): QuestView[] {
+    return questLog(this.current, this.content, this.config);
+  }
+
+  annotatedMap(): AnnotatedMap {
+    return annotatedMap(this.current, this.world, this.content);
+  }
+
   notebook(): NotebookEntryView[] {
     return notebookEntries(this.current, this.content);
   }
