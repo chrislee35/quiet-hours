@@ -1,3 +1,4 @@
+import type { Config } from "./config.ts";
 import type { Ctx } from "./ctx.ts";
 import { puzzleModule, type PuzzleDef, type PuzzleView } from "./puzzles/index.ts";
 import { applyEffects, evalAll } from "./rules.ts";
@@ -11,6 +12,10 @@ import type { Content } from "./dialogue/types.ts";
  */
 
 export interface TerminalView {
+  /** The puzzle-skip assist is on and enough attempts have been made: the player may skip it (HAK-3). */
+  canSkip: boolean;
+  /** Attempts still needed before a skip is offered (0 when it is available or the assist is off). */
+  attemptsToSkip: number;
   id: string;
   title: string;
   solved: boolean;
@@ -20,14 +25,15 @@ export interface TerminalView {
   puzzle: PuzzleView;
 }
 
-export function terminalView(state: Readonly<SimState>, content: Content): TerminalView | null {
+export function terminalView(state: Readonly<SimState>, content: Content, config: Config): TerminalView | null {
   const id = state.terminal;
   const def = id ? content.terminals[id] : undefined;
   const puzzle = def ? content.puzzles[def.puzzle] : undefined;
   const ts = id ? state.terminals[id] : undefined;
   const mod = puzzle ? puzzleModule(puzzle) : undefined;
   if (!id || !def || !puzzle || !ts || !mod) return null;
-  return { id, title: def.title, solved: ts.solved, solvedText: def.solvedText, puzzle: mod.view(puzzle, ts.values) };
+  const left = Math.max(0, config.assist.skipAfterTaps - ts.taps);
+  return { id, title: def.title, canSkip: state.assist.puzzleSkip && !ts.solved && left === 0, attemptsToSkip: state.assist.puzzleSkip && !ts.solved ? left : 0, solved: ts.solved, solvedText: def.solvedText, puzzle: mod.view(puzzle, ts.values) };
 }
 
 function puzzleFor(ctx: Ctx, terminalId: string): PuzzleDef | undefined {
@@ -35,7 +41,7 @@ function puzzleFor(ctx: Ctx, terminalId: string): PuzzleDef | undefined {
   return def ? ctx.content.puzzles[def.puzzle] : undefined;
 }
 
-function grantAccess(ctx: Ctx, terminalId: string, via: "puzzle" | "bypass"): void {
+function grantAccess(ctx: Ctx, terminalId: string, via: "puzzle" | "bypass" | "assist"): void {
   const { state, events, content } = ctx;
   const ts = state.terminals[terminalId];
   const def = content.terminals[terminalId];
@@ -51,7 +57,7 @@ export function openTerminal(ctx: Ctx, terminalId: string): boolean {
   const puzzle = puzzleFor(ctx, terminalId);
   const mod = puzzle ? puzzleModule(puzzle) : undefined;
   if (!def || !puzzle || !mod || state.terminal || state.conversation) return false;
-  state.terminals[terminalId] ??= { values: mod.init(puzzle), solved: false };
+  state.terminals[terminalId] ??= { values: mod.init(puzzle), solved: false, taps: 0 };
   state.player.intent = { dx: 0, dy: 0, mode: "walk" };
   state.terminal = terminalId;
   events.push({ type: "TerminalOpened", tick: state.tick, terminalId });
@@ -77,5 +83,14 @@ export function tapCell(ctx: Ctx, index: number): void {
   const next = mod.tap(puzzle, ts.values, index);
   if (!next) return;
   ts.values = next;
+  ts.taps += 1;
   if (mod.isSolved(puzzle, next)) grantAccess(ctx, id, "puzzle");
+}
+
+/** Skips the open puzzle, if the player has the assist on and has tried enough. Always recorded as an assist, never as solving it. */
+export function skipPuzzle(ctx: Ctx): void {
+  const id = ctx.state.terminal;
+  const ts = id ? ctx.state.terminals[id] : undefined;
+  if (!id || !ts || ts.solved || !ctx.state.assist.puzzleSkip || ts.taps < ctx.config.assist.skipAfterTaps) return;
+  grantAccess(ctx, id, "assist");
 }

@@ -13,7 +13,7 @@ const ARROWS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
 export class InputController {
   readonly held: HeldActions = { up: false, down: false, left: false, right: false, run: false, sneak: false };
   private keys: KeyBindings;
-  private readonly pad: PadBindings;
+  private pad: PadBindings;
   private readonly down = new Set<string>();
   private padState: ActionState = noActions();
   private touchState: ActionState = noActions();
@@ -39,6 +39,21 @@ export class InputController {
       this.recompute();
     });
   }
+
+  setPadBindings(pad: PadBindings): void {
+    this.pad = pad;
+  }
+
+  /** The first gamepad button pressed right now that was not pressed before, for "press a button to rebind". */
+  readPadButton(): number | null {
+    const snap = this.getPad();
+    if (!snap) return null;
+    const idx = snap.buttons.findIndex((b, i) => b.pressed && !this.lastButtons.has(i));
+    this.lastButtons = new Set(snap.buttons.flatMap((b, i) => (b.pressed ? [i] : [])));
+    return idx >= 0 ? idx : null;
+  }
+
+  private lastButtons = new Set<number>();
 
   setKeyBindings(keys: KeyBindings): void {
     this.keys = keys;

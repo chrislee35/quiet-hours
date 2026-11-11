@@ -137,3 +137,65 @@ describe("each type through the terminal view", () => {
     }
   });
 });
+
+describe("puzzle-skip assist (HAK-3)", () => {
+  const skipAfter = config.assist.skipAfterTaps;
+  const spam = (s: Scenario, n: number) => {
+    // Taps on a cell that always changes something: a fuse flips back and forth, so it never solves by accident.
+    for (let i = 0; i < n; i++) s.command({ type: "TerminalTap", index: 5 });
+  };
+
+  it("is off by default: nothing can be skipped however many times you try", () => {
+    const s = open("fuse_panel");
+    spam(s, skipAfter * 2);
+    expect(s.sim.terminal()).toMatchObject({ canSkip: false, attemptsToSkip: 0 });
+    s.command({ type: "TerminalSkip" }).expectNoEvent("TerminalSolved");
+  });
+
+  it("when on, offers the skip only after enough attempts, and says how many are left", () => {
+    const s = open("fuse_panel").command({ type: "SetAssist", puzzleSkip: true });
+    s.expectEvent("AssistChanged", { puzzleSkip: true });
+    expect(s.sim.terminal()).toMatchObject({ canSkip: false, attemptsToSkip: skipAfter });
+    spam(s, 10);
+    expect(s.sim.terminal()!.attemptsToSkip).toBe(skipAfter - 10);
+    s.command({ type: "TerminalSkip" }).expectNoEvent("TerminalSolved");
+    spam(s, skipAfter);
+    expect(s.sim.terminal()).toMatchObject({ canSkip: true, attemptsToSkip: 0 });
+  });
+
+  it("skipping opens the terminal, runs its effects once, and is recorded as an assist rather than a solve", () => {
+    const s = open("fuse_panel").command({ type: "SetAssist", puzzleSkip: true });
+    spam(s, skipAfter);
+    s.command({ type: "TerminalSkip" }).expectEvent("TerminalSolved", { terminalId: "fuse_panel", via: "assist" });
+    expect(s.sim.state.inventory.credits).toBe(20);
+    expect(s.sim.state.flags.fuses_reset).toBe(true);
+    s.command({ type: "TerminalSkip" });
+    expect(s.eventsOfType("TerminalSolved")).toHaveLength(1);
+    expect(s.sim.terminal()).toMatchObject({ solved: true, canSkip: false });
+  });
+
+  it("attempts count only taps that changed the puzzle, per terminal", () => {
+    const s = open("fuse_panel").command({ type: "SetAssist", puzzleSkip: true });
+    s.command({ type: "TerminalTap", index: 0 }); // a fuse cell: counts
+    s.command({ type: "TerminalTap", index: 999 }); // nothing there: does not
+    expect(s.sim.state.terminals.fuse_panel!.taps).toBe(1);
+  });
+
+  it("the setting is part of the saved state and survives a round trip; changing it takes no game time", () => {
+    const s = open("fuse_panel");
+    const tick = s.sim.state.tick;
+    s.command({ type: "SetAssist", puzzleSkip: true });
+    expect(s.sim.state.tick).toBe(tick);
+    expect(JSON.parse(JSON.stringify(s.sim.state)).assist).toEqual({ puzzleSkip: true });
+  });
+
+  it("works for every puzzle type, because the count lives in the terminal not the puzzle", () => {
+    for (const id of ["relay_panel", "timetable_panel", "gate_panel", "lock_panel", "net_panel"]) {
+      const s = open(id).command({ type: "SetAssist", puzzleSkip: true });
+      s.edit((st) => {
+        st.terminals[id]!.taps = skipAfter; // as if the player had tried that many times
+      });
+      s.command({ type: "TerminalSkip" }).expectEvent("TerminalSolved", { via: "assist" });
+    }
+  });
+});

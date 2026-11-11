@@ -66,6 +66,7 @@ export type GameEvent =
   /** Collectors visited an overdue debtor, took a share of their credits and raised the alert. */
   | { type: "CollectorsCame"; tick: number; lender: string; taken: number; owed: number }
   /** The state was replaced by a saved or new game; views should redraw from scratch. */
+  | { type: "AssistChanged"; tick: number; puzzleSkip: boolean }
   | { type: "CluesLinked"; tick: number; a: string; b: string }
   | { type: "CluesUnlinked"; tick: number; a: string; b: string }
   | { type: "GameLoaded"; tick: number }
@@ -102,7 +103,7 @@ export type GameEvent =
   | { type: "CluePresented"; tick: number; clueId: string; npc: string }
   | { type: "TerminalOpened"; tick: number; terminalId: string }
   | { type: "TerminalClosed"; tick: number; terminalId: string }
-  | { type: "TerminalSolved"; tick: number; terminalId: string; via: "puzzle" | "bypass" }
+  | { type: "TerminalSolved"; tick: number; terminalId: string; via: "puzzle" | "bypass" | "assist" }
   | { type: "DayChanged"; tick: number; day: number }
   | { type: "CurfewStarted"; tick: number }
   | { type: "CurfewEnded"; tick: number }

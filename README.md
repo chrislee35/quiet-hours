@@ -26,7 +26,7 @@ Do not open `index.html` from disk; browsers block modules on `file://`.
 | Notebook | N | Y |
 | Wrist band and belongings | G | Start |
 | Fire Burst Jammer | F | X |
-| Menu (save, load, export) | Esc | B (when nothing is open) |
+| Menu (save, load, export, **settings and rebinding**) | Esc | B (when nothing is open) |
 | Use the ready tool | Q | right stick click |
 | Zone overlay | Z | Back |
 

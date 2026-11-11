@@ -15,8 +15,10 @@ export class MenuPanel {
   private confirmNew = false;
   private persistNote = "";
   private readonly build: string;
+  private readonly openSettings: () => void;
 
-  constructor(game: Game, host: HTMLElement, build: string) {
+  constructor(game: Game, host: HTMLElement, build: string, openSettings: () => void) {
+    this.openSettings = openSettings;
     this.game = game;
     this.build = build;
     this.root = document.createElement("aside");
@@ -97,6 +99,9 @@ export class MenuPanel {
     }
     root.append(list);
     if (this.message) root.append(this.el("p", this.message, "note"));
+
+    root.append(this.el("h3", "Settings"));
+    root.append(this.button("Settings: text size, colours, controls…", () => this.openSettings()));
 
     root.append(this.el("h3", "Save file"));
     const row = this.el("div", "", "head");

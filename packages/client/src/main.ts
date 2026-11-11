@@ -5,7 +5,10 @@ import robotRange from "../../../content/maps/robot_range.json" with { type: "js
 import { loadContent } from "./content.ts";
 import { PhaserRenderer } from "./render/PhaserRenderer.ts";
 import { DialogueWindow } from "./ui/dialogue.ts";
-import { DEFAULT_PAD, loadBindings } from "./input/actions.ts";
+import { loadBindings, loadPadBindings } from "./input/actions.ts";
+import { SettingsStore } from "./settings-store.ts";
+import { playNotes } from "./sound.ts";
+import { SettingsPanel } from "./ui/settings.ts";
 import { InputController, browserPad } from "./input/controller.ts";
 import { TouchControls, wantsTouchControls } from "./input/touch.ts";
 import { safeStorage } from "./storage.ts";
@@ -32,7 +35,8 @@ if (!host) throw new Error("missing #game element");
 // Removed once real pickups and shops exist (T2.4/T2.5). New games start the same way.
 const SCAFFOLD: Parameters<typeof sim.tick>[0] = [{ type: "ApplyEffects", effects: [{ add_credits: 50 }, { add_item: ["scrap_wire", 2] }] }];
 sim.tick(SCAFFOLD);
-const saves = new SaveStore(safeStorage(typeof localStorage === "undefined" ? undefined : localStorage), world.id);
+const storage = safeStorage(typeof localStorage === "undefined" ? undefined : localStorage);
+const saves = new SaveStore(storage, world.id);
 const game = new Game(sim, saves, { build: __QH_BUILD_ID__, newGameEffects: SCAFFOLD });
 const autosaver = new Autosaver(game, { everyMs: config.save.autosaveSeconds * 1000 });
 setInterval(() => autosaver.poll(), 1000);
@@ -40,12 +44,20 @@ setInterval(() => autosaver.poll(), 1000);
 const style = document.createElement("style");
 style.textContent = OVERLAY_CSS;
 document.head.append(style);
-const controller = new InputController(
-  window,
-  loadBindings(safeStorage(typeof localStorage === "undefined" ? undefined : localStorage)),
-  DEFAULT_PAD,
-  browserPad(navigator),
-);
+// Player settings (text size, palette, controls, assists) belong to the player, not to a save; apply them first.
+const settings = new SettingsStore(storage, matchMedia("(prefers-reduced-motion: reduce)").matches);
+const controller = new InputController(window, loadBindings(storage), loadPadBindings(storage), browserPad(navigator));
+// The puzzle-skip assist lives in the game state so a save records it; the player's setting wins on every start and load.
+const pushAssist = () => sim.tick([{ type: "SetAssist", puzzleSkip: settings.get().puzzleSkip }]);
+pushAssist();
+settings.onChange((_, changed) => {
+  if (changed.includes("puzzleSkip")) pushAssist();
+});
+sim.bus.subscribe((e) => {
+  if (e.type === "GameLoaded") pushAssist();
+  // An audible cue when the city gets more suspicious: one, two or three beeps (ACC-2).
+  if (e.type === "AlertChanged" && e.to > e.from && settings.get().alertCues) playNotes(Array.from({ length: e.to }, () => 71 + 4 * e.to), 170);
+});
 if (wantsTouchControls({ coarsePointer: matchMedia("(pointer: coarse)").matches, touchPoints: navigator.maxTouchPoints, search: location.search })) {
   new TouchControls(controller, document.body);
 }
@@ -54,11 +66,12 @@ const dialogue = new DialogueWindow(sim, document.body);
 const notebook = new NotebookPanel(sim, document.body);
 const terminal = new TerminalWindow(sim, document.body);
 const gear = new GearPanel(sim, document.body);
-const menu = new MenuPanel(game, document.body, __QH_BUILD_ID__);
-bindUi(controller, sim, { dialogue, terminal, notebook, gear, menu });
+const settingsPanel = new SettingsPanel(settings, controller, storage, document.body);
+const menu = new MenuPanel(game, document.body, __QH_BUILD_ID__, () => settingsPanel.toggle());
+bindUi(controller, sim, { dialogue, terminal, notebook, gear, menu, settings: settingsPanel });
 if (saves.info("autosave")) menu.show("An autosave was found. Load it to continue, or close this menu to play a new game.");
 
-new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => menu.visible || notebook.visible });
+new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => menu.visible || notebook.visible || settingsPanel.visible, settings: () => settings.get() });
 
 if (__QH_DEBUG__) {
   void import("./debug/overlay.ts").then((m) => m.mountDebugOverlay(sim));

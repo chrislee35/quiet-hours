@@ -2,7 +2,7 @@ import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
 import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
 import { EMPTY_CONTENT, type Content } from "./dialogue/types.ts";
-import { closeTerminal, openTerminal, tapCell, terminalView, type TerminalView } from "./terminal.ts";
+import { closeTerminal, openTerminal, skipPuzzle, tapCell, terminalView, type TerminalView } from "./terminal.ts";
 import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
 import { useItem } from "./combat.ts";
 import { npcSystem } from "./npcs.ts";
@@ -43,6 +43,10 @@ export type Command =
   /** Tap a cell, switch or track of the open terminal's puzzle (what that does depends on the puzzle type). */
   | { type: "TerminalTap"; index: number }
   | { type: "ExitTerminal" }
+  /** Skip the open puzzle (only when the assist is on and enough attempts were made). */
+  | { type: "TerminalSkip" }
+  /** Turn the puzzle-skip assist on or off; recorded in the save. */
+  | { type: "SetAssist"; puzzleSkip: boolean }
   /** The player links or unlinks two clues they know (the notebook; takes no game time). */
   | { type: "LinkClues"; a: string; b: string }
   | { type: "UnlinkClues"; a: string; b: string }
@@ -195,6 +199,15 @@ function applyCommands(ctx: Ctx): void {
       case "Interact":
         if (!held) interact(ctx);
         break;
+      case "SetAssist":
+        setAssist(ctx, cmd.puzzleSkip);
+        break;
+      case "LinkClues":
+        linkClues(state, cmd.a, cmd.b);
+        break;
+      case "UnlinkClues":
+        unlinkClues(state, cmd.a, cmd.b);
+        break;
       case "EquipAugment":
         equipAugment(ctx, cmd.id);
         break;
@@ -263,6 +276,12 @@ function advanceClock({ state, config, events }: Ctx): void {
   state.windows = { curfew: t.isCurfew, quietHours: t.isQuietHours, day: t.day };
 }
 
+function setAssist({ state, events }: Ctx, puzzleSkip: boolean): void {
+  if (state.assist.puzzleSkip === puzzleSkip) return;
+  state.assist.puzzleSkip = puzzleSkip;
+  events.push({ type: "AssistChanged", tick: state.tick, puzzleSkip });
+}
+
 /** Placeholder slots keep the documented order visible; later milestones fill them in. */
 const notYet: System = () => {};
 
@@ -299,6 +318,12 @@ export function step(
 ): StepResult {
   const state = deepClone(prev);
   const events: GameEvent[] = [];
+  // Settings changes take no game time either.
+  if (commands.length > 0 && commands.every((c) => c.type === "SetAssist")) {
+    const ctx: Ctx = { state, config, world, content, events, commands };
+    for (const cmd of commands) if (cmd.type === "SetAssist") setAssist(ctx, cmd.puzzleSkip);
+    return { state, events };
+  }
   // Notebook edits take no game time: a step made only of them leaves the clock, robots and player alone.
   if (commands.length > 0 && commands.every((c) => c.type === "LinkClues" || c.type === "UnlinkClues")) {
     for (const cmd of commands) {
@@ -316,6 +341,8 @@ export function step(
       else if (cmd.type === "EndConversation") endConversation(ctx);
       else if (cmd.type === "TerminalTap") tapCell(ctx, cmd.index);
       else if (cmd.type === "ExitTerminal") closeTerminal(ctx);
+      else if (cmd.type === "TerminalSkip") skipPuzzle(ctx);
+      else if (cmd.type === "SetAssist") setAssist(ctx, cmd.puzzleSkip);
       else if (cmd.type === "LinkClues") linkClues(state, cmd.a, cmd.b);
       else if (cmd.type === "UnlinkClues") unlinkClues(state, cmd.a, cmd.b);
       else if (cmd.type === "ApplyEffects") applyEffects(cmd.effects, state, events, config, content);
@@ -375,7 +402,7 @@ export class Sim {
 
   /** The open terminal's puzzle for the UI, or null. */
   terminal(): TerminalView | null {
-    return terminalView(this.current, this.content);
+    return terminalView(this.current, this.content, this.config);
   }
 
   /** What pressing Interact would do right now, for the in-world prompt. */

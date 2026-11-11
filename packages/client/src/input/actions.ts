@@ -112,3 +112,63 @@ export function loadBindings(storage: ReturnType<typeof safeStorage>): KeyBindin
 export function saveBindings(storage: ReturnType<typeof safeStorage>, map: KeyBindings): boolean {
   return storage.set(BINDINGS_KEY, JSON.stringify(map));
 }
+
+/** Binds a gamepad button to an action, taking it from any other action (a button can only do one thing). */
+export function rebindPad(map: PadBindings, action: Action, button: number): { map: PadBindings; displaced: Action[] } {
+  const next = Object.fromEntries(ACTIONS.map((a) => [a, [...map[a]]])) as PadBindings;
+  const displaced: Action[] = [];
+  for (const other of ACTIONS) {
+    if (other !== action && next[other].includes(button)) {
+      next[other] = next[other].filter((b) => b !== button);
+      displaced.push(other);
+    }
+  }
+  next[action] = [button];
+  return { map: next, displaced };
+}
+
+const PAD_KEY = "padbindings";
+
+function isPadBindings(v: unknown): v is PadBindings {
+  if (typeof v !== "object" || v === null) return false;
+  const r = v as Record<string, unknown>;
+  return ACTIONS.every((a) => Array.isArray(r[a]) && (r[a] as unknown[]).every((n) => Number.isInteger(n) && (n as number) >= 0 && (n as number) < 32));
+}
+
+export function loadPadBindings(storage: ReturnType<typeof safeStorage>): PadBindings {
+  const raw = storage.get(PAD_KEY);
+  if (raw === null) return DEFAULT_PAD;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return isPadBindings(parsed) ? parsed : DEFAULT_PAD;
+  } catch {
+    return DEFAULT_PAD;
+  }
+}
+
+export function savePadBindings(storage: ReturnType<typeof safeStorage>, map: PadBindings): boolean {
+  return storage.set(PAD_KEY, JSON.stringify(map));
+}
+
+export function resetBindings(storage: ReturnType<typeof safeStorage>): void {
+  storage.remove(BINDINGS_KEY);
+  storage.remove(PAD_KEY);
+}
+
+/** Human names for logical actions, for the controls screen. */
+export const ACTION_NAMES: Record<Action, string> = {
+  up: "Move up", down: "Move down", left: "Move left", right: "Move right", run: "Run", sneak: "Sneak",
+  interact: "Use / talk / hack", notebook: "Notebook", gear: "Wrist band", pulse: "Burst Jammer", tool: "Use ready tool", zones: "Zone overlay", cancel: "Back / menu",
+};
+
+/** A readable name for a key code: "KeyE" -> "E", "ArrowUp" -> "Up", "ShiftLeft" -> "Left Shift". */
+export function keyName(code: string): string {
+  if (/^Key[A-Z]$/.test(code)) return code.slice(3);
+  if (/^Digit\d$/.test(code)) return code.slice(5);
+  if (code.startsWith("Arrow")) return code.slice(5);
+  return code.replace(/(Left|Right)$/, " $1").replace(/^(Shift|Control|Alt|Meta)/, "$1").replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
+/** Standard-mapping gamepad button names. */
+const PAD_NAMES = ["A", "B", "X", "Y", "Left bumper", "Right bumper", "Left trigger", "Right trigger", "Back", "Start", "Left stick click", "Right stick click", "D-pad up", "D-pad down", "D-pad left", "D-pad right"];
+export const padButtonName = (i: number): string => PAD_NAMES[i] ?? `Button ${i}`;

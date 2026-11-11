@@ -174,6 +174,17 @@ export class TerminalWindow {
       root.append(st);
     }
     root.append(body);
+    if (!view.solved && view.canSkip) {
+      const skip = this.el("button", "Skip this puzzle (assist)", "skip");
+      skip.type = "button";
+      skip.addEventListener("click", () => {
+        this.sim.tick([{ type: "TerminalSkip" }]);
+        this.refresh();
+      });
+      root.append(skip);
+    } else if (!view.solved && view.attemptsToSkip > 0) {
+      root.append(this.el("p", `Puzzle skip is on: it can be skipped after ${view.attemptsToSkip} more attempts.`, "hint"));
+    }
 
     const leave = this.el("button", view.solved ? "Done (Esc)" : "Leave terminal (Esc)", "leave");
     leave.addEventListener("click", () => this.cancel());

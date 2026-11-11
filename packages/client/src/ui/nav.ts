@@ -11,7 +11,7 @@ interface Toggleable {
 
 /** Buttons the player can currently move between: the open window's enabled buttons, in order. */
 function focusables(): HTMLButtonElement[] {
-  const panel = document.querySelector<HTMLElement>(".qh-dialogue:not([hidden]), .qh-terminal:not([hidden]), .qh-gear:not([hidden]), .qh-menu:not([hidden]), .qh-notebook:not([hidden])");
+  const panel = document.querySelector<HTMLElement>(".qh-dialogue:not([hidden]), .qh-terminal:not([hidden]), .qh-gear:not([hidden]), .qh-menu:not([hidden]), .qh-notebook:not([hidden]), .qh-settings:not([hidden])");
   return panel ? [...panel.querySelectorAll<HTMLButtonElement>("button:not(:disabled)")] : [];
 }
 
@@ -46,16 +46,17 @@ function moveFocus(dx: number, dy: number): void {
 export function bindUi(
   controller: InputController,
   sim: Sim,
-  ui: { dialogue: Closable; terminal: Closable; notebook: Toggleable; gear: Closable & Toggleable; menu: Closable & Toggleable },
+  ui: { dialogue: Closable; terminal: Closable; notebook: Toggleable; gear: Closable & Toggleable; menu: Closable & Toggleable; settings: Closable & Toggleable & { readonly capturing: boolean } },
 ): void {
   controller.onPress((action, source) => {
-    const windowOpen = sim.state.conversation !== null || sim.state.terminal !== null || ui.menu.visible || ui.notebook.visible;
+    if (ui.settings.capturing) return; // a key or button is being chosen for rebinding
+    const windowOpen = sim.state.conversation !== null || sim.state.terminal !== null || ui.menu.visible || ui.notebook.visible || ui.settings.visible;
     if (action === "notebook") {
       ui.notebook.toggle();
     } else if (action === "gear") {
       if (!windowOpen) ui.gear.toggle();
     } else if (action === "cancel") {
-      if (ui.terminal.cancel() || ui.dialogue.cancel() || ui.gear.cancel() || ui.menu.cancel()) return;
+      if (ui.settings.cancel() || ui.terminal.cancel() || ui.dialogue.cancel() || ui.gear.cancel() || ui.menu.cancel()) return;
       if (ui.notebook.visible) ui.notebook.toggle();
       else ui.menu.toggle(); // nothing left to close: Esc / Back opens the menu
     } else if (windowOpen || (ui.gear.visible && source === "pad")) {

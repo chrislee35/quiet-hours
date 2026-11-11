@@ -52,6 +52,8 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** Player-chosen assists, recorded in the save so a reload keeps them (HAK-3). Never needed for progress. */
+  assist: { puzzleSkip: boolean };
   /** The player's own cross-references between clues, as sorted id pairs. */
   notebook: { links: [string, string][] };
   /** Zones the player has been in, and people they have spoken to (for the annotated map). */
@@ -80,7 +82,7 @@ export interface SimState {
   /** Items and credits confiscated by processing, recoverable at a locker. */
   locker: { credits: number; items: Record<string, number>; passes: Pass[] };
   /** Terminal progress by terminal id, created the first time a terminal is opened. */
-  terminals: Record<string, { values: number[]; solved: boolean }>;
+  terminals: Record<string, { values: number[]; solved: boolean; /** Taps that changed the puzzle: what "skip after attempts" counts. */ taps: number }>;
   /** The terminal currently being used, if any. While set, the world is frozen like a conversation. */
   terminal: string | null;
   /** Active conversation, if any. While set, the world is frozen (CORE-4). */
@@ -250,6 +252,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
     clues: {},
     inventory: { credits: 0, items: {} },
     npcs: Object.fromEntries(world.npcs.map((n) => [n.id, createNpcState(n.x + 0.5, n.y + 0.5)])),
+    assist: { puzzleSkip: false },
     notebook: { links: [] },
     visited: (zoneAt(world, Math.floor(x), Math.floor(y))?.id ?? null) === null ? [] : [zoneAt(world, Math.floor(x), Math.floor(y))!.id],
     met: [],

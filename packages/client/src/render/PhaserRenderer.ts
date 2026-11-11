@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { PALETTES, canvasColours } from "../palette.ts";
 import { hasTag, isSolid, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
 import { FixedStepper } from "../loop.ts";
 import { intentFromActions, sameIntent, type MoveIntent } from "../input/actions.ts";
@@ -34,13 +35,18 @@ function canvasTexture(
 
 const FLAT = "rgb(128,128,255)";
 
-const MODE_COLOR: Record<RobotMode, number> = {
-  patrol: 0xffd36b,
-  investigate: 0xff9a3c,
-  search: 0xff9a3c,
-  chase: 0xff3355,
-  alert: 0xff3355,
+/** Blend two 0xRRGGBB colours (t = 0 gives a, 1 gives b). */
+const mix = (a: number, b: number, t: number): number => {
+  const ch = (s: number) => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0);
 };
+
+/** What a robot's view cone is tinted, by its mode, from the player's palette (the cone also grows more solid with suspicion). */
+function modeColour(mode: RobotMode, pal: { warn: number; bad: number }): number {
+  if (mode === "patrol") return pal.warn;
+  if (mode === "investigate" || mode === "search") return mix(pal.warn, pal.bad, 0.5);
+  return pal.bad;
+}
 
 /** Robot body tint by type, so the player can tell a Hound from a Warden at a glance (shape and label also differ). */
 const KIND_TINT: Record<string, number> = {
@@ -68,6 +74,7 @@ class QuietScene extends Phaser.Scene {
   private prev = { x: 0, y: 0 };
   private doorSprites = new Map<string, Phaser.GameObjects.Image>();
   private zoneLayer!: Phaser.GameObjects.Graphics;
+  private zonePalette = "";
   private robotSprites = new Map<string, Phaser.GameObjects.Image>();
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
@@ -280,15 +287,7 @@ class QuietScene extends Phaser.Scene {
 
     // Zone overlay (press Z to toggle): teal = public, amber/red = restricted by required permission.
     this.zoneLayer = this.add.graphics().setDepth(50);
-    for (let y = 0; y < world.height; y++) {
-      for (let x = 0; x < world.width; x++) {
-        const z = zoneAt(world, x, y);
-        if (z && z.requiredPermission > 0) {
-          this.zoneLayer.fillStyle(z.requiredPermission >= 3 ? 0xff3355 : 0xffaa22, 0.13);
-          this.zoneLayer.fillRect(x * TILE, y * TILE, TILE, TILE);
-        }
-      }
-    }
+    this.drawZones();
 
     this.player = this.add.image(0, 0, "player").setLighting(true).setDepth(10);
 
@@ -330,10 +329,28 @@ class QuietScene extends Phaser.Scene {
     });
   }
 
+  /** The restricted-zone overlay (press Z), tinted from the player's palette; redrawn when the palette changes. */
+  private drawZones(): void {
+    const { world } = this.sim;
+    const pal = canvasColours(PALETTES[this.deps.settings().palette]);
+    this.zonePalette = this.deps.settings().palette;
+    this.zoneLayer.clear();
+    for (let y = 0; y < world.height; y++) {
+      for (let x = 0; x < world.width; x++) {
+        const z = zoneAt(world, x, y);
+        if (z && z.requiredPermission > 0) {
+          this.zoneLayer.fillStyle(z.requiredPermission >= 3 ? pal.bad : pal.warn, 0.13);
+          this.zoneLayer.fillRect(x * TILE, y * TILE, TILE, TILE);
+        }
+      }
+    }
+  }
+
   /** Robot sprites, occluded vision cones, and suspicion bars. */
   private drawRobots(alpha: number): void {
     const { state, config, world } = this.sim;
     const rays = 28;
+    const pal = canvasColours(PALETTES[this.deps.settings().palette]);
     const lens = hasTag(state, this.sim.content, "reveal_cones");
     this.cones.clear();
     for (const r of state.robots) {
@@ -360,14 +377,14 @@ class QuietScene extends Phaser.Scene {
         }
         pts.push(new Phaser.Math.Vector2(x + Math.cos(ang) * d * TILE, y + Math.sin(ang) * d * TILE));
       }
-      this.cones.fillStyle(MODE_COLOR[r.mode], 0.16 + 0.2 * r.suspicion);
+      this.cones.fillStyle(modeColour(r.mode, pal), 0.16 + 0.2 * r.suspicion);
       this.cones.fillPoints(pts, true);
 
       // Suspicion bar above the robot: fills as it becomes certain of the player.
       if (r.suspicion > 0.01) {
         this.cones.fillStyle(0x000000, 0.6);
         this.cones.fillRect(x - 12, y - 22, 24, 4);
-        this.cones.fillStyle(r.suspicion >= 1 ? 0xff3355 : 0xffd36b, 1);
+        this.cones.fillStyle(r.suspicion >= 1 ? pal.bad : pal.warn, 1);
         this.cones.fillRect(x - 12, y - 22, 24 * r.suspicion, 4);
       }
     }
@@ -398,13 +415,14 @@ class QuietScene extends Phaser.Scene {
   /** Fixed cameras: a small housing always, and the view cone when it is near, in sight, or the Signal Lens is worn. */
   private drawCameras(lens: boolean): void {
     const { state, config, world } = this.sim;
+    const pal = canvasColours(PALETTES[this.deps.settings().palette]);
     const cfg = config.cameras;
     const half = (cfg.coneDegrees * Math.PI) / 360;
     for (const c of state.cameras) {
       const x = c.x * TILE;
       const y = c.y * TILE;
       const off = c.broken || c.dormant || state.tick < c.jammedUntil;
-      this.cones.fillStyle(off ? 0x555555 : 0xff3355, 1).fillRect(x - 5, y - 5, 10, 10);
+      this.cones.fillStyle(off ? 0x555555 : pal.bad, 1).fillRect(x - 5, y - 5, 10, 10);
       this.cones.lineStyle(2, 0x10121c, 1).strokeRect(x - 5, y - 5, 10, 10);
       if (off || !this.showsCone(c.x, c.y, lens, 5)) continue;
       const pts: Phaser.Math.Vector2[] = [new Phaser.Math.Vector2(x, y)];
@@ -418,7 +436,7 @@ class QuietScene extends Phaser.Scene {
         }
         pts.push(new Phaser.Math.Vector2(x + Math.cos(ang) * d * TILE, y + Math.sin(ang) * d * TILE));
       }
-      this.cones.fillStyle(0xff3355, 0.12 + 0.25 * c.suspicion);
+      this.cones.fillStyle(pal.bad, 0.12 + 0.25 * c.suspicion);
       this.cones.fillPoints(pts, true);
     }
   }
@@ -452,6 +470,9 @@ class QuietScene extends Phaser.Scene {
     this.player.setPosition(x, y);
     this.cone.setPosition(x, y).setConeRotation(this.facing);
 
+    if (this.deps.settings().palette !== this.zonePalette) this.drawZones();
+    const smooth = this.deps.settings().reduceMotion ? 1 : 0.12;
+    this.cameras.main.setLerp(smooth, smooth);
     this.drawRobots(a);
     for (const [id, [sprite, label]] of this.npcMarks) {
       const n = this.sim.state.npcs[id];
@@ -465,7 +486,7 @@ class QuietScene extends Phaser.Scene {
     if (prompt) {
       const src = this.deps.controller.lastSource;
       const key = src === "touch" ? "Use" : src === "pad" ? "A" : "E";
-      this.promptText.setText(`${key}: ${prompt.label}`).setPosition((prompt.x + 0.5) * TILE, prompt.y * TILE - 6).setVisible(true);
+      this.promptText.setFontSize(Math.round((11 * this.deps.settings().textScale) / 100)).setText(`${key}: ${prompt.label}`).setPosition((prompt.x + 0.5) * TILE, prompt.y * TILE - 6).setVisible(true);
     } else {
       this.promptText.setVisible(false);
     }

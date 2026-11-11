@@ -1,5 +1,6 @@
 import type { Sim } from "@qh/core";
 import type { InputController } from "../input/controller.ts";
+import type { Settings } from "../settings.ts";
 import type { Hud } from "../ui/hud.ts";
 
 export interface RenderDeps {
@@ -9,6 +10,8 @@ export interface RenderDeps {
   toolbelt: { ready: string | null };
   /** True while a menu has paused the game (the world stands still, like a conversation). */
   isPaused: () => boolean;
+  /** The player's current settings (palette, reduced motion, text size). */
+  settings: () => Settings;
 }
 
 /**
