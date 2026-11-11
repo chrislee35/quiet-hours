@@ -84,12 +84,123 @@ export function solve(def: LogicCircuitDef, from: readonly number[] = init(def))
   return best;
 }
 
+export interface DiagramNode {
+  id: string;
+  kind: "switch" | "gate" | "lamp";
+  /** Text drawn in the box: a switch's short name, a gate's operation, a lamp's name. */
+  label: string;
+  /** A gate's id shown as a small tag (g1...), also its lamp's wired-to gate. */
+  tag: string;
+  x: number;
+  y: number;
+  value: boolean;
+  /** Switches: the control index a tap sends; fixed ones are null. */
+  index: number | null;
+  locked: boolean;
+  /** Lamps: what it needs, and whether that is met. */
+  want?: boolean;
+  met?: boolean;
+}
+
+export interface DiagramWire {
+  from: string;
+  to: string;
+  /** Which input slot of the target this wire plugs into (0 or 1). */
+  slot: number;
+  /** Whether the wire carries ON. */
+  value: boolean;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+/** A drawn circuit: switches on the left, gates in columns by depth, lamps on the right, wires between them. */
+export interface Diagram {
+  width: number;
+  height: number;
+  /** Box size, so the renderer and tests agree. */
+  box: { w: number; h: number };
+  nodes: DiagramNode[];
+  wires: DiagramWire[];
+}
+
 export interface LogicView {
+  diagram: Diagram;
   inputs: { index: number; name: string; value: boolean; locked: boolean }[];
   /** `reads` are the switches or gates it takes in; `feeds` are the gates and lamps it sends its value to. */
   gates: { id: string; op: GateOp; reads: string[]; feeds: string[]; value: boolean }[];
   /** `node` is the gate (or switch) the lamp is wired to; `chain` writes out how its value is made, with every value filled in. */
   goals: { name: string; node: string; want: boolean; value: boolean; met: boolean; chain: string }[];
+}
+
+const BOX = { w: 84, h: 34 };
+const COL = 150;
+const ROW = 56;
+const PAD = 14;
+
+/**
+ * Lays the circuit out for drawing. A node's column is its depth (switches 0, a gate one more than its deepest
+ * input, lamps one past the deepest gate); inside a column nodes are ordered by the average row of what feeds them
+ * (the barycentre rule), which keeps most wires from crossing. Pure and deterministic.
+ */
+export function layout(def: LogicCircuitDef, values: readonly number[]): Diagram {
+  const v = evaluate(def, values);
+  const short = (id: string) => def.inputs.find((i) => i.id === id)?.name.replace(/^Switch /, "").replace(/ \(fixed\)$/, "") ?? id;
+  const depth = new Map<string, number>();
+  def.inputs.forEach((i) => depth.set(i.id, 0));
+  def.gates.forEach((g) => depth.set(g.id, 1 + Math.max(...g.in.map((r) => depth.get(r) ?? 0))));
+  const lampCol = 1 + Math.max(0, ...def.gates.map((g) => depth.get(g.id)!));
+  type Raw = { id: string; kind: DiagramNode["kind"]; col: number; sources: string[] };
+  const raws: Raw[] = [
+    ...def.inputs.map((i) => ({ id: i.id, kind: "switch" as const, col: 0, sources: [] as string[] })),
+    ...def.gates.map((g) => ({ id: g.id, kind: "gate" as const, col: depth.get(g.id)!, sources: g.in })),
+    ...def.goals.map((g, k) => ({ id: `lamp${k}`, kind: "lamp" as const, col: lampCol, sources: [g.node] })),
+  ];
+  const row = new Map<string, number>();
+  const columns = new Map<number, Raw[]>();
+  for (const r of raws) columns.set(r.col, [...(columns.get(r.col) ?? []), r]);
+  const tallest = Math.max(...[...columns.values()].map((c) => c.length));
+  for (const col of [...columns.keys()].sort((a, b) => a - b)) {
+    const list = columns.get(col)!;
+    if (col > 0) {
+      const bary = (r: Raw) => r.sources.reduce((s, id) => s + (row.get(id) ?? 0), 0) / Math.max(1, r.sources.length);
+      list.sort((a, b) => bary(a) - bary(b));
+    }
+    // Centre the column vertically within the tallest one.
+    const offset = (tallest - list.length) / 2;
+    list.forEach((r, k) => row.set(r.id, offset + k));
+  }
+  const nodes: DiagramNode[] = raws.map((r) => {
+    const p = { x: PAD + r.col * COL, y: PAD + (row.get(r.id) ?? 0) * ROW };
+    if (r.kind === "switch") {
+      const i = def.inputs.findIndex((x) => x.id === r.id);
+      const sw = def.inputs[i]!;
+      return { id: r.id, kind: "switch", label: short(r.id), tag: "", ...p, value: values[i] === 1, index: sw.locked ? null : i, locked: sw.locked === true };
+    }
+    if (r.kind === "gate") {
+      const g = def.gates.find((x) => x.id === r.id)!;
+      return { id: r.id, kind: "gate", label: g.op, tag: g.id, ...p, value: v[g.id] ?? false, index: null, locked: false };
+    }
+    const k = Number(r.id.slice(4));
+    const goal = def.goals[k]!;
+    return { id: r.id, kind: "lamp", label: goal.name, tag: goal.node, ...p, value: v[goal.node] ?? false, index: null, locked: false, want: goal.want, met: v[goal.node] === goal.want };
+  });
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const wires: DiagramWire[] = [];
+  for (const r of raws) {
+    r.sources.forEach((src, slot) => {
+      const from = byId.get(src)!;
+      const to = byId.get(r.id)!;
+      const n = r.sources.length;
+      wires.push({
+        from: src, to: r.id, slot, value: from.value,
+        x1: from.x + BOX.w, y1: from.y + BOX.h / 2,
+        x2: to.x, y2: to.y + (BOX.h * (slot + 1)) / (n + 1),
+      });
+    });
+  }
+  return { width: PAD * 2 + lampCol * COL + BOX.w, height: PAD * 2 + (tallest - 1) * ROW + BOX.h, box: BOX, nodes, wires };
 }
 
 export function view(def: LogicCircuitDef, values: readonly number[]): LogicView {
@@ -107,6 +218,7 @@ export function view(def: LogicCircuitDef, values: readonly number[]): LogicView
     ...def.goals.filter((g) => g.node === id).map((g) => `${g.name} lamp`),
   ];
   return {
+    diagram: layout(def, values),
     inputs: def.inputs.map((i, index) => ({ index, name: i.name, value: values[index] === 1, locked: i.locked === true })),
     gates: def.gates.map((g) => ({ id: g.id, op: g.op, reads: g.in.map(short), feeds: feeds(g.id), value: v[g.id] ?? false })),
     goals: def.goals.map((g) => ({ name: g.name, node: g.node, want: g.want, value: v[g.node] ?? false, met: v[g.node] === g.want, chain: expand(g.node) })),

@@ -31,7 +31,7 @@ For every puzzle of every kind: it is well formed, it does **not** start solved,
 ## The three "different" ones
 - **Code lock** is an *information* puzzle: the lock never helps, so the code has to come from the world (a clue, a note, something said). Set `feedback: "count"` to show how many dials are right, for low-stakes locks only. `hint` is a line of text on the lock. A terminal's `bypass` (a held clue or item) is the second way in.
 - **Fuse board** is the classic: tapping flips a fuse and its orthogonal neighbours. Its solver is exact (linear algebra over GF(2)), so an unsolvable board is caught at build time. Build a solvable one by tapping an all-dark board and writing down what is lit. `layout` rows use `#` lit, `o` dark, `.` no fuse; at most 7x7.
-- **Logic circuit**: `inputs` (switches, with `value`/`locked`), `gates` listed in order (`AND OR NOT XOR NAND NOR`, each reading switches or *earlier* gates, so no loops), `goals: [{name, node, want}]`. Up to 12 switches.
+- **Logic circuit** is drawn as a diagram: switches on the left, gates in columns by depth, lamps on the right, wires between them (`layout()` in core computes it, so it is tested headlessly). A wire carrying ON is thick and solid, one carrying off is thin and dashed, and every box also says its state in words; clicking a switch flips it. `inputs` (switches, with `value`/`locked`), `gates` listed in order (`AND OR NOT XOR NAND NOR`, each reading switches or *earlier* gates, so no loops), `goals: [{name, node, want}]`. Up to 12 switches.
 `content/puzzles/range_puzzles2.json` has one of each, with three more terminals in the first room of `?map=range`.
 
 ## The "nerd" set: ciphers, mathematics, chemistry, language, music, machine learning

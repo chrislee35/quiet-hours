@@ -327,3 +327,80 @@ describe("logic circuit view explains the wiring", () => {
     expect(v.goals[1]!.chain).toBe("NOT(AND(C=ON, XOR(A=ON, B=off)=ON)=ON)=off");
   });
 });
+
+describe("logic circuit diagram layout", () => {
+  const d: LogicCircuitDef = {
+    id: "w", kind: "logic_circuit",
+    inputs: [{ id: "a", name: "Switch A", value: true }, { id: "b", name: "Switch B" }, { id: "c", name: "Switch C (fixed)", value: true, locked: true }],
+    gates: [{ id: "g1", op: "XOR", in: ["a", "b"] }, { id: "g2", op: "AND", in: ["c", "g1"] }, { id: "g3", op: "NOT", in: ["g2"] }],
+    goals: [{ name: "Door", node: "g2", want: true }, { name: "Alarm", node: "g3", want: false }],
+  };
+  const dia = () => lc.view(d, lc.init(d)).diagram;
+
+  it("puts switches in the first column, each gate one column past its deepest input, and lamps last", () => {
+    const x = Object.fromEntries(dia().nodes.map((n) => [n.id, n.x]));
+    expect(x.a).toBe(x.b);
+    expect(x.g1!).toBeGreaterThan(x.a!);
+    expect(x.g2!).toBeGreaterThan(x.g1!);
+    expect(x.g3!).toBeGreaterThan(x.g2!);
+    expect(x.lamp0).toBe(x.lamp1);
+    expect(x.lamp0!).toBeGreaterThan(x.g3!);
+  });
+
+  it("draws one wire per gate input and one per lamp, each carrying its source's value and ending at its target's left edge", () => {
+    const g = dia();
+    expect(g.wires).toHaveLength(2 + 2 + 1 + 2);
+    const node = Object.fromEntries(g.nodes.map((n) => [n.id, n]));
+    for (const w of g.wires) {
+      expect(w.value).toBe(node[w.from]!.value);
+      expect(w.x1).toBe(node[w.from]!.x + g.box.w);
+      expect(w.x2).toBe(node[w.to]!.x);
+      expect(w.y2).toBeGreaterThanOrEqual(node[w.to]!.y);
+      expect(w.y2).toBeLessThanOrEqual(node[w.to]!.y + g.box.h);
+    }
+  });
+
+  it("no two boxes overlap, and everything fits inside the drawing", () => {
+    const g = dia();
+    for (const [i, a] of g.nodes.entries()) {
+      expect(a.x + g.box.w).toBeLessThanOrEqual(g.width);
+      expect(a.y + g.box.h).toBeLessThanOrEqual(g.height);
+      for (const b of g.nodes.slice(i + 1)) {
+        const apart = a.x + g.box.w <= b.x || b.x + g.box.w <= a.x || a.y + g.box.h <= b.y || b.y + g.box.h <= a.y;
+        expect(apart, `${a.id} overlaps ${b.id}`).toBe(true);
+      }
+    }
+  });
+
+  it("marks fixed switches as not tappable and gives tappable ones their control index; lamps know if they are met", () => {
+    const g = dia();
+    expect(g.nodes.find((n) => n.id === "c")).toMatchObject({ locked: true, index: null });
+    expect(g.nodes.find((n) => n.id === "b")).toMatchObject({ locked: false, index: 1 });
+    expect(g.nodes.find((n) => n.id === "lamp0")).toMatchObject({ kind: "lamp", label: "Door", tag: "g2", want: true });
+  });
+
+  it("is deterministic and updates values, not positions, when a switch flips", () => {
+    const before = lc.view(d, [1, 0, 1]).diagram;
+    const after = lc.view(d, [1, 1, 1]).diagram;
+    expect(after.nodes.map((n) => [n.x, n.y])).toEqual(before.nodes.map((n) => [n.x, n.y]));
+    expect(after.nodes.find((n) => n.id === "b")!.value).toBe(true);
+    expect(lc.view(d, [1, 0, 1]).diagram).toEqual(before);
+  });
+
+  it("lays out the shipped door circuit with nothing overlapping", () => {
+    const shipped: LogicCircuitDef = {
+      id: "door", kind: "logic_circuit",
+      inputs: [{ id: "a", name: "Switch A", value: true }, { id: "b", name: "Switch B" }, { id: "c", name: "Switch C (fixed)", value: true, locked: true }, { id: "d", name: "Switch D", value: true }],
+      gates: [
+        { id: "g1", op: "XOR", in: ["a", "b"] }, { id: "g2", op: "AND", in: ["c", "d"] }, { id: "g3", op: "NOT", in: ["g2"] },
+        { id: "g4", op: "AND", in: ["g1", "g3"] }, { id: "g5", op: "NOR", in: ["a", "d"] }, { id: "g6", op: "XOR", in: ["b", "d"] },
+      ],
+      goals: [{ name: "Door", node: "g4", want: true }, { name: "Alarm", node: "g2", want: false }, { name: "Hall light", node: "g5", want: true }, { name: "Siren", node: "g6", want: true }],
+    };
+    const g = lc.view(shipped, lc.init(shipped)).diagram;
+    const keys = g.nodes.map((n) => `${n.x},${n.y}`);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(g.nodes).toHaveLength(4 + 6 + 4);
+    expect(g.wires).toHaveLength(11 + 4); // gate inputs 2+2+1+2+2+2, plus one wire per lamp
+  });
+});
