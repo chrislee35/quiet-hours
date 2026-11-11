@@ -353,7 +353,7 @@ describe("logic circuit diagram layout", () => {
     const node = Object.fromEntries(g.nodes.map((n) => [n.id, n]));
     for (const w of g.wires) {
       expect(w.value).toBe(node[w.from]!.value);
-      expect(w.x1).toBe(node[w.from]!.x + g.box.w);
+      expect(w.x1).toBe(node[w.from]!.x + node[w.from]!.w);
       expect(w.x2).toBe(node[w.to]!.x);
       expect(w.y2).toBeGreaterThanOrEqual(node[w.to]!.y);
       expect(w.y2).toBeLessThanOrEqual(node[w.to]!.y + g.box.h);
@@ -363,10 +363,10 @@ describe("logic circuit diagram layout", () => {
   it("no two boxes overlap, and everything fits inside the drawing", () => {
     const g = dia();
     for (const [i, a] of g.nodes.entries()) {
-      expect(a.x + g.box.w).toBeLessThanOrEqual(g.width);
+      expect(a.x + a.w).toBeLessThanOrEqual(g.width);
       expect(a.y + g.box.h).toBeLessThanOrEqual(g.height);
       for (const b of g.nodes.slice(i + 1)) {
-        const apart = a.x + g.box.w <= b.x || b.x + g.box.w <= a.x || a.y + g.box.h <= b.y || b.y + g.box.h <= a.y;
+        const apart = a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + g.box.h <= b.y || b.y + g.box.h <= a.y;
         expect(apart, `${a.id} overlaps ${b.id}`).toBe(true);
       }
     }
@@ -402,5 +402,91 @@ describe("logic circuit diagram layout", () => {
     expect(new Set(keys).size).toBe(keys.length);
     expect(g.nodes).toHaveLength(4 + 6 + 4);
     expect(g.wires).toHaveLength(11 + 4); // gate inputs 2+2+1+2+2+2, plus one wire per lamp
+  });
+});
+
+describe("rule diagram layout", () => {
+  const d: RuleContradictionDef = {
+    id: "r", kind: "rule_contradiction",
+    inputs: [{ id: "curfew", name: "It is curfew", value: true, locked: true }, { id: "pass", name: "Holds a pass" }, { id: "res", name: "Is a resident" }],
+    outputs: [{ id: "gate", name: "Gate" }, { id: "alarm", name: "Alarm" }],
+    rules: [
+      { id: "r1", text: "Anyone holding a pass may enter.", if: { pass: true }, then: { gate: true } },
+      { id: "r2", text: "Residents may not enter during curfew, whatever they hold.", if: { curfew: true, res: true }, then: { gate: false } },
+      { id: "r3", text: "Everyone is watched.", if: { pass: false }, then: { alarm: true } },
+    ],
+    goal: "gate",
+  };
+  const dia = (v: number[]) => rc.view(d, v).diagram;
+
+  it("wraps long rule text into short lines at word boundaries", () => {
+    expect(rc.wrap("Residents may not enter during curfew, whatever they hold.", 34)).toEqual(["Residents may not enter during", "curfew, whatever they hold."]);
+    expect(rc.wrap("short", 34)).toEqual(["short"]);
+    expect(rc.wrap("", 34)).toEqual([]);
+  });
+
+  it("puts inputs, rules and decisions in three columns, left to right", () => {
+    const g = dia(rc.init(d));
+    const xs = (k: string) => [...new Set(g.nodes.filter((n) => n.kind === k).map((n) => n.x))];
+    expect(xs("input")).toHaveLength(1);
+    expect(xs("rule")).toHaveLength(1);
+    expect(xs("output")).toHaveLength(1);
+    expect(xs("input")[0]!).toBeLessThan(xs("rule")[0]!);
+    expect(xs("rule")[0]!).toBeLessThan(xs("output")[0]!);
+  });
+
+  it("draws a wire for every condition and for every thing a rule forces, with a label that says what it means", () => {
+    const g = dia(rc.init(d));
+    expect(g.wires).toHaveLength(1 + 2 + 1 /* conditions */ + 3 /* orders */);
+    expect(g.wires.filter((w) => w.label === "needs ON")).toHaveLength(3);
+    expect(g.wires.filter((w) => w.label === "needs off")).toHaveLength(1);
+    expect(g.wires.find((w) => w.from === "rule:r1")!.label).toBe("forces yes");
+    expect(g.wires.find((w) => w.from === "rule:r2")!.label).toBe("forces no");
+  });
+
+  it("a wire is live exactly when its condition holds or its rule applies", () => {
+    const off = dia([1, 0, 0]);
+    expect(off.wires.find((w) => w.from === "pass" && w.to === "rule:r1")!.live).toBe(false);
+    expect(off.wires.find((w) => w.from === "pass" && w.to === "rule:r3")!.live).toBe(true); // needs off, and it is off
+    const on = dia([1, 1, 0]);
+    expect(on.wires.find((w) => w.from === "pass" && w.to === "rule:r1")!.live).toBe(true);
+    expect(on.wires.find((w) => w.from === "rule:r1")!.live).toBe(true);
+    expect(on.nodes.find((n) => n.id === "rule:r1")).toMatchObject({ state: "applies", active: true });
+    expect(on.nodes.find((n) => n.id === "rule:r2")).toMatchObject({ state: "waiting", active: false });
+  });
+
+  it("an output with two rules that disagree is marked as a contradiction", () => {
+    const g = dia([1, 1, 1]);
+    expect(g.nodes.find((n) => n.id === "out:gate")).toMatchObject({ state: "CONTRADICTION", clash: true });
+    expect(g.nodes.find((n) => n.id === "out:alarm")).toMatchObject({ state: "undecided", clash: false });
+  });
+
+  it("fixed inputs cannot be tapped; the others carry their control index", () => {
+    const g = dia(rc.init(d));
+    expect(g.nodes.find((n) => n.id === "curfew")).toMatchObject({ locked: true, index: null });
+    expect(g.nodes.find((n) => n.id === "res")).toMatchObject({ locked: false, index: 2 });
+  });
+
+  it("nothing overlaps, everything fits, and wires meet their boxes' edges", () => {
+    const g = dia(rc.init(d));
+    for (const [i, a] of g.nodes.entries()) {
+      expect(a.x + a.w).toBeLessThanOrEqual(g.width);
+      expect(a.y + a.h).toBeLessThanOrEqual(g.height);
+      for (const b of g.nodes.slice(i + 1)) {
+        expect(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y, `${a.id} overlaps ${b.id}`).toBe(true);
+      }
+    }
+    const byId = Object.fromEntries(g.nodes.map((n) => [n.id, n]));
+    for (const w of g.wires) {
+      expect(w.x1).toBe(byId[w.from]!.x + byId[w.from]!.w);
+      expect(w.x2).toBe(byId[w.to]!.x);
+    }
+  });
+
+  it("is deterministic, and flipping an input changes states but not positions", () => {
+    const a = dia([1, 0, 0]);
+    const b = dia([1, 1, 0]);
+    expect(b.nodes.map((n) => [n.x, n.y])).toEqual(a.nodes.map((n) => [n.x, n.y]));
+    expect(dia([1, 0, 0])).toEqual(a);
   });
 });

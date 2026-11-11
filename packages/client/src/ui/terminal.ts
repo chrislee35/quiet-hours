@@ -1,5 +1,6 @@
 import { powerRouting, type BoardView, type PuzzleView, type Sim, type TerminalView } from "@qh/core";
 import { playNotes } from "../sound.ts";
+import { circuitMarkup, ruleMarkup } from "./diagrams.ts";
 
 const SIDE_NAMES = ["N", "E", "S", "W"] as const;
 const PIECE_NAMES: Record<string, string> = { I: "straight pipe", L: "corner", T: "tee junction", "+": "cross junction", E: "dead end", ".": "empty" };
@@ -336,42 +337,15 @@ export class TerminalWindow {
     return grid;
   }
 
-  /**
-   * The circuit as a drawing: switches on the left, gates in columns, lamps on the right, wires between them. A wire
-   * that carries ON is thick and solid; one that carries off is thin and dashed, so state is never colour alone. Each
-   * box also says its state in words, and clicking a switch flips it (the switch buttons above do the same for the keyboard).
-   */
-  private diagram(d: Circuit["diagram"], solved: boolean): SVGElement {
-    const root = svg("svg", { viewBox: `0 0 ${d.width} ${d.height}`, class: "qh-diagram", role: "img", "aria-label": "Circuit diagram: switches, gates and lamps joined by wires. The lists below give the same wiring in words." });
-    for (const w of d.wires) {
-      const dx = Math.max(24, (w.x2 - w.x1) / 2);
-      root.append(svg("path", { d: `M${w.x1} ${w.y1} C${w.x1 + dx} ${w.y1}, ${w.x2 - dx} ${w.y2}, ${w.x2} ${w.y2}`, class: `wire ${w.value ? "on" : "off"}` }));
-    }
-    const text = (x: number, y: number, s: string, cls: string): SVGElement => {
-      const t = svg("text", { x, y, class: cls });
-      t.textContent = s;
-      return t;
-    };
-    for (const n of d.nodes) {
-      const g = svg("g", { class: `node ${n.kind}${n.value ? " on" : ""}${n.met === false ? " unmet" : ""}${n.locked ? " locked" : ""}` });
-      g.append(svg("rect", { x: n.x, y: n.y, width: d.box.w, height: d.box.h, rx: n.kind === "lamp" ? 17 : 6 }));
-      const mid = n.x + d.box.w / 2;
-      if (n.kind === "switch") {
-        g.append(text(mid, n.y + 14, n.label, "label"), text(mid, n.y + 28, `${n.value ? "ON" : "off"}${n.locked ? " (fixed)" : ""}`, "state"));
-        if (n.index !== null && !solved) {
-          const index = n.index;
-          g.classList.add("tappable");
-          g.addEventListener("click", () => this.tap(index));
-        }
-      } else if (n.kind === "gate") {
-        g.append(text(mid, n.y + 16, n.label, "op"), text(mid, n.y + 29, `${n.tag} ${n.value ? "ON" : "off"}`, "state"));
-      } else {
-        g.append(svg("circle", { cx: n.x + 17, cy: n.y + 17, r: 8, class: "bulb" }));
-        g.append(text(n.x + 32, n.y + 14, n.label, "label left"), text(n.x + 32, n.y + 28, `needs ${n.want ? "ON" : "off"} ${n.met ? "✓" : "✗"}`, "state left"));
-      }
-      root.append(g);
-    }
-    return root;
+  /** Mounts a drawing built from markup; clicking a switch (data-tap) taps it. Keyboard users have the buttons above. */
+  private drawing(markup: string): HTMLElement {
+    const holder = this.el("div", "", "qh-drawing");
+    holder.innerHTML = markup; // markup comes from ui/diagrams.ts, which escapes every piece of content text
+    holder.addEventListener("click", (e) => {
+      const hit = (e.target as Element).closest("[data-tap]");
+      if (hit instanceof Element) this.tap(Number(hit.getAttribute("data-tap")));
+    });
+    return holder;
   }
 
   private circuit(p: Circuit, solved: boolean, controls: HTMLButtonElement[]): HTMLElement {
@@ -387,7 +361,7 @@ export class TerminalWindow {
       inputs.append(b);
       controls[i.index] = b;
     }
-    wrap.append(inputs, this.el("h3", "Circuit"), this.diagram(p.diagram, solved), this.el("h3", "Gates"));
+    wrap.append(inputs, this.el("h3", "Circuit"), this.drawing(circuitMarkup(p.diagram, solved)), this.el("h3", "Gates"));
     const gates = this.el("ul", "", "rulelist");
     for (const g of p.gates) {
       gates.append(this.el("li", `${g.id} = ${g.op}(${g.reads.join(", ")}) is ${g.value ? "ON" : "off"}   ⟶ feeds ${g.feeds.length > 0 ? g.feeds.join(", ") : "nothing"}`, g.value ? "applies" : ""));
@@ -416,7 +390,7 @@ export class TerminalWindow {
       inputs.append(b);
       controls[i.index] = b;
     }
-    wrap.append(inputs, this.el("h3", "Rules"));
+    wrap.append(inputs, this.el("h3", "Diagram"), this.drawing(ruleMarkup(p.diagram, solved)), this.el("h3", "Rules"));
     const rules = this.el("ul", "", "rulelist");
     for (const r of p.rules) rules.append(this.el("li", `${r.applies ? "▶ " : "· "}${r.text}${r.applies ? " (applies)" : ""}`, r.applies ? "applies" : ""));
     wrap.append(rules, this.el("h3", "Decisions"));

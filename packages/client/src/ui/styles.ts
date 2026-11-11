@@ -129,23 +129,33 @@ export const OVERLAY_CSS = `
 .qh-rules .input:hover:not(:disabled), .qh-rules .input:focus-visible { outline: 2px solid #ffd36b; }
 .qh-rules ul { list-style: none; margin: 0; padding: 0; font-size: .9em; }
 .qh-rules li { padding: 3px 0; color: #9aa0c4; }
-.qh-diagram { width: 100%; height: auto; display: block; margin: 6px 0 10px; background: #0d1020; border: 1px solid #2f3452; border-radius: 6px; }
+.qh-drawing { margin: 6px 0 10px; }
+.qh-diagram { width: 100%; height: auto; display: block; background: #0a0c18; border: 1px solid #2f3452; border-radius: 6px; }
 .qh-diagram .wire { fill: none; }
-.qh-diagram .wire.on { stroke: #8ff6ff; stroke-width: 3.2; }
-.qh-diagram .wire.off { stroke: #5b6288; stroke-width: 1.8; stroke-dasharray: 5 4; }
-.qh-diagram .node rect { fill: #151827; stroke: #3a3f5c; stroke-width: 1.5; }
-.qh-diagram .node.on rect { stroke: #1d8da3; fill: #0f2b35; }
-.qh-diagram .node.gate rect { stroke-dasharray: none; }
-.qh-diagram .node.lamp .bulb { fill: none; stroke: #9aa0c4; stroke-width: 2; }
+.qh-diagram .wire.on { stroke: #5fd6ee; stroke-width: 3; }
+.qh-diagram .wire.off { stroke: #6a7299; stroke-width: 1.6; stroke-dasharray: 5 4; }
+.qh-diagram .node rect { fill: #161a2e; stroke: #5a6392; stroke-width: 1.5; }
+.qh-diagram .node.on rect { fill: #14283a; stroke: #4cc3dd; stroke-width: 2; }
+.qh-diagram .node.rule.on rect { fill: #2a2410; stroke: #e0b43c; }
+.qh-diagram .node.lamp .bulb { fill: none; stroke: #aab1d6; stroke-width: 2; }
 .qh-diagram .node.lamp.on .bulb { fill: #ffd36b; stroke: #ffd36b; }
-.qh-diagram .node.lamp.unmet rect { stroke: #ff7a8a; }
+.qh-diagram .node.unmet rect { stroke: #ff7f95; stroke-width: 2; }
+.qh-diagram .node.clash rect { fill: #3a1424; stroke: #ff6b86; stroke-width: 2.5; }
 .qh-diagram .node.tappable { cursor: pointer; }
 .qh-diagram .node.tappable:hover rect { stroke: #ffd36b; }
-.qh-diagram text { fill: #dfe2f3; font: 600 11px system-ui, sans-serif; text-anchor: middle; pointer-events: none; }
+.qh-diagram text { fill: #f1f3ff; font: 600 11px system-ui, sans-serif; text-anchor: middle; pointer-events: none; }
 .qh-diagram text.op { font-size: 13px; letter-spacing: .04em; }
-.qh-diagram text.state { fill: #9aa0c4; font-weight: 400; font-size: 10px; }
+.qh-diagram text.state { fill: #bcc3e6; font-weight: 500; font-size: 10px; }
+.qh-diagram .node.on text.state { fill: #a6ecff; }
+.qh-diagram .node.rule.on text.state { fill: #ffe39a; }
+.qh-diagram .node.clash text { fill: #ffe0e6; }
+.qh-diagram text.body { font-weight: 400; font-size: 11px; fill: #dfe3f8; }
 .qh-diagram text.left { text-anchor: start; }
-.qh-diagram .node.on text.state { fill: #8ff6ff; }
+.qh-diagram text.head { fill: #8fa0e0; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.qh-diagram text.wlabel { fill: #8e97c2; font-size: 9px; font-weight: 500; paint-order: stroke; stroke: #0a0c18; stroke-width: 3px; }
+.qh-diagram text.wlabel.on { fill: #a6ecff; }
+.qh-diagram text.wlabel.end { text-anchor: end; }
+.qh-diagram text.wlabel.start { text-anchor: start; }
 .qh-rules li .chain { font-family: monospace; font-size: .8em; color: #9aa0c4; font-weight: 400; word-break: break-word; margin: 1px 0 4px 1.4em; }
 .qh-rules li.applies { color: #dfe2f3; }
 .qh-rules li.bad { color: #ff9a9a; font-weight: 700; }

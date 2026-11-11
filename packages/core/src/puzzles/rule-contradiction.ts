@@ -103,16 +103,134 @@ export function solve(def: RuleContradictionDef, from: readonly number[] = init(
   return best;
 }
 
+export interface RuleNode {
+  id: string;
+  kind: "input" | "rule" | "output";
+  /** Input and output: its name. Rule: its number ("Rule 1"). */
+  label: string;
+  /** Rules: the rule's wording, wrapped into short lines. */
+  lines: string[];
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** The state in words: ON/off, applies/waiting, undecided/yes/no/CONTRADICTION. */
+  state: string;
+  /** Inputs that are on, rules that apply, outputs that have been decided. */
+  active: boolean;
+  /** Outputs in contradiction. */
+  clash: boolean;
+  /** Inputs: the control index a tap sends (null when fixed). */
+  index: number | null;
+  locked: boolean;
+}
+
+export interface RuleWire {
+  from: string;
+  to: string;
+  /** What the wire says: an input wire "needs ON/off", an output wire "forces yes/no". */
+  label: string;
+  /** Input wires: the condition currently holds. Output wires: the rule applies, so the order is in force. */
+  live: boolean;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+/** The drawing: inputs on the left, MERIDIAN's rules in the middle, its decisions on the right. */
+export interface RuleDiagram {
+  width: number;
+  height: number;
+  nodes: RuleNode[];
+  wires: RuleWire[];
+}
+
 export interface RuleView {
+  diagram: RuleDiagram;
   inputs: { index: number; name: string; value: boolean; locked: boolean }[];
   rules: { text: string; applies: boolean }[];
   outputs: { name: string; forced: Forced }[];
   goal: string | null;
 }
 
+/** Splits text into lines of at most `max` characters at word boundaries. */
+export function wrap(text: string, max: number): string[] {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (line && line.length + 1 + word.length > max) {
+      lines.push(line);
+      line = word;
+    } else line = line ? `${line} ${word}` : word;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+const IN = { w: 132, h: 34 };
+const RULE = { w: 236 };
+const OUT = { w: 132, h: 40 };
+const GAP_X = 70;
+const PAD = 14;
+const LINE_H = 14;
+
+/**
+ * Lays the rules out for drawing: inputs, rules, decisions in three columns, wires from each input to the rules
+ * that test it, and from each rule to the output it forces. Pure and deterministic.
+ */
+export function layout(def: RuleContradictionDef, values: readonly number[]): RuleDiagram {
+  const f = forced(def, values);
+  const ruleLines = def.rules.map((r) => wrap(r.text, 34).slice(0, 4));
+  const ruleH = ruleLines.map((l) => 28 + l.length * LINE_H);
+  const ruleCol = PAD + IN.w + GAP_X;
+  const outCol = ruleCol + RULE.w + GAP_X;
+  const SP = 14;
+  const rulesTotal = ruleH.reduce((s, h) => s + h, 0) + SP * (def.rules.length - 1);
+  const colTotal = (n: number, h: number) => n * h + SP * (n - 1);
+  const height = PAD * 2 + Math.max(rulesTotal, colTotal(def.inputs.length, IN.h + 12), colTotal(def.outputs.length, OUT.h + 12));
+  const spread = (n: number, h: number, i: number) => {
+    const gap = n > 1 ? (height - PAD * 2 - n * h) / (n - 1) : 0;
+    return n > 1 ? PAD + i * (h + gap) : (height - h) / 2;
+  };
+  const nodes: RuleNode[] = [];
+  def.inputs.forEach((inp, index) => {
+    const on = values[index] === 1;
+    nodes.push({ id: inp.id, kind: "input", label: inp.name, lines: [], x: PAD, y: spread(def.inputs.length, IN.h, index), w: IN.w, h: IN.h, state: on ? "ON" : "off", active: on, clash: false, index: inp.locked ? null : index, locked: inp.locked === true });
+  });
+  let y = PAD + (height - PAD * 2 - rulesTotal) / 2;
+  def.rules.forEach((r, k) => {
+    const applies = Object.entries(r.if).every(([id, want]) => (values[def.inputs.findIndex((i) => i.id === id)] === 1) === want);
+    nodes.push({ id: `rule:${r.id}`, kind: "rule", label: `Rule ${k + 1}`, lines: ruleLines[k]!, x: ruleCol, y, w: RULE.w, h: ruleH[k]!, state: applies ? "applies" : "waiting", active: applies, clash: false, index: null, locked: false });
+    y += ruleH[k]! + SP;
+  });
+  def.outputs.forEach((o, k) => {
+    const s = f[o.id] ?? "none";
+    nodes.push({ id: `out:${o.id}`, kind: "output", label: o.name, lines: [], x: outCol, y: spread(def.outputs.length, OUT.h, k), w: OUT.w, h: OUT.h, state: { none: "undecided", true: "yes", false: "no", contradiction: "CONTRADICTION" }[s], active: s !== "none", clash: s === "contradiction", index: null, locked: false });
+  });
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const wires: RuleWire[] = [];
+  def.rules.forEach((r) => {
+    const rule = byId.get(`rule:${r.id}`)!;
+    const conds = Object.entries(r.if);
+    conds.forEach(([id, want], k) => {
+      const inp = byId.get(id)!;
+      const holds = (values[def.inputs.findIndex((i) => i.id === id)] === 1) === want;
+      wires.push({ from: id, to: rule.id, label: `needs ${want ? "ON" : "off"}`, live: holds, x1: inp.x + inp.w, y1: inp.y + inp.h / 2, x2: rule.x, y2: rule.y + (rule.h * (k + 1)) / (conds.length + 1) });
+    });
+    const thens = Object.entries(r.then);
+    thens.forEach(([id, v], k) => {
+      const out = byId.get(`out:${id}`)!;
+      wires.push({ from: rule.id, to: out.id, label: v ? "forces yes" : "forces no", live: rule.active, x1: rule.x + rule.w, y1: rule.y + (rule.h * (k + 1)) / (thens.length + 1), x2: out.x, y2: out.y + out.h / 2 });
+    });
+  });
+  return { width: outCol + OUT.w + PAD, height, nodes, wires };
+}
+
 export function view(def: RuleContradictionDef, values: readonly number[]): RuleView {
   const f = forced(def, values);
   return {
+    diagram: layout(def, values),
     inputs: def.inputs.map((i, index) => ({ index, name: i.name, value: values[index] === 1, locked: i.locked === true })),
     rules: def.rules.map((r) => ({ text: r.text, applies: applies(def, values, r) })),
     outputs: def.outputs.map((o) => ({ name: o.name, forced: f[o.id] ?? "none" })),

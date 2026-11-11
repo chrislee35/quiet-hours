@@ -93,6 +93,8 @@ export interface DiagramNode {
   tag: string;
   x: number;
   y: number;
+  /** Width of the box: lamps are wider so their names and "needs ON" fit. */
+  w: number;
   value: boolean;
   /** Switches: the control index a tap sends; fixed ones are null. */
   index: number | null;
@@ -135,6 +137,7 @@ export interface LogicView {
 }
 
 const BOX = { w: 84, h: 34 };
+const LAMP_W = 132;
 const COL = 150;
 const ROW = 56;
 const PAD = 14;
@@ -176,15 +179,15 @@ export function layout(def: LogicCircuitDef, values: readonly number[]): Diagram
     if (r.kind === "switch") {
       const i = def.inputs.findIndex((x) => x.id === r.id);
       const sw = def.inputs[i]!;
-      return { id: r.id, kind: "switch", label: short(r.id), tag: "", ...p, value: values[i] === 1, index: sw.locked ? null : i, locked: sw.locked === true };
+      return { id: r.id, kind: "switch", label: short(r.id), tag: "", ...p, w: BOX.w, value: values[i] === 1, index: sw.locked ? null : i, locked: sw.locked === true };
     }
     if (r.kind === "gate") {
       const g = def.gates.find((x) => x.id === r.id)!;
-      return { id: r.id, kind: "gate", label: g.op, tag: g.id, ...p, value: v[g.id] ?? false, index: null, locked: false };
+      return { id: r.id, kind: "gate", label: g.op, tag: g.id, ...p, w: BOX.w, value: v[g.id] ?? false, index: null, locked: false };
     }
     const k = Number(r.id.slice(4));
     const goal = def.goals[k]!;
-    return { id: r.id, kind: "lamp", label: goal.name, tag: goal.node, ...p, value: v[goal.node] ?? false, index: null, locked: false, want: goal.want, met: v[goal.node] === goal.want };
+    return { id: r.id, kind: "lamp", label: goal.name, tag: goal.node, ...p, w: LAMP_W, value: v[goal.node] ?? false, index: null, locked: false, want: goal.want, met: v[goal.node] === goal.want };
   });
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const wires: DiagramWire[] = [];
@@ -195,12 +198,12 @@ export function layout(def: LogicCircuitDef, values: readonly number[]): Diagram
       const n = r.sources.length;
       wires.push({
         from: src, to: r.id, slot, value: from.value,
-        x1: from.x + BOX.w, y1: from.y + BOX.h / 2,
+        x1: from.x + from.w, y1: from.y + BOX.h / 2,
         x2: to.x, y2: to.y + (BOX.h * (slot + 1)) / (n + 1),
       });
     });
   }
-  return { width: PAD * 2 + lampCol * COL + BOX.w, height: PAD * 2 + (tallest - 1) * ROW + BOX.h, box: BOX, nodes, wires };
+  return { width: PAD * 2 + lampCol * COL + LAMP_W, height: PAD * 2 + (tallest - 1) * ROW + BOX.h, box: BOX, nodes, wires };
 }
 
 export function view(def: LogicCircuitDef, values: readonly number[]): LogicView {
