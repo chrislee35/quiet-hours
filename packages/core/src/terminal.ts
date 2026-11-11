@@ -87,6 +87,20 @@ export function tapCell(ctx: Ctx, index: number): void {
   if (mod.isSolved(puzzle, next)) grantAccess(ctx, id, "puzzle");
 }
 
+/**
+ * Marks a terminal solved and runs its effects once, whatever the route (puzzle, bypass, assist). Used by the
+ * solvability checker to take a terminal "as a player would" without driving the puzzle's controls.
+ */
+export function completeTerminal(ctx: Ctx, terminalId: string, via: "puzzle" | "bypass" | "assist"): void {
+  const { state, content } = ctx;
+  const def = content.terminals[terminalId];
+  const puzzle = def ? content.puzzles[def.puzzle] : undefined;
+  const mod = puzzle ? puzzleModule(puzzle) : undefined;
+  if (!def || !puzzle || !mod) return;
+  state.terminals[terminalId] ??= { values: mod.init(puzzle), solved: false, taps: 0 };
+  grantAccess(ctx, terminalId, via);
+}
+
 /** Skips the open puzzle, if the player has the assist on and has tried enough. Always recorded as an assist, never as solving it. */
 export function skipPuzzle(ctx: Ctx): void {
   const id = ctx.state.terminal;

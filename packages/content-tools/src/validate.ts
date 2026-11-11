@@ -22,6 +22,8 @@ export interface ContentBundle {
   /** Tiled JSON exports; the map id is the file name without extension. */
   maps: ContentFile[];
   files: Record<Kind, ContentFile[]>;
+  /** What a new game starts with (credits and items): the real game and the solvability checker both read it. */
+  start?: ContentFile;
 }
 
 interface Entity {
@@ -35,7 +37,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [] };
 
   if (bundle.config) {
     try {
@@ -84,7 +86,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -208,6 +210,23 @@ export function validateContent(bundle: ContentBundle): Issue[] {
     }
     const stepIds = (entity.steps as { id: string }[]).map((s) => s.id);
     if (new Set(stepIds).size !== stepIds.length) say("has a duplicate step id");
+  }
+  // Goals: conditions well-formed, on a map that exists, about clues that exist.
+  for (const { file, entity } of entities.goals) {
+    const say = (m: string) => issues.push({ file, message: `goal "${entity.id}": ${m}` });
+    if (!mapIds.has(String(entity.map))) say(`names unknown map "${String(entity.map)}"`);
+    (entity.require as unknown[]).forEach((c, i) => {
+      for (const m of validateCondition(c, `require[${i}]`)) say(m);
+      for (const id of clueRefs(c)) if (!ids.clues.has(id)) say(`require[${i}] refers to unknown clue "${id}"`);
+    });
+  }
+  if (bundle.start) {
+    const s = bundle.start.data as { credits?: unknown; items?: unknown };
+    if (!Number.isInteger(s.credits) || (s.credits as number) < 0) issues.push({ file: bundle.start.file, message: "credits must be a whole number >= 0" });
+    for (const [id, n] of Object.entries((s.items ?? {}) as Record<string, unknown>)) {
+      if (!ids.items.has(id)) issues.push({ file: bundle.start.file, message: `starts with unknown item "${id}"` });
+      if (!Number.isInteger(n) || (n as number) < 1) issues.push({ file: bundle.start.file, message: `item "${id}" needs a count of at least 1` });
+    }
   }
   // Dialogue may only use services that exist.
   for (const { file, dialogue } of compiled) {

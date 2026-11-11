@@ -76,6 +76,8 @@ export interface TerminalDef {
   /** Applied once when access is gained (unlock a door, give a clue, set a flag...). */
   onSolve: Effect[];
   solvedText: string;
+  /** The way on depends on this terminal: the solvability checker requires at least two distinct ways through it (PUZ-1). */
+  critical?: boolean;
 }
 
 /** Everything the runtime needs besides game state. Injected like Config and World. */

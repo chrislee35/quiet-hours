@@ -89,6 +89,8 @@ Fails the build when any is true:
 - Use of `Math.random`, `Date.now`, DOM or WebGL in `packages/core` (lint).
 
 ## 7. Solvability checker
+*Status: v1 is built (see `docs/solvability.md`): reachability, soft locks and critical-puzzle redundancy are checked on the slice. The ending matrix (mentor × companion × route × stance), clue-provenance from different starts and companion exclusivity wait for that content (M3).*
+
 The checker abstracts the game to **(knowledge, flags, items, credits-band, zones-accessible, time-phase)** and searches for routes to each ending from a fresh start.
 
 It must report, for every combination of `{mentor ×4, companion ×4 (+ none), route ×3, past stance ×3}` with and without optional areas:

@@ -2,6 +2,7 @@ import { Sim, buildWorld, importTiled, validateConfig } from "@qh/core";
 import tuning from "../../../content/config/tuning.json" with { type: "json" };
 import stacksSlice from "../../../content/maps/stacks_slice.json" with { type: "json" };
 import robotRange from "../../../content/maps/robot_range.json" with { type: "json" };
+import startState from "../../../content/start.json" with { type: "json" };
 import { loadContent } from "./content.ts";
 import { PhaserRenderer } from "./render/PhaserRenderer.ts";
 import { DialogueWindow } from "./ui/dialogue.ts";
@@ -33,7 +34,10 @@ if (!host) throw new Error("missing #game element");
 
 // Slice scaffolding: give the player something to lose, so soft failure (confiscation) is visible.
 // Removed once real pickups and shops exist (T2.4/T2.5). New games start the same way.
-const SCAFFOLD: Parameters<typeof sim.tick>[0] = [{ type: "ApplyEffects", effects: [{ add_credits: 50 }, { add_item: ["scrap_wire", 2] }] }];
+// What a new game starts with comes from content/start.json, the same file the solvability checker starts from.
+const SCAFFOLD: Parameters<typeof sim.tick>[0] = [
+  { type: "ApplyEffects", effects: [{ add_credits: startState.credits }, ...Object.entries(startState.items).map(([id, n]) => ({ add_item: [id, n] as [string, number] }))] },
+];
 sim.tick(SCAFFOLD);
 const storage = safeStorage(typeof localStorage === "undefined" ? undefined : localStorage);
 const saves = new SaveStore(storage, world.id);

@@ -21,6 +21,7 @@ node: return_visit
 node: wares
   odd_sam: "Rumours, mostly. The Pump 4 night shift, for twenty credits. Or a free sample, if you don't mind it being stale."
   > [credits>=20, !clue:pump4_shift] "Buy the Pump 4 rumour. (20 credits)" {-credits:20, +clue:pump4_shift(odd_sam)} -> sold
+  > [credits>=30, !clue:maint_override] "Ask about the maintenance panel. (30 credits)" {-credits:30, +clue:maint_override(odd_sam)} -> override
   > [credits>=10, augment:slow_tongue, !clue:pump4_shift] "Haggle, slowly and soothingly. (10 credits)" {-credits:10, +clue:pump4_shift(odd_sam)} -> haggled
   > [!clue:pump4_shift_old] "Take the free sample." {+clue:pump4_shift_old(odd_sam)} -> sample
   > "Ask about papers. (40 credits)" {service:forge_stacks_pass} -> deal
@@ -42,6 +43,10 @@ node: loaned
 node: sold
   odd_sam (smug): "A pleasure. Remember, you never heard it from me."
   > "Understood." -> return_visit
+
+node: override
+  odd_sam (low): "A service code. Every panel in the Stacks has one, and every superintendent forgets it. Four, four, oh, seven. You did not hear it from me, and it will not work twice if anyone is counting."
+  > "Thank you." -> return_visit
 
 node: haggled
   odd_sam (unsettled): "You talk like a government pamphlet. Fine, ten. It is a pleasure and a little frightening."

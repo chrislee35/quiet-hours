@@ -3,8 +3,23 @@
     "id": "maint_panel",
     "title": "Maintenance door controller",
     "puzzle": "maint_power",
-    "bypass": [],
-    "onSolve": [{ "unlock_door": "door_maint_locked" }, { "set_flag": ["maint_panel_hacked", true] }],
-    "solvedText": "Relay restored. The maintenance door unlocks."
+    "bypass": [
+      {
+        "has_clue": "maint_override"
+      }
+    ],
+    "onSolve": [
+      {
+        "unlock_door": "door_maint_locked"
+      },
+      {
+        "set_flag": [
+          "maint_panel_hacked",
+          true
+        ]
+      }
+    ],
+    "solvedText": "Relay restored. The maintenance door unlocks.",
+    "critical": true
   }
 ]

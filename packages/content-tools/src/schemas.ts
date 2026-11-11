@@ -65,6 +65,7 @@ export const terminalSchema = {
     bypass: { type: "array" },
     onSolve: { type: "array" },
     solvedText: { type: "string" },
+    critical: { type: "boolean" },
   },
 } as const;
 
@@ -180,6 +181,13 @@ export const questSchema = {
   },
 } as const;
 
+export const goalSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "name", "map", "require"],
+  properties: { id, name: { type: "string", minLength: 1 }, map: { type: "string", minLength: 1 }, require: { type: "array", minItems: 1 } },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -191,6 +199,7 @@ export const kinds = {
   services: serviceSchema,
   reactions: reactionSchema,
   quests: questSchema,
+  goals: goalSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

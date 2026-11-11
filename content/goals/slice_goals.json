@@ -1,0 +1,12 @@
+[
+  {
+    "id": "reach_maintenance",
+    "name": "Get into the maintenance wing",
+    "map": "stacks_slice",
+    "require": [
+      {
+        "flag": "maint_panel_hacked"
+      }
+    ]
+  }
+]

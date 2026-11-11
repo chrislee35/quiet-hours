@@ -25,5 +25,15 @@
       "place:pump4"
     ],
     "links": []
+  },
+  {
+    "id": "maint_override",
+    "text": "The maintenance panel accepts a service override code, 4-4-0-7, which skips the power puzzle.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "place:pump4"
+    ],
+    "links": []
   }
 ]

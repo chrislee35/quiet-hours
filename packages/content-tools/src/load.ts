@@ -30,6 +30,8 @@ export function loadContent(root: string): { bundle: ContentBundle; issues: Issu
           .filter((f): f is ContentFile => f !== undefined)
       : [];
   }
+  const startPath = join(root, "start.json");
+  const start = existsSync(startPath) ? read(startPath, "start.json") : undefined;
   const mapDir = join(root, "maps");
   const maps = existsSync(mapDir)
     ? readdirSync(mapDir)
@@ -45,5 +47,5 @@ export function loadContent(root: string): { bundle: ContentBundle; issues: Issu
         .sort()
         .map((f) => ({ file: `dialogue/${f}`, text: readFileSync(join(dialogueDir, f), "utf8") }))
     : [];
-  return { bundle: { ...(config ? { config } : {}), dialogues, maps, files }, issues };
+  return { bundle: { ...(config ? { config } : {}), ...(start ? { start } : {}), dialogues, maps, files }, issues };
 }
