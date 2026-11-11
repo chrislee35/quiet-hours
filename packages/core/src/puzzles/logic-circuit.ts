@@ -86,16 +86,29 @@ export function solve(def: LogicCircuitDef, from: readonly number[] = init(def))
 
 export interface LogicView {
   inputs: { index: number; name: string; value: boolean; locked: boolean }[];
-  gates: { id: string; op: GateOp; reads: string[]; value: boolean }[];
-  goals: { name: string; want: boolean; value: boolean; met: boolean }[];
+  /** `reads` are the switches or gates it takes in; `feeds` are the gates and lamps it sends its value to. */
+  gates: { id: string; op: GateOp; reads: string[]; feeds: string[]; value: boolean }[];
+  /** `node` is the gate (or switch) the lamp is wired to; `chain` writes out how its value is made, with every value filled in. */
+  goals: { name: string; node: string; want: boolean; value: boolean; met: boolean; chain: string }[];
 }
 
 export function view(def: LogicCircuitDef, values: readonly number[]): LogicView {
   const v = evaluate(def, values);
-  const name = (id: string) => def.inputs.find((i) => i.id === id)?.name ?? id;
+  const short = (id: string) => def.inputs.find((i) => i.id === id)?.name.replace(/^Switch /, "").replace(/ \(fixed\)$/, "") ?? id;
+  const word = (on: boolean) => (on ? "ON" : "off");
+  /** "AND(XOR(A=ON, B=off)=ON, NOT(...)=off)=off": the whole tree under a node, with each value. */
+  const expand = (id: string): string => {
+    const g = def.gates.find((x) => x.id === id);
+    if (!g) return `${short(id)}=${word(v[id] ?? false)}`;
+    return `${g.op}(${g.in.map(expand).join(", ")})=${word(v[id] ?? false)}`;
+  };
+  const feeds = (id: string): string[] => [
+    ...def.gates.filter((g) => g.in.includes(id)).map((g) => g.id),
+    ...def.goals.filter((g) => g.node === id).map((g) => `${g.name} lamp`),
+  ];
   return {
     inputs: def.inputs.map((i, index) => ({ index, name: i.name, value: values[index] === 1, locked: i.locked === true })),
-    gates: def.gates.map((g) => ({ id: g.id, op: g.op, reads: g.in.map(name), value: v[g.id] ?? false })),
-    goals: def.goals.map((g) => ({ name: g.name, want: g.want, value: v[g.node] ?? false, met: v[g.node] === g.want })),
+    gates: def.gates.map((g) => ({ id: g.id, op: g.op, reads: g.in.map(short), feeds: feeds(g.id), value: v[g.id] ?? false })),
+    goals: def.goals.map((g) => ({ name: g.name, node: g.node, want: g.want, value: v[g.node] ?? false, met: v[g.node] === g.want, chain: expand(g.node) })),
   };
 }

@@ -306,3 +306,24 @@ describe("the registry knows the new kinds", () => {
     for (const kind of ["code_lock", "lights_out", "logic_circuit"]) expect(puzzleModule({ kind })).toBeDefined();
   });
 });
+
+describe("logic circuit view explains the wiring", () => {
+  const d: LogicCircuitDef = {
+    id: "w", kind: "logic_circuit",
+    inputs: [{ id: "a", name: "Switch A", value: true }, { id: "b", name: "Switch B" }, { id: "c", name: "Switch C (fixed)", value: true, locked: true }],
+    gates: [{ id: "g1", op: "XOR", in: ["a", "b"] }, { id: "g2", op: "AND", in: ["c", "g1"] }, { id: "g3", op: "NOT", in: ["g2"] }],
+    goals: [{ name: "Door", node: "g2", want: true }, { name: "Alarm", node: "g3", want: false }],
+  };
+  it("each gate says what it reads and what it feeds, and each lamp says which gate it is wired to", () => {
+    const v = lc.view(d, lc.init(d));
+    expect(v.gates.find((g) => g.id === "g1")).toMatchObject({ reads: ["A", "B"], feeds: ["g2"] });
+    expect(v.gates.find((g) => g.id === "g2")).toMatchObject({ reads: ["C", "g1"], feeds: ["g3", "Door lamp"] });
+    expect(v.gates.find((g) => g.id === "g3")!.feeds).toEqual(["Alarm lamp"]);
+    expect(v.goals.map((g) => [g.name, g.node])).toEqual([["Door", "g2"], ["Alarm", "g3"]]);
+  });
+  it("each lamp spells out the whole chain with every value", () => {
+    const v = lc.view(d, lc.init(d));
+    expect(v.goals[0]!.chain).toBe("AND(C=ON, XOR(A=ON, B=off)=ON)=ON");
+    expect(v.goals[1]!.chain).toBe("NOT(AND(C=ON, XOR(A=ON, B=off)=ON)=ON)=off");
+  });
+});

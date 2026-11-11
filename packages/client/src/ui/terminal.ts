@@ -155,7 +155,7 @@ export class TerminalWindow {
       body = this.fuses(p, view.solved, controls);
     } else if (p.kind === "logic_circuit") {
       status = `Lamps right: ${p.goals.filter((g) => g.met).length} of ${p.goals.length}`;
-      hint = "Flip the switches so every lamp shows what it needs to. Each gate reads the things listed beside it.";
+      hint = "Flip the switches so every lamp shows what it needs to. Each lamp is wired to one gate; each gate reads the switches or earlier gates listed in its brackets. The line under each lamp spells out the whole chain with every value filled in.";
       body = this.circuit(p, view.solved, controls);
     } else {
       const bad = p.outputs.filter((o) => o.forced === "contradiction").length;
@@ -351,10 +351,16 @@ export class TerminalWindow {
     }
     wrap.append(inputs, this.el("h3", "Gates"));
     const gates = this.el("ul", "", "rulelist");
-    for (const g of p.gates) gates.append(this.el("li", `${g.id} = ${g.op}(${g.reads.join(", ")}) → ${g.value ? "ON" : "off"}`, g.value ? "applies" : ""));
-    wrap.append(gates, this.el("h3", "Lamps"));
+    for (const g of p.gates) {
+      gates.append(this.el("li", `${g.id} = ${g.op}(${g.reads.join(", ")}) is ${g.value ? "ON" : "off"}   ⟶ feeds ${g.feeds.length > 0 ? g.feeds.join(", ") : "nothing"}`, g.value ? "applies" : ""));
+    }
+    wrap.append(gates, this.el("h3", "Lamps (each is wired to one gate)"));
     const goals = this.el("ul", "", "outputs");
-    for (const g of p.goals) goals.append(this.el("li", `${g.met ? "✓" : "✗"} ${g.name}: needs ${g.want ? "ON" : "off"}, is ${g.value ? "ON" : "off"}`, g.met ? "" : "bad"));
+    for (const g of p.goals) {
+      const li = this.el("li", `${g.met ? "✓" : "✗"} ${g.name} lamp ⟵ ${g.node}: needs ${g.want ? "ON" : "off"}, is ${g.value ? "ON" : "off"}`, g.met ? "" : "bad");
+      li.append(this.el("div", g.chain, "chain"));
+      goals.append(li);
+    }
     wrap.append(goals);
     return wrap;
   }

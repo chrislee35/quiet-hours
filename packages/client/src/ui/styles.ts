@@ -129,6 +129,7 @@ export const OVERLAY_CSS = `
 .qh-rules .input:hover:not(:disabled), .qh-rules .input:focus-visible { outline: 2px solid #ffd36b; }
 .qh-rules ul { list-style: none; margin: 0; padding: 0; font-size: .9em; }
 .qh-rules li { padding: 3px 0; color: #9aa0c4; }
+.qh-rules li .chain { font-family: monospace; font-size: .8em; color: #9aa0c4; font-weight: 400; word-break: break-word; margin: 1px 0 4px 1.4em; }
 .qh-rules li.applies { color: #dfe2f3; }
 .qh-rules li.bad { color: #ff9a9a; font-weight: 700; }
 .qh-terminal .leave { width: 100%; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 7px 10px; cursor: pointer; }
