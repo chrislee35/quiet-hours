@@ -13,6 +13,7 @@
     "lint": "pnpm typecheck && node scripts/check-core-purity.ts && node scripts/check-tuning.ts",
     "check:tuning": "node scripts/check-tuning.ts",
     "solvable": "node packages/content-tools/src/solve-cli.ts content",
+    "web": "node packages/content-tools/src/web-cli.ts content",
     "validate": "node packages/content-tools/src/cli.ts content",
     "test": "vitest run",
     "check:no-debug": "node scripts/check-no-debug.ts packages/client/dist",

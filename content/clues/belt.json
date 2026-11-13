@@ -1,0 +1,110 @@
+[
+  {
+    "id": "power_node_map",
+    "text": "Four power nodes feed the Industrial Belt. Node 4 also feeds the Gate's auxiliary supply.",
+    "source": "doc:power_diagram",
+    "reliability": "true",
+    "tags": [
+      "place:belt",
+      "topic:power",
+      "topic:gate"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:gus_varga"
+    ],
+    "critical": true,
+    "for": [
+      "route:break"
+    ]
+  },
+  {
+    "id": "node4_location",
+    "text": "Node 4 is behind Pump 4's side door.",
+    "source": "npc:gus_varga",
+    "reliability": "true",
+    "tags": [
+      "place:pump4",
+      "topic:power"
+    ],
+    "links": [
+      {
+        "to": "power_node_map",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:brindle"
+    ],
+    "critical": true,
+    "for": [
+      "route:break"
+    ]
+  },
+  {
+    "id": "node4_cut_effect",
+    "text": "Cutting Node 4 blacks out the Stacks cameras and slows the Gate's re-verification. A repair crew arrives in about an hour.",
+    "source": "npc:brindle",
+    "reliability": "true",
+    "tags": [
+      "topic:power",
+      "topic:gate",
+      "place:pump4"
+    ],
+    "links": [
+      {
+        "to": "node4_location",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:pallas"
+    ],
+    "critical": true,
+    "for": [
+      "route:break"
+    ]
+  },
+  {
+    "id": "gate_fails_open",
+    "text": "If the Gate's auxiliary power drops while it is unsure about someone, its doors stay open.",
+    "source": "npc:tobias",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "topic:power"
+    ],
+    "links": [
+      {
+        "to": "node4_cut_effect",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "doc:gate_manual"
+    ],
+    "critical": true,
+    "for": [
+      "route:break"
+    ]
+  },
+  {
+    "id": "scrap_pallas",
+    "text": "Pallas is scrap. Its drive is cracked and nobody can repair it.",
+    "source": "npc:gus_varga",
+    "reliability": "outdated",
+    "tags": [
+      "person:pallas",
+      "topic:companions"
+    ],
+    "links": [
+      {
+        "to": "pallas_cargo",
+        "kind": "updates"
+      }
+    ],
+    "for": [
+      "companion:pallas"
+    ]
+  }
+]

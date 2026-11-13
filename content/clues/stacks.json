@@ -1,0 +1,156 @@
+[
+  {
+    "id": "null_pending",
+    "text": "A scanner that finds no record on you says PENDING REVIEW and waits. It does not sound an alarm.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "topic:null_state"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:odd_sam"
+    ],
+    "critical": true,
+    "for": [
+      "route:sneak",
+      "route:hack"
+    ]
+  },
+  {
+    "id": "forged_pass_scan",
+    "text": "A forged pass fools an ordinary scan. An Auditor's scan reads the maker's mark and catches it.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "topic:identity",
+      "person:odd_sam"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:ines"
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "auditor_night",
+    "text": "At night the Wardens go back to their depots to be updated. The Auditors and the Hounds stay out.",
+    "source": "npc:silas",
+    "reliability": "true",
+    "tags": [
+      "schedule:quiet_hours",
+      "topic:robots"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:tobias"
+    ],
+    "for": [
+      "world"
+    ]
+  },
+  {
+    "id": "laundry_locker",
+    "text": "Locker 9 in the Stacks laundry has no name on it and has not been opened in a year.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "place:laundry",
+      "topic:past_self"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:mrs_adeyemi_roth"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "laundry_key",
+    "text": "The key that came down the laundry chute with you fits Locker 9.",
+    "source": "observe:laundry_chute",
+    "reliability": "true",
+    "tags": [
+      "place:laundry",
+      "topic:past_self",
+      "topic:breadcrumb"
+    ],
+    "links": [
+      {
+        "to": "laundry_locker",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:silas"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "pa_shift_time",
+    "text": "The Civic Voice says the Pump 4 crew changes at 22:00.",
+    "source": "broadcast:civic_voice",
+    "reliability": "false",
+    "tags": [
+      "place:pump4",
+      "schedule:night_shift"
+    ],
+    "links": [
+      {
+        "to": "pump4_crew_change",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "world"
+    ]
+  },
+  {
+    "id": "pump4_crew_change",
+    "text": "The Pump 4 crew changes at 21:40, twenty minutes before the voice says.",
+    "source": "npc:gus_varga",
+    "reliability": "true",
+    "tags": [
+      "place:pump4",
+      "schedule:night_shift"
+    ],
+    "links": [
+      {
+        "to": "pump4_shift",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:brindle"
+    ],
+    "for": [
+      "route:break"
+    ]
+  },
+  {
+    "id": "pump4_guarded",
+    "text": "Pump 4's side door is watched by a Warden every hour of the day and night.",
+    "source": "npc:mrs_adeyemi_roth",
+    "reliability": "planted",
+    "tags": [
+      "place:pump4",
+      "topic:informants"
+    ],
+    "links": [
+      {
+        "to": "pump4_shift",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "route:break"
+    ]
+  }
+]

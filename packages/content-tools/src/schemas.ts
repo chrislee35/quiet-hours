@@ -13,6 +13,12 @@ export const clueSchema = {
     /** "<kind>:<id>", e.g. npc:odd_sam. Referenced kinds are integrity-checked. */
     source: { type: "string", pattern: "^[a-z]+:[a-z][a-z0-9_]*$" },
     reliability: { enum: ["true", "false", "outdated", "planted"] },
+    /** Other places the same fact can be learned (same "<kind>:<id>" form): a clue the game needs is learnable at least two ways. */
+    alsoFrom: { type: "array", items: { type: "string", pattern: "^[a-z]+:[a-z][a-z0-9_]*$" } },
+    /** The way on depends on the player learning this (a route, a companion, the past): the web checks it has two sources. */
+    critical: { type: "boolean" },
+    /** What it is needed for: route:sneak, route:hack, route:break, past, companion:pallas, side:sq_03, ... */
+    for: { type: "array", items: { type: "string", pattern: "^[a-z][a-z0-9]*(:[a-z0-9_]+)?$" } },
     tags: { type: "array", items: { type: "string", pattern: "^[a-z]+:[a-z0-9_]+$" } },
     links: {
       type: "array",

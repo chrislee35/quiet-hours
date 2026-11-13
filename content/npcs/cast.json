@@ -1,0 +1,134 @@
+[
+  {
+    "id": "ines",
+    "name": "Ines Calloway",
+    "role": "mentor_candidate",
+    "district": "civic_core"
+  },
+  {
+    "id": "maren",
+    "name": "Maren Okafor",
+    "role": "mentor_candidate",
+    "district": "underworks"
+  },
+  {
+    "id": "tobias",
+    "name": "Tobias Hale",
+    "role": "mentor_candidate",
+    "district": "gate"
+  },
+  {
+    "id": "silas",
+    "name": "Silas Brandt",
+    "role": "mentor_candidate",
+    "district": "stacks"
+  },
+  {
+    "id": "marrow",
+    "name": "Marrow",
+    "role": "elder",
+    "district": "hollow"
+  },
+  {
+    "id": "juniper",
+    "name": "Juniper",
+    "role": "ward",
+    "district": "hollow"
+  },
+  {
+    "id": "bede",
+    "name": "Bede",
+    "role": "gardener",
+    "district": "hollow"
+  },
+  {
+    "id": "host",
+    "name": "The Host",
+    "role": "robot_host",
+    "district": "lull"
+  },
+  {
+    "id": "lila_voss",
+    "name": "Lila Voss",
+    "role": "lull_regular",
+    "district": "lull"
+  },
+  {
+    "id": "odile",
+    "name": "Odile Marchetti",
+    "role": "signatory",
+    "district": "lull"
+  },
+  {
+    "id": "doc_perrin",
+    "name": "Doc Perrin",
+    "role": "medic",
+    "district": "safehouse"
+  },
+  {
+    "id": "teeter",
+    "name": "Teeter",
+    "role": "radio_operator",
+    "district": "safehouse"
+  },
+  {
+    "id": "mrs_adeyemi_roth",
+    "name": "Mrs. Adeyemi-Roth",
+    "role": "informant",
+    "district": "stacks"
+  },
+  {
+    "id": "dov_anselm",
+    "name": "Dov Anselm",
+    "role": "clerk",
+    "district": "civic_core"
+  },
+  {
+    "id": "ticket",
+    "name": "Ticket",
+    "role": "queue_bot",
+    "district": "civic_core"
+  },
+  {
+    "id": "pell",
+    "name": "Auditor Pell",
+    "role": "auditor",
+    "district": "civic_core"
+  },
+  {
+    "id": "gus_varga",
+    "name": "Gus Varga",
+    "role": "foreman",
+    "district": "belt"
+  },
+  {
+    "id": "brindle",
+    "name": "Brindle",
+    "role": "conveyor_robot",
+    "district": "belt"
+  },
+  {
+    "id": "quill",
+    "name": "Quill",
+    "role": "tunnel_runner",
+    "district": "underworks"
+  },
+  {
+    "id": "conductor",
+    "name": "The Conductor",
+    "role": "train_ai",
+    "district": "underworks"
+  },
+  {
+    "id": "halloran_7",
+    "name": "Case Officer Halloran-7",
+    "role": "case_manager",
+    "district": "city"
+  },
+  {
+    "id": "civic_voice",
+    "name": "The Civic Voice",
+    "role": "announcer",
+    "district": "city"
+  }
+]

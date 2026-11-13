@@ -1,7 +1,9 @@
 import Ajv from "ajv";
+import type { ClueDef } from "@qh/core";
 import { validateCondition, validateEffect, ConfigError, TiledImportError, WorldError, buildWorld, compileDialogue, importTiled, validateConfig, type Dialogue, type MapData } from "@qh/core";
 import { clueGates, cluesGiven, unrecoverableTrust } from "./dialogue-checks.ts";
 import { checkPuzzles, checkTerminals } from "./terminal-checks.ts";
+import { analyseWeb } from "./web.ts";
 import { kinds, type Kind } from "./schemas.ts";
 
 export interface Issue {
@@ -109,6 +111,10 @@ export function validateContent(bundle: ContentBundle): Issue[] {
       if (link.to === entity.id) issues.push({ file, message: `clue "${entity.id}": links to itself` });
     }
   }
+
+  // The information web's design rules (T3.1).
+  const clueFile = new Map(entities.clues.map(({ file, entity }) => [entity.id, file] as const));
+  issues.push(...analyseWeb(entities.clues.map((c) => c.entity as unknown as ClueDef), new Set(entities.npcs.map((n) => n.entity.id)), (id) => clueFile.get(id) ?? "clues").issues);
 
   // 4. Dialogues: compile (syntax, dead ends, unreachable nodes, known ids), then cross-file checks.
   const clueIds = ids.clues;

@@ -1,0 +1,106 @@
+[
+  {
+    "id": "train7_gate",
+    "text": "Train 7 carries service staff to the Gate's service platform each weekday at 13:52.",
+    "source": "npc:maren",
+    "reliability": "true",
+    "tags": [
+      "place:underworks",
+      "schedule:train_7",
+      "place:gate"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:conductor"
+    ],
+    "critical": true,
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "train7_old",
+    "text": "Train 7 reaches the Gate at 13:40.",
+    "source": "npc:quill",
+    "reliability": "outdated",
+    "tags": [
+      "schedule:train_7",
+      "place:underworks"
+    ],
+    "links": [
+      {
+        "to": "train7_gate",
+        "kind": "updates"
+      }
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "quill_shortcut",
+    "text": "Quill knows a service tunnel from the Underworks to the Hollow's outer ring.",
+    "source": "npc:quill",
+    "reliability": "true",
+    "tags": [
+      "person:quill",
+      "place:underworks",
+      "place:hollow"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:maren"
+    ],
+    "critical": true,
+    "for": [
+      "companion:june",
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "tunnel_scanners_low",
+    "text": "The scanners in Quill's tunnel are set low enough that a child can pass beneath them.",
+    "source": "npc:quill",
+    "reliability": "true",
+    "tags": [
+      "place:underworks",
+      "topic:identity"
+    ],
+    "links": [
+      {
+        "to": "quill_shortcut",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:maren"
+    ],
+    "critical": true,
+    "for": [
+      "companion:june"
+    ]
+  },
+  {
+    "id": "service_platform_unwatched",
+    "text": "The Gate's service platform is checked for passes, not faces, between 13:50 and 14:10.",
+    "source": "npc:maren",
+    "reliability": "true",
+    "tags": [
+      "place:gate",
+      "schedule:platform_window"
+    ],
+    "links": [
+      {
+        "to": "train7_gate",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:tobias"
+    ],
+    "critical": true,
+    "for": [
+      "route:sneak"
+    ]
+  }
+]

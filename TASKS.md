@@ -60,6 +60,7 @@ Goal: concept §11.1. Uses a trimmed Stacks block.
 | T2.15 | **Solvability checker v1** (knowledge/flag/item graph search). | ADR-6 | T1.7, T1.8 | L | Checker finds an intentional dead end in a fixture; CI step added. |
 
 ## M3 — Content pass
+**Status:** T3.1 done (83 clues across the Stacks, Safehouse, past, Civic Core, Belt, Underworks, Hollow, Lull and Gate; 22 people; design rules enforced by `pnpm validate`; the design sheet `docs/information-web.md` is generated from the data by `pnpm web`). Remaining: T3.2-T3.17.
 Content order is chosen to unblock the solvability checker early: build the full information backbone before polish assets.
 | ID | Task | Reqs | Dep | Size | Done when |
 |---|---|---|---|---|---|

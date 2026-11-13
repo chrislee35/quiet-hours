@@ -1,0 +1,154 @@
+[
+  {
+    "id": "wren_vouches",
+    "text": "Wren vouches for four people who might help you: Ines, Maren, Tobias and Silas. Each of them knew someone who worked on the Gate.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "person:wren",
+      "topic:mentors"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:odd_sam"
+    ],
+    "critical": true,
+    "for": [
+      "mentor"
+    ]
+  },
+  {
+    "id": "ines_records",
+    "text": "Ines Calloway kept the Civic Core's records until a year ago. She knows which forms can be altered and which cannot.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "person:ines",
+      "topic:mentors"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:ines"
+    ],
+    "for": [
+      "mentor"
+    ]
+  },
+  {
+    "id": "maren_trains",
+    "text": "Maren Okafor dispatched the trains under the city and knows every timetable by heart.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "person:maren",
+      "topic:mentors"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:maren"
+    ],
+    "for": [
+      "mentor"
+    ]
+  },
+  {
+    "id": "tobias_gate_shift",
+    "text": "Tobias Hale stood a guard shift at the Gate for years. He does not talk about one night.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "person:tobias",
+      "topic:mentors"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:silas"
+    ],
+    "for": [
+      "mentor"
+    ]
+  },
+  {
+    "id": "silas_hears",
+    "text": "Silas Brandt keeps the Stacks building and hears everything said in its stairwells.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "person:silas",
+      "topic:mentors"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:mrs_adeyemi_roth"
+    ],
+    "for": [
+      "mentor"
+    ]
+  },
+  {
+    "id": "mentor_slip",
+    "text": "Your mentor called you 'Alder' and then said they had not.",
+    "source": "scene:mentor_slip",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:mentors",
+      "topic:breadcrumb"
+    ],
+    "links": [
+      {
+        "to": "alder_name",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:ines",
+      "npc:maren",
+      "npc:tobias",
+      "npc:silas"
+    ],
+    "critical": true,
+    "for": [
+      "past",
+      "mentor"
+    ]
+  },
+  {
+    "id": "memory_anchor_exists",
+    "text": "Doc Perrin can build an augment called a Memory Anchor that keeps the Lull from smudging your notebook.",
+    "source": "npc:doc_perrin",
+    "reliability": "true",
+    "tags": [
+      "person:doc_perrin",
+      "place:lull",
+      "topic:augments"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:teeter"
+    ],
+    "critical": true,
+    "for": [
+      "lull"
+    ]
+  },
+  {
+    "id": "tobias_clerk",
+    "text": "Tobias Hale never stood a Gate shift. He was a records clerk with a vivid imagination.",
+    "source": "npc:silas",
+    "reliability": "false",
+    "tags": [
+      "person:tobias",
+      "topic:mentors"
+    ],
+    "links": [
+      {
+        "to": "tobias_gate_shift",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "mentor"
+    ]
+  }
+]

@@ -1,0 +1,276 @@
+[
+  {
+    "id": "band_scratch",
+    "text": "Inside the wrist band there is a faint engraving: ALD-0417 and the letters G-PROJ.",
+    "source": "observe:wrist_band",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:breadcrumb"
+    ],
+    "links": [
+      {
+        "to": "alder_name",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:pallas"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "alder_name",
+    "text": "Before it was blanked, the band was registered to R. Alder, an auditor.",
+    "source": "npc:pallas",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "person:pallas"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "doc:auditors_ledger",
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "pallas_log_handle",
+    "text": "Pallas's maintenance log is signed in places with the handle ALD, an old auditor's.",
+    "source": "npc:pallas",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:breadcrumb",
+      "person:pallas"
+    ],
+    "links": [
+      {
+        "to": "alder_name",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "terminal:pallas_log"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "ledger_redacted",
+    "text": "The Auditor's Ledger in the Civic Core archive is blacked out except for a single line about the Gate.",
+    "source": "doc:auditors_ledger",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:breadcrumb",
+      "place:archive"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "ledger_gate_line",
+    "text": "The one visible line reads: Gate Project, final audit. Identity of R. Alder set to NULL at the subject's own request.",
+    "source": "doc:auditors_ledger",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:gate",
+      "place:archive"
+    ],
+    "links": [
+      {
+        "to": "ledger_redacted",
+        "kind": "supports"
+      },
+      {
+        "to": "band_scratch",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "hollow_voice_note",
+    "text": "Marrow holds a sealed message the insider left for whoever comes back different.",
+    "source": "npc:marrow",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:breadcrumb",
+      "place:hollow",
+      "person:marrow"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:quill"
+    ],
+    "critical": true,
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "voice_note_words",
+    "text": "The message says: The Gate checks who you are against what the city knows. I made it. Do not let it know you.",
+    "source": "item:voice_note",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:gate",
+      "place:hollow"
+    ],
+    "links": [
+      {
+        "to": "hollow_voice_note",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:pallas"
+    ],
+    "critical": true,
+    "for": [
+      "past",
+      "route:hack"
+    ]
+  },
+  {
+    "id": "partial_truths",
+    "text": "The insider told several people a partial truth each, so that no one person holds the whole plan.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "person:wren"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:marrow"
+    ],
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "checkpoint_credential",
+    "text": "A checker in the Civic Core accepts the old insider credential. Using it works at once and tells MERIDIAN exactly where you are.",
+    "source": "doc:checkpoint_log",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:identity",
+      "place:civic_core",
+      "topic:moment"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "past",
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "pell_recognises",
+    "text": "Auditor Pell recognised you and offered to help you as you were.",
+    "source": "scene:pell_recognition",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "person:pell",
+      "topic:moment"
+    ],
+    "links": [
+      {
+        "to": "pell_reports",
+        "kind": "contradicts"
+      }
+    ],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "pell_reports",
+    "text": "Pell reports everything he is told to MERIDIAN.",
+    "source": "npc:dov_anselm",
+    "reliability": "true",
+    "tags": [
+      "person:pell",
+      "topic:informants"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:ticket"
+    ],
+    "for": [
+      "past"
+    ]
+  },
+  {
+    "id": "gate_prompt",
+    "text": "At the Gate, the controller asks you to authenticate as the person who built it.",
+    "source": "terminal:gate_prompt",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "topic:gate",
+      "place:gate",
+      "topic:moment"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:tobias"
+    ],
+    "critical": true,
+    "for": [
+      "past",
+      "route:hack"
+    ]
+  },
+  {
+    "id": "embrace_costs",
+    "text": "Using your old identity opens expert shortcuts, but MERIDIAN will see you and the cell will trust you less.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "topic:past_self",
+      "person:wren"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "for": [
+      "past"
+    ]
+  }
+]

@@ -155,6 +155,7 @@ node: intro
 ## 11. Content tooling [NFR-5]
 - **Validators** (run in CI and pre-commit): schema validity, ID referential integrity (every clue/item/NPC/flag referenced exists; no orphan clues), dialogue graph checks, clue reachability (each clue has ≥ 1 source obtainable), item sinks and sources, one-inventory-puzzle count, all four mentors complete.
 - **Solvability checker** (the key tool): an abstract-state graph search over *knowledge, flags, items, zones* (not positions), checking from a fresh start that each route to each ending, with each mentor and each companion, is achievable without combat, and that every critical puzzle has ≥ 2 reachable solutions [PUZ-1, CMP-5, END-1, CMP-4 recoverability].
+- **Information web** (T3.1): `alsoFrom`, `critical` and `for` on each clue let the validator enforce the web's design rules (two sources for anything critical, every lie correctable, no one person knowing more than 40% of the secret, six breadcrumbs, three embrace-or-reject moments, coverage of every route and companion). `pnpm web` reports on it and regenerates `docs/information-web.md`.
 - **Hot reload** of content in dev.
 
 ## 12. Configuration [NFR-8]

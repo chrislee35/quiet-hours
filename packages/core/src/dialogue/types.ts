@@ -15,6 +15,12 @@ export interface ClueDef {
   reliability: Reliability;
   tags: string[];
   links: { to: string; kind: "supports" | "contradicts" | "updates" }[];
+  /** Other sources of the same fact ("<kind>:<id>"). */
+  alsoFrom?: string[];
+  /** The way on depends on the player learning this; it must be learnable from two sources. */
+  critical?: boolean;
+  /** What it is needed for. */
+  for?: string[];
 }
 
 export interface DialogueLine {

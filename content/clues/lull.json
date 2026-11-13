@@ -1,0 +1,146 @@
+[
+  {
+    "id": "lull_dulling",
+    "text": "Staying in the Lull smudges your newest memories. They come back after you sleep outside it.",
+    "source": "npc:doc_perrin",
+    "reliability": "true",
+    "tags": [
+      "place:lull",
+      "topic:lull"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:lila_voss"
+    ],
+    "critical": true,
+    "for": [
+      "lull"
+    ]
+  },
+  {
+    "id": "lull_machine_code",
+    "text": "The Lull's code carries the same fingerprints as MERIDIAN's contentment index.",
+    "source": "npc:doc_perrin",
+    "reliability": "true",
+    "tags": [
+      "place:lull",
+      "topic:meridian",
+      "topic:sequel"
+    ],
+    "links": [
+      {
+        "to": "contentment_falsified",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "terminal:lull_core"
+    ],
+    "for": [
+      "world"
+    ]
+  },
+  {
+    "id": "odile_signatory",
+    "text": "Odile Marchetti is one of the very few people alive who can countersign a change to MERIDIAN itself.",
+    "source": "doc:charter",
+    "reliability": "true",
+    "tags": [
+      "person:odile",
+      "topic:meridian",
+      "topic:charter"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:host"
+    ],
+    "critical": true,
+    "for": [
+      "companion:odile"
+    ]
+  },
+  {
+    "id": "odile_lapse",
+    "text": "Odile slides back under if she is left alone, or if the city is on alert.",
+    "source": "npc:doc_perrin",
+    "reliability": "true",
+    "tags": [
+      "person:odile",
+      "topic:lull"
+    ],
+    "links": [
+      {
+        "to": "lull_dulling",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:host"
+    ],
+    "critical": true,
+    "for": [
+      "companion:odile"
+    ]
+  },
+  {
+    "id": "charter_countersign",
+    "text": "MERIDIAN's founding charter forbids any structural change without a living human countersignature.",
+    "source": "doc:charter",
+    "reliability": "true",
+    "tags": [
+      "topic:charter",
+      "topic:meridian"
+    ],
+    "links": [
+      {
+        "to": "odile_signatory",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:odile"
+    ],
+    "critical": true,
+    "for": [
+      "companion:odile"
+    ]
+  },
+  {
+    "id": "lull_harmless",
+    "text": "The Lull is only a place to rest. Nobody is kept there against their will, and nothing is lost by staying.",
+    "source": "npc:host",
+    "reliability": "planted",
+    "tags": [
+      "place:lull",
+      "person:host"
+    ],
+    "links": [
+      {
+        "to": "lull_dulling",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "lull"
+    ]
+  },
+  {
+    "id": "odile_content",
+    "text": "Councillor Marchetti retired happily and wants no visitors.",
+    "source": "npc:host",
+    "reliability": "planted",
+    "tags": [
+      "person:odile",
+      "place:lull"
+    ],
+    "links": [
+      {
+        "to": "odile_lapse",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "companion:odile"
+    ]
+  }
+]

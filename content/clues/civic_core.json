@@ -1,0 +1,218 @@
+[
+  {
+    "id": "permit_rule_4",
+    "text": "Rule 4: a Permit needs a stamp from Window 7.",
+    "source": "doc:permit_rules",
+    "reliability": "true",
+    "tags": [
+      "place:permit_hall",
+      "topic:forms",
+      "topic:contradiction"
+    ],
+    "links": [
+      {
+        "to": "permit_rule_9",
+        "kind": "contradicts"
+      }
+    ],
+    "alsoFrom": [
+      "npc:dov_anselm"
+    ],
+    "for": [
+      "side:sq_01"
+    ]
+  },
+  {
+    "id": "permit_rule_9",
+    "text": "Rule 9: Window 7 may not stamp anything without a Permit.",
+    "source": "doc:permit_rules",
+    "reliability": "true",
+    "tags": [
+      "place:permit_hall",
+      "topic:forms",
+      "topic:contradiction"
+    ],
+    "links": [
+      {
+        "to": "permit_rule_4",
+        "kind": "contradicts"
+      }
+    ],
+    "alsoFrom": [
+      "npc:halloran_7"
+    ],
+    "for": [
+      "side:sq_01",
+      "halloran"
+    ]
+  },
+  {
+    "id": "ticket_served",
+    "text": "Ticket can be told you are already served. It then waves you to the front of any queue.",
+    "source": "npc:ticket",
+    "reliability": "true",
+    "tags": [
+      "person:ticket",
+      "topic:forms"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:dov_anselm"
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "checker_changeover",
+    "text": "Checkers in the Permit Hall change at 12:00 and 18:00. For ten minutes the lanes are unwatched.",
+    "source": "doc:shift_board",
+    "reliability": "true",
+    "tags": [
+      "place:permit_hall",
+      "schedule:checker_changeover"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:ines"
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "permit_levels",
+    "text": "A Level 2 permit opens the maintenance zones. A Level 3 permit opens the Gate Annex.",
+    "source": "doc:permit_hall",
+    "reliability": "true",
+    "tags": [
+      "place:permit_hall",
+      "topic:identity",
+      "zone:gate_annex"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:ines"
+    ],
+    "critical": true,
+    "for": [
+      "route:sneak",
+      "route:hack"
+    ]
+  },
+  {
+    "id": "annex_pass_old",
+    "text": "The Gate Annex pass for maintenance workers is issued on Tuesdays.",
+    "source": "npc:odd_sam",
+    "reliability": "outdated",
+    "tags": [
+      "zone:gate_annex",
+      "topic:identity",
+      "schedule:annex_pass"
+    ],
+    "links": [
+      {
+        "to": "annex_pass",
+        "kind": "updates"
+      }
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "annex_pass",
+    "text": "The Gate Annex pass for maintenance workers is now issued on Mondays, from Window 3.",
+    "source": "npc:ines",
+    "reliability": "true",
+    "tags": [
+      "zone:gate_annex",
+      "topic:identity",
+      "schedule:annex_pass"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "doc:permit_hall"
+    ],
+    "critical": true,
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "halloran_deal",
+    "text": "After three arrests, Halloran-7 will lose a form for you if you can show it two rules that contradict each other.",
+    "source": "npc:halloran_7",
+    "reliability": "true",
+    "tags": [
+      "person:halloran_7",
+      "topic:contradiction"
+    ],
+    "links": [
+      {
+        "to": "permit_rule_9",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "halloran"
+    ]
+  },
+  {
+    "id": "contentment_falsified",
+    "text": "The contentment index is falsified: unhappy people are removed from the sample because they spoil the average.",
+    "source": "npc:dov_anselm",
+    "reliability": "true",
+    "tags": [
+      "topic:meridian",
+      "person:dov_anselm"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "doc:index_report"
+    ],
+    "for": [
+      "world"
+    ]
+  },
+  {
+    "id": "permit_levels_old",
+    "text": "A Level 1 permit opens the maintenance zones.",
+    "source": "npc:dov_anselm",
+    "reliability": "outdated",
+    "tags": [
+      "place:permit_hall",
+      "topic:identity",
+      "zone:gate_annex"
+    ],
+    "links": [
+      {
+        "to": "permit_levels",
+        "kind": "updates"
+      }
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "ledger_open",
+    "text": "The Auditor's Ledger is complete, and anyone with a Level 1 pass may read all of it.",
+    "source": "npc:pell",
+    "reliability": "false",
+    "tags": [
+      "place:archive",
+      "topic:past_self",
+      "person:pell"
+    ],
+    "links": [
+      {
+        "to": "ledger_redacted",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "past"
+    ]
+  }
+]

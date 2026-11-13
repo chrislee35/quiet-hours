@@ -1,0 +1,316 @@
+[
+  {
+    "id": "gate_reverifies_night",
+    "text": "The Gate re-verifies every identity during Quiet Hours. Nobody slips out at night.",
+    "source": "npc:tobias",
+    "reliability": "true",
+    "tags": [
+      "place:gate",
+      "schedule:quiet_hours",
+      "topic:gate"
+    ],
+    "links": [
+      {
+        "to": "gate_unguarded_night",
+        "kind": "contradicts"
+      }
+    ],
+    "alsoFrom": [
+      "npc:wren"
+    ],
+    "critical": true,
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "gate_unguarded_night",
+    "text": "In Quiet Hours the Gate is unguarded, because the robots are all away being updated.",
+    "source": "npc:odd_sam",
+    "reliability": "false",
+    "tags": [
+      "place:gate",
+      "schedule:quiet_hours"
+    ],
+    "links": [
+      {
+        "to": "gate_reverifies_night",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "gate_lookup",
+    "text": "The Gate does not check faces. It looks your identity up in the city's records.",
+    "source": "npc:tobias",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "place:gate"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "route:hack"
+    ]
+  },
+  {
+    "id": "gate_null_stall",
+    "text": "A person with no record stalls the Gate in PENDING REVIEW, but the Gate will not open for them.",
+    "source": "terminal:gate_controller",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "topic:null_state",
+      "place:gate"
+    ],
+    "links": [
+      {
+        "to": "null_pending",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:tobias"
+    ],
+    "critical": true,
+    "for": [
+      "route:hack",
+      "route:break"
+    ]
+  },
+  {
+    "id": "gate_controller_panel",
+    "text": "The Gate controller can be reached at the maintenance panel in the Gate Annex, on the east side.",
+    "source": "npc:tobias",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "zone:gate_annex"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "doc:gate_manual"
+    ],
+    "critical": true,
+    "for": [
+      "route:hack"
+    ]
+  },
+  {
+    "id": "gate_code_first",
+    "text": "The first half of the Gate access code is written in the margin of the Auditor's Ledger.",
+    "source": "doc:auditors_ledger",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "place:archive"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "route:hack"
+    ]
+  },
+  {
+    "id": "gate_code_second",
+    "text": "The second half of the access code is in Pallas's maintenance log, under an entry for the Gate.",
+    "source": "npc:pallas",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "person:pallas"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "terminal:pallas_log"
+    ],
+    "critical": true,
+    "for": [
+      "route:hack"
+    ]
+  },
+  {
+    "id": "gate_key_card",
+    "text": "A Gate key card is in the cache the insider left in the Hollow.",
+    "source": "npc:marrow",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "place:hollow"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "item:voice_note"
+    ],
+    "critical": true,
+    "for": [
+      "route:hack"
+    ]
+  },
+  {
+    "id": "gate_three_ways",
+    "text": "The Gate has three weaknesses: the daytime service platform, the lookup logic and its codes, and the auxiliary power with its open-when-unsure rule.",
+    "source": "npc:tobias",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "person:tobias"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "route:sneak",
+      "route:hack",
+      "route:break"
+    ]
+  },
+  {
+    "id": "break_cost",
+    "text": "If the Gate is broken open, MERIDIAN retaliates against those who stay behind, the Hollow first.",
+    "source": "npc:marrow",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "place:hollow"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:wren"
+    ],
+    "critical": true,
+    "for": [
+      "route:break",
+      "hollow"
+    ]
+  },
+  {
+    "id": "one_companion",
+    "text": "Only the person you choose can go through with you. The Gate will count one companion and no more.",
+    "source": "npc:tobias",
+    "reliability": "true",
+    "tags": [
+      "topic:gate",
+      "topic:companions"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "companion:pallas",
+      "companion:june",
+      "companion:odile",
+      "companion:mentor"
+    ]
+  },
+  {
+    "id": "pallas_cargo",
+    "text": "A robot passes the Gate as equipment. It needs a cargo tag and a repaired drive.",
+    "source": "npc:pallas",
+    "reliability": "true",
+    "tags": [
+      "person:pallas",
+      "topic:gate",
+      "topic:companions"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:brindle"
+    ],
+    "critical": true,
+    "for": [
+      "companion:pallas"
+    ]
+  },
+  {
+    "id": "mentor_record_severance",
+    "text": "A mentor's record must be severed or replaced before the Gate. Ines can do the paper.",
+    "source": "npc:ines",
+    "reliability": "true",
+    "tags": [
+      "topic:identity",
+      "topic:companions",
+      "person:ines"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:pell"
+    ],
+    "critical": true,
+    "for": [
+      "companion:mentor"
+    ]
+  },
+  {
+    "id": "sam_gate_dawn",
+    "text": "The Gate opens at dawn for any registered citizen who asks nicely.",
+    "source": "npc:odd_sam",
+    "reliability": "outdated",
+    "tags": [
+      "topic:gate",
+      "place:gate",
+      "person:odd_sam"
+    ],
+    "links": [
+      {
+        "to": "gate_lookup",
+        "kind": "updates"
+      }
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "forgery_undetectable",
+    "text": "A forged pass is undetectable by any scan the city owns.",
+    "source": "npc:odd_sam",
+    "reliability": "false",
+    "tags": [
+      "topic:identity",
+      "person:odd_sam"
+    ],
+    "links": [
+      {
+        "to": "forged_pass_scan",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "quiet_hours_free",
+    "text": "Curfew does not bind anyone in Quiet Hours, because the whole city is asleep.",
+    "source": "broadcast:civic_voice",
+    "reliability": "false",
+    "tags": [
+      "schedule:quiet_hours",
+      "schedule:curfew"
+    ],
+    "links": [
+      {
+        "to": "auditor_night",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "world"
+    ]
+  }
+]

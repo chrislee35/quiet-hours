@@ -1,0 +1,138 @@
+[
+  {
+    "id": "hollow_exists",
+    "text": "There is a place MERIDIAN does not know about, east of the old pumping station, where the tomatoes are real.",
+    "source": "npc:quill",
+    "reliability": "true",
+    "tags": [
+      "place:hollow",
+      "person:quill"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:bede"
+    ],
+    "critical": true,
+    "for": [
+      "companion:june",
+      "past"
+    ]
+  },
+  {
+    "id": "hollow_planted_location",
+    "text": "The hidden settlement is in the old slum sector right under Pump 4.",
+    "source": "npc:mrs_adeyemi_roth",
+    "reliability": "planted",
+    "tags": [
+      "place:hollow",
+      "place:pump4",
+      "topic:informants"
+    ],
+    "links": [
+      {
+        "to": "hollow_exists",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "hollow"
+    ]
+  },
+  {
+    "id": "hollow_discovery_risk",
+    "text": "Anything that leads a robot to the Hollow's door, whether a trail, an informant or a loud escape, can end it.",
+    "source": "npc:marrow",
+    "reliability": "true",
+    "tags": [
+      "place:hollow",
+      "person:marrow"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:wren"
+    ],
+    "critical": true,
+    "for": [
+      "companion:june",
+      "hollow"
+    ]
+  },
+  {
+    "id": "june_consent",
+    "text": "Marrow will let June go only if the Hollow stays hidden and someone she trusts takes her.",
+    "source": "npc:marrow",
+    "reliability": "true",
+    "tags": [
+      "person:juniper",
+      "person:marrow"
+    ],
+    "links": [
+      {
+        "to": "hollow_discovery_risk",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:bede"
+    ],
+    "critical": true,
+    "for": [
+      "companion:june"
+    ]
+  },
+  {
+    "id": "june_hums",
+    "text": "June cannot stay quiet for long. She hums when she is nervous.",
+    "source": "npc:bede",
+    "reliability": "true",
+    "tags": [
+      "person:juniper"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:marrow"
+    ],
+    "critical": true,
+    "for": [
+      "companion:june"
+    ]
+  },
+  {
+    "id": "hollow_east_gate",
+    "text": "The Hollow is reached through the east gate of the Belt.",
+    "source": "npc:odd_sam",
+    "reliability": "false",
+    "tags": [
+      "place:hollow",
+      "person:odd_sam"
+    ],
+    "links": [
+      {
+        "to": "quill_shortcut",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "hollow"
+    ]
+  },
+  {
+    "id": "june_cannot_leave",
+    "text": "June can never leave the Hollow: the tunnels are sealed and she has no papers.",
+    "source": "npc:bede",
+    "reliability": "false",
+    "tags": [
+      "person:juniper",
+      "person:bede"
+    ],
+    "links": [
+      {
+        "to": "june_consent",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "companion:june"
+    ]
+  }
+]
