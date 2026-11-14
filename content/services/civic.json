@@ -1,0 +1,290 @@
+[
+  {
+    "id": "file_12b",
+    "name": "Form 12-B",
+    "description": "Form 12-B",
+    "price": 2,
+    "legitimate": true,
+    "once": false,
+    "requires": [
+      {
+        "has_item": "queue_number"
+      },
+      {
+        "any": [
+          {
+            "time_between": [
+              480,
+              1020
+            ]
+          },
+          {
+            "has_item": "priority_number"
+          }
+        ]
+      },
+      {
+        "not": {
+          "has_item": "form_12b"
+        }
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "queue_number",
+          1
+        ]
+      },
+      {
+        "remove_item": [
+          "priority_number",
+          1
+        ]
+      },
+      {
+        "add_item": [
+          "form_12b",
+          1
+        ]
+      }
+    ],
+    "successText": "The window stamps a slip, prints Form 12-B, and charges two credits for the privilege of applying to apply.",
+    "refusals": {
+      "null_state": "The window reads your band, finds nothing, and prints: PENDING REVIEW. A person who is not on file may not file for anything, and nobody on file may file for them.",
+      "requirements": "Window 1 serves from 08:00 to 17:00, one numbered ticket at a time, and not to people who hold a Form 12-B already. Ticket is by the entrance.",
+      "funds": "Two credits. The form costs two credits, and so does asking whether it costs two credits."
+    }
+  },
+  {
+    "id": "file_12bi",
+    "name": "Form 12-B(i), the appeal",
+    "description": "Form 12-B(i), the appeal",
+    "price": 0,
+    "legitimate": true,
+    "once": false,
+    "requires": [
+      {
+        "has_item": "form_12b"
+      },
+      {
+        "has_item": "queue_number"
+      },
+      {
+        "any": [
+          {
+            "time_between": [
+              540,
+              720
+            ]
+          },
+          {
+            "time_between": [
+              780,
+              960
+            ]
+          },
+          {
+            "has_item": "priority_number"
+          }
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "queue_number",
+          1
+        ]
+      },
+      {
+        "remove_item": [
+          "priority_number",
+          1
+        ]
+      },
+      {
+        "add_item": [
+          "form_12bi_receipt",
+          1
+        ]
+      }
+    ],
+    "successText": "Window 4 stamps your appeal against a form that has not been stamped yet, files it, and hands you a receipt for the filing.",
+    "refusals": {
+      "null_state": "The window reads your band, finds nothing, and prints: PENDING REVIEW. A person who is not on file may not file for anything, and nobody on file may file for them.",
+      "requirements": "Window 4 hears appeals from 09:00 to 12:00 and from 13:00 to 16:00, with a Form 12-B in hand and a number, and only against a form that has not been stamped."
+    }
+  },
+  {
+    "id": "stamp_protest",
+    "name": "Stamp under protest",
+    "description": "Stamp under protest",
+    "price": 0,
+    "legitimate": true,
+    "once": false,
+    "requires": [
+      {
+        "has_item": "form_12b"
+      },
+      {
+        "has_item": "form_12bi_receipt"
+      },
+      {
+        "has_item": "queue_number"
+      },
+      {
+        "any": [
+          {
+            "time_between": [
+              600,
+              900
+            ]
+          },
+          {
+            "has_item": "priority_number"
+          }
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "queue_number",
+          1
+        ]
+      },
+      {
+        "remove_item": [
+          "priority_number",
+          1
+        ]
+      },
+      {
+        "remove_item": [
+          "form_12b",
+          1
+        ]
+      },
+      {
+        "remove_item": [
+          "form_12bi_receipt",
+          1
+        ]
+      },
+      {
+        "add_item": [
+          "permit_stamp",
+          1
+        ]
+      },
+      {
+        "set_flag": [
+          "sq_01_done",
+          true
+        ]
+      },
+      {
+        "give_clue": {
+          "id": "dov_sister_lull",
+          "from": "npc:dov_anselm"
+        }
+      }
+    ],
+    "successText": "Dov looks at the appeal, then the form, then the ceiling. He stamps it, and writes the word PROTEST very small beside the stamp. It is now stamped and not stamped, which is the only way a stamp can be valid here.",
+    "refusals": {
+      "null_state": "The window reads your band, finds nothing, and prints: PENDING REVIEW. A person who is not on file may not file for anything, and nobody on file may file for them.",
+      "requirements": "Rule 9: Window 7 may not stamp anything without a Permit. Rule 4: a Permit needs a stamp from Window 7. The window regrets that it cannot help with the paperwork it must not have. (It stamps between 10:00 and 15:00, and only a form that has been appealed first.)"
+    }
+  },
+  {
+    "id": "permit_level_1",
+    "name": "Permit, level 1",
+    "description": "Permit, level 1",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "has_item": "permit_stamp"
+      },
+      {
+        "any": [
+          {
+            "time_between": [
+              600,
+              900
+            ]
+          },
+          {
+            "has_item": "priority_number"
+          }
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "permit_stamp",
+          1
+        ]
+      },
+      {
+        "give_pass": {
+          "id": "civic_permit_1",
+          "label": "Civic permit, level 1",
+          "level": 1,
+          "expiresInMinutes": 720,
+          "origin": "issued"
+        }
+      }
+    ],
+    "successText": "The window finds nothing on file, and opens a file. Congratulations: you are now somebody the city can lose. Your permit is valid for twelve hours.",
+    "refusals": {
+      "requirements": "A level 1 permit needs a Window 7 stamp, and Window 7 is open from 10:00 to 15:00."
+    }
+  },
+  {
+    "id": "permit_level_2",
+    "name": "Permit, level 2",
+    "description": "Permit, level 2",
+    "price": 40,
+    "legitimate": true,
+    "once": false,
+    "requires": [
+      {
+        "has_pass": "civic_permit_1"
+      },
+      {
+        "any": [
+          {
+            "time_between": [
+              600,
+              900
+            ]
+          },
+          {
+            "has_item": "priority_number"
+          }
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "give_pass": {
+          "id": "civic_permit_2",
+          "label": "Civic permit, level 2",
+          "level": 2,
+          "expiresInMinutes": 720,
+          "origin": "issued"
+        }
+      }
+    ],
+    "successText": "A level 2 permit, valid for twelve hours. It opens the maintenance zones, and anyone who sees it will assume you are meant to be there.",
+    "refusals": {
+      "null_state": "The window reads your band, finds nothing, and prints: PENDING REVIEW. A person who is not on file may not file for anything, and nobody on file may file for them.",
+      "requirements": "A level 2 permit needs a valid level 1 permit, presented between 10:00 and 15:00.",
+      "funds": "Forty credits. A level 2 permit is a level 1 permit with ambition."
+    }
+  }
+]

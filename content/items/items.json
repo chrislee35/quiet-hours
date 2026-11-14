@@ -95,5 +95,45 @@
     "stackable": false,
     "tags": [],
     "description": "A small brass key that came down the chute with you. It has a 9 stamped on it."
+  },
+  {
+    "id": "queue_number",
+    "name": "Queue number",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "A paper ticket with a number on it. Ticket insists it is the right number."
+  },
+  {
+    "id": "priority_number",
+    "name": "Already-served slip",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "Ticket's note that you have been served already. Every window honours it once, and none can say why."
+  },
+  {
+    "id": "form_12b",
+    "name": "Form 12-B",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "Application for Application. Stamped nowhere yet."
+  },
+  {
+    "id": "form_12bi_receipt",
+    "name": "Appeal receipt (12-B(i))",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "Proof that Form 12-B was appealed before it was stamped."
+  },
+  {
+    "id": "permit_stamp",
+    "name": "Window 7 stamp",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "A permit stamp, applied under protest, valid and invalid at once."
   }
 ]

@@ -154,5 +154,17 @@
     "name": "Ox Lindqvist",
     "role": "hacker",
     "district": "city"
+  },
+  {
+    "id": "window_1",
+    "name": "Window 1",
+    "role": "clerk_bot",
+    "district": "civic_core"
+  },
+  {
+    "id": "window_4",
+    "name": "Window 4",
+    "role": "clerk_bot",
+    "district": "civic_core"
   }
 ]

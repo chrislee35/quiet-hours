@@ -1,0 +1,24 @@
+// Window 1: Forms. A clerk bot who sells you the right to apply.
+npc: window_1
+name: Window 1
+start: first
+
+node: first
+  window_1 (flat): "Window 1. Forms. If you have a number, hold it up. If you have a form already, you are at the wrong window. If you have neither, you are at the wrong building."
+  > "Request Form 12-B. (2 credits)" {service:file_12b} -> done
+  > "What is Form 12-B?" -> about
+  > "Goodbye." -> goodbye
+
+node: about
+  window_1: "Form 12-B is the Application for Application. It is how a citizen applies to apply. Appeals against it are made on Form 12-B(i), at Window 4, before it is stamped. Questions about this answer are made on Form 12-B(ii), which does not exist."
+  > "Request Form 12-B. (2 credits)" {service:file_12b} -> done
+  > "Goodbye." -> goodbye
+
+node: done
+  window_1: "Next."
+  > "Anything else?" -> first
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  window_1: "You have been seen."
+  end

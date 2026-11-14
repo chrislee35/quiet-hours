@@ -38,20 +38,27 @@ export interface ReactionDef {
 
 export type ActiveWhen =
   | { kind: "district"; district: string; key: string; value: string | number | boolean; /** `!=`: active unless it matches (an unset value counts as active). */ not: boolean }
-  /** A daily window [start, end) in minutes of the day, which may wrap midnight; `not` inverts it. */
-  | { kind: "time"; start: number; end: number; not: boolean };
+  /** Daily windows [start, end) in minutes of the day (each may wrap midnight); `not` inverts: active only outside all of them. */
+  | { kind: "time"; windows: [start: number, end: number][]; not: boolean };
 
 /**
  * Parses an `activeWhen` string:
  *   "district:key=value" / "district:key!=value"   a district value (number or true/false when it looks like one)
- *   "time:02:00-05:00" / "!time:02:00-05:00"       inside / outside a daily window (Quiet Hours rosters)
+ *   "time:02:00-05:00" / "!time:02:00-05:00"       inside / outside a daily window (Quiet Hours rosters); several
+ *                                                    windows may be listed, comma separated ("!time:12:00-12:10,18:00-18:10")
  */
 export function parseActiveWhen(text: string): ActiveWhen | null {
-  const t = text.match(/^(!?)time:(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
+  const t = text.match(/^(!?)time:(\d{1,2}:\d{2}-\d{1,2}:\d{2}(?:,\d{1,2}:\d{2}-\d{1,2}:\d{2})*)$/);
   if (t) {
-    const start = Number(t[2]) * MINUTES_PER_HOUR + Number(t[3]);
-    const end = Number(t[4]) * MINUTES_PER_HOUR + Number(t[5]);
-    return start < MINUTES_PER_DAY && end <= MINUTES_PER_DAY && Number(t[3]) < MINUTES_PER_HOUR && Number(t[5]) < MINUTES_PER_HOUR ? { kind: "time", start, end, not: t[1] === "!" } : null;
+    const windows: [number, number][] = [];
+    for (const part of t[2]!.split(",")) {
+      const m = part.match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/)!;
+      const start = Number(m[1]) * MINUTES_PER_HOUR + Number(m[2]);
+      const end = Number(m[3]) * MINUTES_PER_HOUR + Number(m[4]);
+      if (!(start < MINUTES_PER_DAY && end <= MINUTES_PER_DAY && Number(m[2]) < MINUTES_PER_HOUR && Number(m[4]) < MINUTES_PER_HOUR)) return null;
+      windows.push([start, end]);
+    }
+    return { kind: "time", windows, not: t[1] === "!" };
   }
   const m = text.match(/^([a-z][a-z0-9_]*):([A-Za-z][A-Za-z0-9_]*)(!?=)(.+)$/);
   if (!m) return null;
@@ -65,7 +72,10 @@ export const districtValue = (state: Readonly<SimState>, district: string, key: 
 
 export function isActive(state: Readonly<SimState>, when: ActiveWhen | null, config: Config): boolean {
   if (when === null) return true;
-  if (when.kind === "time") return inWindow(gameTimeAt(state.tick, config).minuteOfDay, when.start, when.end) !== when.not;
+  if (when.kind === "time") {
+    const minute = gameTimeAt(state.tick, config).minuteOfDay;
+    return when.windows.some(([a, b]) => inWindow(minute, a, b)) !== when.not;
+  }
   return (districtValue(state, when.district, when.key) === when.value) !== when.not;
 }
 

@@ -214,5 +214,80 @@
     "for": [
       "past"
     ]
+  },
+  {
+    "id": "form_12b",
+    "text": "Form 12-B is the Application for Application. It is the only way to apply for anything at the Permit Hall, and it costs two credits.",
+    "source": "doc:permit_hall",
+    "reliability": "true",
+    "tags": [
+      "place:permit_hall",
+      "topic:forms"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:dov_anselm"
+    ],
+    "for": [
+      "side:sq_01"
+    ]
+  },
+  {
+    "id": "form_12bi",
+    "text": "Form 12-B(i) is the Appeal Against Form 12-B. It only counts if it is filed before 12-B is stamped, and it is filed at Window 4.",
+    "source": "doc:permit_hall",
+    "reliability": "true",
+    "tags": [
+      "place:permit_hall",
+      "topic:forms"
+    ],
+    "links": [
+      {
+        "to": "form_12b",
+        "kind": "updates"
+      }
+    ],
+    "alsoFrom": [
+      "npc:dov_anselm"
+    ],
+    "for": [
+      "side:sq_01"
+    ]
+  },
+  {
+    "id": "window_7_protest",
+    "text": "A form stamped under protest counts as both stamped and not stamped. Dov Anselm will do it for someone he likes, or for someone who shows him the rules disagree.",
+    "source": "npc:dov_anselm",
+    "reliability": "true",
+    "tags": [
+      "person:dov_anselm",
+      "topic:forms"
+    ],
+    "links": [
+      {
+        "to": "permit_rule_4",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "side:sq_01"
+    ]
+  },
+  {
+    "id": "dov_sister_lull",
+    "text": "Dov's sister Marta has been in the Lull for four years, and sends a postcard every month that says exactly the same thing.",
+    "source": "npc:dov_anselm",
+    "reliability": "true",
+    "tags": [
+      "person:dov_anselm",
+      "place:lull"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:doc_perrin"
+    ],
+    "for": [
+      "side:sq_01"
+    ]
   }
 ]

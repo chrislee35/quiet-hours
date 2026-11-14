@@ -2,6 +2,7 @@ import { Sim, buildWorld, importTiled, validateConfig } from "@qh/core";
 import tuning from "../../../content/config/tuning.json" with { type: "json" };
 import stacksSlice from "../../../content/maps/stacks_slice.json" with { type: "json" };
 import stacks from "../../../content/maps/stacks.json" with { type: "json" };
+import civicCore from "../../../content/maps/civic_core.json" with { type: "json" };
 import robotRange from "../../../content/maps/robot_range.json" with { type: "json" };
 import startState from "../../../content/start.json" with { type: "json" };
 import { loadContent } from "./content.ts";
@@ -24,13 +25,14 @@ import { TerminalWindow } from "./ui/terminal.ts";
 import { OVERLAY_CSS } from "./ui/styles.ts";
 
 const config = validateConfig(tuning);
-// The Stacks is the game's opening. `?map=slice` loads the old vertical slice; `?map=range` loads the robot test range.
+// Every map is built up front so the player can travel between them. The Stacks is the opening; `?map=slice`, `?map=range`
+// or `?map=civic_core` start somewhere else (each start map keeps its own saves).
+const worlds = Object.fromEntries(
+  Object.entries({ stacks, stacks_slice: stacksSlice, robot_range: robotRange, civic_core: civicCore }).map(([id, raw]) => [id, buildWorld(importTiled(raw, id))]),
+);
 const mapParam = new URLSearchParams(location.search).get("map");
-const world =
-  mapParam === "range" ? buildWorld(importTiled(robotRange, "robot_range"))
-  : mapParam === "slice" ? buildWorld(importTiled(stacksSlice, "stacks_slice"))
-  : buildWorld(importTiled(stacks, "stacks"));
-const sim = new Sim(config, Date.now() >>> 0, { world, content: loadContent() });
+const startMap = mapParam === "range" ? "robot_range" : mapParam === "slice" ? "stacks_slice" : mapParam === "civic" ? "civic_core" : "stacks";
+const sim = new Sim(config, Date.now() >>> 0, { worlds, startMap, content: loadContent() });
 const host = document.getElementById("game");
 if (!host) throw new Error("missing #game element");
 
@@ -42,8 +44,8 @@ const SCAFFOLD: Parameters<typeof sim.tick>[0] = [
 ];
 sim.tick(SCAFFOLD);
 const storage = safeStorage(typeof localStorage === "undefined" ? undefined : localStorage);
-const saves = new SaveStore(storage, world.id);
-const game = new Game(sim, saves, { build: __QH_BUILD_ID__, newGameEffects: SCAFFOLD });
+const saves = new SaveStore(storage, startMap);
+const game = new Game(sim, saves, { build: __QH_BUILD_ID__, startMap, newGameEffects: SCAFFOLD });
 const autosaver = new Autosaver(game, { everyMs: config.save.autosaveSeconds * 1000 });
 setInterval(() => autosaver.poll(), 1000);
 

@@ -52,6 +52,10 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** The map the player is on. */
+  map: string;
+  /** What the maps the player has left look like (doors, robots, cameras, people), restored when they return. */
+  mapStates: Record<string, MapState>;
   /** Which Safehouse growths have appeared (announced once, kept for good). */
   hub: { grown: string[] };
   /** Player-chosen assists, recorded in the save so a reload keeps them (HAK-3). Never needed for progress. */
@@ -229,6 +233,54 @@ export function createRobotState(r: RobotDef): RobotState {
   };
 }
 
+/** The parts of the state that belong to one map. */
+export interface MapState {
+  doors: Record<string, DoorState>;
+  robots: RobotState[];
+  cameras: CameraState[];
+  npcs: Record<string, NpcState>;
+}
+
+/** A map as it is the first time the player sees it. */
+export function initialMapState(world: World): MapState {
+  return {
+    doors: initialDoorStates(world),
+    robots: world.robots.map(createRobotState),
+    cameras: world.cameras.map(createCameraState),
+    npcs: Object.fromEntries(world.npcs.map((n) => [n.id, createNpcState(n.x + 0.5, n.y + 0.5)])),
+  };
+}
+
+/**
+ * Moves the player to another map: the map they are leaving is remembered as it stands, the one they enter is restored
+ * (or built fresh), and they appear at the named spawn. Pure: returns a new state.
+ */
+export function travelTo(prev: SimState, worlds: Readonly<Record<string, World>>, to: string, spawn: string): SimState {
+  const world = worlds[to];
+  if (!world) return prev;
+  const s = JSON.parse(JSON.stringify(prev)) as SimState;
+  s.mapStates[prev.map] = { doors: s.doors, robots: s.robots, cameras: s.cameras, npcs: s.npcs };
+  const here = s.mapStates[to] ?? initialMapState(world);
+  delete s.mapStates[to];
+  s.doors = here.doors;
+  s.robots = here.robots;
+  s.cameras = here.cameras;
+  s.npcs = here.npcs;
+  const at = spawnPoint(world, spawn) ?? spawnPoint(world, "start");
+  s.player.x = at?.x ?? 0;
+  s.player.y = at?.y ?? 0;
+  s.player.intent = { dx: 0, dy: 0, mode: "walk" };
+  const zone = zoneAt(world, Math.floor(s.player.x), Math.floor(s.player.y))?.id ?? null;
+  s.player.zone = zone;
+  if (zone !== null && !s.visited.includes(zone)) s.visited.push(zone);
+  s.map = to;
+  s.messages = [];
+  s.lastKnown = null;
+  s.conversation = null;
+  s.terminal = null;
+  return s;
+}
+
 export function createInitialState(seed: number, config: Config, world: World = OPEN_WORLD): SimState {
   const t = gameTimeAt(0, config);
   const start = spawnPoint(world, "start");
@@ -245,15 +297,14 @@ export function createInitialState(seed: number, config: Config, world: World = 
       intent: { dx: 0, dy: 0, mode: "walk" },
       zone: zoneAt(world, Math.floor(x), Math.floor(y))?.id ?? null,
     },
-    doors: initialDoorStates(world),
-    robots: world.robots.map(createRobotState),
-    cameras: world.cameras.map(createCameraState),
+    ...initialMapState(world),
+    map: world.id,
+    mapStates: {},
     messages: [],
     lastKnown: null,
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },
-    npcs: Object.fromEntries(world.npcs.map((n) => [n.id, createNpcState(n.x + 0.5, n.y + 0.5)])),
     hub: { grown: [] },
     assist: { puzzleSkip: false },
     notebook: { links: [] },

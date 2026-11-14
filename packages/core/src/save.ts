@@ -86,7 +86,7 @@ export function stringifySave(save: SaveFile): string {
 }
 
 /** Fields whose keys are data (ids), not shape. Their contents are not compared key for key. */
-const DYNAMIC = new Set(["flags", "clues", "items", "doors", "terminals", "trust", "npcs", "district", "last", "locker.items"]);
+const DYNAMIC = new Set(["mapStates", "flags", "clues", "items", "doors", "terminals", "trust", "npcs", "district", "last", "locker.items"]);
 
 /** Problems where `value` does not have the shape of `template` (missing or extra fields, wrong types). */
 function shapeProblems(template: unknown, value: unknown, path: string, out: string[]): void {
@@ -122,7 +122,8 @@ const OPTIONAL = new Set(["notice"]);
  * Parses, migrates and validates a save for this map and returns the whole state, or throws a SaveError.
  * `migrations` is injectable so tests can exercise the chain.
  */
-export function loadSave(text: string, config: Config, world: World, options: { migrations?: Readonly<Record<number, Migration>>; currentVersion?: number } = {}): SaveFile {
+export function loadSave(text: string, config: Config, worldOrWorlds: World | Readonly<Record<string, World>>, options: { migrations?: Readonly<Record<number, Migration>>; currentVersion?: number } = {}): SaveFile {
+  const worlds: Readonly<Record<string, World>> = typeof (worldOrWorlds as World).width === "number" ? { [(worldOrWorlds as World).id]: worldOrWorlds as World } : (worldOrWorlds as Record<string, World>);
   const migrations = options.migrations ?? MIGRATIONS;
   const current = options.currentVersion ?? SAVE_VERSION;
   let raw: unknown;
@@ -146,8 +147,10 @@ export function loadSave(text: string, config: Config, world: World, options: { 
     }
   }
   if (typeof save.map !== "string" || typeof save.state !== "object" || save.state === null) throw new SaveError("corrupt", "missing map or state");
-  if (save.map !== world.id) throw new SaveError("wrong_map", `save is for map "${save.map}", this is "${world.id}"`);
+  const world = worlds[save.map];
+  if (!world) throw new SaveError("wrong_map", `save is for map "${save.map}", which this game does not have`);
   const state = save.state as SimState;
+  if (state.map !== save.map) throw new SaveError("invalid_state", "the save's map and its state's map disagree");
   const problems: string[] = [];
   try {
     assertJsonSafe(state);

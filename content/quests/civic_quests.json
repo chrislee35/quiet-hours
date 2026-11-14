@@ -1,0 +1,65 @@
+[
+  {
+    "id": "lost_in_processing",
+    "title": "Lost in Processing",
+    "summary": "Dov Anselm lost his sister's file in the Permit Hall's rules. The rules disagree with each other, and he would like someone to notice.",
+    "start": [
+      {
+        "flag": "sq_01_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "learn",
+        "text": "Find out what the rules say (the notice board, the form racks)",
+        "done": [
+          {
+            "any": [
+              {
+                "has_clue": "permit_rule_4"
+              },
+              {
+                "flag": "sq_01_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "disagree",
+        "text": "Notice that Rule 4 and Rule 9 cannot both be followed",
+        "done": [
+          {
+            "any": [
+              {
+                "flag": "dov_saw_rules"
+              },
+              {
+                "flag": "sq_01_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "stamp",
+        "text": "Get Dov's stamp, under protest",
+        "done": [
+          {
+            "flag": "sq_01_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_01_done"
+      }
+    ],
+    "failed": [
+      {
+        "flag": "dov_arrested"
+      }
+    ]
+  }
+]

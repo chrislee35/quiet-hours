@@ -1,0 +1,24 @@
+// Window 4: Appeals. A clerk bot, who takes appeals against forms that have not happened yet.
+npc: window_4
+name: Window 4
+start: first
+
+node: first
+  window_4 (flat): "Window 4. Appeals. We hear appeals against forms. An appeal heard after a form is stamped is a complaint, and complaints are heard at the Ministry, which is not open."
+  > "File Form 12-B(i), the appeal." {service:file_12bi} -> done
+  > "Why before the stamp?" -> why
+  > "Goodbye." -> goodbye
+
+node: why
+  window_4: "A stamped form is final. An unstamped form is merely pending, and a pending form can be appealed. The law is simple. It is only the order that is difficult."
+  > "File Form 12-B(i), the appeal." {service:file_12bi} -> done
+  > "Goodbye." -> goodbye
+
+node: done
+  window_4: "Next."
+  > "Anything else?" -> first
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  window_4: "Your appeal is noted. Your complaint is not."
+  end

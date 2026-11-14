@@ -77,7 +77,7 @@ export interface Report {
 }
 
 const PHASES = [
-  { name: "day", day: 1, minute: 720 },
+  { name: "day", day: 1, minute: 840 },
   { name: "curfew evening", day: 1, minute: 1380 },
   { name: "quiet hours", day: 2, minute: 180 },
 ] as const;

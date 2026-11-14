@@ -92,7 +92,22 @@ class QuietScene extends Phaser.Scene {
     this.deps = deps;
   }
 
+  /** The map the scene was built for: when the player travels, the scene is rebuilt for the new one. */
+  private renderedMap = "";
+  private subscribed = false;
+  private gameLoadedWired = false;
+  private pressWired = false;
+
   create(): void {
+    this.renderedMap = this.sim.state.map;
+    // The scene object is reused when it restarts, so forget what was drawn for the last map.
+    for (const m of [this.doorSprites, this.robotSprites, this.prevRobots, this.npcMarks, this.propMarks, this.pickupMarks] as Map<string, unknown>[]) m.clear();
+    if (!this.subscribed) {
+      this.subscribed = true;
+      this.sim.bus.subscribe((e) => {
+        if ((e.type === "MapChanged" || e.type === "GameLoaded") && this.sim.state.map !== this.renderedMap) this.scene.restart();
+      });
+    }
     canvasTexture(
       this,
       "floor",
@@ -269,6 +284,15 @@ class QuietScene extends Phaser.Scene {
       this.prevRobots.set(r.id, { x: r.x, y: r.y });
     }
     this.cones = this.add.graphics().setDepth(40);
+    // Ways to another map: a bright arch with its name, so the player can find the tram and the tunnels.
+    for (const ex of this.sim.world.exits) {
+      const cx = (ex.x + 0.5) * TILE;
+      const cy = (ex.y + 0.5) * TILE;
+      const arch = this.add.graphics().setDepth(6);
+      arch.lineStyle(3, 0x7be3ff, 1).strokeRoundedRect(cx - 12, cy - 12, 24, 24, 6);
+      arch.fillStyle(0x7be3ff, 0.25).fillRoundedRect(cx - 12, cy - 12, 24, 24, 6);
+      this.add.text(cx, cy - 16, ex.label, { fontFamily: "monospace", fontSize: "10px", color: "#7be3ff" }).setOrigin(0.5, 1).setDepth(60);
+    }
     // Scenery that grows with the Safehouse: each prop is a small labelled shape, shown while its growth exists.
     const PROP_COLOUR: Record<string, number> = { bunk: 0x8a93c9, radio: 0xff8fc4, tea: 0xe0b43c, bench: 0xb08968, cots: 0x8fd3ff, shelf: 0xc8a165, rack: 0xa0a8c0, lamps: 0xffe39a, garden: 0x7fe08a };
     for (const pr of this.sim.world.props) {
@@ -313,13 +337,14 @@ class QuietScene extends Phaser.Scene {
     this.lights.addLight(2 * TILE, 12 * TILE, 4 * TILE, 0x2affd5, 1);
     this.lights.addLight(20 * TILE, 7 * TILE, 5 * TILE, 0xffaa22, 1.1);
 
-    this.sim.bus.subscribe((e) => {
+    if (!this.gameLoadedWired) this.sim.bus.subscribe((e) => {
       if (e.type !== "GameLoaded") return;
       // A loaded or new game jumps everything: do not interpolate from the old positions.
       const p = this.sim.state.player;
       this.prev = { x: p.x, y: p.y };
       for (const r of this.sim.state.robots) this.prevRobots.set(r.id, { x: r.x, y: r.y });
     });
+    this.gameLoadedWired = true;
     this.stepper = new FixedStepper(this.sim.config.sim.ticksPerSecond);
     this.prev = { x: this.sim.state.player.x, y: this.sim.state.player.y };
 
@@ -329,7 +354,7 @@ class QuietScene extends Phaser.Scene {
     cam.setZoom(CAMERA_ZOOM);
     cam.startFollow(this.player, true, 0.12, 0.12);
 
-    this.deps.controller.onPress((action) => {
+    if (!this.pressWired) this.deps.controller.onPress((action) => {
       if (this.uiOpenAtFrameStart || this.sim.state.conversation || this.sim.state.terminal || this.deps.isPaused()) return;
       if (action === "interact") this.pending.push({ type: "Interact" });
       else if (action === "zones") this.zoneLayer.setVisible(!this.zoneLayer.visible);
@@ -341,6 +366,7 @@ class QuietScene extends Phaser.Scene {
         if (id) this.pending.push({ type: "UseAugment", id });
       }
     });
+    this.pressWired = true;
   }
 
   /** The restricted-zone overlay (press Z), tinted from the player's palette; redrawn when the palette changes. */

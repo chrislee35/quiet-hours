@@ -77,9 +77,11 @@ describe("routines (WLD-5)", () => {
 
 describe("rosters by the clock (WLD-8: Quiet Hours changes who is on patrol)", () => {
   it("parses time windows, inside and outside", () => {
-    expect(parseActiveWhen("time:02:00-05:00")).toEqual({ kind: "time", start: 120, end: 300, not: false });
+    expect(parseActiveWhen("time:02:00-05:00")).toEqual({ kind: "time", windows: [[120, 300]], not: false });
     expect(parseActiveWhen("!time:02:00-05:00")).toMatchObject({ not: true });
     expect(parseActiveWhen("time:25:00-05:00")).toBeNull();
+    expect(parseActiveWhen("!time:12:00-12:10,18:00-18:10")).toEqual({ kind: "time", windows: [[720, 730], [1080, 1090]], not: true });
+    expect(parseActiveWhen("time:12:00-12:10,25:00-05:00")).toBeNull();
   });
 
   const roster = () =>

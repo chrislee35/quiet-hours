@@ -64,11 +64,14 @@ export class Game {
   private readonly now: () => Date;
   private readonly newGameEffects: Parameters<Sim["tick"]>[0];
   private readonly seed: () => number;
+  /** The map a new game starts on. */
+  private readonly startMap: string;
 
-  constructor(sim: Sim, store: SaveStore, options: { build: string; now?: () => Date; newGameEffects?: Parameters<Sim["tick"]>[0]; seed?: () => number }) {
+  constructor(sim: Sim, store: SaveStore, options: { build: string; startMap?: string; now?: () => Date; newGameEffects?: Parameters<Sim["tick"]>[0]; seed?: () => number }) {
     this.sim = sim;
     this.store = store;
     this.build = options.build;
+    this.startMap = options.startMap ?? sim.state.map;
     this.now = options.now ?? (() => new Date());
     this.newGameEffects = options.newGameEffects ?? [];
     this.seed = options.seed ?? (() => Date.now() >>> 0);
@@ -81,7 +84,7 @@ export class Game {
 
   private text(): string {
     const meta: SaveMeta = { build: this.build, label: this.label(), savedAt: this.now().toISOString() };
-    return stringifySave(createSave(this.sim.state, this.sim.world.id, meta));
+    return stringifySave(createSave(this.sim.state, this.sim.state.map, meta));
   }
 
   /** The player saves: only where and when the rules allow (the Safehouse, or calm). */
@@ -113,7 +116,7 @@ export class Game {
   /** Loads from text (a slot or an imported file). Nothing changes unless the whole save is valid. */
   loadText(text: string): Outcome {
     try {
-      const save = loadSave(text, this.sim.config, this.sim.world);
+      const save = loadSave(text, this.sim.config, this.sim.worlds);
       this.sim.load(save.state);
       return { ok: true, message: "Loaded." };
     } catch (e) {
@@ -129,7 +132,7 @@ export class Game {
 
   /** A fresh game. Does not touch any saves. */
   newGame(): void {
-    this.sim.load(createInitialState(this.seed(), this.sim.config, this.sim.world));
+    this.sim.load(createInitialState(this.seed(), this.sim.config, this.sim.worlds[this.startMap] ?? this.sim.world));
     if (this.newGameEffects && this.newGameEffects.length > 0) this.sim.tick(this.newGameEffects);
   }
 }

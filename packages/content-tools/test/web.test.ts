@@ -158,9 +158,9 @@ describe("the web's rules catch what they should", () => {
 
   it("the web must be neither too small nor too large, and not almost entirely true", () => {
     const small = analyseWeb([...crumbs(), ...filler(10)], npcs).issues.map((i) => i.message);
-    expect(small.some((m) => m.includes("the design calls for 60 to 90"))).toBe(true);
+    expect(small.some((m) => m.includes("the design calls for 60 to 100"))).toBe(true);
     const big = analyseWeb([...crumbs(), ...filler(100)], npcs).issues.map((i) => i.message);
-    expect(big.some((m) => m.includes("the design calls for 60 to 90"))).toBe(true);
+    expect(big.some((m) => m.includes("the design calls for 60 to 100"))).toBe(true);
     const allTrue = [...crumbs(), ...Array.from({ length: 60 }, (_, i) => clue({ id: `t${i}` }))];
     expect(analyseWeb(allTrue, npcs).issues.some((i) => i.message.includes("not simply true"))).toBe(true);
     const tooFalse = [...crumbs(), clue({ id: "root" }), ...Array.from({ length: 59 }, (_, i) => clue({ id: `t${i}`, reliability: "false", links: [{ to: "root", kind: "contradicts" }] }))];

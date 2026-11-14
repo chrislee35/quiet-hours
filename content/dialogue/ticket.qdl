@@ -1,0 +1,47 @@
+// Ticket, the queue-management bot that dispenses numbers and holds them like treasured pets. Always off by one in your favour.
+npc: ticket
+name: Ticket
+start: back [flag:met_ticket]
+start: first
+
+node: first
+  on_enter: {flag:met_ticket}
+  ticket (bright): "Number! Everybody gets a number! Numbers are how we know you are here, and here is how we know you are a number. Would you like one? It is free, and so is everything I give."
+  > [!item:queue_number] "Take a number." {+item:queue_number} -> number
+  > "What are the windows?" -> windows
+  > "How long is the wait?" -> wait
+  > "Goodbye." -> goodbye
+
+node: number
+  ticket (proud): "Forty-one! The board says thirty-eight. It has said thirty-eight for a while, so you are almost certainly next. Hold it up when a window looks at you."
+  > "What are the windows?" -> windows
+  > "How long is the wait?" -> wait
+  > "Goodbye." -> goodbye
+
+node: windows
+  ticket: "Window 1 is Forms, eight until five. Window 4 is Appeals, nine until noon and one until four, because the clerks eat. Window 7 is Dov, ten until three, and he is the only one who will look at your face. Each window takes one number and keeps it."
+  > "How long is the wait?" -> wait
+  > "Goodbye." -> goodbye
+
+node: wait
+  on_enter: {+clue:ticket_served(ticket)}
+  ticket (confiding): "Forever, in a friendly way. But I will tell you a secret: I cannot make anybody who has already been served wait. Nobody has ever told me they were. If somebody did, I would have to believe them. I am built that way."
+  > [!item:queue_number] "Take a number." {+item:queue_number} -> number
+  > [clue:ticket_served, !item:priority_number] "I have already been served." {+item:priority_number} -> served
+  > "Goodbye." -> goodbye
+
+node: served
+  ticket (delighted): "Already served! Of course you have. Here is a slip that says so. Every window will honour it once, and none of them can say why."
+  > "Thank you." -> goodbye
+
+node: back
+  ticket (bright): "Back again! Your number is forty-one. The board says thirty-eight."
+  > [!item:queue_number] "Take a number." {+item:queue_number} -> number
+  > "What are the windows?" -> windows
+  > "How long is the wait?" -> wait
+  > [clue:ticket_served, !item:priority_number] "I have already been served." {+item:priority_number} -> served
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  ticket: "Remember: you are always next."
+  end

@@ -254,6 +254,13 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   for (const { file, dialogue } of compiled) {
     for (const m of JSON.stringify(dialogue).matchAll(/"has_growth":"([^"]+)"/g)) if (!ids.growth.has(m[1]!)) issues.push({ file, message: `gates on unknown growth "${m[1]}"` });
   }
+  // Exits: the map they lead to, the spawn there, and the fare (a service) must exist.
+  for (const { file, map } of mapData) for (const e of map.exits ?? []) {
+    const target = mapData.find((m) => m.map.id === e.to);
+    if (!target) issues.push({ file, message: `exit "${e.id}" leads to unknown map "${e.to}"` });
+    else if (!target.map.spawns.some((s) => s.id === e.spawn)) issues.push({ file, message: `exit "${e.id}" leads to spawn "${e.spawn}", which map "${e.to}" does not have` });
+    if (e.fare !== undefined && !ids.services.has(e.fare)) issues.push({ file, message: `exit "${e.id}" uses unknown fare service "${e.fare}"` });
+  }
   // Optional gossip must stay optional: no goal, quest, terminal, service or reaction may require a gossip clue.
   const gossipIds = new Set(entities.clues.filter(({ entity }) => (entity.tags as string[]).includes("topic:gossip")).map(({ entity }) => entity.id));
   const needsGossip = (file: string, what: string, conds: unknown[]) => {

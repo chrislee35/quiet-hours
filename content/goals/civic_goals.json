@@ -1,0 +1,12 @@
+[
+  {
+    "id": "sq_01",
+    "name": "Help Dov Anselm with his sister's file (Lost in Processing)",
+    "map": "civic_core",
+    "require": [
+      {
+        "flag": "sq_01_done"
+      }
+    ]
+  }
+]

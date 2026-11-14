@@ -31,6 +31,8 @@ export interface MapData {
   spots?: SpotDef[];
   /** Scenery that appears with the Safehouse's growth (see hub.ts). */
   props?: PropDef[];
+  /** Ways to another map (a tram stop, a service tunnel). */
+  exits?: ExitDef[];
   /** Named places that appear on the notebook map once the player learns of them. */
   places?: PlaceDef[];
 }
@@ -84,6 +86,18 @@ export interface PlaceDef {
   x: number;
   y: number;
   label: string;
+}
+
+/** A way to another map. With `fare`, Interact first uses that service (a ticket), and only travels if it succeeds. */
+export interface ExitDef {
+  id: string;
+  x: number;
+  y: number;
+  /** The map it leads to, and the spawn point there (default "start"). */
+  to: string;
+  spawn: string;
+  label: string;
+  fare?: string;
 }
 
 /** A piece of scenery. With `shows`, it is drawn only while that Safehouse growth exists. */
@@ -211,6 +225,7 @@ export interface World {
   pickups: readonly PickupDef[];
   places: readonly PlaceDef[];
   props: readonly PropDef[];
+  exits: readonly ExitDef[];
   spots: readonly SpotDef[];
   spotById: ReadonlyMap<string, SpotDef>;
   doorByTile: ReadonlyMap<number, DoorDef>;
@@ -238,6 +253,7 @@ export const OPEN_WORLD: World = {
   pickups: [],
   places: [],
   props: [],
+  exits: [],
   spots: [],
   spotById: new Map(),
   doorByTile: new Map(),
@@ -320,6 +336,14 @@ export function buildWorld(data: MapData): World {
     if (placeIds.has(p.id)) errors.push(`duplicate place id "${p.id}"`);
     placeIds.add(p.id);
     if (!inBounds(probe, p.x, p.y)) errors.push(`place "${p.id}" is out of bounds`);
+  }
+
+  const exitIds = new Set<string>();
+  for (const e of data.exits ?? []) {
+    if (exitIds.has(e.id)) errors.push(`duplicate exit id "${e.id}"`);
+    exitIds.add(e.id);
+    if (!inBounds(probe, e.x, e.y)) errors.push(`exit "${e.id}" is out of bounds`);
+    else if (wall[tileKey(probe, e.x, e.y)]) errors.push(`exit "${e.id}" is inside a wall`);
   }
 
   const spotIds = new Set<string>();
@@ -412,6 +436,7 @@ export function buildWorld(data: MapData): World {
     pickups: data.pickups ?? [],
     places: data.places ?? [],
     props: data.props ?? [],
+    exits: data.exits ?? [],
     spots: data.spots ?? [],
     spotById: new Map((data.spots ?? []).map((s) => [s.id, s])),
     doorByTile,

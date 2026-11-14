@@ -172,5 +172,33 @@
         ]
       }
     ]
+  },
+  {
+    "id": "dov_arrested",
+    "on": "DayChanged",
+    "match": {
+      "day": 3
+    },
+    "if": [
+      {
+        "not": {
+          "flag": "sq_01_done"
+        }
+      }
+    ],
+    "effects": [
+      {
+        "set_flag": [
+          "dov_arrested",
+          true
+        ]
+      },
+      {
+        "adjust_metric": [
+          "contentment",
+          -2
+        ]
+      }
+    ]
   }
 ]

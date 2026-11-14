@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 67,
+ "nextobjectid": 71,
  "tilesets": [],
  "layers": [
   {
@@ -2355,6 +2355,97 @@
        "name": "label",
        "type": "string",
        "value": "Take the scrap wire"
+      }
+     ]
+    },
+    {
+     "id": 66,
+     "name": "from_civic",
+     "type": "spawn",
+     "class": "spawn",
+     "x": 896,
+     "y": 608,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 67,
+     "name": "from_tunnel",
+     "type": "spawn",
+     "class": "spawn",
+     "x": 1344,
+     "y": 608,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 68,
+     "name": "tram_to_civic",
+     "type": "exit",
+     "class": "exit",
+     "x": 896,
+     "y": 640,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "to",
+       "type": "string",
+       "value": "civic_core"
+      },
+      {
+       "name": "spawn",
+       "type": "string",
+       "value": "from_stacks"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Tram to the Civic Core (5 credits)"
+      },
+      {
+       "name": "fare",
+       "type": "string",
+       "value": "transit_fare"
+      }
+     ]
+    },
+    {
+     "id": 69,
+     "name": "service_tunnel",
+     "type": "exit",
+     "class": "exit",
+     "x": 1312,
+     "y": 608,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "to",
+       "type": "string",
+       "value": "civic_core"
+      },
+      {
+       "name": "spawn",
+       "type": "string",
+       "value": "from_tunnel"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Service tunnel to the Civic Core"
       }
      ]
     }

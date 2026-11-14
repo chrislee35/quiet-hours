@@ -9,7 +9,7 @@ import { npcSystem } from "./npcs.ts";
 import { hubSystem } from "./hub.ts";
 import { reactionSystem } from "./districts.ts";
 import { annotatedMap, conflicts, linkClues, notebookItems, questLog, unlinkClues, type AnnotatedMap, type Conflict, type NotebookItem, type QuestView } from "./notebook.ts";
-import { economySystem } from "./economy.ts";
+import { economySystem, useService } from "./economy.ts";
 import { cameraSystem } from "./cameras.ts";
 import { commsSystem } from "./comms.ts";
 import { repairSystem } from "./repairs.ts";
@@ -23,7 +23,7 @@ import type { Config } from "./config.ts";
 import { EventBus, type GameEvent } from "./events.ts";
 import { stateHash } from "./hash.ts";
 import { moveWithCollision, overlapsTile } from "./movement.ts";
-import { createInitialState, type SimState } from "./state.ts";
+import { createInitialState, travelTo, type SimState } from "./state.ts";
 import { HALF_TILE, OPEN_WORLD, isSolid, pickupAvailable, pickupEffects, zoneAt, type World } from "./world.ts";
 import type { MoveMode } from "./events.ts";
 
@@ -71,8 +71,8 @@ export interface StepResult {
 
 /** Nearest interactable (door, locker, or person) within `reach` of the player; earlier kinds win ties. */
 function nearestInteractable(state: SimState, world: World, reach: number) {
-  let best: { kind: "door" | "locker" | "npc" | "terminal" | "pickup"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
-  const consider = (kind: "door" | "locker" | "npc" | "terminal" | "pickup", id: string, x: number, y: number, dialogue?: string) => {
+  let best: { kind: "door" | "locker" | "npc" | "terminal" | "pickup" | "exit"; id: string; x: number; y: number; d: number; dialogue?: string } | undefined;
+  const consider = (kind: "door" | "locker" | "npc" | "terminal" | "pickup" | "exit", id: string, x: number, y: number, dialogue?: string) => {
     const d = Math.hypot(x + HALF_TILE - state.player.x, y + HALF_TILE - state.player.y);
     if (d <= reach && (best === undefined || d < best.d)) best = { kind, id, x, y, d, ...(dialogue ? { dialogue } : {}) };
   };
@@ -85,12 +85,13 @@ function nearestInteractable(state: SimState, world: World, reach: number) {
     consider("npc", n.id, (at?.x ?? n.x + HALF_TILE) - HALF_TILE, (at?.y ?? n.y + HALF_TILE) - HALF_TILE, n.dialogue);
   }
   for (const t of world.terminals) consider("terminal", t.id, t.x, t.y);
+  for (const x of world.exits) consider("exit", x.id, x.x, x.y);
   for (const p of world.pickups) if (pickupAvailable(p, state)) consider("pickup", p.id, p.x, p.y);
   return best;
 }
 
 export interface InteractionPrompt {
-  kind: "door" | "locker" | "npc" | "terminal" | "pickup";
+  kind: "door" | "locker" | "npc" | "terminal" | "pickup" | "exit";
   id: string;
   /** Tile position of the thing, for placing the prompt in the world. */
   x: number;
@@ -110,6 +111,7 @@ export function interactionPrompt(state: Readonly<SimState>, world: World, confi
   const base = { kind: t.kind, id: t.id, x: t.x, y: t.y };
   if (t.kind === "npc") return { ...base, label: `Talk to ${t.id.replace(/_/g, " ")}` };
   if (t.kind === "terminal") return { ...base, label: "Use terminal" };
+  if (t.kind === "exit") return { ...base, label: world.exits.find((x) => x.id === t.id)?.label ?? "Leave" };
   if (t.kind === "pickup") {
     const p = world.pickups.find((x) => x.id === t.id);
     if (p?.label) return { ...base, label: p.label };
@@ -132,6 +134,14 @@ function interact(ctx: Ctx): void {
   if (!target) return;
   if (target.kind === "terminal") {
     openTerminal(ctx, target.id);
+    return;
+  }
+  if (target.kind === "exit") {
+    const exit = world.exits.find((x) => x.id === target.id);
+    if (!exit) return;
+    // A fare is a service: it can refuse (the null state is "pending review"), and then the player stays where they are.
+    if (exit.fare && !useService(state, ctx.content, config, events, exit.fare)) return;
+    events.push({ type: "TravelRequested", tick: state.tick, to: exit.to, spawn: exit.spawn });
     return;
   }
   if (target.kind === "pickup") {
@@ -370,18 +380,26 @@ export class Sim {
   private current: SimState;
 
   readonly config: Config;
-  readonly world: World;
+  /** Every map in the game, by id. A game on one map has one entry. */
+  readonly worlds: Readonly<Record<string, World>>;
   readonly content: Content;
 
   /**
-   * `initial` resumes from a saved state; `world` is the static level (default: unbounded open space);
-   * `content` holds compiled dialogues and clue definitions.
+   * `initial` resumes from a saved state. `world` is the one static level (default: unbounded open space); or give
+   * `worlds` (every map by id) and `startMap` to play across maps. `content` holds compiled dialogues and clues.
    */
-  constructor(config: Config, seed: number, options: { world?: World; content?: Content; initial?: SimState } = {}) {
+  constructor(config: Config, seed: number, options: { world?: World; worlds?: Record<string, World>; startMap?: string; content?: Content; initial?: SimState } = {}) {
     this.config = config;
-    this.world = options.world ?? OPEN_WORLD;
+    const single = options.world ?? OPEN_WORLD;
+    this.worlds = options.worlds ?? { [single.id]: single };
     this.content = options.content ?? EMPTY_CONTENT;
-    this.current = options.initial ?? createInitialState(seed, config, this.world);
+    const first = this.worlds[options.startMap ?? options.initial?.map ?? single.id] ?? Object.values(this.worlds)[0]!;
+    this.current = options.initial ?? createInitialState(seed, config, first);
+  }
+
+  /** The map the player is on now. */
+  get world(): World {
+    return this.worlds[this.current.map] ?? Object.values(this.worlds)[0]!;
   }
 
   get state(): Readonly<SimState> {
@@ -396,6 +414,13 @@ export class Sim {
   tick(commands: readonly Command[] = []): GameEvent[] {
     const { state, events } = step(this.current, commands, this.config, this.world, this.content);
     this.current = state;
+    // Using an exit moves the player to another map once this step is done.
+    for (const e of [...events]) {
+      if (e.type !== "TravelRequested" || !this.worlds[e.to]) continue;
+      const from = this.current.map;
+      this.current = travelTo(this.current, this.worlds, e.to, e.spawn);
+      events.push({ type: "MapChanged", tick: this.current.tick, from, to: e.to });
+    }
     this.bus.emit(events);
     return events;
   }

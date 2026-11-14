@@ -12,9 +12,9 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 
 ## At a glance
 
-- **89 clues** in the main web, 47 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
-- Of the main web:  true 71 (80%), outdated 6, false 8, planted 4.
-- **20 corrections** (a clue that contradicts or updates another): the cross-checking puzzles.
+- **93 clues** in the main web, 47 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
+- Of the main web:  true 75 (81%), outdated 6, false 8, planted 4.
+- **21 corrections** (a clue that contradicts or updates another): the cross-checking puzzles.
 
 ### What each way forward needs
 
@@ -33,7 +33,7 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | route:break | 11 | 8 | 4 |
 | route:hack | 11 | 11 | 5 |
 | route:sneak | 20 | 9 | 4 |
-| side:sq_01 | 2 | 0 |  |
+| side:sq_01 | 6 | 0 |  |
 | side:sq_02 | 2 | 0 |  |
 | slice | 1 | 0 |  |
 | world | 6 | 0 |  |
@@ -47,17 +47,17 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | Tobias Hale | 11 | 35% |
 | Wren | 11 | 8% |
 | Silas Brandt | 10 | 8% |
+| Dov Anselm | 9 |  |
 | Ines Calloway | 7 | 4% |
 | Marrow | 7 | 12% |
 | Pallas | 7 | 27% |
 | Maren Okafor | 6 | 4% |
-| Dov Anselm | 5 |  |
+| Doc Perrin | 5 |  |
 | Gus Varga | 5 | 4% |
 | Mrs. Adeyemi-Roth | 5 | 4% |
 | Quill | 5 | 4% |
 | Bede | 4 |  |
 | Brindle | 4 | 8% |
-| Doc Perrin | 4 |  |
 | The Host | 4 |  |
 | Case Officer Halloran-7 | 2 |  |
 | Teeter | 2 |  |
@@ -91,6 +91,10 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | `contentment_falsified` | The contentment index is falsified: unhappy people are removed from the sample because they spoil the average. | Dov Anselm; doc:index_report | true |  | world |
 | `permit_levels_old` | A Level 1 permit opens the maintenance zones. | Dov Anselm | outdated | updates `permit_levels` | route:sneak |
 | `ledger_open` | The Auditor's Ledger is complete, and anyone with a Level 1 pass may read all of it. | Auditor Pell | false | contradicts `ledger_redacted` | past |
+| `form_12b` | Form 12-B is the Application for Application. It is the only way to apply for anything at the Permit Hall, and it costs two credits. | doc:permit_hall; Dov Anselm | true |  | side:sq_01 |
+| `form_12bi` | Form 12-B(i) is the Appeal Against Form 12-B. It only counts if it is filed before 12-B is stamped, and it is filed at Window 4. | doc:permit_hall; Dov Anselm | true | updates `form_12b` | side:sq_01 |
+| `window_7_protest` | A form stamped under protest counts as both stamped and not stamped. Dov Anselm will do it for someone he likes, or for someone who shows him the rules disagree. | Dov Anselm | true | supports `permit_rule_4` | side:sq_01 |
+| `dov_sister_lull` | Dov's sister Marta has been in the Lull for four years, and sends a postcard every month that says exactly the same thing. | Dov Anselm; Doc Perrin | true |  | side:sq_01 |
 
 ## Gate
 
@@ -268,6 +272,7 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | One fact | Another |
 |---|---|
 | `permit_rule_9`: Rule 9: Window 7 may not stamp anything without a Permit. | `permit_rule_4`: Rule 4: a Permit needs a stamp from Window 7. |
+| `form_12bi`: Form 12-B(i) is the Appeal Against Form 12-B. It only counts if it is filed before 12-B is stamped, and it is filed at Window 4. | `form_12b`: Form 12-B is the Application for Application. It is the only way to apply for anything at the Permit Hall, and it costs two credits. |
 | `pell_recognises`: Auditor Pell recognised you and offered to help you as you were. | `pell_reports`: Pell reports everything he is told to MERIDIAN. |
 
 `!` marks a critical clue. Text is how the notebook words it; characters may say it in their own voice.

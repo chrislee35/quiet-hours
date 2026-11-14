@@ -18,6 +18,9 @@ The Stacks is the first map whose full state space is too large to exhaust, so t
 - **Soft locks under truncation.** If the search hits its limit, a situation whose successors were not all kept counts as "might reach the goal", so only situations explored completely, none of whose futures lead to a goal, are reported. It stays sound; only "never" claims weaken (they become warnings). The default limit is 8,000 states per map (`--max-states`).
 Terminals may also say `puzzleRequires` (knowledge the puzzle needs, such as a code lock's code), and the checker models wearing and removing augments and pickups with a `requires`.
 
+## One map at a time
+The checker treats each map on its own, starting it at its spawn with the starting kit (`content/start.json`). Whole-game reachability across maps (the tram, the tunnel, what you carry over) arrives with the Gate in T3.11. Its "day" phase is 14:00, when every Civic Core window is open.
+
 ## What it reports
 | Finding | Severity | Meaning |
 |---|---|---|

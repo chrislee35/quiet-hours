@@ -1,0 +1,92 @@
+// Dov Anselm, Window 7. A human clerk, tired and kind in a way that violates three procedures. SQ-01 "Lost in Processing".
+npc: dov_anselm
+name: Dov Anselm
+start: closed [flag:dov_arrested]
+start: back [flag:met_dov]
+start: first
+
+node: first
+  on_enter: {flag:met_dov}
+  dov_anselm (tired): "Window 7. Dov Anselm. Please do not tell the people behind you I am being kind. It is against three procedures, and I only have four."
+  > "You look tired." -> tired
+  > "What do you do here?" -> job
+  > "Goodbye." -> goodbye
+
+node: job
+  dov_anselm: "I stamp things. Or I would, if the rules let me. Rule 4 says a permit needs a stamp from this window. Rule 9 says this window may not stamp anything without a permit. I have been stamping around it for nine years."
+  > "You look tired." -> tired
+  > "Goodbye." -> goodbye
+
+node: tired
+  on_enter: {flag:sq_01_started}
+  dov_anselm (low): "My sister's file. Marta. She was moved to the Lull four years ago, and it needs a transfer permit to bring her records home, and the permit needs my stamp. I have never been able to give it. If somebody could find the way through, I would be in their debt, and I do not say that to people."
+  > "What would it take?" -> plan
+  > "I will see what I can do." -> hub
+
+node: plan
+  on_enter: {+clue:form_12b(dov_anselm), +clue:form_12bi(dov_anselm)}
+  dov_anselm (careful): "On paper: a Form 12-B from Window 1, two credits. Then Form 12-B(i), the appeal, from Window 4, before the first form is stamped. Then both to me, with a number, and I stamp under protest, which counts as stamped and not stamped, and so satisfies both rules. Or you could show me where the rules disagree. I would like to be convinced. It has been a long time."
+  > "How do I get through the queue?" -> queue
+  > "I will see what I can do." -> hub
+
+node: queue
+  on_enter: {+clue:ticket_served(dov_anselm)}
+  dov_anselm (dry): "Take a number from Ticket. If you are in a hurry, tell Ticket you have already been served. Nobody has ever told him that, and I would not like to say what he does."
+  > "Thank you." -> hub
+
+node: hub
+  dov_anselm: "Window 7. What can I do for you?"
+  > [flag:sq_01_started, !flag:sq_01_done] "Show him the rules." -> show
+  > [item:form_12b, item:form_12bi_receipt] "Here are Form 12-B and the appeal. Stamp them. (a number, 10:00 to 15:00)" {service:stamp_protest} -> stamped
+  > [flag:sq_01_started, !flag:sq_01_done, trust:dov_anselm>=trusts] "Would you stamp my form under protest, anyway?" {+item:permit_stamp, flag:sq_01_done, +clue:dov_sister_lull(dov_anselm), +clue:window_7_protest(dov_anselm)} -> stamped_kindly
+  > [item:permit_stamp] "Use the stamp for a level 1 permit." {service:permit_level_1} -> permit
+  > [pass:civic_permit_1] "I would like a level 2 permit. (40 credits)" {service:permit_level_2} -> permit
+  > "Goodbye." -> goodbye
+
+node: show
+  dov_anselm: "Show me what you have."
+  present:
+    permit_rule_4 [clue:permit_rule_9, !flag:dov_saw_rules] {flag:dov_saw_rules, trust:dov_anselm+1(saw the rules disagree), +clue:window_7_protest(dov_anselm)} -> convinced
+    permit_rule_9 [clue:permit_rule_4, !flag:dov_saw_rules] {flag:dov_saw_rules, trust:dov_anselm+1(saw the rules disagree), +clue:window_7_protest(dov_anselm)} -> convinced
+    permit_rule_4 [flag:dov_saw_rules] -> again
+    permit_rule_9 [flag:dov_saw_rules] -> again
+    * -> shrug
+  > "Never mind." -> hub
+
+node: convinced
+  dov_anselm (moved): "Four says it needs my stamp. Nine says I may not give it. Both from the same office, on the same day, signed by the same machine. You have no idea how long I have wanted somebody to say that out loud. It is a contradiction. I am delighted."
+  > "So will you help?" -> hub
+
+node: again
+  dov_anselm: "Yes. I know. It is still true."
+  > "Back." -> hub
+
+node: shrug
+  dov_anselm: "That is interesting, but it is not what is wrong with my window."
+  > "Back." -> hub
+
+node: stamped
+  dov_anselm (quiet): "There. Stamped and not stamped. Marta's file is on its way home. I will say nothing more, because I am not allowed to say anything, and you have made that bearable. The stamp is yours: take it to my window for a level 1 permit, if you want to be on a list."
+  > "Thank you." -> hub
+
+node: stamped_kindly
+  dov_anselm (quiet): "Under protest. I will write it very small. Marta's file is on its way home. Take the stamp; it will get you a level 1 permit, if you want to be on a list."
+  > "Thank you." -> hub
+
+node: permit
+  dov_anselm: "That is a permit. Congratulations, and I am sorry."
+  > "Anything else?" -> hub
+
+node: closed
+  notice (flat): "A note on Window 7: CLOSED. CLERK REASSIGNED FOR KINDNESS. PLEASE USE WINDOW 1."
+  end
+
+node: back
+  dov_anselm (tired): "Window 7. Number, please. ...Oh. It is you."
+  > "I have something for the window." -> hub
+  > [!flag:sq_01_started] "You look tired." -> tired
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  dov_anselm: "Mind the third rule. It changes."
+  end

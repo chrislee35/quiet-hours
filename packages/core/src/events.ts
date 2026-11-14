@@ -70,6 +70,9 @@ export type GameEvent =
   | { type: "CollectorsCame"; tick: number; lender: string; taken: number; owed: number }
   /** The state was replaced by a saved or new game; views should redraw from scratch. */
   | { type: "AssistChanged"; tick: number; puzzleSkip: boolean }
+  /** The player used an exit; the Sim moves them to the other map after this step. */
+  | { type: "TravelRequested"; tick: number; to: string; spawn: string }
+  | { type: "MapChanged"; tick: number; from: string; to: string }
   | { type: "HubGrew"; tick: number; growthId: string }
   /** The player rested in the Safehouse: the city loses interest, and the game saves. */
   | { type: "Rested"; tick: number }

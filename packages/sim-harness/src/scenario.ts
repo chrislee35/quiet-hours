@@ -13,9 +13,14 @@ export class Scenario {
   /** Every event emitted since construction (or the last clearEvents()). */
   events: GameEvent[] = [];
 
-  constructor(config: Config, seed = 1, world?: World, content?: Content) {
+  /** `world` is the one map, or every map by id (then the first, or `startMap`, is where the game begins). */
+  constructor(config: Config, seed = 1, world?: World | Record<string, World>, content?: Content, startMap?: string) {
     this.config = config;
-    this.sim = new Sim(config, seed, { ...(world ? { world } : {}), ...(content ? { content } : {}) });
+    const many = world !== undefined && typeof (world as World).width !== "number";
+    this.sim = new Sim(config, seed, {
+      ...(world ? (many ? { worlds: world as Record<string, World>, ...(startMap ? { startMap } : {}) } : { world: world as World }) : {}),
+      ...(content ? { content } : {}),
+    });
   }
 
   // ---- setup ----------------------------------------------------------------------------
