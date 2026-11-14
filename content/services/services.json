@@ -122,5 +122,23 @@
     "refusals": {
       "requirements": "Not now. The records are steady outside Quiet Hours, and nobody forges anything on a steady record."
     }
+  },
+  {
+    "id": "perrin_signal_lens",
+    "name": "Signal Lens, fitted",
+    "description": "Doc Perrin fits a Signal Lens to your wrist band.",
+    "price": 30,
+    "legitimate": false,
+    "once": true,
+    "requires": [],
+    "effects": [
+      {
+        "grant_augment": "signal_lens"
+      }
+    ],
+    "successText": "Perrin clicks something into your band and tells Statistic not to look. Signal Lens added; wear it from the band menu.",
+    "refusals": {
+      "funds": "Thirty credits. The pigeon does not do charity either."
+    }
   }
 ]

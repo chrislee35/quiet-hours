@@ -20,14 +20,14 @@
  * player does without any of those, which is exactly what "no route needs combat" asks.
  */
 import {
-  chooseOption, completeTerminal, createInitialState, deepClone, dialogueView, endConversation, evalAll, gameTimeAt, pickupEffect, presentClue,
+  chooseOption, completeTerminal, createInitialState, dialogueView, endConversation, evalAll, gameTimeAt, pickupAvailable, pickupEffects, presentClue, equipAugment, unequipAugment, equipRefusal,
   puzzleModule, applyEffects, startConversation, spawnPoint,
   type Config, type Content, type Ctx, type SimState, type World,
 } from "@qh/core";
 import type { GoalDef, StartState } from "./assemble.ts";
 
 export interface CheckOptions {
-  /** Most abstract states to explore per map before giving up (default 40,000). */
+  /** Most abstract states to explore per map before giving up (default 12,000). */
   maxStates?: number;
 }
 
@@ -64,10 +64,14 @@ export interface MapReport {
   goals: { id: string; reachable: boolean; route: string[] | null }[];
   terminals: TerminalReport[];
   findings: Finding[];
+  /** Quests whose completion holds in some reachable state of this map. */
+  questsDone: string[];
 }
 
 export interface Report {
   maps: MapReport[];
+  /** Findings about the whole game rather than one map (a quest no map can complete). */
+  findings: Finding[];
   errors: number;
   warnings: number;
 }
@@ -121,12 +125,83 @@ function usesTime(content: Content): boolean {
  * keeping the richest version of a situation can only make the search more generous. A "never" answer is therefore
  * still proof, while a soft lock caused purely by running out of money can be missed (documented in docs/solvability.md).
  */
-function keyOf(s: SimState, phase: number, withTime: boolean, itemCapacity: number): string {
+/**
+ * The facts that can matter (a "cone of influence"). A fact is *needed* if a goal, a quest's completion, a terminal or a
+ * pickup's guard reads it, or if something that produces a needed fact reads it (a conversation that gives a needed
+ * clue needs everything its options and entry points read). Anything else, such as a neighbour's mood or a rumour
+ * nobody acts on, cannot change what the player can do, so two situations that differ only in such facts are the
+ * same situation. This is what keeps independent conversations from multiplying the search. Facts are written
+ * "flag:x", "clue:x", "item:x", "aug:x", "pass:x", "debt:x", "trust:x".
+ */
+interface Needed { facts: Set<string>; /** Clues whose verified/disproved status some rule reads (for the rest, knowing the clue is enough). */ statusClues: Set<string>; alert: boolean; relevantDialogues: Set<string> }
+
+const REAL_ALERT = /"alert_gte"/;
+
+function readsIn(text: string): Set<string> {
+  const out = new Set<string>();
+  const grab = (re: RegExp, prefix: string) => { for (const m of text.matchAll(re)) out.add(`${prefix}:${m[1]}`); };
+  grab(/"flag":"([^"]+)"/g, "flag"); grab(/"flag_eq":\["([^"]+)"/g, "flag"); grab(/"requires":"flag:([^"]+)"/g, "flag");
+  grab(/"has_clue":"([^"]+)"/g, "clue"); grab(/"clue_state":\["([^"]+)"/g, "clue"); grab(/"requires":"clue:([^"]+)"/g, "clue");
+  grab(/"clue":"([^"*][^"]*)"/g, "clue");
+  grab(/"has_item":"([^"]+)"/g, "item"); grab(/"has_item":\["([^"]+)"/g, "item"); grab(/"requires":"item:([^"]+)"/g, "item");
+  grab(/"has_augment":"([^"]+)"/g, "aug"); grab(/"augment_equipped":"([^"]+)"/g, "aug"); grab(/"requires":"augment:([^"]+)"/g, "aug");
+  grab(/"has_pass":"([^"]+)"/g, "pass"); grab(/"in_debt":"([^"]+)"/g, "debt"); grab(/"trust_gte":\["([^"]+)"/g, "trust");
+  return out;
+}
+
+function producesIn(text: string, content: Content): Set<string> {
+  const out = new Set<string>();
+  const grab = (re: RegExp, prefix: string) => { for (const m of text.matchAll(re)) out.add(`${prefix}:${m[1]}`); };
+  grab(/"set_flag":\["([^"]+)"/g, "flag"); grab(/"give_clue":\{"id":"([^"]+)"/g, "clue");
+  grab(/"(?:add_item|remove_item)":\["([^"]+)"/g, "item"); grab(/"(?:grant_augment|revoke_augment)":"([^"]+)"/g, "aug");
+  grab(/"give_pass":\{"id":"([^"]+)"/g, "pass"); grab(/"revoke_pass":"([^"]+)"/g, "pass");
+  grab(/"(?:take_loan|repay_loan)":\["([^"]+)"/g, "debt"); grab(/"adjust_trust":\["([^"]+)"/g, "trust");
+  for (const m of text.matchAll(/"use_service":"([^"]+)"/g)) {
+    const sv = content.services[m[1]!];
+    if (sv) for (const f of producesIn(JSON.stringify(sv.effects), content)) out.add(f);
+    out.add(`flag:service_done_${m[1]}`);
+  }
+  return out;
+}
+
+function neededFacts(content: Content, goals: readonly GoalDef[], world: World): Needed {
+  const text = JSON.stringify([content.dialogues, content.services, content.terminals, content.quests, content.reactions, goals, world.pickups]);
+  const here = new Set(world.npcs.map((n) => n.dialogue));
+  const terminalsHere = world.terminals.map((t) => content.terminals[t.id]).filter((t): t is NonNullable<typeof t> => t !== undefined);
+  const producers: { name: string; produces: Set<string>; reads: Set<string> }[] = [
+    ...Object.values(content.dialogues).filter((d) => here.has(d.id)).map((d) => ({ name: `dialogue:${d.id}`, produces: producesIn(JSON.stringify(d), content), reads: readsIn(JSON.stringify(d)) })),
+    ...Object.values(content.services).map((v) => ({ name: `service:${v.id}`, produces: producesIn(JSON.stringify(v.effects), content), reads: readsIn(JSON.stringify(v.requires)) })),
+    ...Object.values(content.reactions).map((r) => ({ name: `reaction:${r.id}`, produces: producesIn(JSON.stringify(r.effects), content), reads: readsIn(JSON.stringify(r.if ?? [])) })),
+    ...world.pickups.map((p) => ({ name: `pickup:${p.id}`, produces: new Set([...p.grant.split("+")].map((g) => { const [k, id] = g.split(":"); return `${k === "augment" ? "aug" : k}:${id}`; })), reads: readsIn(JSON.stringify({ requires: p.requires ?? "" })) })),
+  ];
+  const needed = new Set<string>([
+    ...readsIn(JSON.stringify(goals)), ...readsIn(JSON.stringify(Object.values(content.quests).map((q) => q.complete))),
+    // Terminals unlock doors and so change where the player can go: their guards always matter.
+    ...readsIn(JSON.stringify(terminalsHere.map((t) => [t.bypass, t.puzzleRequires ?? []]))),
+  ]);
+  for (const t of terminalsHere) for (const f of producesIn(JSON.stringify(t.onSolve), content)) needed.add(f);
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const pr of producers) {
+      if (![...pr.produces].some((f) => needed.has(f))) continue;
+      for (const f of pr.reads) if (!needed.has(f)) { needed.add(f); grew = true; }
+    }
+  }
+  const relevant = new Set(producers.filter((pr) => pr.name.startsWith("dialogue:") && [...pr.produces].some((f) => needed.has(f))).map((pr) => pr.name.slice(9)));
+  const statusClues = new Set([...text.matchAll(/"clue_state":\["([^"]+)"/g)].map((m) => m[1]!));
+  return { facts: needed, statusClues, alert: REAL_ALERT.test(text), relevantDialogues: relevant };
+}
+
+function keyOf(s: SimState, phase: number, withTime: boolean, itemCapacity: number, need: Needed): string {
   const sorted = <T>(o: Record<string, T>) => Object.entries(o).sort(([a], [b]) => (a < b ? -1 : 1));
   return JSON.stringify([
-    sorted(s.flags), sorted(s.clues).map(([id, c]) => [id, c.status]), sorted(s.inventory.items).map(([id, n]) => [id, Math.min(n, itemCapacity)]),
-    s.passes.map((p) => [p.id, p.origin, p.level]).sort(), [...s.augments.owned].sort(), [...s.augments.equipped].sort(),
-    s.loans.debts.map((d) => d.lender).sort(), sorted(s.district).map(([k, v]) => [k, sorted(v)]), sorted(s.trust), s.alert.level,
+    sorted(s.flags).filter(([k]) => need.facts.has(`flag:${k}`) || k.startsWith("picked_") || k.startsWith("reaction_done_")),
+    sorted(s.clues).filter(([id]) => need.facts.has(`clue:${id}`)).map(([id, c]) => [id, need.statusClues.has(id) ? c.status : ""]),
+    sorted(s.inventory.items).filter(([id]) => need.facts.has(`item:${id}`)).map(([id, n]) => [id, Math.min(n, itemCapacity)]),
+    s.passes.filter((p) => need.facts.has(`pass:${p.id}`)).map((p) => [p.id, p.origin, p.level]).sort(),
+    s.augments.owned.filter((a) => need.facts.has(`aug:${a}`)).sort(), s.augments.equipped.filter((a) => need.facts.has(`aug:${a}`)).sort(),
+    s.loans.debts.filter((d) => need.facts.has(`debt:${d.lender}`)).map((d) => d.lender).sort(), sorted(s.district).map(([k, v]) => [k, sorted(v)]),
+    sorted(s.trust).filter(([npc]) => need.facts.has(`trust:${npc}`)), need.alert ? s.alert.level : 0,
     s.conversation ? [s.conversation.dialogueId, s.conversation.node] : null,
     sorted(s.terminals).map(([id, t]) => [id, t.solved]), sorted(s.doors).filter(([, d]) => !d.locked).map(([id]) => id), s.arrestCount > 0 ? 1 : 0,
     withTime ? phase : 0,
@@ -178,12 +253,148 @@ function outcomeHolds(effects: readonly unknown[], s: SimState): boolean | null 
   return checks.length === 0 ? null : checks.every((c) => c(s));
 }
 
+/**
+ * A fast copy of the parts of the state that rules can change. (A JSON round trip of the whole state is far slower, and
+ * the checker copies state millions of times.) Anything not listed here, such as the people's positions, is never
+ * changed by what the checker does, so it is shared.
+ */
+function cloneState(s: SimState): SimState {
+  const entries = <T extends object>(o: Record<string, T>): Record<string, T> => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v }]));
+  return {
+    ...s,
+    doors: entries(s.doors),
+    flags: { ...s.flags },
+    clues: entries(s.clues),
+    inventory: { credits: s.inventory.credits, items: { ...s.inventory.items } },
+    augments: { ...s.augments, owned: [...s.augments.owned], equipped: [...s.augments.equipped] },
+    assist: { ...s.assist },
+    notebook: { links: s.notebook.links.map((l) => [...l] as [string, string]) },
+    visited: [...s.visited],
+    met: [...s.met],
+    district: Object.fromEntries(Object.entries(s.district).map(([k, v]) => [k, { ...v }])),
+    metrics: { ...s.metrics },
+    loans: { ...s.loans, debts: s.loans.debts.map((d) => ({ ...d })) },
+    passes: s.passes.map((p) => ({ ...p })),
+    demerits: { ...s.demerits, last: { ...s.demerits.last } },
+    trust: { ...s.trust },
+    trustLog: [...s.trustLog],
+    locker: { credits: s.locker.credits, items: { ...s.locker.items }, passes: s.locker.passes.map((p) => ({ ...p })) },
+    terminals: Object.fromEntries(Object.entries(s.terminals).map(([k, v]) => [k, { ...v, values: [...v.values] }])),
+    conversation: s.conversation ? { ...s.conversation } : null,
+    alert: { ...s.alert },
+    player: { ...s.player, intent: { ...s.player.intent } },
+    messages: [...s.messages],
+    lastKnown: s.lastKnown ? { ...s.lastKnown } : null,
+  };
+}
+
+type ConvAction = { kind: "choose"; index: number } | { kind: "present"; id: string } | { kind: "leave" };
+
+function applyConvAction(ctx: Ctx, a: ConvAction): void {
+  if (a.kind === "choose") chooseOption(ctx, a.index);
+  else if (a.kind === "present") presentClue(ctx, a.id);
+  else endConversation(ctx);
+}
+
+/**
+ * Plays one conversation out completely. The world is frozen while a conversation is open, so nothing else can
+ * happen during it, which makes it exact to treat the whole conversation as one step of the game: this explores every
+ * path through it (every choice, showing any known clue, leaving) and returns each distinct way it can end, with the
+ * words said to get there. `visit` sees every state inside it (to record which nodes and options were ever offered).
+ */
+function exploreConversation(
+  start: SimState, dialogueId: string, content: Content, config: Config, world: World, cap: number, track: ReadonlySet<string>,
+  visit?: (s: SimState) => void, limit = 3000,
+): { ends: { state: SimState; path: string[]; actions: ConvAction[] }[]; hitLimit: boolean } {
+  const ends: { state: SimState; path: string[]; actions: ConvAction[] }[] = [];
+  const endIndex = new Map<string, number>();
+  // Money never hurts, so of two situations that differ only in credits the richer one is the one to explore.
+  const seen = new Map<string, number>();
+  // Two situations inside a conversation are the same unless they differ in a fact it reads or the rest of the game needs.
+  const localKey = (s: SimState) => JSON.stringify([
+    Object.entries(s.flags).filter(([k]) => track.has(`flag:${k}`)).sort(), Object.entries(s.clues).filter(([k]) => track.has(`clue:${k}`)).map(([id, c]) => [id, c.status]).sort(),
+    Object.entries(s.inventory.items).filter(([k]) => track.has(`item:${k}`)).sort(), Object.entries(s.trust).filter(([k]) => track.has(`trust:${k}`)).sort(),
+    s.conversation, s.passes.filter((x) => track.has(`pass:${x.id}`)).map((x) => x.id), s.augments.owned.filter((a) => track.has(`aug:${a}`)), s.augments.equipped.filter((a) => track.has(`aug:${a}`)),
+    s.loans.debts.filter((d) => track.has(`debt:${d.lender}`)).map((d) => d.lender), Object.entries(s.district),
+  ]);
+  const ctxOf = (st: SimState): Ctx => ({ state: st, config, world, content, events: [], commands: [] });
+  const first = cloneState(start);
+  if (!startConversation(ctxOf(first), dialogueId)) return { ends, hitLimit: false };
+  const queue: { state: SimState; path: string[]; actions: ConvAction[] }[] = [{ state: first, path: [], actions: [] }];
+  let hitLimit = false;
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    const s = cur.state;
+    if (!s.conversation) {
+      const ek = localKey(s);
+      const at = endIndex.get(ek);
+      if (at === undefined) { endIndex.set(ek, ends.length); ends.push(cur); }
+      else if (s.inventory.credits > ends[at]!.state.inventory.credits) ends[at] = cur;
+      continue;
+    }
+    const key = localKey(s);
+    const money = Math.min(s.inventory.credits, cap);
+    const before = seen.get(key);
+    if (before !== undefined && before >= money) continue;
+    if (before === undefined && seen.size >= limit) { hitLimit = true; continue; }
+    seen.set(key, money);
+    visit?.(s);
+    const view = dialogueView(s, content, config);
+    if (!view) continue;
+    const go = (label: string, action: ConvAction) => {
+      const n = cloneState(s);
+      applyConvAction(ctxOf(n), action);
+      queue.push({ state: n, path: [...cur.path, label], actions: [...cur.actions, action] });
+    };
+    for (const c of view.choices) go(`say "${c.text}"`, { kind: "choose", index: c.index });
+    if (view.canPresent) for (const id of Object.keys(s.clues)) go(`show ${id}`, { kind: "present", id });
+    if (view.canLeave) go("leave", { kind: "leave" });
+  }
+  return { ends, hitLimit };
+}
+
+/**
+ * Dead-content check for a conversation outside the cone of influence: explore it alone, twice, from a plain start and
+ * from a start where the player already holds every clue, item and augment and plenty of money (so an option that
+ * needs something from elsewhere still counts as offerable). An option that appears in neither is never offered.
+ */
+function sandboxDialogue(dialogueId: string, base: SimState, content: Content, config: Config, world: World, cap: number): { nodes: Set<string>; choices: Set<string>; clues: Set<string> } {
+  const nodes = new Set<string>();
+  const choices = new Set<string>();
+  const clues = new Set<string>();
+  const rich = cloneState(base);
+  for (const id of Object.keys(content.clues)) rich.clues[id] ??= { learnedTick: 0, from: "sandbox", status: "unverified" };
+  for (const id of Object.keys(content.items)) rich.inventory.items[id] ??= 1;
+  rich.augments.owned = Object.keys(content.augments);
+  rich.inventory.credits = cap;
+  const visit = (st: SimState) => {
+    for (const id of Object.keys(st.clues)) clues.add(id);
+    const d = content.dialogues[st.conversation!.dialogueId];
+    const node = d?.nodes[st.conversation!.node];
+    if (!d || !node) return;
+    nodes.add(`${d.id}/${node.id}`);
+    node.choices.forEach((c, i) => { if (evalAll(c.if, st, config, content)) choices.add(`${d.id}/${node.id}#${i}`); });
+  };
+  const track = readsIn(JSON.stringify(content.dialogues[dialogueId] ?? {}));
+  for (const start of [base, rich]) {
+    // Visit again after each way the last visit could end (an NPC greets a returning visitor differently), up to three visits.
+    let frontier: SimState[] = [start];
+    for (let visitNo = 0; visitNo < 3 && frontier.length > 0; visitNo++) {
+      const next: SimState[] = [];
+      for (const from of frontier.slice(0, 40)) next.push(...exploreConversation(from, dialogueId, content, config, world, cap, track, visit, 4000).ends.map((e) => e.state));
+      frontier = next;
+    }
+  }
+  return { nodes, choices, clues };
+}
+
 export function checkMap(
   mapId: string, world: World, content: Content, config: Config, goals: readonly GoalDef[], start: StartState, options: CheckOptions = {},
 ): MapReport {
-  const maxStates = options.maxStates ?? 40_000;
+  const maxStates = options.maxStates ?? 12_000;
   const cap = creditCap(content, goals, start);
   const itemMax = itemCap(content, start);
+  const need = neededFacts(content, goals, world);
   const rich = (s: SimState): number => Math.min(s.inventory.credits, cap);
   // The abstract world has no robots or cameras (the checker is about information, not stealth), which also keeps states small.
   const aw: World = { ...world, robots: [], cameras: [] };
@@ -203,15 +414,40 @@ export function checkMap(
     puzzleOk.set(t.id, !!puzzle && !!mod && mod.solve(puzzle, mod.init(puzzle)) !== null);
   }
   const critical = aw.terminals.filter((t) => content.terminals[t.id]?.critical);
-  const terminalSeen = new Map(critical.map((t) => [t.id, { bypass: false, alternative: false }]));
+  const terminalSeen = new Map(critical.map((t) => [t.id, { puzzle: false, bypass: false, alternative: false }]));
 
   interface Node { json: string; parent: string | null; via: string; phase: number; credits: number; depth: number }
   const nodes = new Map<string, Node>();
   const edges = new Map<string, string[]>();
-  const rootKey = keyOf(base, 0, withTime, itemMax);
+  const convPlans = new Map<string, { actions: ConvAction[]; path: string[] }[]>();
+  const dialogueReads = new Map<string, Set<string>>();
+  const dialogueReadsOf = (id: string): Set<string> => {
+    let r = dialogueReads.get(id);
+    if (!r) { r = new Set([...readsIn(JSON.stringify(content.dialogues[id] ?? {})), ...serviceReads]); dialogueReads.set(id, r); }
+    return r;
+  };
+  const serviceReads = readsIn(JSON.stringify(Object.values(content.services).map((v) => v.requires)));
+  /** Everything that decides how a conversation can go from here: the facts it reads, money, the time of day. */
+  const convProjection = (st: SimState, dialogueId: string): string => {
+    const r = dialogueReadsOf(dialogueId);
+    return JSON.stringify([
+      [...r].sort().filter((f) => f.startsWith("flag:")).map((f) => [f, st.flags[f.slice(5)] ?? null]),
+      [...r].sort().filter((f) => f.startsWith("clue:")).map((f) => [f, st.clues[f.slice(5)]?.status ?? null]),
+      [...r].sort().filter((f) => f.startsWith("item:")).map((f) => [f, Math.min(st.inventory.items[f.slice(5)] ?? 0, itemMax)]),
+      [...r].sort().filter((f) => f.startsWith("trust:")).map((f) => [f, st.trust[f.slice(6)] ?? 0]),
+      [...r].sort().filter((f) => f.startsWith("aug:")).map((f) => [f, st.augments.owned.includes(f.slice(4)), st.augments.equipped.includes(f.slice(4))]),
+      [...r].sort().filter((f) => f.startsWith("pass:")).map((f) => [f, st.passes.some((p) => p.id === f.slice(5))]),
+      [...r].sort().filter((f) => f.startsWith("debt:")).map((f) => [f, st.loans.debts.some((d) => d.lender === f.slice(5))]),
+      Object.entries(st.flags).filter(([k]) => k.startsWith("service_done_")).sort(), st.inventory.credits > 5000 ? 5000 : st.inventory.credits, st.tick,
+      Object.entries(st.district), st.alert.level, st.arrestCount > 0,
+    ]);
+  };
+  const rootKey = keyOf(base, 0, withTime, itemMax, need);
   nodes.set(rootKey, { json: JSON.stringify(base), parent: null, via: "start", phase: 0, credits: rich(base), depth: 0 });
   const queue: string[] = [rootKey];
   let truncated = false;
+  /** Situations with a successor the search had no room to keep: what lies beyond them is unknown, not stuck. */
+  const dropped = new Set<string>();
 
   const goalHit = new Map<string, string>(); // goal id -> first state key where it holds
   const goalKeys = new Map<string, Set<string>>(goals.map((g) => [g.id, new Set()]));
@@ -220,9 +456,9 @@ export function checkMap(
   const seenChoices = new Set<string>();
   const seenNodes = new Set<string>();
 
-  const note = (key: string, s: SimState) => {
-    for (const g of goals) if (evalAll(g.require, s, config, content)) { goalKeys.get(g.id)!.add(key); if (!goalHit.has(g.id)) goalHit.set(g.id, key); }
-    for (const q of Object.values(content.quests)) if (q.complete.length > 0 && evalAll(q.complete, s, config, content)) questDone.add(q.id);
+  const note = (key: string | null, s: SimState) => {
+    if (key !== null) for (const g of goals) if (evalAll(g.require, s, config, content)) { goalKeys.get(g.id)!.add(key); if (!goalHit.has(g.id)) goalHit.set(g.id, key); }
+    if (key !== null) for (const q of Object.values(content.quests)) if (q.complete.length > 0 && evalAll(q.complete, s, config, content)) questDone.add(q.id);
     for (const id of Object.keys(s.clues)) cluesSeen.add(id);
     if (s.conversation) {
       const d = content.dialogues[s.conversation.dialogueId];
@@ -236,7 +472,8 @@ export function checkMap(
   note(rootKey, base);
 
   const add = (from: string, next: SimState, via: string, phase: number): void => {
-    const key = keyOf(next, phase, withTime, itemMax);
+    for (const id of Object.keys(next.clues)) cluesSeen.add(id);
+    const key = keyOf(next, phase, withTime, itemMax, need);
     (edges.get(from) ?? edges.set(from, []).get(from)!).push(key);
     const known = nodes.get(key);
     if (known) {
@@ -246,10 +483,11 @@ export function checkMap(
         const shorter = nodes.get(from)!.depth + 1 < known.depth;
         nodes.set(key, { ...known, json: JSON.stringify(next), credits: rich(next), ...(shorter ? { parent: from, via, depth: nodes.get(from)!.depth + 1 } : {}) });
         queue.push(key);
+        note(key, next); // a richer version may satisfy what the poorer one did not (a goal that needs credits)
       }
       return;
     }
-    if (nodes.size >= maxStates) { truncated = true; return; }
+    if (nodes.size >= maxStates) { truncated = true; dropped.add(from); return; }
     nodes.set(key, { json: JSON.stringify(next), parent: from, via, phase, credits: rich(next), depth: nodes.get(from)!.depth + 1 });
     queue.push(key);
     note(key, next);
@@ -260,24 +498,31 @@ export function checkMap(
     const node = nodes.get(key)!;
     const state = JSON.parse(node.json) as SimState;
     const step = (via: string, run: (ctx: Ctx) => boolean | void, phase = node.phase): void => {
-      const next = deepClone(state);
+      const next = cloneState(state);
       if (run(ctxOf(next)) === false) return;
       add(key, next, via, phase);
     };
 
-    if (state.conversation) {
-      const view = dialogueView(state, content, config);
-      if (!view) continue;
-      for (const c of view.choices) step(`say "${c.text}"`, (ctx) => chooseOption(ctx, c.index));
-      if (view.canPresent) for (const id of Object.keys(state.clues)) step(`show ${id}`, (ctx) => presentClue(ctx, id));
-      if (view.canLeave) step("leave the conversation", (ctx) => endConversation(ctx));
-      continue;
-    }
-
     const tiles = reachableTiles(aw, state);
     for (const n of aw.npcs) {
       if (!reachable(tiles, aw, n.x, n.y)) continue;
-      step(`talk to ${n.id}`, (ctx) => startConversation(ctx, n.dialogue));
+      // A conversation is one step: every way it can end, with the words said (the world is frozen while it lasts).
+      // Plans are cached by everything the conversation can read, so a situation seen before is replayed, not re-explored.
+      const pk = `${n.dialogue}|${convProjection(state, n.dialogue)}`;
+      let plans = convPlans.get(pk);
+      if (!plans) {
+        const played = exploreConversation(state, n.dialogue, content, config, aw, cap, new Set([...need.facts, ...(dialogueReadsOf(n.dialogue))]), (st) => note(null, st));
+        if (played.hitLimit) truncated = true;
+        plans = played.ends.map((e) => ({ actions: e.actions, path: e.path }));
+        convPlans.set(pk, plans);
+      }
+      for (const plan of plans) {
+        const next = cloneState(state);
+        const c = ctxOf(next);
+        startConversation(c, n.dialogue);
+        for (const a of plan.actions) applyConvAction(c, a);
+        add(key, next, `talk to ${n.id}${plan.path.filter((p) => p !== "leave").map((p) => ` -> ${p}`).join("")}`, node.phase);
+      }
     }
     for (const t of aw.terminals) {
       const def = content.terminals[t.id];
@@ -287,15 +532,23 @@ export function checkMap(
       if (seen && bypass) seen.bypass = true;
       if (seen && outcomeHolds(def.onSolve, state) === true) seen.alternative = true;
       if (bypass) step(`open ${t.id} with its override`, (ctx) => completeTerminal(ctx, t.id, "bypass"));
-      if (puzzleOk.get(t.id)) step(`solve the ${t.id} puzzle`, (ctx) => completeTerminal(ctx, t.id, "puzzle"));
+      // The puzzle is a way through only when the player knows what it needs (a code lock's code comes from the world).
+      const knows = evalAll(def.puzzleRequires ?? [], state, config, content);
+      if (seen && puzzleOk.get(t.id) && knows) seen.puzzle = true;
+      if (puzzleOk.get(t.id) && knows) step(`solve the ${t.id} puzzle`, (ctx) => completeTerminal(ctx, t.id, "puzzle"));
     }
     for (const p of aw.pickups) {
-      const effect = pickupEffect(p.grant);
-      if (!effect || state.flags[`picked_${p.id}`] || !reachable(tiles, aw, p.x, p.y)) continue;
-      step(`take ${p.id}`, (ctx) => {
+      const effects = pickupEffects(p.grant);
+      if (!effects || !pickupAvailable(p, state) || !reachable(tiles, aw, p.x, p.y)) continue;
+      step(`${p.label ? p.label.toLowerCase() : `take ${p.id}`}`, (ctx) => {
         ctx.state.flags[`picked_${p.id}`] = true;
-        applyEffects([effect], ctx.state, ctx.events, config, content);
+        applyEffects(effects, ctx.state, ctx.events, config, content);
       });
+    }
+    // Wearing and removing augments (some things can only be done while wearing one).
+    for (const id of state.augments.owned) {
+      if (state.augments.equipped.includes(id)) step(`take off ${id.replace(/_/g, " ")}`, (ctx) => unequipAugment(ctx, id));
+      else if (equipRefusal(state, content, id) === null) step(`wear ${id.replace(/_/g, " ")}`, (ctx) => equipAugment(ctx, id));
     }
     if (withTime) {
       PHASES.forEach((ph, i) => {
@@ -325,15 +578,17 @@ export function checkMap(
     return { id: g.id, reachable: hit !== undefined, route: hit ? pathTo(hit) : null };
   });
 
-  // 2. Soft locks: reachable states from which a goal cannot be reached any more.
-  if (!truncated) {
+  // 2. Soft locks: reachable states from which a goal cannot be reached any more. This stays sound when the search was
+  // cut short: a situation whose successors were not all kept counts as "might reach the goal", so only situations
+  // explored completely, none of whose futures lead to a goal, are reported.
+  {
     const reverse = new Map<string, string[]>();
     for (const [from, tos] of edges) for (const to of tos) (reverse.get(to) ?? reverse.set(to, []).get(to)!).push(from);
     for (const g of goals) {
-      const can = new Set<string>(goalKeys.get(g.id));
+      const can = new Set<string>([...goalKeys.get(g.id)!, ...dropped]);
       const stack = [...can];
       while (stack.length > 0) for (const p of reverse.get(stack.pop()!) ?? []) if (!can.has(p)) { can.add(p); stack.push(p); }
-      if (can.size === 0) continue; // unreachable goals are reported above
+      if (goalKeys.get(g.id)!.size === 0) continue; // unreachable goals are reported above
       const stuck = [...nodes.keys()].filter((k) => !can.has(k));
       if (stuck.length > 0) {
         const shortest = stuck.map((k) => pathTo(k)).sort((a, b) => a.length - b.length)[0]!;
@@ -345,7 +600,7 @@ export function checkMap(
   // 3. Critical terminals: at least two distinct ways through (PUZ-1).
   const terminals: TerminalReport[] = critical.map((t) => {
     const seen = terminalSeen.get(t.id)!;
-    const puzzle = puzzleOk.get(t.id) ?? false;
+    const puzzle = seen.puzzle;
     const routes = Number(puzzle) + Number(seen.bypass) + Number(seen.alternative);
     if (routes < 2) say(sure(), "single-route", `critical terminal "${t.id}" has ${routes} way(s) through; it needs at least two (a puzzle, a code or pass, another source): ${puzzle ? "puzzle" : "no solvable puzzle"}, ${seen.bypass ? "a bypass" : "no reachable bypass"}, ${seen.alternative ? "another source" : "no other source"}`);
     return { id: t.id, critical: true, puzzle, bypass: seen.bypass, alternative: seen.alternative, routes };
@@ -355,9 +610,17 @@ export function checkMap(
   for (const q of Object.values(content.quests)) {
     if (!questDone.has(q.id)) say(truncated ? "warning" : "error", "quest-impossible", `quest "${q.title}" can never be completed${truncated ? " (search cut short)" : ""}`);
   }
-  const usedClues = new Set(Object.values(content.dialogues).flatMap((d) => JSON.stringify(d).match(/"give_clue":\{"id":"([^"]+)"/g) ?? []).map((m) => /"id":"([^"]+)"/.exec(m)![1]!));
-  for (const id of usedClues) if (!cluesSeen.has(id)) say("warning", "clue-never-given", `clue "${id}" is given by a conversation that can never be reached on this map`);
   const npcDialogues = new Set(aw.npcs.map((n) => n.dialogue));
+  // Conversations outside the cone of influence were not explored in full by the main search; explore them alone.
+  for (const dId of npcDialogues) {
+    if (!content.dialogues[dId] || need.relevantDialogues.has(dId)) continue;
+    const sb = sandboxDialogue(dId, base, content, config, aw, cap);
+    for (const n of sb.nodes) seenNodes.add(n);
+    for (const c of sb.choices) seenChoices.add(c);
+    for (const c of sb.clues) cluesSeen.add(c);
+  }
+  const usedClues = new Set([...npcDialogues].flatMap((id) => JSON.stringify(content.dialogues[id] ?? {}).match(/"give_clue":\{"id":"([^"]+)"/g) ?? []).map((m) => /"id":"([^"]+)"/.exec(m)![1]!));
+  for (const id of usedClues) if (!cluesSeen.has(id)) say("warning", "clue-never-given", `clue "${id}" is given by a conversation that can never be reached on this map`);
   for (const dId of npcDialogues) {
     const d = content.dialogues[dId];
     if (!d) continue;
@@ -370,7 +633,7 @@ export function checkMap(
   }
   if (truncated) say("info", "truncated", `stopped after ${maxStates} abstract states: raise the limit or simplify; "never" answers are not proof`);
 
-  return { map: mapId, states: nodes.size, truncated, goals: goalReports, terminals, findings };
+  return { map: mapId, states: nodes.size, truncated, goals: goalReports, terminals, findings, questsDone: [...questDone] };
 }
 
 /** Checks every map that has goals (maps without goals are skipped: there is nothing to prove about them yet). */
@@ -378,8 +641,16 @@ export function checkSolvability(
   worlds: Record<string, World>, content: Content, config: Config, goals: readonly GoalDef[], start: StartState, options: CheckOptions = {},
 ): Report {
   const maps = Object.keys(worlds).sort().filter((id) => goals.some((g) => g.map === id)).map((id) => checkMap(id, worlds[id]!, content, config, goals.filter((g) => g.map === id), start, options));
-  const all = maps.flatMap((m) => m.findings);
-  return { maps, errors: all.filter((f) => f.severity === "error").length, warnings: all.filter((f) => f.severity === "warning").length };
+  // Quests belong to the game, not to a map: one is impossible only if no checked map can complete it.
+  for (const m of maps) m.findings = m.findings.filter((f) => f.kind !== "quest-impossible");
+  const done = new Set(maps.flatMap((m) => m.questsDone));
+  const incomplete = maps.some((m) => m.truncated);
+  const findings: Finding[] = Object.values(content.quests).filter((q) => !done.has(q.id)).map((q) => ({
+    severity: incomplete ? "warning" : "error", kind: "quest-impossible",
+    message: `quest "${q.title}" can never be completed on any map${incomplete ? " (a search was cut short)" : ""}`,
+  }));
+  const all = [...maps.flatMap((m) => m.findings), ...findings];
+  return { maps, findings, errors: all.filter((f) => f.severity === "error").length, warnings: all.filter((f) => f.severity === "warning").length };
 }
 
 export function formatReport(r: Report): string {
@@ -394,6 +665,7 @@ export function formatReport(r: Report): string {
       if (f.route) lines.push(`    ${f.route.join(" -> ")}`);
     }
   }
+  for (const f of r.findings) lines.push(`${f.severity.toUpperCase()} [${f.kind}] ${f.message}`);
   lines.push(`${r.errors} error(s), ${r.warnings} warning(s)`);
   return lines.join("\n");
 }

@@ -87,5 +87,13 @@
       "noiseRadius": 14,
       "consumed": true
     }
+  },
+  {
+    "id": "locker_key",
+    "name": "Laundry locker key",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "A small brass key that came down the chute with you. It has a 9 stamped on it."
   }
 ]

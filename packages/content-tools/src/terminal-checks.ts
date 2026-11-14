@@ -42,6 +42,9 @@ export function checkTerminals(terminals: Found[], puzzleIds: ReadonlySet<string
     (entity.bypass as unknown[]).forEach((c, i) => {
       for (const p of validateCondition(c, `bypass[${i}]`)) say(p);
     });
+    ((entity.puzzleRequires as unknown[] | undefined) ?? []).forEach((c, i) => {
+      for (const p of validateCondition(c, `puzzleRequires[${i}]`)) say(p);
+    });
     (entity.onSolve as unknown[]).forEach((e, i) => {
       const problems = validateEffect(e, `onSolve[${i}]`);
       for (const p of problems) say(p);

@@ -6,10 +6,10 @@ import {
   type ClueDef, type Content, type Effect, type QuestDef,
 } from "@qh/core";
 import { Scenario, asciiWorld } from "../src/index.ts";
-import { config } from "./helpers.ts";
+import { allClues, config } from "./helpers.ts";
 
 const read = (rel: string) => readFileSync(new URL(`../../../content/${rel}`, import.meta.url), "utf8");
-const clues = Object.fromEntries((JSON.parse(read("clues/sample.json")) as ClueDef[]).map((c) => [c.id, c]));
+const clues = allClues();
 const quests = Object.fromEntries((JSON.parse(read("quests/slice_quests.json")) as QuestDef[]).map((q) => [q.id, q]));
 const { dialogue } = compileDialogue(read("dialogue/odd_sam.qdl"), { id: "odd_sam", knownClues: new Set(Object.keys(clues)) });
 const content: Content = { ...EMPTY_CONTENT, clues, quests, dialogues: { odd_sam: dialogue! } };

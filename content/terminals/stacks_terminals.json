@@ -1,0 +1,69 @@
+[
+  {
+    "id": "locker_9",
+    "title": "Locker 9 (laundry)",
+    "puzzle": "locker_nine",
+    "bypass": [
+      {
+        "has_item": "locker_key"
+      }
+    ],
+    "puzzleRequires": [
+      {
+        "has_clue": "band_scratch"
+      }
+    ],
+    "critical": true,
+    "onSolve": [
+      {
+        "grant_augment": "quiet_step"
+      },
+      {
+        "set_flag": [
+          "quiet_step_found",
+          true
+        ]
+      }
+    ],
+    "solvedText": "The locker opens. Inside, wrapped in a laundry tag, is a thin band with a note: PUT THIS ON. You do, and your footsteps go quiet. (Quiet Step added to your wrist band; wear it from the band menu.)"
+  },
+  {
+    "id": "wall_panel",
+    "title": "Panel behind the machines",
+    "puzzle": "wall_fuses",
+    "bypass": [
+      {
+        "has_clue": "safehouse_way_in"
+      }
+    ],
+    "critical": true,
+    "onSolve": [
+      {
+        "unlock_door": "door_safehouse"
+      },
+      {
+        "set_flag": [
+          "found_safehouse",
+          true
+        ]
+      }
+    ],
+    "solvedText": "The wall that is not a wall slides back. Warm air, the smell of tea, and somebody arguing with a radio."
+  },
+  {
+    "id": "service_panel",
+    "title": "Service door controller",
+    "puzzle": "maint_power",
+    "bypass": [
+      {
+        "has_clue": "maint_override"
+      }
+    ],
+    "onSolve": [
+      {
+        "unlock_door": "door_service"
+      }
+    ],
+    "solvedText": "Relay restored. The service door unlocks."
+  }
+]

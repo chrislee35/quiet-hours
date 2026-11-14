@@ -150,5 +150,23 @@
     "for": [
       "mentor"
     ]
+  },
+  {
+    "id": "safehouse_way_in",
+    "text": "The Safehouse is behind the third-floor laundry, through the wall that is not a wall: a panel by the machines, and a fuse board that does the rest.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "place:safehouse",
+      "place:laundry"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:silas"
+    ],
+    "critical": true,
+    "for": [
+      "act1"
+    ]
   }
 ]

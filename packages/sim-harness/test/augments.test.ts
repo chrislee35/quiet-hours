@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { EMPTY_CONTENT, compileDialogue, hasTag, modifier, type AugmentDef, type ClueDef, type Content, type Effect, type RobotDef } from "@qh/core";
 import { Scenario, asciiWorld } from "../src/index.ts";
-import { config } from "./helpers.ts";
+import { allClues, config } from "./helpers.ts";
 
 const read = (rel: string) => readFileSync(new URL(`../../../content/${rel}`, import.meta.url), "utf8");
 const augments = Object.fromEntries((JSON.parse(read("augments/augments.json")) as AugmentDef[]).map((a) => [a.id, a]));
@@ -202,7 +202,7 @@ describe("tag and modifier augments", () => {
 });
 
 describe("Slow Tongue in conversation (dialogue gating)", () => {
-  const clues = Object.fromEntries((JSON.parse(read("clues/sample.json")) as ClueDef[]).map((c) => [c.id, c]));
+  const clues = allClues();
   const { dialogue } = compileDialogue(read("dialogue/odd_sam.qdl"), { id: "odd_sam", knownClues: new Set(Object.keys(clues)) });
   const talk = (wearing: boolean) => {
     const world = asciiWorld(["#######", "#S....#", "#######"], [], { npcs: [{ id: "odd_sam", x: 2, y: 1, dialogue: "odd_sam" }] });

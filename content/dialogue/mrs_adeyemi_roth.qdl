@@ -1,0 +1,74 @@
+// Mrs. Adeyemi-Roth, third-floor knitter, informant for MERIDIAN's Neighbor Wellness programme.
+// The informant moral hook: befriend her, bribe her, feed her harmless reports, or threaten her.
+npc: mrs_adeyemi_roth
+name: Mrs. Adeyemi-Roth
+start: back [flag:met_mrs]
+start: first
+
+node: first
+  on_enter: {flag:met_mrs}
+  mrs_adeyemi_roth (mild): "You are not on my list. I like to know who is on my list. Sit, dear, there is a draught from the stairs, and I knit better when I can hear people breathing."
+  > "What list?" -> list
+  > "I am new here." -> new
+  > "I will not keep you." -> goodbye
+
+node: list
+  on_enter: {+clue:neighbor_wellness(mrs_adeyemi_roth)}
+  mrs_adeyemi_roth (sweet): "Neighbor Wellness. The city checks in on us, and I help. They give me extra rations for noticing things. I only notice people I dislike, but the form does not ask."
+  > "Have you noticed me?" -> noticed
+  > "That sounds dangerous for the neighbours." -> danger
+  > "Goodbye." -> goodbye
+
+node: new
+  mrs_adeyemi_roth: "New is how most of the trouble starts. Odd Sam was new once. He is still new, to hear him talk."
+  > "What list?" -> list
+  > "Goodbye." -> goodbye
+
+node: noticed
+  on_enter: {+clue:mrs_unreported(mrs_adeyemi_roth)}
+  mrs_adeyemi_roth (amused): "I have noticed you. I have not reported you. You have a face like a person who has not been given anything, and I find I cannot bring myself to write that down."
+  > "Thank you." {trust:mrs_adeyemi_roth+1(grateful)} -> hub
+  > "That could change?" -> change
+
+node: danger
+  mrs_adeyemi_roth (flat): "It is meant to be. A frightened street is a quiet one. I choose carefully, dear."
+  > "Could I make sure you choose carefully about me?" -> change
+  > "Goodbye." -> goodbye
+
+node: change
+  mrs_adeyemi_roth (mild): "A little rations here, a little kindness there. I am not unreasonable. What did you have in mind?"
+  > "A harmless report. Something true and dull." -> harmless
+  > [credits>=15, !flag:mrs_bribed] "A small gift. (15 credits)" {-credits:15, flag:mrs_bribed, trust:mrs_adeyemi_roth+1(bribed)} -> bribed
+  > "I will be sure to be good." -> hub
+
+node: harmless
+  mrs_adeyemi_roth (pleased): "Something dull. Yes. Sam's prices went up again; I will put that down, and nobody will be a day older for it. That keeps my rations up and you off my list."
+  > "Anything for a quiet life." {flag:mrs_fed, trust:mrs_adeyemi_roth+1(fed her a harmless report)} -> hub
+
+node: bribed
+  mrs_adeyemi_roth (warm): "That is very kind. I shall remember that you were kind and forget everything else."
+  > "Good." -> hub
+
+node: hub
+  mrs_adeyemi_roth: "Now. Is there anything else on your mind, dear?"
+  > [!flag:mrs_threatened] "I will report you before you report me." {flag:mrs_threatened, trust:mrs_adeyemi_roth-1(threatened her), emit:mrs_report} -> hostile
+  > [flag:mrs_threatened] "I am sorry about what I said." {flag:mrs_apologised, trust:mrs_adeyemi_roth+1(apologised), flag:mrs_threatened=false} -> forgiven
+  > "Goodbye." -> goodbye
+
+node: hostile
+  mrs_adeyemi_roth (cold): "Oh, dear. Now I have noticed you properly. The form has a box for that."
+  > "Goodbye." -> goodbye
+
+node: forgiven
+  mrs_adeyemi_roth (mild): "Hm. I can be forgiven at; it is a hobby. But I have already posted what I posted."
+  > "Goodbye." -> goodbye
+
+node: back
+  mrs_adeyemi_roth: "Hello again, dear. Mind the stairs; the third step is a liar."
+  > "Tell me about the list again." -> list
+  > "I wanted to ask about being on it." -> change
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  mrs_adeyemi_roth: "Mind how you go."
+  end

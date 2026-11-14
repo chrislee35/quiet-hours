@@ -162,13 +162,20 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   // Augments and items: a non-stackable item holds at most one; pickups must grant things that exist.
   for (const { file, map } of mapData) {
     for (const p of map.pickups ?? []) {
-      const [kind, id] = p.grant.split(":");
-      if (kind === "augment" && !ids.augments.has(id ?? "")) issues.push({ file, message: `pickup "${p.id}" grants unknown augment "${id}"` });
-      if (kind === "item" && !ids.items.has(id ?? "")) issues.push({ file, message: `pickup "${p.id}" grants unknown item "${id}"` });
-      if (kind === "item" && p.grant.split(":")[2] !== undefined) {
-        const item = entities.items.find(({ entity }) => entity.id === id)?.entity;
-        if (item && item.stackable === false) issues.push({ file, message: `pickup "${p.id}" grants several of non-stackable item "${id}"` });
+      for (const part of p.grant.split("+")) {
+        const [kind, id, n] = part.split(":");
+        if (kind === "augment" && !ids.augments.has(id ?? "")) issues.push({ file, message: `pickup "${p.id}" grants unknown augment "${id}"` });
+        if (kind === "item" && !ids.items.has(id ?? "")) issues.push({ file, message: `pickup "${p.id}" grants unknown item "${id}"` });
+        if (kind === "clue" && !ids.clues.has(id ?? "")) issues.push({ file, message: `pickup "${p.id}" grants unknown clue "${id}"` });
+        if (kind === "item" && n !== undefined) {
+          const item = entities.items.find(({ entity }) => entity.id === id)?.entity;
+          if (item && item.stackable === false) issues.push({ file, message: `pickup "${p.id}" grants several of non-stackable item "${id}"` });
+        }
       }
+      const [rk, rid] = (p.requires ?? "").split(":");
+      if (rk === "augment" && !ids.augments.has(rid ?? "")) issues.push({ file, message: `pickup "${p.id}" requires unknown augment "${rid}"` });
+      if (rk === "item" && !ids.items.has(rid ?? "")) issues.push({ file, message: `pickup "${p.id}" requires unknown item "${rid}"` });
+      if (rk === "clue" && !ids.clues.has(rid ?? "")) issues.push({ file, message: `pickup "${p.id}" requires unknown clue "${rid}"` });
     }
   }
 

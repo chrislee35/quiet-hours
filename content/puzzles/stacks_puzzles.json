@@ -1,0 +1,20 @@
+[
+  {
+    "id": "locker_nine",
+    "kind": "code_lock",
+    "code": "0417",
+    "feedback": "none",
+    "hint": "Locker 9 has no name on it. Four dials."
+  },
+  {
+    "id": "wall_fuses",
+    "kind": "lights_out",
+    "width": 3,
+    "height": 3,
+    "layout": [
+      "#oo",
+      "o##",
+      "o#o"
+    ]
+  }
+]

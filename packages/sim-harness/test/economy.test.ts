@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { EMPTY_CONTENT, compileDialogue, totalOwed, withOverrides, type AugmentDef, type ClueDef, type Content, type Effect, type ItemDef, type ServiceDef } from "@qh/core";
 import { Scenario, asciiWorld } from "../src/index.ts";
-import { config } from "./helpers.ts";
+import { allClues, config } from "./helpers.ts";
 
 const read = (rel: string) => readFileSync(new URL(`../../../content/${rel}`, import.meta.url), "utf8");
 const list = <T extends { id: string }>(rel: string) => Object.fromEntries((JSON.parse(read(rel)) as T[]).map((x) => [x.id, x]));
@@ -146,7 +146,7 @@ describe("loans and collectors (ECO-2)", () => {
 });
 
 describe("services in conversation", () => {
-  const clues = Object.fromEntries((JSON.parse(read("clues/sample.json")) as ClueDef[]).map((c) => [c.id, c]));
+  const clues = allClues();
   const { dialogue } = compileDialogue(read("dialogue/odd_sam.qdl"), { id: "odd_sam", knownClues: new Set(Object.keys(clues)) });
   const talk = (effects: Effect[] = []) => {
     const w = asciiWorld(["#######", "#S....#", "#######"], [], { npcs: [{ id: "odd_sam", x: 2, y: 1, dialogue: "odd_sam" }] });

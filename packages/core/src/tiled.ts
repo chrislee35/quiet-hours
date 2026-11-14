@@ -15,7 +15,8 @@ import { ROBOT_KINDS, type PlaceDef, type SpotDef, type PickupDef, type DoorDef,
  *    Class "terminal": a hackable terminal; Name is the terminal id (defined in content/terminals).
  *    Class "camera": a fixed camera; Name is its id, number property `facing` in degrees (like robots).
  *    Class "pickup": something lying around; Name is its id, string property `grant` is what it gives
- *    ("augment:ID", "item:ID[:COUNT]" or "credits:N").
+ *    ("augment:ID", "item:ID[:COUNT]", "credits:N" or "clue:ID[:SOURCE]", joined with +); optional `label` (the prompt)
+ *    and `requires` ("augment:ID" worn, "item:ID", "clue:ID" or "flag:ID") that hides it until usable.
  *    Robots and cameras may have a string `activeWhen` ("district:key=value"): they exist only while it holds.
  *    Class "spot": a named point (Name is its id) that NPC routines send people to.
  *    Class "place": a named place (Name is its id, string `label` its display name) shown on the notebook map once a
@@ -190,7 +191,9 @@ export function importTiled(raw: unknown, id: string): MapData {
         errors.push(`pickup "${oid}" needs a string property "grant"`);
         continue;
       }
-      pickups.push({ id: oid, x: tx, y: ty, grant });
+      const pLabel = prop(o, "label");
+      const pRequires = prop(o, "requires");
+      pickups.push({ id: oid, x: tx, y: ty, grant, ...(typeof pLabel === "string" ? { label: pLabel } : {}), ...(typeof pRequires === "string" ? { requires: pRequires } : {}) });
     } else if (kind === "terminal") {
       terminals.push({ id: oid, x: tx, y: ty });
     } else if (kind === "locker") {

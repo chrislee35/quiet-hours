@@ -23,7 +23,7 @@ import { EventBus, type GameEvent } from "./events.ts";
 import { stateHash } from "./hash.ts";
 import { moveWithCollision, overlapsTile } from "./movement.ts";
 import { createInitialState, type SimState } from "./state.ts";
-import { HALF_TILE, OPEN_WORLD, isSolid, pickupEffect, zoneAt, type World } from "./world.ts";
+import { HALF_TILE, OPEN_WORLD, isSolid, pickupAvailable, pickupEffects, zoneAt, type World } from "./world.ts";
 import type { MoveMode } from "./events.ts";
 
 // ---- Commands: the only way the outside world changes the simulation ----------------------
@@ -84,7 +84,7 @@ function nearestInteractable(state: SimState, world: World, reach: number) {
     consider("npc", n.id, (at?.x ?? n.x + HALF_TILE) - HALF_TILE, (at?.y ?? n.y + HALF_TILE) - HALF_TILE, n.dialogue);
   }
   for (const t of world.terminals) consider("terminal", t.id, t.x, t.y);
-  for (const p of world.pickups) if (!state.flags[`picked_${p.id}`]) consider("pickup", p.id, p.x, p.y);
+  for (const p of world.pickups) if (pickupAvailable(p, state)) consider("pickup", p.id, p.x, p.y);
   return best;
 }
 
@@ -110,8 +110,10 @@ export function interactionPrompt(state: Readonly<SimState>, world: World, confi
   if (t.kind === "npc") return { ...base, label: `Talk to ${t.id.replace(/_/g, " ")}` };
   if (t.kind === "terminal") return { ...base, label: "Use terminal" };
   if (t.kind === "pickup") {
-    const grant = world.pickups.find((x) => x.id === t.id)?.grant ?? "";
-    const what = grant.split(":")[1] ?? "it";
+    const p = world.pickups.find((x) => x.id === t.id);
+    if (p?.label) return { ...base, label: p.label };
+    const grant = p?.grant ?? "";
+    const what = grant.split("+")[0]!.split(":")[1] ?? "it";
     return { ...base, label: `Take ${(grant.startsWith("credits") ? "credits" : what).replace(/_/g, " ")}` };
   }
   if (t.kind === "locker") {
@@ -133,10 +135,10 @@ function interact(ctx: Ctx): void {
   }
   if (target.kind === "pickup") {
     const pickup = world.pickups.find((x) => x.id === target.id);
-    const effect = pickup ? pickupEffect(pickup.grant) : null;
-    if (!pickup || !effect) return;
+    const effects = pickup && pickupAvailable(pickup, state) ? pickupEffects(pickup.grant) : null;
+    if (!pickup || !effects) return;
     state.flags[`picked_${pickup.id}`] = true;
-    applyEffects([effect], state, events, config, ctx.content);
+    applyEffects(effects, state, events, config, ctx.content);
     events.push({ type: "PickedUp", tick: state.tick, pickupId: pickup.id });
     return;
   }

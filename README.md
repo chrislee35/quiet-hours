@@ -34,6 +34,8 @@ Do not open `index.html` from disk; browsers block modules on `file://`.
 
 In dialogue and terminal windows the d-pad or arrow keys move between options, and A (or Enter) selects. Number keys 1-9 pick dialogue choices. Key bindings are stored per browser; the settings screen for rebinding arrives with T2.13.
 
+**Maps.** The game opens in the Stacks (`content/maps/stacks.json`, see `docs/stacks.md`). `?map=slice` loads the original vertical slice.
+
 **Test maps.** Append `?map=range` to open the robot test range: one of every robot type, plus a bench of all six augments in the first room to try on.
 
 ## Layout

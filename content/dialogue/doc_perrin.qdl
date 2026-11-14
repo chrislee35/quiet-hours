@@ -1,0 +1,42 @@
+// Doc Perrin, unlicensed medic and augment tinkerer, who mutters to a stuffed pigeon named Statistic.
+npc: doc_perrin
+name: Doc Perrin
+start: back [flag:met_perrin]
+start: first
+
+node: first
+  on_enter: {flag:met_perrin}
+  doc_perrin (distracted): "Do not touch the pigeon. Statistic is thinking. ...Yes, you can talk to me. Perrin. Doc, if I must be. I put things in people's wrist bands that the city would rather I did not."
+  > "What can you put in mine?" -> wares
+  > "What is wrong with the pigeon?" -> pigeon
+  > "Goodbye." -> goodbye
+
+node: pigeon
+  doc_perrin (fond): "Nothing. Nothing is wrong with Statistic. Statistic is a stuffed pigeon, and the city has no category for that either. It is the best colleague I have ever had."
+  > "What can you put in my band?" -> wares
+  > "Goodbye." -> goodbye
+
+node: wares
+  on_enter: {+clue:memory_anchor_exists(doc_perrin)}
+  doc_perrin: "A Signal Lens, which shows you what the robots can see. Thirty credits, and I will pretend not to know where I got it. There is also a Memory Anchor, which keeps a certain pleasant district from smudging your notebook; that one I have to build, and that is for later."
+  > [credits>=30, !owns:signal_lens] "Fit the Signal Lens. (30 credits)" {service:perrin_signal_lens} -> fitted
+  > [owns:signal_lens] "About the Lens again." -> lens
+  > "Not now." -> goodbye
+
+node: fitted
+  doc_perrin (pleased): "Wear it from the band menu. Do not look at the sun."
+  > "Anything else?" -> wares
+  > "Thanks." -> goodbye
+
+node: lens
+  doc_perrin: "It shows the cones of anything that can see you, through walls. It also shows you things about your own band you may not enjoy. Try it on a mirror."
+  > "Thanks." -> goodbye
+
+node: back
+  doc_perrin (distracted): "Yes? ...Oh, you. Statistic says hello."
+  > "What can you put in my band?" -> wares
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  doc_perrin: "Mind the bands. And the pigeon."
+  end

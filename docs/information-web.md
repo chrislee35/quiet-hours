@@ -12,14 +12,15 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 
 ## At a glance
 
-- **83 clues** in the main web, 46 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
-- Of the main web:  true 65 (78%), outdated 6, false 8, planted 4.
+- **89 clues** in the main web, 47 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
+- Of the main web:  true 71 (80%), outdated 6, false 8, planted 4.
 - **20 corrections** (a clue that contradicts or updates another): the cross-checking puzzles.
 
 ### What each way forward needs
 
 | Need | Clues | Critical | Required |
 |---|---:|---:|---:|
+| act1 | 1 | 1 |  |
 | companion:june | 8 | 7 | 3 |
 | companion:mentor | 2 | 2 | 2 |
 | companion:odile | 5 | 4 | 3 |
@@ -31,38 +32,39 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | past | 18 | 13 | 6 |
 | route:break | 11 | 8 | 4 |
 | route:hack | 11 | 11 | 5 |
-| route:sneak | 18 | 9 | 4 |
+| route:sneak | 20 | 9 | 4 |
 | side:sq_01 | 2 | 0 |  |
+| side:sq_02 | 2 | 0 |  |
 | slice | 1 | 0 |  |
-| world | 5 | 0 |  |
+| world | 6 | 0 |  |
 
 ### Who knows what
 
 | Person | Clues they are a source of | Share of critical past/Gate clues |
 |---|---:|---:|
-| Odd Sam | 12 | 4% |
+| Odd Sam | 15 | 4% |
 | Auditor Pell | 12 | 31% |
 | Tobias Hale | 11 | 35% |
 | Wren | 11 | 8% |
+| Silas Brandt | 10 | 8% |
 | Ines Calloway | 7 | 4% |
 | Marrow | 7 | 12% |
 | Pallas | 7 | 27% |
 | Maren Okafor | 6 | 4% |
 | Dov Anselm | 5 |  |
 | Gus Varga | 5 | 4% |
+| Mrs. Adeyemi-Roth | 5 | 4% |
 | Quill | 5 | 4% |
-| Silas Brandt | 5 | 8% |
 | Bede | 4 |  |
 | Brindle | 4 | 8% |
 | Doc Perrin | 4 |  |
 | The Host | 4 |  |
-| Mrs. Adeyemi-Roth | 4 | 4% |
 | Case Officer Halloran-7 | 2 |  |
+| Teeter | 2 |  |
 | Ticket | 2 |  |
 | The Conductor | 1 |  |
 | Lila Voss | 1 |  |
 | Odile Marchetti | 1 |  |
-| Teeter | 1 |  |
 
 ## Belt
 
@@ -165,6 +167,7 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | `mentor_slip` **!** | Your mentor called you 'Alder' and then said they had not. | scene:mentor_slip; Ines Calloway; Maren Okafor; Tobias Hale; Silas Brandt | true | supports `alder_name` | past, mentor |
 | `memory_anchor_exists` **!** | Doc Perrin can build an augment called a Memory Anchor that keeps the Lull from smudging your notebook. | Doc Perrin; Teeter | true |  | lull |
 | `tobias_clerk` | Tobias Hale never stood a Gate shift. He was a records clerk with a vivid imagination. | Silas Brandt | false | contradicts `tobias_gate_shift` | mentor |
+| `safehouse_way_in` **!** | The Safehouse is behind the third-floor laundry, through the wall that is not a wall: a panel by the machines, and a fuse board that does the rest. | Odd Sam; Silas Brandt | true |  | act1 |
 
 ## Stacks slice
 
@@ -186,6 +189,11 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | `pa_shift_time` | The Civic Voice says the Pump 4 crew changes at 22:00. | broadcast:civic_voice | false | contradicts `pump4_crew_change` | world |
 | `pump4_crew_change` | The Pump 4 crew changes at 21:40, twenty minutes before the voice says. | Gus Varga; Brindle | true | supports `pump4_shift` | route:break |
 | `pump4_guarded` | Pump 4's side door is watched by a Warden every hour of the day and night. | Mrs. Adeyemi-Roth | planted | contradicts `pump4_shift` | route:break |
+| `curfew_hours` | Curfew runs from 22:00 to 06:00. Anyone out in it with a record on file is marked down for it. | Silas Brandt; broadcast:civic_voice | true |  | world |
+| `stacks_cameras_night` | The Stacks cameras swap to their night schedule at 02:00, and the plaza camera looks the other way for a while. | Teeter; Silas Brandt | true |  | route:sneak |
+| `neighbor_wellness` | The Neighbor Wellness program pays extra rations for reports on your neighbours. Mrs. Adeyemi-Roth is on it. | Odd Sam; Silas Brandt | true |  | side:sq_02 |
+| `mrs_unreported` | Mrs. Adeyemi-Roth has not reported the new face in the Stacks. She only reports people she dislikes. | Mrs. Adeyemi-Roth | true | supports `neighbor_wellness` | side:sq_02 |
+| `null_checker_loop` | A Checker will stall on a person with no record for as long as they stay in its view. A person with a bad record it simply marks. | Odd Sam; Silas Brandt | true | supports `null_pending` | route:sneak |
 
 ## Underworks
 

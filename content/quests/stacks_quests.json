@@ -1,0 +1,75 @@
+[
+  {
+    "id": "act1_safehouse",
+    "title": "Find the people who help",
+    "summary": "Odd Sam says there is a wall in the laundry that is not a wall. Someone behind it is expecting you.",
+    "start": [],
+    "steps": [
+      {
+        "id": "hear",
+        "text": "Find out where the Safehouse is",
+        "done": [
+          {
+            "any": [
+              {
+                "has_clue": "safehouse_way_in"
+              },
+              {
+                "flag": "found_safehouse"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "open",
+        "text": "Open the wall in the laundry",
+        "done": [
+          {
+            "flag": "found_safehouse"
+          }
+        ]
+      },
+      {
+        "id": "meet",
+        "text": "Meet the cell",
+        "done": [
+          {
+            "flag": "met_wren"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "met_wren"
+      }
+    ]
+  },
+  {
+    "id": "first_cache",
+    "title": "Locker 9",
+    "summary": "A brass key came down the chute with you. Somewhere in the Stacks there is a locker to match, and a number scratched where you would not look.",
+    "start": [
+      {
+        "has_clue": "laundry_key"
+      }
+    ],
+    "steps": [
+      {
+        "id": "find",
+        "text": "Find what the key opens",
+        "done": [
+          {
+            "flag": "quiet_step_found"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "quiet_step_found"
+      }
+    ]
+  }
+]

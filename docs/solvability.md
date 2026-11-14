@@ -9,6 +9,14 @@ From the start state (`content/start.json`: the credits and items a new game giv
 
 Credits are tracked as "the most the player could have here" (capped at the most that could ever matter) and item counts are capped likewise, so loops like borrow-repay-borrow or "take another key" do not grow the search. That makes "never reachable" answers *proof*; a soft lock caused purely by running out of money can be missed (a limit of v1).
 
+## Keeping the search small (T3.2)
+The Stacks is the first map whose full state space is too large to exhaust, so the search does four things to stay tractable:
+- **Cone of influence.** A fact is tracked only if a goal, a quest's completion, a terminal or a pickup guard reads it, or if something that produces a needed fact reads it. A neighbour's mood or an unused rumour cannot change what the player can do, so situations differing only in those are the same situation.
+- **Conversations are one step.** The world is frozen while one is open, so each conversation is played out in its own small search and only its distinct *endings* join the main graph (cached by what the conversation reads, and replayed rather than re-explored). Conversations outside the cone are explored alone, from a plain start and from a start holding everything, and again after each way a visit could end, to catch dead options.
+- **Richest wins.** Of two situations differing only in credits, the richer is explored; money never hurts.
+- **Soft locks under truncation.** If the search hits its limit, a situation whose successors were not all kept counts as "might reach the goal", so only situations explored completely, none of whose futures lead to a goal, are reported. It stays sound; only "never" claims weaken (they become warnings). The default limit is 12,000 states per map (`--max-states`).
+Terminals may also say `puzzleRequires` (knowledge the puzzle needs, such as a code lock's code), and the checker models wearing and removing augments and pickups with a `requires`.
+
 ## What it reports
 | Finding | Severity | Meaning |
 |---|---|---|

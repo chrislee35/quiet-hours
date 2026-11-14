@@ -1,0 +1,59 @@
+// Wren, leader of the Safehouse cell. Act I: you have found the wall. She explains what you are and who can help.
+npc: wren
+name: Wren
+start: back [flag:met_wren]
+start: first
+
+node: first
+  on_enter: {flag:met_wren, +clue:null_pending(wren)}
+  wren (tired): "You found the wall. Good: that means you can read, or count, or both. Sit down. You look like a form somebody forgot to file."
+  > "Where am I?" -> where
+  > "Who are you?" -> who
+  > "What am I?" -> what
+
+node: where
+  wren: "The Safehouse. Behind the laundry, under the Stacks, and officially a ventilation shaft. The city does not know about it, which is the nicest thing I can say about the city."
+  > "Who are you?" -> who
+  > "What am I?" -> what
+  > "How do I get out of here?" -> gate
+
+node: who
+  wren (wry): "Wren. I keep eleven people fed and out of trouble, and I am failing at one of those most weeks. Odd Sam sent word that someone new had come down the chute. Nobody comes down the chute."
+  > "What am I?" -> what
+  > "How do I get out of the city?" -> gate
+
+node: what
+  wren (careful): "A scanner reads your band and finds nothing. No name, no job, no debt. It says PENDING REVIEW and waits for somebody to decide what you are. Nobody ever does. That is the only gift you were given, so use it."
+  > "Why is that a gift?" -> gift
+  > "How do I get out of the city?" -> gate
+
+node: gift
+  wren: "Because a violation is a record, and a record is a person the city can catch. You are a gap. Robots stare at gaps. They rarely chase them."
+  > "How do I get out of the city?" -> gate
+  > "Is there anyone who can help me?" -> help
+
+node: gate
+  wren (grim): "Nobody has, in years. There is a Gate, and it checks you against what the city knows about you. I will not pretend that is good news for someone the city knows nothing about. Ask me about help instead."
+  > "Is there anyone who can help me?" -> help
+  > "I will think about it." -> goodbye
+
+node: help
+  on_enter: {+clue:wren_vouches(wren), +clue:ines_records(wren), +clue:maren_trains(wren), +clue:tobias_gate_shift(wren), +clue:silas_hears(wren), flag:wren_vouched}
+  wren: "Four people I would trust with a secret and not much else. Ines Calloway kept the Civic Core's records. Maren Okafor dispatched trains under the city. Tobias Hale stood guard at the Gate. Silas Brandt keeps this building and hears everything said in it. They all knew somebody who worked on the Gate. I will vouch for you to any of them."
+  > "Why would they help me?" -> why
+  > "I will go and talk to them." -> goodbye
+
+node: why
+  wren (quiet): "Because they each knew someone who is not here any more. I am not going to say more than that. I do not know more than that."
+  > "I will go and talk to them." -> goodbye
+
+node: back
+  wren: "Back already. Tea is on, the radio is lying, and nobody has been arrested since lunch."
+  > [!flag:wren_vouched] "Is there anyone who can help me?" -> help
+  > [flag:wren_vouched] "Who were the four again?" -> help
+  > "What am I, again?" -> what
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  wren: "Mind the cameras. Mind the clock. Mind the neighbours."
+  end

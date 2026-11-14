@@ -34,24 +34,46 @@ export interface MapData {
 }
 
 /**
- * Something to pick up. `grant` names what the player receives: "augment:ID", "item:ID" or "item:ID:COUNT",
- * or "credits:N". Once taken, the flag `picked_<id>` is set and it is gone for good.
+ * Something to pick up or examine. `grant` names what the player receives, one or several joined with "+":
+ * "augment:ID", "item:ID" or "item:ID:COUNT", "credits:N", or "clue:ID" / "clue:ID:SOURCE" (learning something by
+ * looking; SOURCE is the word after "observe:" in the clue's source, e.g. "laundry_chute"). Once taken, the flag
+ * `picked_<id>` is set and it is gone for good. `label` is what the prompt says ("Check the chute"); `requires`
+ * ("augment:ID" worn, "item:ID", "clue:ID" or "flag:ID") hides it until the player can use it.
  */
 export interface PickupDef {
   id: string;
   x: number;
   y: number;
   grant: string;
+  label?: string;
+  requires?: string;
 }
 
-/** The effect a pickup's `grant` string means, or null if it is malformed. */
-export function pickupEffect(grant: string): Effect | null {
-  const [kind, id, n] = grant.split(":");
-  if (!id && kind !== "credits") return null;
-  if (kind === "augment" && id && n === undefined) return { grant_augment: id };
-  if (kind === "item" && id && (n === undefined || /^[1-9]\d*$/.test(n))) return { add_item: [id, n === undefined ? 1 : Number(n)] };
-  if (kind === "credits" && id && /^[1-9]\d*$/.test(id) && n === undefined) return { add_credits: Number(id) };
-  return null;
+/** The effects a pickup's `grant` string means, or null if any part of it is malformed. */
+export function pickupEffects(grant: string): Effect[] | null {
+  const out: Effect[] = [];
+  for (const part of grant.split("+")) {
+    const [kind, id, n] = part.split(":");
+    if (!id) return null;
+    if (kind === "augment" && n === undefined) out.push({ grant_augment: id });
+    else if (kind === "item" && (n === undefined || /^[1-9]\d*$/.test(n))) out.push({ add_item: [id, n === undefined ? 1 : Number(n)] });
+    else if (kind === "credits" && /^[1-9]\d*$/.test(id) && n === undefined) out.push({ add_credits: Number(id) });
+    else if (kind === "clue") out.push({ give_clue: { id, from: n ? `observe:${n}` : "observe:here" } });
+    else return null;
+  }
+  return out.length > 0 ? out : null;
+}
+
+/** Whether the player can use a pickup right now (its `requires`, if any, holds). */
+export function pickupAvailable(p: PickupDef, state: { flags: Record<string, unknown>; clues: Record<string, unknown>; inventory: { items: Record<string, number> }; augments: { equipped: string[] }; }): boolean {
+  if (state.flags[`picked_${p.id}`]) return false;
+  if (!p.requires) return true;
+  const [kind, id] = p.requires.split(":");
+  if (kind === "augment") return state.augments.equipped.includes(id ?? "");
+  if (kind === "item") return (state.inventory.items[id ?? ""] ?? 0) > 0;
+  if (kind === "clue") return state.clues[id ?? ""] !== undefined;
+  if (kind === "flag") return Boolean(state.flags[id ?? ""]);
+  return false;
 }
 
 /** A named place (a pump house, a checkpoint): shown on the notebook map when a clue tagged `place:<id>` is known. */
@@ -298,7 +320,8 @@ export function buildWorld(data: MapData): World {
   for (const p of data.pickups ?? []) {
     if (pickupIds.has(p.id)) errors.push(`duplicate pickup id "${p.id}"`);
     pickupIds.add(p.id);
-    if (pickupEffect(p.grant) === null) errors.push(`pickup "${p.id}" has an invalid grant "${p.grant}" (expected augment:ID, item:ID[:COUNT] or credits:N)`);
+    if (pickupEffects(p.grant) === null) errors.push(`pickup "${p.id}" has an invalid grant "${p.grant}" (expected augment:ID, item:ID[:COUNT], credits:N or clue:ID[:SOURCE], joined with +)`);
+    if (p.requires !== undefined && !/^(augment|item|clue|flag):[a-z][a-z0-9_]*$/.test(p.requires)) errors.push(`pickup "${p.id}" has an invalid requires "${p.requires}"`);
     if (!inBounds(probe, p.x, p.y)) errors.push(`pickup "${p.id}" is out of bounds`);
     else if (wall[tileKey(probe, p.x, p.y)]) errors.push(`pickup "${p.id}" is inside a wall`);
   }

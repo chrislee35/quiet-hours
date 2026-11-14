@@ -84,6 +84,12 @@ export interface TerminalDef {
   solvedText: string;
   /** The way on depends on this terminal: the solvability checker requires at least two distinct ways through it (PUZ-1). */
   critical?: boolean;
+  /**
+   * What the player must already know for the puzzle itself to be solvable (a code lock whose code is learned in the
+   * world). The game does not enforce it (the puzzle simply cannot be guessed); the solvability checker uses it so a
+   * puzzle only counts as a way through when the player can actually learn what it needs.
+   */
+  puzzleRequires?: Condition[];
 }
 
 /** Everything the runtime needs besides game state. Injected like Config and World. */

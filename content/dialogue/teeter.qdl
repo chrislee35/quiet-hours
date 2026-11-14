@@ -1,0 +1,39 @@
+// Teeter, who runs the Safehouse radio. Obsessed with pre-city music. Source of rumours, and of a cat.
+npc: teeter
+name: Teeter
+start: back [flag:met_teeter]
+start: first
+
+node: first
+  on_enter: {flag:met_teeter}
+  teeter (excited): "You are the chute person! I am Teeter. I run the radio. Do not touch the dial, it is set to something illegal and wonderful. Can I tell you things? I have things."
+  > "What things?" -> things
+  > "Tell me about the cameras." -> cameras
+  > "Goodbye." -> goodbye
+
+node: things
+  teeter: "Everyone talks to the radio, and I listen to everyone. Also I have a problem. I have lost a cat. Admiral Pancake. Grey, one ear, answers to nothing. If you see a cat, any cat, will you tell me? It is very important."
+  on_enter: {+clue:cat_request(teeter)}
+  > "I will keep an eye out." -> goodbye
+  > "Tell me about the cameras." -> cameras
+
+node: cameras
+  on_enter: {+clue:stacks_cameras_night(teeter)}
+  teeter (earnest): "The Stacks cameras go on a night schedule at two in the morning. The plaza one looks the other way for a while. Do not do anything silly with that."
+  > "What about the hackers?" -> hackers
+  > "Goodbye." -> goodbye
+
+node: hackers
+  on_enter: {+clue:hackers_split(teeter)}
+  teeter (hushed): "Null Hypothesis. They split up. Dex Harlow would not leave Mari Quade alone; Mari is the best friend of Juno, who was on the team. Juno took Dex's toolkit and left. It is the best thing that has happened in the Stacks since the lift broke."
+  > "Goodbye." -> goodbye
+
+node: back
+  teeter: "Back! Any cats?"
+  > "Tell me about the cameras." -> cameras
+  > "What about the hackers?" -> hackers
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  teeter: "Keep the dial where it is."
+  end

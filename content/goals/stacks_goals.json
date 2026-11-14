@@ -1,0 +1,22 @@
+[
+  {
+    "id": "reach_safehouse",
+    "name": "Reach the Safehouse and meet the cell",
+    "map": "stacks",
+    "require": [
+      {
+        "flag": "met_wren"
+      }
+    ]
+  },
+  {
+    "id": "first_cache",
+    "name": "Open Locker 9 and find the first augment",
+    "map": "stacks",
+    "require": [
+      {
+        "flag": "quiet_step_found"
+      }
+    ]
+  }
+]

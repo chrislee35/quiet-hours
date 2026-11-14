@@ -72,6 +72,7 @@ export const terminalSchema = {
     onSolve: { type: "array" },
     solvedText: { type: "string" },
     critical: { type: "boolean" },
+    puzzleRequires: { type: "array" },
   },
 } as const;
 

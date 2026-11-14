@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { PALETTES, canvasColours } from "../palette.ts";
-import { hasTag, isSolid, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
+import { hasTag, isSolid, pickupAvailable, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
 import { FixedStepper } from "../loop.ts";
 import { intentFromActions, sameIntent, type MoveIntent } from "../input/actions.ts";
 import type { RenderDeps, Renderer } from "./Renderer.ts";
@@ -274,7 +274,8 @@ class QuietScene extends Phaser.Scene {
       const gem = this.add.graphics().setDepth(7);
       gem.fillStyle(0x7be3ff, 0.9).fillTriangle(cx, cy - 9, cx + 8, cy, cx, cy + 9).fillTriangle(cx, cy - 9, cx - 8, cy, cx, cy + 9);
       gem.lineStyle(2, 0xffffff, 0.8).strokeCircle(cx, cy, 13);
-      const name = this.sim.content.augments[pk.grant.split(":")[1] ?? ""]?.name ?? (pk.grant.split(":")[1] ?? pk.grant).replace(/_/g, " ");
+      const first = pk.grant.split("+")[0]!.split(":")[1] ?? pk.grant;
+      const name = pk.label ?? this.sim.content.augments[first]?.name ?? first.replace(/_/g, " ");
       const label = this.add.text(cx, cy - 16, name, { fontFamily: "monospace", fontSize: "10px", color: "#7be3ff" }).setOrigin(0.5, 1).setDepth(60);
       this.pickupMarks.set(pk.id, [gem, label]);
     }
@@ -480,7 +481,8 @@ class QuietScene extends Phaser.Scene {
       sprite.setPosition(n.x * TILE, n.y * TILE).setVisible(!n.away);
       label.setPosition(n.x * TILE, (n.y - 0.5) * TILE - 4).setVisible(!n.away);
     }
-    for (const [id, marks] of this.pickupMarks) for (const m of marks) (m as Phaser.GameObjects.Components.Visible & Phaser.GameObjects.GameObject).setVisible(!this.sim.state.flags[`picked_${id}`]);
+    const avail = new Set(this.sim.world.pickups.filter((p) => pickupAvailable(p, this.sim.state)).map((p) => p.id));
+    for (const [id, marks] of this.pickupMarks) for (const m of marks) (m as Phaser.GameObjects.Components.Visible & Phaser.GameObjects.GameObject).setVisible(avail.has(id));
 
     const prompt = this.sim.prompt();
     if (prompt) {

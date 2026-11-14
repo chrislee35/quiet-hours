@@ -196,7 +196,7 @@ node: bye
 
   it("when it runs out of room it says so, and 'never' answers become warnings, not errors", () => {
     const many = dialogue("many", `npc: many\nnode: hi\n  many: "x"\n  > "a" {flag:a} -> hi\n  > "b" {flag:b} -> hi\n  > "c" {flag:c} -> hi\n  > "d" {flag:d} -> hi\n  > "e" {flag:e} -> hi\n  > "Bye." -> bye\nnode: bye\n  end\n`);
-    const r = run(room({ npcs: [{ id: "many", x: 2, y: 1, dialogue: "many" }] }), content({ dialogues: { many }, quests: { q: { id: "q", title: "Q", summary: "", start: [], steps: [{ id: "s", text: "s", done: [{ flag: "zzz" }] }], complete: [{ flag: "zzz" }] } } }), [goal([{ flag: "zzz" }])], { maxStates: 20 });
+    const r = run(room({ npcs: [{ id: "many", x: 2, y: 1, dialogue: "many" }] }), content({ dialogues: { many }, quests: { q: { id: "q", title: "Q", summary: "", start: [], steps: [{ id: "s", text: "s", done: [{ flag: "zzz" }] }], complete: ["a", "b", "c", "d", "e", "zzz"].map((flag) => ({ flag })) } } }), [goal([{ flag: "zzz" }])], { maxStates: 20 });
     expect(r.truncated).toBe(true);
     expect(kinds(r)).toContain("truncated");
     expect(r.findings.filter((f) => f.kind === "goal-unreachable" || f.kind === "quest-impossible").every((f) => f.severity === "warning")).toBe(true);
@@ -234,7 +234,7 @@ describe("the shipped content", () => {
   it("is valid and passes: every goal reachable, no soft locks, every critical terminal has two ways", () => {
     expect(validateContent(bundle)).toEqual([]);
     const a = assemble(bundle);
-    const report = checkSolvability(a.worlds, a.content, a.config, a.goals, a.start);
+    const report = checkSolvability(a.worlds, a.content, a.config, a.goals, a.start, { maxStates: 2500 });
     expect(formatReport(report)).toContain("0 error(s)");
     const slice = report.maps.find((m) => m.map === "stacks_slice")!;
     expect(slice.truncated).toBe(false);
@@ -245,16 +245,16 @@ describe("the shipped content", () => {
   it("would catch breaking it: remove the second route to the maintenance wing and it is an error", () => {
     const a = assemble(bundle);
     const broken = { ...a.content, terminals: { ...a.content.terminals, maint_panel: { ...a.content.terminals.maint_panel!, bypass: [] } } };
-    const report = checkSolvability(a.worlds, broken, a.config, a.goals, a.start);
+    const report = checkSolvability(a.worlds, broken, a.config, a.goals, a.start, { maxStates: 2500 });
     expect(report.errors).toBeGreaterThan(0);
-    expect(report.maps[0]!.findings.map((f) => f.kind)).toContain("single-route");
+    expect(report.maps.find((m) => m.map === "stacks_slice")!.findings.map((f) => f.kind)).toContain("single-route");
   });
 
   it("would catch the goal becoming impossible: give the puzzle an unsolvable shape and no bypass", () => {
     const a = assemble(bundle);
     const hopelessPuzzle = { ...a.content.puzzles.maint_power!, targets: [[3, 3]] } as PuzzleDef;
     const broken = { ...a.content, puzzles: { ...a.content.puzzles, maint_power: { ...hopelessPuzzle, pieces: ["EEEE", "EEEE", "EEEE", "EEEE"], rotations: ["0000", "0000", "0000", "0000"], width: 4, height: 4, source: [0, 0] } as PuzzleDef }, terminals: { ...a.content.terminals, maint_panel: { ...a.content.terminals.maint_panel!, bypass: [] } } };
-    const report = checkSolvability(a.worlds, broken, a.config, a.goals, a.start);
-    expect(report.maps[0]!.findings.map((f) => f.kind)).toEqual(expect.arrayContaining(["goal-unreachable"]));
+    const report = checkSolvability(a.worlds, broken, a.config, a.goals, a.start, { maxStates: 2500 });
+    expect(report.maps.find((m) => m.map === "stacks_slice")!.findings.map((f) => f.kind)).toEqual(expect.arrayContaining(["goal-unreachable"]));
   });
 });

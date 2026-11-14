@@ -3,13 +3,13 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { EMPTY_CONTENT, buildWorld, compileDialogue, importTiled, type ClueDef, type Content } from "@qh/core";
 import { Scenario, asciiWorld } from "../src/index.ts";
-import { config } from "./helpers.ts";
+import { allClues, config } from "./helpers.ts";
 
 const read = (rel: string) => readFileSync(new URL(`../../../content/${rel}`, import.meta.url), "utf8");
 
 /** Real shipped content: Odd Sam's conversation and the clue definitions. */
 function realContent(): Content {
-  const clues = Object.fromEntries((JSON.parse(read("clues/sample.json")) as ClueDef[]).map((c) => [c.id, c]));
+  const clues = allClues();
   const { dialogue, errors } = compileDialogue(read("dialogue/odd_sam.qdl"), { id: "odd_sam", knownClues: new Set(Object.keys(clues)) });
   if (!dialogue) throw new Error(JSON.stringify(errors));
   return { ...EMPTY_CONTENT, dialogues: { odd_sam: dialogue }, clues };

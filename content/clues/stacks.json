@@ -152,5 +152,98 @@
     "for": [
       "route:break"
     ]
+  },
+  {
+    "id": "curfew_hours",
+    "text": "Curfew runs from 22:00 to 06:00. Anyone out in it with a record on file is marked down for it.",
+    "source": "npc:silas",
+    "reliability": "true",
+    "tags": [
+      "schedule:curfew",
+      "place:stacks_street"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "broadcast:civic_voice"
+    ],
+    "for": [
+      "world"
+    ]
+  },
+  {
+    "id": "stacks_cameras_night",
+    "text": "The Stacks cameras swap to their night schedule at 02:00, and the plaza camera looks the other way for a while.",
+    "source": "npc:teeter",
+    "reliability": "true",
+    "tags": [
+      "schedule:quiet_hours",
+      "topic:robots",
+      "place:stacks_street"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:silas"
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "neighbor_wellness",
+    "text": "The Neighbor Wellness program pays extra rations for reports on your neighbours. Mrs. Adeyemi-Roth is on it.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "person:mrs_adeyemi_roth",
+      "topic:informants"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:silas"
+    ],
+    "for": [
+      "side:sq_02"
+    ]
+  },
+  {
+    "id": "mrs_unreported",
+    "text": "Mrs. Adeyemi-Roth has not reported the new face in the Stacks. She only reports people she dislikes.",
+    "source": "npc:mrs_adeyemi_roth",
+    "reliability": "true",
+    "tags": [
+      "person:mrs_adeyemi_roth",
+      "topic:informants"
+    ],
+    "links": [
+      {
+        "to": "neighbor_wellness",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "side:sq_02"
+    ]
+  },
+  {
+    "id": "null_checker_loop",
+    "text": "A Checker will stall on a person with no record for as long as they stay in its view. A person with a bad record it simply marks.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "topic:null_state",
+      "person:odd_sam"
+    ],
+    "links": [
+      {
+        "to": "null_pending",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "npc:silas"
+    ],
+    "for": [
+      "route:sneak"
+    ]
   }
 ]

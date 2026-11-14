@@ -15,8 +15,19 @@ node: return_visit
   odd_sam (amused): "Back again. My prices haven't moved. Prices only move one way."
   > "What do you sell?" -> wares
   > [clue:pump4_shift] "I heard the night shift at Pump 4 leaves the side door unlocked." -> pump4_claim
+  > "Any news?" -> news
   > "I have something to show you." -> show
   > "Goodbye." -> goodbye
+
+node: news
+  odd_sam (confiding): "Nothing that will get you out of the city. I find rumours useful for waiting. The hackers have fallen out, a cat is missing, and if you want the one fact worth having: a Checker stalls on a person with no record, and a forged pass fools a plain scan but not an Auditor's."
+  on_enter: {+clue:gossip_disclaimer(odd_sam), +clue:hackers_exist(odd_sam), +clue:null_checker_loop(odd_sam), +clue:forged_pass_scan(odd_sam)}
+  > [credits>=15, !clue:safehouse_way_in] "Ask where the resistance hides. (15 credits)" {-credits:15, +clue:safehouse_way_in(odd_sam)} -> way
+  > "Thanks." -> return_visit
+
+node: way
+  odd_sam (low): "Behind the third-floor laundry. A panel by the machines, and a fuse board behind it. Turn the fuses until they are all dark. You did not hear it from me."
+  > "Thank you." -> return_visit
 
 node: wares
   odd_sam: "Rumours, mostly. The Pump 4 night shift, for twenty credits. Or a free sample, if you don't mind it being stale."

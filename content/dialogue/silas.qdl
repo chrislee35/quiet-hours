@@ -1,0 +1,50 @@
+// Silas Brandt, the Stacks superintendent and rumour collector (a mentor candidate; the mentor choice is T3.8).
+npc: silas
+name: Silas Brandt
+trust: yes
+start: back [flag:met_silas]
+start: first
+
+node: first
+  on_enter: {flag:met_silas}
+  silas (warm): "New face on the stairs! Silas Brandt, I keep this building, which is a polite way of saying I know whose pipe leaks onto whom. You are the one who came down the chute. Everyone knows. Nobody is supposed to."
+  > "What do you hear?" -> hear
+  > "How do I stay out of trouble here?" -> trouble
+  > "Wren sent me." -> wren
+
+node: hear
+  silas (conspiratorial): "Oh, the usual. A cat is missing and Teeter is beside himself. Dov at the Permit Hall is in love with a form. The hackers have fallen out again. I could go on. I usually do."
+  > "How do I stay out of trouble here?" -> trouble
+  > "Wren sent me." -> wren
+  > "Goodbye." -> goodbye
+
+node: trouble
+  on_enter: {+clue:curfew_hours(silas), +clue:auditor_night(silas), +clue:null_checker_loop(silas)}
+  silas: "Three things. Curfew is ten at night until six; anyone with a record who is caught out in it gets marked. At night the Wardens go home to be updated, and that is when the Auditors come out, which is worse. And a Checker will stand and stare at a person with no record forever; it will not hurt you, it will just never let you go."
+  > "That is useful." -> more
+  > "Why are you telling me this?" -> why
+
+node: why
+  silas (soft): "Because Wren vouches for you, and because I would rather someone walked out of this building than was carried."
+  > "Thank you." {trust:silas+1(helped by him)} -> more
+
+node: more
+  silas: "And the wall in the laundry. There is a panel by the machines and a fuse board behind it. You turn them until they are all dark. Wren will want to meet you."
+  on_enter: {+clue:safehouse_way_in(silas)}
+  > "Goodbye." -> goodbye
+
+node: wren
+  silas (pleased): "Wren! Good. Then you will want the wall in the laundry. A panel by the machines and a fuse board behind it; turn the fuses until they are all dark."
+  on_enter: {+clue:safehouse_way_in(silas)}
+  > "What do you hear?" -> hear
+  > "Goodbye." -> goodbye
+
+node: back
+  silas (warm): "Back again! Mind the third step."
+  > "What do you hear?" -> hear
+  > "How do I stay out of trouble here?" -> trouble
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  silas: "Keep your head down and your ears up."
+  end
