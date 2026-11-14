@@ -11,6 +11,7 @@ import { gameTimeAt, inWindow } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, GameEvent, TrustLevel } from "./events.ts";
 import type { Content } from "./dialogue/types.ts";
+import { isGrown } from "./hub.ts";
 import { repayLoan, serviceStatus, takeLoan, totalOwed, useService } from "./economy.ts";
 import type { SimState } from "./state.ts";
 import { ticksPerGameMinute, type PassOrigin } from "./identity.ts";
@@ -42,6 +43,8 @@ export type Condition =
   | { augment_equipped: string }
   /** The service can be used right now (it exists, requirements hold, a record is on file if it needs one, and the player can pay). */
   | { can_service: string }
+  /** A Safehouse growth exists (see hub.ts). */
+  | { has_growth: string }
   /** The player has any identity on file (true) or is in the null state (false). */
   | { has_record: boolean }
   /** The player owes this lender, or "*" for any lender. */
@@ -68,6 +71,8 @@ export type Effect =
   /** Raises alert to at least this level (never lowers it). */
   | { raise_alert_to: AlertLevel }
   | { emit: string }
+  /** Rest in the Safehouse: the alert drops to Calm and the game saves. Only meaningful there; content gates it. */
+  | { rest: true }
   /** Gives (or replaces) a pass. Expiry is in in-game minutes from now. */
   | {
       give_pass: {
@@ -109,6 +114,7 @@ export function evalCondition(c: Condition, state: Readonly<SimState>, config: C
   if ("all" in c) return c.all.every((x) => evalCondition(x, state, config, content));
   if ("any" in c) return c.any.some((x) => evalCondition(x, state, config, content));
   if ("not" in c) return !evalCondition(c.not, state, config, content);
+  if ("has_growth" in c) return content !== undefined && isGrown(state, content, config, c.has_growth);
   if ("can_service" in c) return content !== undefined && serviceStatus(state, content, config, c.can_service).ok;
   if ("has_record" in c) return (state.passes.length > 0) === c.has_record;
   if ("district_is" in c) return state.district[c.district_is[0]]?.[c.district_is[1]] === c.district_is[2];
@@ -208,6 +214,13 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       state.alert.quietSince = tick;
       events.push({ type: "AlertChanged", tick, from, to: effect.raise_alert_to });
     }
+  } else if ("rest" in effect) {
+    if (state.alert.level > 0) {
+      events.push({ type: "AlertChanged", tick, from: state.alert.level, to: 0 });
+      state.alert.level = 0;
+    }
+    state.alert.quietSince = tick;
+    events.push({ type: "Rested", tick });
   } else if ("emit" in effect) {
     events.push({ type: "Custom", tick, name: effect.emit });
   } else if ("give_pass" in effect) {
@@ -333,6 +346,7 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
     case "has_pass":
     case "has_augment":
     case "augment_equipped":
+    case "has_growth":
     case "can_service":
     case "in_debt":
       if (!isStr(a)) bad("expected a string id");
@@ -415,6 +429,9 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
     case "revoke_augment":
     case "use_service":
       if (!isStr(a)) bad("expected a string");
+      break;
+    case "rest":
+      if (a !== true) bad("expected true");
       break;
     case "set_flag":
       if (!isTuple(a, 2) || !isStr(a[0]) || !isFlagValue(a[1])) bad("expected [flag, boolean|number|string]");

@@ -27,7 +27,7 @@ import {
 import type { GoalDef, StartState } from "./assemble.ts";
 
 export interface CheckOptions {
-  /** Most abstract states to explore per map before giving up (default 12,000). */
+  /** Most abstract states to explore per map before giving up (default 8,000). */
   maxStates?: number;
 }
 
@@ -133,12 +133,14 @@ function usesTime(content: Content): boolean {
  * same situation. This is what keeps independent conversations from multiplying the search. Facts are written
  * "flag:x", "clue:x", "item:x", "aug:x", "pass:x", "debt:x", "trust:x".
  */
-interface Needed { facts: Set<string>; /** Clues whose verified/disproved status some rule reads (for the rest, knowing the clue is enough). */ statusClues: Set<string>; alert: boolean; relevantDialogues: Set<string> }
+interface Needed { /** Flags that do not distinguish situations (a coin pickup already taken). */ ignoreFlags: Set<string>; facts: Set<string>; /** Clues whose verified/disproved status some rule reads (for the rest, knowing the clue is enough). */ statusClues: Set<string>; alert: boolean; relevantDialogues: Set<string> }
 
 const REAL_ALERT = /"alert_gte"/;
 
-function readsIn(text: string): Set<string> {
+function readsIn(text: string, growth: Content["growth"] = {}): Set<string> {
   const out = new Set<string>();
+  // A growth is a condition on other facts: reading it reads what it depends on.
+  for (const m of text.matchAll(/"has_growth":"([^"]+)"/g)) for (const f of readsIn(JSON.stringify(growth[m[1]!]?.when ?? []), growth)) out.add(f);
   const grab = (re: RegExp, prefix: string) => { for (const m of text.matchAll(re)) out.add(`${prefix}:${m[1]}`); };
   grab(/"flag":"([^"]+)"/g, "flag"); grab(/"flag_eq":\["([^"]+)"/g, "flag"); grab(/"requires":"flag:([^"]+)"/g, "flag");
   grab(/"has_clue":"([^"]+)"/g, "clue"); grab(/"clue_state":\["([^"]+)"/g, "clue"); grab(/"requires":"clue:([^"]+)"/g, "clue");
@@ -169,7 +171,7 @@ function neededFacts(content: Content, goals: readonly GoalDef[], world: World):
   const here = new Set(world.npcs.map((n) => n.dialogue));
   const terminalsHere = world.terminals.map((t) => content.terminals[t.id]).filter((t): t is NonNullable<typeof t> => t !== undefined);
   const producers: { name: string; produces: Set<string>; reads: Set<string> }[] = [
-    ...Object.values(content.dialogues).filter((d) => here.has(d.id)).map((d) => ({ name: `dialogue:${d.id}`, produces: producesIn(JSON.stringify(d), content), reads: readsIn(JSON.stringify(d)) })),
+    ...Object.values(content.dialogues).filter((d) => here.has(d.id)).map((d) => ({ name: `dialogue:${d.id}`, produces: producesIn(JSON.stringify(d), content), reads: readsIn(JSON.stringify(d), content.growth) })),
     ...Object.values(content.services).map((v) => ({ name: `service:${v.id}`, produces: producesIn(JSON.stringify(v.effects), content), reads: readsIn(JSON.stringify(v.requires)) })),
     ...Object.values(content.reactions).map((r) => ({ name: `reaction:${r.id}`, produces: producesIn(JSON.stringify(r.effects), content), reads: readsIn(JSON.stringify(r.if ?? [])) })),
     ...world.pickups.map((p) => ({ name: `pickup:${p.id}`, produces: new Set([...p.grant.split("+")].map((g) => { const [k, id] = g.split(":"); return `${k === "augment" ? "aug" : k}:${id}`; })), reads: readsIn(JSON.stringify({ requires: p.requires ?? "" })) })),
@@ -189,13 +191,13 @@ function neededFacts(content: Content, goals: readonly GoalDef[], world: World):
   }
   const relevant = new Set(producers.filter((pr) => pr.name.startsWith("dialogue:") && [...pr.produces].some((f) => needed.has(f))).map((pr) => pr.name.slice(9)));
   const statusClues = new Set([...text.matchAll(/"clue_state":\["([^"]+)"/g)].map((m) => m[1]!));
-  return { facts: needed, statusClues, alert: REAL_ALERT.test(text), relevantDialogues: relevant };
+  return { ignoreFlags: new Set(), facts: needed, statusClues, alert: REAL_ALERT.test(text), relevantDialogues: relevant };
 }
 
 function keyOf(s: SimState, phase: number, withTime: boolean, itemCapacity: number, need: Needed): string {
   const sorted = <T>(o: Record<string, T>) => Object.entries(o).sort(([a], [b]) => (a < b ? -1 : 1));
   return JSON.stringify([
-    sorted(s.flags).filter(([k]) => need.facts.has(`flag:${k}`) || k.startsWith("picked_") || k.startsWith("reaction_done_")),
+    sorted(s.flags).filter(([k]) => (need.facts.has(`flag:${k}`) || k.startsWith("picked_") || k.startsWith("reaction_done_")) && !need.ignoreFlags.has(k)),
     sorted(s.clues).filter(([id]) => need.facts.has(`clue:${id}`)).map(([id, c]) => [id, need.statusClues.has(id) ? c.status : ""]),
     sorted(s.inventory.items).filter(([id]) => need.facts.has(`item:${id}`)).map(([id, n]) => [id, Math.min(n, itemCapacity)]),
     s.passes.filter((p) => need.facts.has(`pass:${p.id}`)).map((p) => [p.id, p.origin, p.level]).sort(),
@@ -268,6 +270,7 @@ function cloneState(s: SimState): SimState {
     inventory: { credits: s.inventory.credits, items: { ...s.inventory.items } },
     augments: { ...s.augments, owned: [...s.augments.owned], equipped: [...s.augments.equipped] },
     assist: { ...s.assist },
+    hub: { grown: [...s.hub.grown] },
     notebook: { links: s.notebook.links.map((l) => [...l] as [string, string]) },
     visited: [...s.visited],
     met: [...s.met],
@@ -375,7 +378,7 @@ function sandboxDialogue(dialogueId: string, base: SimState, content: Content, c
     nodes.add(`${d.id}/${node.id}`);
     node.choices.forEach((c, i) => { if (evalAll(c.if, st, config, content)) choices.add(`${d.id}/${node.id}#${i}`); });
   };
-  const track = readsIn(JSON.stringify(content.dialogues[dialogueId] ?? {}));
+  const track = readsIn(JSON.stringify(content.dialogues[dialogueId] ?? {}), content.growth);
   for (const start of [base, rich]) {
     // Visit again after each way the last visit could end (an NPC greets a returning visitor differently), up to three visits.
     let frontier: SimState[] = [start];
@@ -391,7 +394,7 @@ function sandboxDialogue(dialogueId: string, base: SimState, content: Content, c
 export function checkMap(
   mapId: string, world: World, content: Content, config: Config, goals: readonly GoalDef[], start: StartState, options: CheckOptions = {},
 ): MapReport {
-  const maxStates = options.maxStates ?? 12_000;
+  const maxStates = options.maxStates ?? 8_000;
   const cap = creditCap(content, goals, start);
   const itemMax = itemCap(content, start);
   const need = neededFacts(content, goals, world);
@@ -419,11 +422,14 @@ export function checkMap(
   interface Node { json: string; parent: string | null; via: string; phase: number; credits: number; depth: number }
   const nodes = new Map<string, Node>();
   const edges = new Map<string, string[]>();
+  /** Pickups that give nothing but credits. */
+  const freePickups = new Set(aw.pickups.filter((p) => p.grant.split("+").every((g) => g.startsWith("credits:")) && p.requires === undefined).map((p) => p.id));
+  for (const p of aw.pickups) if (p.grant.split("+").every((g) => g.startsWith("credits:")) && p.requires === undefined) need.ignoreFlags.add(`picked_${p.id}`);
   const convPlans = new Map<string, { actions: ConvAction[]; path: string[] }[]>();
   const dialogueReads = new Map<string, Set<string>>();
   const dialogueReadsOf = (id: string): Set<string> => {
     let r = dialogueReads.get(id);
-    if (!r) { r = new Set([...readsIn(JSON.stringify(content.dialogues[id] ?? {})), ...serviceReads]); dialogueReads.set(id, r); }
+    if (!r) { r = new Set([...readsIn(JSON.stringify(content.dialogues[id] ?? {}), content.growth), ...serviceReads]); dialogueReads.set(id, r); }
     return r;
   };
   const serviceReads = readsIn(JSON.stringify(Object.values(content.services).map((v) => v.requires)));
@@ -504,6 +510,13 @@ export function checkMap(
     };
 
     const tiles = reachableTiles(aw, state);
+    // Loose change can only help, so it is collected on sight rather than branched on (this keeps independent coins from multiplying the search).
+    for (const p of aw.pickups) {
+      if (!freePickups.has(p.id) || state.flags[`picked_${p.id}`] || !reachable(tiles, aw, p.x, p.y)) continue;
+      state.flags[`picked_${p.id}`] = true;
+      applyEffects(pickupEffects(p.grant)!, state, [], config, content);
+      node.credits = Math.max(node.credits, rich(state));
+    }
     for (const n of aw.npcs) {
       if (!reachable(tiles, aw, n.x, n.y)) continue;
       // A conversation is one step: every way it can end, with the words said (the world is frozen while it lasts).

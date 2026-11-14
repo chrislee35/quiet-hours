@@ -61,6 +61,8 @@ settings.onChange((_, changed) => {
 });
 sim.bus.subscribe((e) => {
   if (e.type === "GameLoaded") pushAssist();
+  // Resting in the Safehouse is a checkpoint: the alert is back to Calm, so the autosave is allowed.
+  if (e.type === "Rested") game.autosave();
   // An audible cue when the city gets more suspicious: one, two or three beeps (ACC-2).
   if (e.type === "AlertChanged" && e.to > e.from && settings.get().alertCues) playNotes(Array.from({ length: e.to }, () => 71 + 4 * e.to), 170);
 });

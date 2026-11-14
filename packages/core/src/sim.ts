@@ -6,6 +6,7 @@ import { closeTerminal, openTerminal, skipPuzzle, tapCell, terminalView, type Te
 import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.ts";
 import { useItem } from "./combat.ts";
 import { npcSystem } from "./npcs.ts";
+import { hubSystem } from "./hub.ts";
 import { reactionSystem } from "./districts.ts";
 import { annotatedMap, conflicts, linkClues, notebookItems, questLog, unlinkClues, type AnnotatedMap, type Conflict, type NotebookItem, type QuestView } from "./notebook.ts";
 import { economySystem } from "./economy.ts";
@@ -303,6 +304,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "demerits", run: demeritSystem },
   { name: "processing", run: processingSystem },
   { name: "district-reactions", run: reactionSystem },
+  { name: "hub", run: hubSystem },
 ];
 
 // ---- Stepping ----------------------------------------------------------------------------
@@ -351,6 +353,7 @@ export function step(
     }
     // Effects run from a conversation or terminal can trigger reactions too, even though the world is frozen.
     reactionSystem(ctx);
+    hubSystem(ctx);
     return { state, events };
   }
   // Advance the tick first: systems and emitted events all see the tick the new state will have,

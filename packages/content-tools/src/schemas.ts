@@ -195,6 +195,13 @@ export const goalSchema = {
   properties: { id, name: { type: "string", minLength: 1 }, map: { type: "string", minLength: 1 }, require: { type: "array", minItems: 1 } },
 } as const;
 
+export const growthSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "name", "description", "when"],
+  properties: { id, name: { type: "string", minLength: 1 }, description: { type: "string", minLength: 1 }, when: { type: "array", minItems: 1 } },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -207,6 +214,7 @@ export const kinds = {
   reactions: reactionSchema,
   quests: questSchema,
   goals: goalSchema,
+  growth: growthSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

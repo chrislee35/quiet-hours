@@ -1,0 +1,82 @@
+[
+  {
+    "id": "radio_on",
+    "name": "The radio",
+    "description": "Teeter's radio hums on its shelf, tuned to something illegal and wonderful.",
+    "when": [
+      {
+        "flag": "met_teeter"
+      }
+    ]
+  },
+  {
+    "id": "tea_corner",
+    "name": "A tea corner",
+    "description": "A kettle, three mismatched mugs, and a chair nobody admits is theirs.",
+    "when": [
+      {
+        "flag": "wren_vouched"
+      }
+    ]
+  },
+  {
+    "id": "workbench",
+    "name": "Perrin's workbench",
+    "description": "Doc Perrin's tools, laid out by size, and a stuffed pigeon supervising.",
+    "when": [
+      {
+        "flag": "met_perrin"
+      }
+    ]
+  },
+  {
+    "id": "cot_row",
+    "name": "A row of cots",
+    "description": "Real cots, made up, because somebody finally stopped sleeping on the floor.",
+    "when": [
+      {
+        "flag": "quiet_step_found"
+      }
+    ]
+  },
+  {
+    "id": "stores_shelf",
+    "name": "A stocked shelf",
+    "description": "Wren's stores: a few clockwork noise-makers and not much else.",
+    "when": [
+      {
+        "flag": "cell_fund_1"
+      }
+    ]
+  },
+  {
+    "id": "tool_rack",
+    "name": "A tool rack",
+    "description": "Wire cutters on hooks, each labelled with the name of whoever last lost them.",
+    "when": [
+      {
+        "flag": "cell_fund_2"
+      }
+    ]
+  },
+  {
+    "id": "warm_lamps",
+    "name": "Warm lamps",
+    "description": "Someone found bulbs that are not the city's colour. The room looks like a place people live.",
+    "when": [
+      {
+        "flag": "cell_fund_3"
+      }
+    ]
+  },
+  {
+    "id": "tomato_box",
+    "name": "A tomato box",
+    "description": "A box of earth by the lamp, with one very serious seedling in it.",
+    "when": [
+      {
+        "flag": "sq_07_done"
+      }
+    ]
+  }
+]

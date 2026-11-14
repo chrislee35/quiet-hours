@@ -1,4 +1,4 @@
-import { ROBOT_KINDS, type PlaceDef, type SpotDef, type PickupDef, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type CameraDef, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
+import { ROBOT_KINDS, type PropDef, type PlaceDef, type SpotDef, type PickupDef, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type CameraDef, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
 
 /**
  * Importer for maps authored in Tiled (https://www.mapeditor.org/), exported as JSON.
@@ -21,6 +21,8 @@ import { ROBOT_KINDS, type PlaceDef, type SpotDef, type PickupDef, type DoorDef,
  *    Class "spot": a named point (Name is its id) that NPC routines send people to.
  *    Class "place": a named place (Name is its id, string `label` its display name) shown on the notebook map once a
  *    clue tagged `place:<id>` is known.
+ *    Class "prop": scenery (Name is its id, string `kind`, optional string `shows` = a Safehouse growth id; it is drawn only
+ *    while that growth exists).
  *    Class "locker": where confiscated items are recovered after processing.
  *    Class "robot": string `kind` (default "warden"), number `facing` in degrees (0 = east, 90 = south,
  *    default 0), optional string `route`. Class "waypoint": string `route`, number `order` (default:
@@ -128,6 +130,7 @@ export function importTiled(raw: unknown, id: string): MapData {
   const pickups: PickupDef[] = [];
   const spots: SpotDef[] = [];
   const places: PlaceDef[] = [];
+  const props: PropDef[] = [];
   const waypoints = new Map<string, { order: number; seq: number; x: number; y: number }[]>();
   let seq = 0;
   for (const o of layer("objects", "objectgroup")?.objects ?? []) {
@@ -183,6 +186,14 @@ export function importTiled(raw: unknown, id: string): MapData {
     } else if (kind === "place") {
       const label = prop(o, "label");
       places.push({ id: oid, x: tx, y: ty, label: typeof label === "string" && label !== "" ? label : oid.replace(/_/g, " ") });
+    } else if (kind === "prop") {
+      const pk = prop(o, "kind");
+      const shows = prop(o, "shows");
+      if (typeof pk !== "string") {
+        errors.push(`prop "${oid}" needs a string property "kind"`);
+        continue;
+      }
+      props.push({ id: oid, x: tx, y: ty, kind: pk, ...(typeof shows === "string" ? { shows } : {}) });
     } else if (kind === "spot") {
       spots.push({ id: oid, x: tx, y: ty });
     } else if (kind === "pickup") {
@@ -216,7 +227,7 @@ export function importTiled(raw: unknown, id: string): MapData {
         ...(typeof prop(o, "activeWhen") === "string" ? { activeWhen: prop(o, "activeWhen") as string } : {}),
       });
     } else {
-      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, terminal, camera, pickup, spot, place, robot or waypoint)`);
+      errors.push(`object "${oid}" has unknown class "${kind}" (expected door, spawn, locker, npc, terminal, camera, pickup, spot, place, prop, robot or waypoint)`);
     }
   }
 
@@ -228,5 +239,5 @@ export function importTiled(raw: unknown, id: string): MapData {
     }));
 
   if (errors.length > 0) throw new TiledImportError(`map "${id}": ${errors.join("; ")}`);
-  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers, npcs, terminals, cameras, pickups, spots, places };
+  return { id, width, height, collision, zoneGrid, zones, doors, spawns, robots, routes, lockers, npcs, terminals, cameras, pickups, spots, places, props };
 }

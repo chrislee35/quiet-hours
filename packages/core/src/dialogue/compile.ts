@@ -54,6 +54,7 @@ function parseConditions(text: string, allowReliability: boolean, fail: (m: stri
     else if ((m = t.match(new RegExp(`^augment:(${ID})$`)))) c = { augment_equipped: m[1]! };
     else if ((m = t.match(new RegExp(`^owns:(${ID})$`)))) c = { has_augment: m[1]! };
     else if ((m = t.match(new RegExp(`^can:(${ID})$`)))) c = { can_service: m[1]! };
+    else if ((m = t.match(new RegExp(`^grown:(${ID})$`)))) c = { has_growth: m[1]! };
     else if (t === "record") c = { has_record: true };
     else if (t === "curfew") c = { is_curfew: true };
     else if (t === "quiet") c = { is_quiet_hours: true };
@@ -102,6 +103,7 @@ function parseEffects(text: string, defaultFrom: string, fail: (m: string) => vo
     } else if ((m = token.match(/^([+-])credits:(\d+)$/))) e = { add_credits: (m[1] === "-" ? -1 : 1) * Number(m[2]) };
     else if ((m = token.match(new RegExp(`^trust:(${ID})([+-]\\d+)(?:\\(([^)]+)\\))?$`)))) e = { adjust_trust: [m[1]!, Number(m[2]), m[3]?.trim() || where || "dialogue"] };
     else if ((m = token.match(new RegExp(`^\\+augment:(${ID})$`)))) e = { grant_augment: m[1]! };
+    else if (token === "rest") e = { rest: true };
     else if ((m = token.match(new RegExp(`^service:(${ID})$`)))) e = { use_service: m[1]! };
     else if ((m = token.match(new RegExp(`^loan:(${ID})\\*(\\d+)$`)))) e = { take_loan: [m[1]!, Number(m[2])] };
     else if ((m = token.match(new RegExp(`^repay:(${ID})\\*(\\d+)$`)))) e = { repay_loan: [m[1]!, Number(m[2])] };

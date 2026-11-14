@@ -34,6 +34,8 @@ export class Hud {
       else if (e.type === "LockerOpened") this.say("Belongings recovered.", 2500);
       else if (e.type === "TerminalSolved") this.say("Access gained.", 2500);
       else if (e.type === "ClueGained") this.say("Notebook updated.", 2000);
+      else if (e.type === "HubGrew") this.say(`The Safehouse has grown: ${sim.content.growth[e.growthId]?.name ?? e.growthId}.`, 4000);
+      else if (e.type === "Rested") this.say("You rest. The city loses interest. Game saved.", 3500);
     });
   }
 

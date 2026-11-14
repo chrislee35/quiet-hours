@@ -1,6 +1,7 @@
 // Wren, leader of the Safehouse cell. Act I: you have found the wall. She explains what you are and who can help.
 npc: wren
 name: Wren
+start: back_warm [flag:met_wren, grown:warm_lamps]
 start: back [flag:met_wren]
 start: first
 
@@ -47,12 +48,58 @@ node: why
   wren (quiet): "Because they each knew someone who is not here any more. I am not going to say more than that. I do not know more than that."
   > "I will go and talk to them." -> goodbye
 
+node: back_warm
+  wren (warm): "Back. Look at this place. Eleven people, real lamps, and a pot that has not been empty since Tuesday. You did that, and I am not going to say so twice."
+  > "Is there anything I can do for the cell?" -> hub
+  > "Goodbye." -> goodbye
+
 node: back
   wren: "Back already. Tea is on, the radio is lying, and nobody has been arrested since lunch."
   > [!flag:wren_vouched] "Is there anyone who can help me?" -> help
   > [flag:wren_vouched] "Who were the four again?" -> help
+  > "Is there anything I can do for the cell?" -> hub
   > "What am I, again?" -> what
   > "Goodbye." -> goodbye
+
+node: hub
+  wren (tired): "Stores, a bed, or coin in the pot. Pick one. I will pretend it is a hard decision."
+  > [grown:stores_shelf] "What is in the stores?" -> stores
+  > "I would like to rest for a bit." {rest} -> rested
+  > [credits>=20, !flag:cell_fund_1] "Chip in for the cell. (20 credits)" {-credits:20, flag:cell_fund_1} -> funded1
+  > [flag:cell_fund_1, !flag:cell_fund_2, credits>=40] "Chip in more. (40 credits)" {-credits:40, flag:cell_fund_2} -> funded2
+  > [flag:cell_fund_2, !flag:cell_fund_3, credits>=80] "Chip in properly. (80 credits)" {-credits:80, flag:cell_fund_3} -> funded3
+  > "Never mind." -> goodbye
+
+node: funded1
+  wren (surprised): "Twenty. Right. That will buy a shelf and something to put on it. Look in the corner when you leave."
+  > "Anything else?" -> hub
+  > "Goodbye." -> goodbye
+
+node: funded2
+  wren (pleased): "Forty. Now we can afford tools, and people who can afford tools are people who survive winter. Marrow would approve of that sentence."
+  > "Anything else?" -> hub
+  > "Goodbye." -> goodbye
+
+node: funded3
+  wren (quiet): "Eighty. I will not say it. I will put up the lamps instead."
+  > "Anything else?" -> hub
+  > "Goodbye." -> goodbye
+
+node: stores
+  wren: "Whatever the cell can spare. Nothing fancy, and nothing that does not do what it says."
+  > [grown:stores_shelf] "A noise-maker. (10 credits)" {service:store_noise_maker} -> sold
+  > [grown:tool_rack] "Wire cutters. (25 credits)" {service:store_wire_cutters} -> sold
+  > [grown:tool_rack] "A stun charge. (40 credits)" {service:store_stun_charge} -> sold
+  > "Not now." -> hub
+
+node: sold
+  wren: "Written down. Spend it wisely, and preferably not on a fight."
+  > "Anything else?" -> stores
+  > "Back to the cell." -> hub
+
+node: rested
+  wren (gentle): "An hour on a cot, and the city has forgotten you for now. I have put your name in the book, so that if the worst happens, someone knows where you were."
+  > "Thanks." -> goodbye
 
 node: goodbye
   wren: "Mind the cameras. Mind the clock. Mind the neighbours."

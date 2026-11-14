@@ -79,6 +79,7 @@ class QuietScene extends Phaser.Scene {
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
   private npcMarks = new Map<string, [Phaser.GameObjects.Image, Phaser.GameObjects.Text]>();
+  private propMarks = new Map<string, Phaser.GameObjects.GameObject[]>();
   private pickupMarks = new Map<string, Phaser.GameObjects.GameObject[]>();
   private promptText!: Phaser.GameObjects.Text;
   private readonly deps: RenderDeps;
@@ -268,6 +269,18 @@ class QuietScene extends Phaser.Scene {
       this.prevRobots.set(r.id, { x: r.x, y: r.y });
     }
     this.cones = this.add.graphics().setDepth(40);
+    // Scenery that grows with the Safehouse: each prop is a small labelled shape, shown while its growth exists.
+    const PROP_COLOUR: Record<string, number> = { bunk: 0x8a93c9, radio: 0xff8fc4, tea: 0xe0b43c, bench: 0xb08968, cots: 0x8fd3ff, shelf: 0xc8a165, rack: 0xa0a8c0, lamps: 0xffe39a, garden: 0x7fe08a };
+    for (const pr of this.sim.world.props) {
+      const cx = (pr.x + 0.5) * TILE;
+      const cy = (pr.y + 0.5) * TILE;
+      const body = this.add.graphics().setDepth(6);
+      body.fillStyle(PROP_COLOUR[pr.kind] ?? 0xc8cce6, 0.9).fillRoundedRect(cx - 11, cy - 8, 22, 16, 3);
+      body.lineStyle(2, 0x10121c, 1).strokeRoundedRect(cx - 11, cy - 8, 22, 16, 3);
+      const name = pr.shows ? (this.sim.content.growth[pr.shows]?.name ?? pr.kind) : pr.kind;
+      const label = this.add.text(cx, cy + 10, name, { fontFamily: "monospace", fontSize: "9px", color: "#c8cce6" }).setOrigin(0.5, 0).setDepth(60);
+      this.propMarks.set(pr.id, [body, label]);
+    }
     for (const pk of this.sim.world.pickups) {
       const cx = (pk.x + 0.5) * TILE;
       const cy = (pk.y + 0.5) * TILE;
@@ -480,6 +493,10 @@ class QuietScene extends Phaser.Scene {
       if (!n) continue;
       sprite.setPosition(n.x * TILE, n.y * TILE).setVisible(!n.away);
       label.setPosition(n.x * TILE, (n.y - 0.5) * TILE - 4).setVisible(!n.away);
+    }
+    for (const pr of this.sim.world.props) {
+      const on = pr.shows === undefined || this.sim.state.hub.grown.includes(pr.shows);
+      for (const m of this.propMarks.get(pr.id) ?? []) (m as Phaser.GameObjects.Components.Visible & Phaser.GameObjects.GameObject).setVisible(on);
     }
     const avail = new Set(this.sim.world.pickups.filter((p) => pickupAvailable(p, this.sim.state)).map((p) => p.id));
     for (const [id, marks] of this.pickupMarks) for (const m of marks) (m as Phaser.GameObjects.Components.Visible & Phaser.GameObjects.GameObject).setVisible(avail.has(id));

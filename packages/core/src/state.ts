@@ -52,6 +52,8 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** Which Safehouse growths have appeared (announced once, kept for good). */
+  hub: { grown: string[] };
   /** Player-chosen assists, recorded in the save so a reload keeps them (HAK-3). Never needed for progress. */
   assist: { puzzleSkip: boolean };
   /** The player's own cross-references between clues, as sorted id pairs. */
@@ -252,6 +254,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
     clues: {},
     inventory: { credits: 0, items: {} },
     npcs: Object.fromEntries(world.npcs.map((n) => [n.id, createNpcState(n.x + 0.5, n.y + 0.5)])),
+    hub: { grown: [] },
     assist: { puzzleSkip: false },
     notebook: { links: [] },
     visited: (zoneAt(world, Math.floor(x), Math.floor(y))?.id ?? null) === null ? [] : [zoneAt(world, Math.floor(x), Math.floor(y))!.id],

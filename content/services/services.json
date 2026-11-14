@@ -140,5 +140,71 @@
     "refusals": {
       "funds": "Thirty credits. The pigeon does not do charity either."
     }
+  },
+  {
+    "id": "store_noise_maker",
+    "name": "Noise-maker",
+    "description": "Wren's stores sell a noise-maker.",
+    "price": 10,
+    "legitimate": false,
+    "once": false,
+    "requires": [],
+    "effects": [
+      {
+        "add_item": [
+          "noise_maker",
+          1
+        ]
+      }
+    ],
+    "successText": "Wren hands over a noise-maker and writes it in a ledger nobody has ever audited.",
+    "refusals": {
+      "funds": "10 credits. Wren is kind, not stupid.",
+      "once": "You have those already. They do not wear out."
+    }
+  },
+  {
+    "id": "store_wire_cutters",
+    "name": "Wire cutters",
+    "description": "Wren's stores sell a wire cutters.",
+    "price": 25,
+    "legitimate": false,
+    "once": true,
+    "requires": [],
+    "effects": [
+      {
+        "add_item": [
+          "wire_cutters",
+          1
+        ]
+      }
+    ],
+    "successText": "Wren hands over a wire cutters and writes it in a ledger nobody has ever audited.",
+    "refusals": {
+      "funds": "25 credits. Wren is kind, not stupid.",
+      "once": "You have those already. They do not wear out."
+    }
+  },
+  {
+    "id": "store_stun_charge",
+    "name": "Stun charge",
+    "description": "Wren's stores sell a stun charge.",
+    "price": 40,
+    "legitimate": false,
+    "once": false,
+    "requires": [],
+    "effects": [
+      {
+        "add_item": [
+          "stun_charge",
+          1
+        ]
+      }
+    ],
+    "successText": "Wren hands over a stun charge and writes it in a ledger nobody has ever audited.",
+    "refusals": {
+      "funds": "40 credits. Wren is kind, not stupid.",
+      "once": "You have those already. They do not wear out."
+    }
   }
 ]

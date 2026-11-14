@@ -70,6 +70,9 @@ export type GameEvent =
   | { type: "CollectorsCame"; tick: number; lender: string; taken: number; owed: number }
   /** The state was replaced by a saved or new game; views should redraw from scratch. */
   | { type: "AssistChanged"; tick: number; puzzleSkip: boolean }
+  | { type: "HubGrew"; tick: number; growthId: string }
+  /** The player rested in the Safehouse: the city loses interest, and the game saves. */
+  | { type: "Rested"; tick: number }
   | { type: "CluesLinked"; tick: number; a: string; b: string }
   | { type: "CluesUnlinked"; tick: number; a: string; b: string }
   | { type: "GameLoaded"; tick: number }

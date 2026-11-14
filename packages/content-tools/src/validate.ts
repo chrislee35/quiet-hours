@@ -39,7 +39,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [], growth: [] };
 
   if (bundle.config) {
     try {
@@ -88,7 +88,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set(), growth: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -240,6 +240,19 @@ export function validateContent(bundle: ContentBundle): Issue[] {
       if (!ids.items.has(id)) issues.push({ file: bundle.start.file, message: `starts with unknown item "${id}"` });
       if (!Number.isInteger(n) || (n as number) < 1) issues.push({ file: bundle.start.file, message: `item "${id}" needs a count of at least 1` });
     }
+  }
+  // Safehouse growth: well-formed conditions; props may only show growths that exist; dialogue may only gate on real ones.
+  for (const { file, entity } of entities.growth) {
+    (entity.when as unknown[]).forEach((c, i) => {
+      for (const m of validateCondition(c, `when[${i}]`)) issues.push({ file, message: `growth "${entity.id}": ${m}` });
+      for (const id of clueRefs(c)) if (!ids.clues.has(id)) issues.push({ file, message: `growth "${entity.id}": when[${i}] refers to unknown clue "${id}"` });
+    });
+  }
+  for (const { file, map } of mapData) for (const p of map.props ?? []) {
+    if (p.shows !== undefined && !ids.growth.has(p.shows)) issues.push({ file, message: `prop "${p.id}" shows unknown growth "${p.shows}"` });
+  }
+  for (const { file, dialogue } of compiled) {
+    for (const m of JSON.stringify(dialogue).matchAll(/"has_growth":"([^"]+)"/g)) if (!ids.growth.has(m[1]!)) issues.push({ file, message: `gates on unknown growth "${m[1]}"` });
   }
   // Optional gossip must stay optional: no goal, quest, terminal, service or reaction may require a gossip clue.
   const gossipIds = new Set(entities.clues.filter(({ entity }) => (entity.tags as string[]).includes("topic:gossip")).map(({ entity }) => entity.id));

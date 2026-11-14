@@ -29,6 +29,8 @@ export interface MapData {
   pickups?: PickupDef[];
   /** Named points people walk between (see npcs.ts). Optional in map data. */
   spots?: SpotDef[];
+  /** Scenery that appears with the Safehouse's growth (see hub.ts). */
+  props?: PropDef[];
   /** Named places that appear on the notebook map once the player learns of them. */
   places?: PlaceDef[];
 }
@@ -82,6 +84,16 @@ export interface PlaceDef {
   x: number;
   y: number;
   label: string;
+}
+
+/** A piece of scenery. With `shows`, it is drawn only while that Safehouse growth exists. */
+export interface PropDef {
+  id: string;
+  x: number;
+  y: number;
+  /** What to draw: radio, tea, bench, cots, shelf, rack, lamps, garden, bunk. */
+  kind: string;
+  shows?: string;
 }
 
 /** A named point on the map, used by NPC routines. */
@@ -198,6 +210,7 @@ export interface World {
   cameras: readonly CameraDef[];
   pickups: readonly PickupDef[];
   places: readonly PlaceDef[];
+  props: readonly PropDef[];
   spots: readonly SpotDef[];
   spotById: ReadonlyMap<string, SpotDef>;
   doorByTile: ReadonlyMap<number, DoorDef>;
@@ -224,6 +237,7 @@ export const OPEN_WORLD: World = {
   cameras: [],
   pickups: [],
   places: [],
+  props: [],
   spots: [],
   spotById: new Map(),
   doorByTile: new Map(),
@@ -397,6 +411,7 @@ export function buildWorld(data: MapData): World {
     cameras: data.cameras,
     pickups: data.pickups ?? [],
     places: data.places ?? [],
+    props: data.props ?? [],
     spots: data.spots ?? [],
     spotById: new Map((data.spots ?? []).map((s) => [s.id, s])),
     doorByTile,

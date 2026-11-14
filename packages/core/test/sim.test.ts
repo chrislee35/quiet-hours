@@ -29,6 +29,7 @@ describe("sim step", () => {
       "demerits",
       "processing",
       "district-reactions",
+      "hub",
     ]);
   });
 

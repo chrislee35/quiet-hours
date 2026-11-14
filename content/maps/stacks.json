@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 51,
+ "nextobjectid": 67,
  "tilesets": [],
  "layers": [
   {
@@ -1985,6 +1985,376 @@
        "name": "label",
        "type": "string",
        "value": "Stacks plaza"
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "name": "prop_bunk",
+     "type": "prop",
+     "class": "prop",
+     "x": 96,
+     "y": 192,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "bunk"
+      }
+     ]
+    },
+    {
+     "id": 52,
+     "name": "prop_radio",
+     "type": "prop",
+     "class": "prop",
+     "x": 224,
+     "y": 320,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "radio"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "radio_on"
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "name": "prop_tea",
+     "type": "prop",
+     "class": "prop",
+     "x": 96,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "tea"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "tea_corner"
+      }
+     ]
+    },
+    {
+     "id": 54,
+     "name": "prop_bench",
+     "type": "prop",
+     "class": "prop",
+     "x": 320,
+     "y": 192,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "bench"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "workbench"
+      }
+     ]
+    },
+    {
+     "id": 55,
+     "name": "prop_cots",
+     "type": "prop",
+     "class": "prop",
+     "x": 320,
+     "y": 320,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "cots"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "cot_row"
+      }
+     ]
+    },
+    {
+     "id": 56,
+     "name": "prop_shelf",
+     "type": "prop",
+     "class": "prop",
+     "x": 96,
+     "y": 288,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "shelf"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "stores_shelf"
+      }
+     ]
+    },
+    {
+     "id": 57,
+     "name": "prop_rack",
+     "type": "prop",
+     "class": "prop",
+     "x": 352,
+     "y": 256,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "rack"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "tool_rack"
+      }
+     ]
+    },
+    {
+     "id": 58,
+     "name": "prop_lamps",
+     "type": "prop",
+     "class": "prop",
+     "x": 192,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "lamps"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "warm_lamps"
+      }
+     ]
+    },
+    {
+     "id": 59,
+     "name": "prop_tomato",
+     "type": "prop",
+     "class": "prop",
+     "x": 352,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "garden"
+      },
+      {
+       "name": "shows",
+       "type": "string",
+       "value": "tomato_box"
+      }
+     ]
+    },
+    {
+     "id": 60,
+     "name": "pk_washers",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 192,
+     "y": 608,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "credits:20"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Check the washers"
+      }
+     ]
+    },
+    {
+     "id": 61,
+     "name": "pk_rail",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 896,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "credits:15"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Look behind the notice rail"
+      }
+     ]
+    },
+    {
+     "id": 62,
+     "name": "pk_drain",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 768,
+     "y": 608,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "credits:15"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Check the plaza drain"
+      }
+     ]
+    },
+    {
+     "id": 63,
+     "name": "pk_board",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 992,
+     "y": 288,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "credits:15"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Check under the notice board"
+      }
+     ]
+    },
+    {
+     "id": 64,
+     "name": "pk_tin",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 160,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "credits:15"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Open the tea tin"
+      }
+     ]
+    },
+    {
+     "id": 65,
+     "name": "pk_wire2",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 256,
+     "y": 640,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "item:scrap_wire:2"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Take the scrap wire"
       }
      ]
     }

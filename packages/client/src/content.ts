@@ -1,4 +1,4 @@
-import { compileDialogue, type AugmentDef, type ServiceDef, type ReactionDef, type QuestDef, type ItemDef, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
+import { compileDialogue, type AugmentDef, type ServiceDef, type ReactionDef, type QuestDef, type GrowthDef, type ItemDef, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
 
 /**
  * Loads dialogue (.qdl) and clue definitions from content/ at startup. The same compiler and checks run in
@@ -14,6 +14,7 @@ const itemFiles = import.meta.glob("../../../content/items/*.json", { import: "d
 const serviceFiles = import.meta.glob("../../../content/services/*.json", { import: "default", eager: true }) as Record<string, ServiceDef[]>;
 const reactionFiles = import.meta.glob("../../../content/reactions/*.json", { import: "default", eager: true }) as Record<string, ReactionDef[]>;
 const questFiles = import.meta.glob("../../../content/quests/*.json", { import: "default", eager: true }) as Record<string, QuestDef[]>;
+const growthFiles = import.meta.glob("../../../content/growth/*.json", { import: "default", eager: true }) as Record<string, GrowthDef[]>;
 
 export function loadContent(): Content {
   const clues: Record<string, ClueDef> = {};
@@ -39,5 +40,7 @@ export function loadContent(): Content {
   for (const list of Object.values(reactionFiles)) for (const r of list) reactions[r.id] = r;
   const quests: Content["quests"] = {};
   for (const list of Object.values(questFiles)) for (const q of list) quests[q.id] = q;
-  return { dialogues, clues, puzzles, terminals, augments, items, services, reactions, quests };
+  const growth: Content["growth"] = {};
+  for (const list of Object.values(growthFiles)) for (const g of list) growth[g.id] = g;
+  return { dialogues, clues, puzzles, terminals, augments, items, services, reactions, quests, growth };
 }
