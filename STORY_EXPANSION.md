@@ -99,6 +99,11 @@ Ten small quests. Each is 10-20 minutes, uses an existing system (no new mechani
 - **PA contradictions** that become clues later (e.g. a mis-stated shift time).
 - **Halloran-7's greetings** get warmer; the player may notice the system is lonely. Played straight, not as a twist.
 
+## 6b. Optional gossip (not part of the story)
+Two rumour threads for people who like to listen at doors. **Nothing depends on them** (no route, companion, quest, door or price; the validator enforces it), and an in-world clue says so (Odd Sam: none of it will help you leave the city, but he finds it useful for waiting). They are tagged `topic:gossip` and live in `content/clues/gossip.json`.
+- **Null Hypothesis, the feuding hacker crew.** Four hackers who share one hatred, MERIDIAN, and very little else. Dex Harlow would not stop making Mari Quade (best friend of his teammate Juno Park) uncomfortable; Juno left and took his toolkit, Skeleton Key, which she renamed *Dex Was Here* (every program it opens prints SEE ATTACHED HR POLICY). Ox Lindqvist, who stayed out of it, has been asked to mediate nine times and sleeps in a pump housing. Dex files Form 12-B for permission to apologise and is refused at Window 7. Mari opens a noodle stall. The crew books the same table at the Lull on the same night. Played as a long-running joke, told differently by everyone: some versions are false or stale, and a true clue corrects each.
+- **The missing cat.** Teeter asks you to find Admiral Pancake. Ten sightings, each from a different person and each more absurd than the last (initialling stairwell notices, being served ahead of Dov at Window 7, riding Train 7 to the Gate, consulting with Statistic the pigeon, a tomato plant that learned to walk). The last clue is Wren: "Oh, you're serious?!? The cat thing is just a gag by Teeter." There never was a cat. Teeter keeps the tally on a whiteboard.
+
 ## 7. Optional pacing device **[PROPOSAL]**
 **Reconciliation Week.** The story is anchored to a 7-day in-game window before MERIDIAN's yearly Reconciliation, after which the Gate re-keys. Not a hard fail: after day 7 the Gate re-keys and Act III gets one extra checkpoint, so the player feels pressure without losing progress. If this feels too punishing in playtests, drop it; no requirement depends on it.
 

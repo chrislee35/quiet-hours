@@ -28,10 +28,16 @@ export const NON_TRUE_RANGE = [0.15, 0.35] as const;
 /** Fewest critical clues each route or companion needs to be solvable by information alone. */
 export const MIN_CRITICAL: Record<string, number> = { "route:sneak": 4, "route:hack": 5, "route:break": 4, "past": 6, "companion:pallas": 2, "companion:june": 3, "companion:odile": 3, "companion:mentor": 2 };
 
+/** Optional gossip (rumour threads that are not part of the story): tagged with this, never required by anything. */
+export const GOSSIP_TAG = "topic:gossip";
+export const isGossip = (c: ClueDef): boolean => c.tags.includes(GOSSIP_TAG);
+
 export const sourcesOf = (c: ClueDef): string[] => [...new Set([c.source, ...(c.alsoFrom ?? [])])];
 
 export interface WebReport {
   total: number;
+  /** Optional gossip clues, counted apart from the main web. */
+  gossip: number;
   byReliability: Record<string, number>;
   critical: number;
   /** Clues needed for each route, companion or topic ("for" values), with how many are critical. */
@@ -45,12 +51,19 @@ export interface WebReport {
 
 const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 
-export function analyseWeb(clues: readonly ClueDef[], npcIds: ReadonlySet<string>, fileOf: (id: string) => string = () => "clues"): WebReport {
+export function analyseWeb(allClues: readonly ClueDef[], npcIds: ReadonlySet<string>, fileOf: (id: string) => string = () => "clues"): WebReport {
   const issues: Issue[] = [];
-  const byId = new Map(clues.map((c) => [c.id, c]));
+  const clues = allClues.filter((c) => !isGossip(c));
+  const gossip = allClues.filter(isGossip);
+  const byId = new Map(allClues.map((c) => [c.id, c]));
   const say = (c: ClueDef, message: string) => issues.push({ file: fileOf(c.id), message: `clue "${c.id}": ${message}` });
 
-  for (const c of clues) {
+  // Gossip is flavour: never critical, never "for" anything but gossip, so no route, companion or ending can lean on it.
+  for (const c of gossip) {
+    if (c.critical) issues.push({ file: fileOf(c.id), message: `clue "${c.id}": is gossip, so it can never be critical` });
+    if ((c.for ?? []).some((f) => f !== "gossip")) issues.push({ file: fileOf(c.id), message: `clue "${c.id}": is gossip, so its "for" can only be "gossip" (nothing may depend on it)` });
+  }
+  for (const c of allClues) {
     const all = [c.source, ...(c.alsoFrom ?? [])];
     for (const s of all) {
       const [kind, id] = s.split(":") as [string, string];
@@ -61,14 +74,14 @@ export function analyseWeb(clues: readonly ClueDef[], npcIds: ReadonlySet<string
     if (c.critical && sourcesOf(c).length < 2) say(c, "is critical, so it must be learnable from at least two different sources (add alsoFrom)");
     if ((c.for ?? []).length === 0) say(c, 'says nothing about what it is for ("for": route:sneak, past, side:sq_03, world, ...)');
     if (c.reliability !== "true") {
-      const corrects = [...c.links.map((l) => ({ to: l.to, kind: l.kind })), ...clues.flatMap((o) => o.links.filter((l) => l.to === c.id).map((l) => ({ to: o.id, kind: l.kind })))];
+      const corrects = [...c.links.map((l) => ({ to: l.to, kind: l.kind })), ...allClues.flatMap((o) => o.links.filter((l) => l.to === c.id).map((l) => ({ to: o.id, kind: l.kind })))];
       const truth = corrects.some((l) => (l.kind === "contradicts" || l.kind === "updates") && byId.get(l.to)?.reliability === "true");
       if (!truth) say(c, `is ${c.reliability}, so it must be linked (contradicts or updates) to a true clue that corrects it`);
     }
   }
 
   // Breadcrumbs and embrace-or-reject moments.
-  const tagged = (t: string) => clues.filter((c) => c.tags.includes(t));
+  const tagged = (t: string) => allClues.filter((c) => c.tags.includes(t));
   if (tagged("topic:breadcrumb").length !== 6) issues.push({ file: "clues", message: `there must be exactly six breadcrumbs (topic:breadcrumb), found ${tagged("topic:breadcrumb").length}` });
   if (tagged("topic:moment").length !== 3) issues.push({ file: "clues", message: `there must be exactly three embrace-or-reject moments (topic:moment), found ${tagged("topic:moment").length}` });
   for (const c of [...tagged("topic:breadcrumb"), ...tagged("topic:moment")]) if (sourcesOf(c).length < 2) say(c, "is a breadcrumb or moment, so it must be reachable from at least two directions");
@@ -109,7 +122,7 @@ export function analyseWeb(clues: readonly ClueDef[], npcIds: ReadonlySet<string
   const byReliability: Record<string, number> = { true: 0, false: 0, outdated: 0, planted: 0 };
   for (const c of clues) byReliability[c.reliability] = (byReliability[c.reliability] ?? 0) + 1;
   return {
-    total: count, byReliability, critical: clues.filter((c) => c.critical).length, needs,
+    total: count, gossip: gossip.length, byReliability, critical: clues.filter((c) => c.critical).length, needs,
     people: [...people].map(([id, n]) => ({ id, clues: n, criticalShare: topical.length ? (share.get(id) ?? 0) / topical.length : 0 })).sort((a, b) => b.clues - a.clues || (a.id < b.id ? -1 : 1)),
     conflicts: [...conflicts.values()], issues,
   };
@@ -130,7 +143,8 @@ export function renderSheet(clues: readonly ClueDef[], report: WebReport, groups
   out.push("Quiet Hours is a game about finding things out, so what the player *knows* is what they can *do*. This sheet is the map of that knowledge: every clue, who can tell you, how far to trust it, what it points to, and what the game needs it for. Design rules (enforced by `pnpm validate`):", "");
   out.push("- **Two ways in.** A clue the way on depends on (marked critical) can be learned from at least two different sources.", "- **Every lie can be caught.** A clue that is false, outdated or planted is linked to the true clue that corrects it, so cross-checking always resolves it.", "- **No one knows everything.** No single person is a source of more than 40% of the critical clues about the past and the Gate.", "- **Six breadcrumbs and three embrace-or-reject moments**, each reachable from two directions.", "- **Reliability is hidden from the player** until they verify a clue (CLU-5); this sheet is the only place it is written down.", "");
   out.push("## At a glance", "");
-  out.push(`- **${report.total} clues**, ${report.critical} of them critical. True ${report.byReliability.true} (${pct(report.byReliability.true ?? 0)}), outdated ${report.byReliability.outdated}, false ${report.byReliability.false}, planted ${report.byReliability.planted}.`);
+  out.push(`- **${report.total} clues** in the main web, ${report.critical} of them critical, plus **${report.gossip} optional gossip clues** (see "Optional gossip": nothing in the game depends on them).`);
+  out.push(`- Of the main web:  true ${report.byReliability.true} (${pct(report.byReliability.true ?? 0)}), outdated ${report.byReliability.outdated}, false ${report.byReliability.false}, planted ${report.byReliability.planted}.`);
   out.push(`- **${report.conflicts.length} corrections** (a clue that contradicts or updates another): the cross-checking puzzles.`, "");
   out.push("### What each way forward needs", "", "| Need | Clues | Critical | Required |", "|---|---:|---:|---:|");
   for (const [need, n] of Object.entries(report.needs).sort(([a], [b]) => (a < b ? -1 : 1))) out.push(`| ${need} | ${n.clues} | ${n.critical} | ${MIN_CRITICAL[need] ?? ""} |`);
@@ -139,8 +153,12 @@ export function renderSheet(clues: readonly ClueDef[], report: WebReport, groups
   out.push("");
   const order: string[] = [];
   for (const c of clues) if (!order.includes(groups(c.id))) order.push(groups(c.id));
+  // Optional gossip goes last, with a plain statement that it is not part of the story.
+  order.sort((a, b) => Number(a === "gossip") - Number(b === "gossip"));
   for (const g of order) {
-    out.push(`## ${pretty(g).replace(/^./, (x) => x.toUpperCase())}`, "", "| Clue | What it says | From | Trust | Links | For |", "|---|---|---|---|---|---|");
+    out.push(`## ${g === "gossip" ? "Optional gossip" : pretty(g).replace(/^./, (x) => x.toUpperCase())}`, "");
+    if (g === "gossip") out.push("*Rumour threads for the curious: a feuding hacker crew and a missing cat. **Nothing in the game depends on any of it** (the validator enforces it): no route, companion, quest, door or price needs these clues, and none is ever critical. They are here for the people who like to listen at doors.*", "");
+    out.push("| Clue | What it says | From | Trust | Links | For |", "|---|---|---|---|---|---|");
     for (const c of clues.filter((x) => groups(x.id) === g)) {
       const from = sourcesOf(c).map((s) => (s.startsWith("npc:") ? names(s.slice(4)) : srcLabel(s)));
       const links = c.links.map((l) => `${l.kind} \`${l.to}\``).join("; ");

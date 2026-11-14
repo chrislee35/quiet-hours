@@ -234,6 +234,16 @@ export function validateContent(bundle: ContentBundle): Issue[] {
       if (!Number.isInteger(n) || (n as number) < 1) issues.push({ file: bundle.start.file, message: `item "${id}" needs a count of at least 1` });
     }
   }
+  // Optional gossip must stay optional: no goal, quest, terminal, service or reaction may require a gossip clue.
+  const gossipIds = new Set(entities.clues.filter(({ entity }) => (entity.tags as string[]).includes("topic:gossip")).map(({ entity }) => entity.id));
+  const needsGossip = (file: string, what: string, conds: unknown[]) => {
+    for (const c of conds) for (const id of clueRefs(c)) if (gossipIds.has(id)) issues.push({ file, message: `${what} depends on the gossip clue "${id}"; gossip is optional and nothing may require it` });
+  };
+  for (const { file, entity } of entities.goals) needsGossip(file, `goal "${entity.id}"`, entity.require as unknown[]);
+  for (const { file, entity } of entities.quests) needsGossip(file, `quest "${entity.id}"`, [...(entity.start as unknown[]), ...(entity.complete as unknown[]), ...((entity.failed as unknown[] | undefined) ?? [])]);
+  for (const { file, entity } of entities.terminals) needsGossip(file, `terminal "${entity.id}"`, entity.bypass as unknown[]);
+  for (const { file, entity } of entities.services) needsGossip(file, `service "${entity.id}"`, entity.requires as unknown[]);
+  for (const { file, entity } of entities.reactions) needsGossip(file, `reaction "${entity.id}"`, (entity.if as unknown[] | undefined) ?? []);
   // Dialogue may only use services that exist.
   for (const { file, dialogue } of compiled) {
     for (const m of JSON.stringify(dialogue).matchAll(/"(?:use_service|can_service)":"([^"]+)"/g)) {

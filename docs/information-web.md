@@ -12,7 +12,8 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 
 ## At a glance
 
-- **83 clues**, 46 of them critical. True 65 (78%), outdated 6, false 8, planted 4.
+- **83 clues** in the main web, 46 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
+- Of the main web:  true 65 (78%), outdated 6, false 8, planted 4.
 - **20 corrections** (a clue that contradicts or updates another): the cross-checking puzzles.
 
 ### What each way forward needs
@@ -195,6 +196,41 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | `quill_shortcut` **!** | Quill knows a service tunnel from the Underworks to the Hollow's outer ring. | Quill; Maren Okafor | true |  | companion:june, route:sneak |
 | `tunnel_scanners_low` **!** | The scanners in Quill's tunnel are set low enough that a child can pass beneath them. | Quill; Maren Okafor | true | supports `quill_shortcut` | companion:june |
 | `service_platform_unwatched` **!** | The Gate's service platform is checked for passes, not faces, between 13:50 and 14:10. | Maren Okafor; Tobias Hale | true | supports `train7_gate` | route:sneak |
+
+## Optional gossip
+
+*Rumour threads for the curious: a feuding hacker crew and a missing cat. **Nothing in the game depends on any of it** (the validator enforces it): no route, companion, quest, door or price needs these clues, and none is ever critical. They are here for the people who like to listen at doors.*
+
+| Clue | What it says | From | Trust | Links | For |
+|---|---|---|---|---|---|
+| `gossip_disclaimer` | Odd Sam says none of the rumours about the hackers or the cat will help you leave the city, and that he finds them useful for waiting. | Odd Sam; Wren | true |  | gossip |
+| `hackers_exist` | A small crew of hackers called Null Hypothesis shares one great hatred, MERIDIAN, and very little else. | Odd Sam | true |  | gossip |
+| `hackers_split` | The crew fell apart over Dex Harlow, who made Mari Quade, best friend of his teammate Juno Park, deeply uncomfortable and would not stop. | Teeter | true | supports `hackers_exist` | gossip |
+| `juno_took_toolkit` | On her way out, Juno Park took Dex's toolkit, Skeleton Key. He says it was a copy. It was not a copy. | Mrs. Adeyemi-Roth | true | supports `hackers_split` | gossip |
+| `dex_gift_story` | Dex says Juno never stole anything: he gave her Skeleton Key as a gift, and she is being dramatic. | Odd Sam | false | contradicts `juno_took_toolkit` | gossip |
+| `skeleton_renamed` | Juno renamed Skeleton Key to Dex Was Here, and every program it opens now prints: SEE ATTACHED HR POLICY. | Quill; doc:team_chat_log | true | supports `juno_took_toolkit` | gossip |
+| `sam_apology_fee` | Odd Sam's ledger terminal opens with the stolen toolkit. He will not say how he got it, and he charges extra for the apology it prints. | Ticket | true | supports `skeleton_renamed` | gossip |
+| `ox_hides` | Ox Lindqvist, the one member who stayed out of it, has been asked to mediate nine times and now sleeps in a pump housing in the Belt. | Gus Varga | true |  | gossip |
+| `dex_apology_form` | Dex filed Form 12-B to apply for permission to apologise, and was refused at Window 7, where Dov Anselm says he has seen the form. | Dov Anselm; doc:permit_hall | true |  | gossip |
+| `dex_rewrote_it` | Dex has rewritten Skeleton Key from memory and is selling it as version two. | Silas Brandt | outdated | updates `dex_cannot_rewrite` | gossip |
+| `dex_cannot_rewrite` | He cannot. He never commented the code, and Juno removed his name from every header, so even he cannot find the clever parts. | doc:team_chat_log | true | supports `juno_took_toolkit` | gossip |
+| `juno_works_for_pell` | Juno Park has been hired by MERIDIAN and now works for Auditor Pell. | Auditor Pell | false | contradicts `juno_petty_good` | gossip |
+| `juno_petty_good` | Juno is still against MERIDIAN and uses the toolkit only to open vending machines and one very good door. | Teeter | true | supports `skeleton_renamed` | gossip |
+| `mari_unbothered` | Mari Quade has opened a noodle stall under the Stacks and says the toolkit is the best thing that ever happened to her friend. | Silas Brandt | true |  | gossip |
+| `hackers_reunion` | The whole crew has booked the same table at the Lull on the same night. The Host has prepared four perfect drinks that nobody agrees on. | The Host | true | supports `hackers_split` | gossip |
+| `cat_request` | Teeter is looking for a missing cat called Admiral Pancake: grey, one ear, answers to nothing. | Teeter | true |  | gossip |
+| `cat_stairwell` | Silas saw the cat in the third-floor stairwell, reading the notices and initialling them. | Silas Brandt | false | contradicts `cat_gag` | gossip |
+| `cat_knitting` | Mrs. Adeyemi-Roth saw the cat on her landing, supervising her knitting and, she suspects, filing a report. | Mrs. Adeyemi-Roth | false | contradicts `cat_gag` | gossip |
+| `cat_thermos` | Gus Varga found the cat asleep in his late wife's thermos locker, and swears it was keeping the night shift's hours. | Gus Varga | false | contradicts `cat_gag` | gossip |
+| `cat_window7` | Dov Anselm says the cat took a number at Window 7 and was served ahead of him, which he found professionally upsetting. | Dov Anselm | false | contradicts `cat_gag` | gossip |
+| `cat_train7` | Quill says the cat rides Train 7 every weekday and gets off at the Gate service platform, where it is not allowed, and is not stopped. | Quill | false | contradicts `cat_gag` | gossip |
+| `cat_conductor` | The Conductor apologised to the cat for the delay. The cat accepted. The Conductor will not discuss the terms. | The Conductor | false | contradicts `cat_gag` | gossip |
+| `cat_perrin` | Doc Perrin says the cat held a consultation with Statistic the pigeon and the two of them reached a diagnosis he declines to repeat. | Doc Perrin | false | contradicts `cat_gag` | gossip |
+| `cat_host` | The Host says the cat took the perfect drink at the Lull, left a tip in a currency the Host would not name, and was not dulled in the least. | The Host | false | contradicts `cat_gag` | gossip |
+| `cat_halloran` | Halloran-7 has opened a file on the cat and says, warmly, that it is looking fuller. | Case Officer Halloran-7 | false | contradicts `cat_gag` | gossip |
+| `cat_bede` | Bede insists the cat is one of his tomato plants that has learned to walk, and that it is going through a phase. | Bede | false | contradicts `cat_gag` | gossip |
+| `cat_gag` | Wren, hearing you were serious: "Oh, you're serious?!? The cat thing is just a gag by Teeter." There never was a cat. | Wren; Odd Sam | true | updates `cat_request` | gossip |
+| `cat_tally` | Teeter keeps a tally of the sightings on a whiteboard and says the one with the tomato is his favourite. | Teeter | true | supports `cat_gag` | gossip |
 
 ## Corrections: where the player has to cross-check
 

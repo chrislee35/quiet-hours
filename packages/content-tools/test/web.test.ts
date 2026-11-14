@@ -181,3 +181,91 @@ describe("the web's rules catch what they should", () => {
     expect(sheet).toContain("A; B");
   });
 });
+
+describe("optional gossip: the hacker crew and the missing cat", () => {
+  const gossip = clues.filter((c) => c.tags.includes("topic:gossip"));
+  const cat = gossip.filter((c) => c.tags.includes("topic:cat"));
+  const hackers = gossip.filter((c) => c.tags.includes("topic:hackers"));
+
+  it("is clearly optional: never critical, never for anything but gossip, and outside the main web's size and balance rules", () => {
+    expect(gossip.length).toBeGreaterThanOrEqual(25);
+    for (const c of gossip) {
+      expect(c.critical, c.id).toBeFalsy();
+      expect(c.for, c.id).toEqual(["gossip"]);
+    }
+    expect(report.gossip).toBe(gossip.length);
+    expect(report.total + report.gossip).toBe(clues.length);
+    expect(report.total).toBeGreaterThanOrEqual(CLUE_COUNT_RANGE[0]);
+    expect(report.total).toBeLessThanOrEqual(CLUE_COUNT_RANGE[1]);
+  });
+
+  it("says so in the world, in a clue, in the character's own dry voice", () => {
+    const c = clues.find((x) => x.id === "gossip_disclaimer")!;
+    expect(c.text).toMatch(/none of the rumours.*will help you leave the city/);
+    expect(c.reliability).toBe("true");
+    expect(text).toContain("Nothing in the game depends on any of it");
+  });
+
+  it("nothing can require gossip: a quest, goal, terminal or service that does is an error", () => {
+    const broken = JSON.parse(JSON.stringify(bundle)) as typeof bundle;
+    broken.files.quests[0]!.data = [{ id: "q", title: "T", summary: "S", start: [], steps: [{ id: "a", text: "a", done: [{ has_clue: "cat_gag" }] }], complete: [{ has_clue: "cat_gag" }] }];
+    broken.files.terminals[0]!.data = (broken.files.terminals[0]!.data as { bypass: unknown[] }[]).map((t) => ({ ...t, bypass: [{ has_clue: "skeleton_renamed" }] }));
+    const msgs = validateContent(broken).map((i) => i.message);
+    expect(msgs).toEqual(expect.arrayContaining([expect.stringContaining('quest "q" depends on the gossip clue "cat_gag"'), expect.stringContaining("depends on the gossip clue \"skeleton_renamed\"")]));
+    expect(validateContent(bundle).filter((i) => i.message.includes("gossip"))).toEqual([]);
+  });
+
+  it("a gossip clue that is critical or claims to be for a route is an error", () => {
+    const g = clue({ id: "g1", tags: ["topic:gossip"], for: ["route:sneak"], critical: true, alsoFrom: ["npc:b"] });
+    const msgs = analyseWeb([g, ...crumbs(), ...filler(60)], npcs).issues.map((i) => i.message);
+    expect(msgs).toEqual(expect.arrayContaining([expect.stringContaining("can never be critical"), expect.stringContaining('can only be "gossip"')]));
+  });
+
+  describe("the missing cat", () => {
+    const sightings = cat.filter((c) => c.tags.some((t) => t.startsWith("sighting:"))).sort((a, b) => Number(a.tags.find((t) => t.startsWith("sighting:"))!.slice(9)) - Number(b.tags.find((t) => t.startsWith("sighting:"))!.slice(9)));
+    const request = cat.find((c) => c.id === "cat_request")!;
+    const gag = cat.find((c) => c.id === "cat_gag")!;
+
+    it("starts with one person asking, and ends with someone else revealing it is that person's joke", () => {
+      expect(request.source).toBe("npc:teeter");
+      expect(gag.source).not.toBe(request.source);
+      expect(gag.text).toContain("Oh, you're serious?!? The cat thing is just a gag by Teeter.");
+      expect(gag.reliability).toBe("true");
+    });
+
+    it("has ten sightings, numbered in order, each from a different person", () => {
+      expect(sightings.map((c) => Number(c.tags.find((t) => t.startsWith("sighting:"))!.slice(9)))).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      expect(new Set(sightings.map((c) => c.source)).size).toBe(10);
+    });
+
+    it("every sighting is false and is settled by the reveal, so cross-checking resolves the whole thread", () => {
+      for (const c of sightings) {
+        expect(c.reliability, c.id).toBe("false");
+        expect(c.links.some((l) => l.to === "cat_gag" && l.kind === "contradicts"), c.id).toBe(true);
+      }
+      expect(cat.find((c) => c.id === "cat_request")!.reliability).toBe("true");
+    });
+  });
+
+  describe("the feuding hackers", () => {
+    it("is a long-running thread of at least a dozen clues from many different people", () => {
+      expect(hackers.length).toBeGreaterThanOrEqual(12);
+      expect(new Set(hackers.map((c) => c.source)).size).toBeGreaterThanOrEqual(10);
+    });
+
+    it("names the crew, the team member who behaved badly, the friend, and the one who took the toolkit", () => {
+      const all = hackers.map((c) => c.text).join(" ");
+      for (const w of ["Null Hypothesis", "Dex Harlow", "Mari Quade", "Juno Park", "Skeleton Key"]) expect(all).toContain(w);
+      expect(hackers.find((c) => c.id === "hackers_split")!.text).toMatch(/best friend/);
+    });
+
+    it("the telling is contested: some versions are false or stale and are corrected by a true clue", () => {
+      const wrong = hackers.filter((c) => c.reliability !== "true");
+      expect(wrong.map((c) => c.id).sort()).toEqual(["dex_gift_story", "dex_rewrote_it", "juno_works_for_pell"]);
+    });
+
+    it("the people it names exist, so they can speak later", () => {
+      for (const id of ["dex_harlow", "juno_park", "mari_quade", "ox_lindqvist"]) expect(JSON.stringify(bundle.files.npcs.map((f) => f.data))).toContain(`"${id}"`);
+    });
+  });
+});

@@ -130,5 +130,29 @@
     "name": "The Civic Voice",
     "role": "announcer",
     "district": "city"
+  },
+  {
+    "id": "dex_harlow",
+    "name": "Dex Harlow",
+    "role": "hacker",
+    "district": "city"
+  },
+  {
+    "id": "juno_park",
+    "name": "Juno Park",
+    "role": "hacker",
+    "district": "city"
+  },
+  {
+    "id": "mari_quade",
+    "name": "Mari Quade",
+    "role": "noodle_vendor",
+    "district": "city"
+  },
+  {
+    "id": "ox_lindqvist",
+    "name": "Ox Lindqvist",
+    "role": "hacker",
+    "district": "city"
   }
 ]

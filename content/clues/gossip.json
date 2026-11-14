@@ -1,0 +1,559 @@
+[
+  {
+    "id": "gossip_disclaimer",
+    "text": "Odd Sam says none of the rumours about the hackers or the cat will help you leave the city, and that he finds them useful for waiting.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "person:odd_sam"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:wren"
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "hackers_exist",
+    "text": "A small crew of hackers called Null Hypothesis shares one great hatred, MERIDIAN, and very little else.",
+    "source": "npc:odd_sam",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:odd_sam"
+    ],
+    "links": [],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "hackers_split",
+    "text": "The crew fell apart over Dex Harlow, who made Mari Quade, best friend of his teammate Juno Park, deeply uncomfortable and would not stop.",
+    "source": "npc:teeter",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:dex_harlow",
+      "person:juno_park",
+      "person:mari_quade"
+    ],
+    "links": [
+      {
+        "to": "hackers_exist",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "juno_took_toolkit",
+    "text": "On her way out, Juno Park took Dex's toolkit, Skeleton Key. He says it was a copy. It was not a copy.",
+    "source": "npc:mrs_adeyemi_roth",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:juno_park",
+      "person:dex_harlow"
+    ],
+    "links": [
+      {
+        "to": "hackers_split",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "dex_gift_story",
+    "text": "Dex says Juno never stole anything: he gave her Skeleton Key as a gift, and she is being dramatic.",
+    "source": "npc:odd_sam",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:dex_harlow"
+    ],
+    "links": [
+      {
+        "to": "juno_took_toolkit",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "skeleton_renamed",
+    "text": "Juno renamed Skeleton Key to Dex Was Here, and every program it opens now prints: SEE ATTACHED HR POLICY.",
+    "source": "npc:quill",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:juno_park"
+    ],
+    "links": [
+      {
+        "to": "juno_took_toolkit",
+        "kind": "supports"
+      }
+    ],
+    "alsoFrom": [
+      "doc:team_chat_log"
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "sam_apology_fee",
+    "text": "Odd Sam's ledger terminal opens with the stolen toolkit. He will not say how he got it, and he charges extra for the apology it prints.",
+    "source": "npc:ticket",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:odd_sam"
+    ],
+    "links": [
+      {
+        "to": "skeleton_renamed",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "ox_hides",
+    "text": "Ox Lindqvist, the one member who stayed out of it, has been asked to mediate nine times and now sleeps in a pump housing in the Belt.",
+    "source": "npc:gus_varga",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:ox_lindqvist",
+      "place:pump4"
+    ],
+    "links": [],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "dex_apology_form",
+    "text": "Dex filed Form 12-B to apply for permission to apologise, and was refused at Window 7, where Dov Anselm says he has seen the form.",
+    "source": "npc:dov_anselm",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:dex_harlow",
+      "place:permit_hall"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "doc:permit_hall"
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "dex_rewrote_it",
+    "text": "Dex has rewritten Skeleton Key from memory and is selling it as version two.",
+    "source": "npc:silas",
+    "reliability": "outdated",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:dex_harlow"
+    ],
+    "links": [
+      {
+        "to": "dex_cannot_rewrite",
+        "kind": "updates"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "dex_cannot_rewrite",
+    "text": "He cannot. He never commented the code, and Juno removed his name from every header, so even he cannot find the clever parts.",
+    "source": "doc:team_chat_log",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:dex_harlow",
+      "person:juno_park"
+    ],
+    "links": [
+      {
+        "to": "juno_took_toolkit",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "juno_works_for_pell",
+    "text": "Juno Park has been hired by MERIDIAN and now works for Auditor Pell.",
+    "source": "npc:pell",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:juno_park",
+      "person:pell"
+    ],
+    "links": [
+      {
+        "to": "juno_petty_good",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "juno_petty_good",
+    "text": "Juno is still against MERIDIAN and uses the toolkit only to open vending machines and one very good door.",
+    "source": "npc:teeter",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:juno_park"
+    ],
+    "links": [
+      {
+        "to": "skeleton_renamed",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "mari_unbothered",
+    "text": "Mari Quade has opened a noodle stall under the Stacks and says the toolkit is the best thing that ever happened to her friend.",
+    "source": "npc:silas",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:mari_quade"
+    ],
+    "links": [],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "hackers_reunion",
+    "text": "The whole crew has booked the same table at the Lull on the same night. The Host has prepared four perfect drinks that nobody agrees on.",
+    "source": "npc:host",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:hackers",
+      "person:host",
+      "place:lull"
+    ],
+    "links": [
+      {
+        "to": "hackers_split",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_request",
+    "text": "Teeter is looking for a missing cat called Admiral Pancake: grey, one ear, answers to nothing.",
+    "source": "npc:teeter",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "person:teeter"
+    ],
+    "links": [],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_stairwell",
+    "text": "Silas saw the cat in the third-floor stairwell, reading the notices and initialling them.",
+    "source": "npc:silas",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:1",
+      "person:silas"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_knitting",
+    "text": "Mrs. Adeyemi-Roth saw the cat on her landing, supervising her knitting and, she suspects, filing a report.",
+    "source": "npc:mrs_adeyemi_roth",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:2"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_thermos",
+    "text": "Gus Varga found the cat asleep in his late wife's thermos locker, and swears it was keeping the night shift's hours.",
+    "source": "npc:gus_varga",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:3",
+      "place:pump4"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_window7",
+    "text": "Dov Anselm says the cat took a number at Window 7 and was served ahead of him, which he found professionally upsetting.",
+    "source": "npc:dov_anselm",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:4",
+      "place:permit_hall"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_train7",
+    "text": "Quill says the cat rides Train 7 every weekday and gets off at the Gate service platform, where it is not allowed, and is not stopped.",
+    "source": "npc:quill",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:5",
+      "schedule:train_7"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_conductor",
+    "text": "The Conductor apologised to the cat for the delay. The cat accepted. The Conductor will not discuss the terms.",
+    "source": "npc:conductor",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:6"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_perrin",
+    "text": "Doc Perrin says the cat held a consultation with Statistic the pigeon and the two of them reached a diagnosis he declines to repeat.",
+    "source": "npc:doc_perrin",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:7"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_host",
+    "text": "The Host says the cat took the perfect drink at the Lull, left a tip in a currency the Host would not name, and was not dulled in the least.",
+    "source": "npc:host",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:8",
+      "place:lull"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_halloran",
+    "text": "Halloran-7 has opened a file on the cat and says, warmly, that it is looking fuller.",
+    "source": "npc:halloran_7",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:9",
+      "person:halloran_7"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_bede",
+    "text": "Bede insists the cat is one of his tomato plants that has learned to walk, and that it is going through a phase.",
+    "source": "npc:bede",
+    "reliability": "false",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "sighting:10",
+      "place:hollow"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "contradicts"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_gag",
+    "text": "Wren, hearing you were serious: \"Oh, you're serious?!? The cat thing is just a gag by Teeter.\" There never was a cat.",
+    "source": "npc:wren",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "person:wren",
+      "person:teeter"
+    ],
+    "links": [
+      {
+        "to": "cat_request",
+        "kind": "updates"
+      }
+    ],
+    "alsoFrom": [
+      "npc:odd_sam"
+    ],
+    "for": [
+      "gossip"
+    ]
+  },
+  {
+    "id": "cat_tally",
+    "text": "Teeter keeps a tally of the sightings on a whiteboard and says the one with the tomato is his favourite.",
+    "source": "npc:teeter",
+    "reliability": "true",
+    "tags": [
+      "topic:gossip",
+      "topic:cat",
+      "person:teeter"
+    ],
+    "links": [
+      {
+        "to": "cat_gag",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "gossip"
+    ]
+  }
+]
