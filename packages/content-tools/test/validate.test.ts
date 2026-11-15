@@ -1,5 +1,5 @@
 // covers: NFR-5
-import { cpSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -213,5 +213,10 @@ describe("quests", () => {
   it("a quest needs a way to finish and at least one step", () => {
     expect(messages({ ...good, complete: [] }).length).toBeGreaterThan(0);
     expect(messages({ ...good, steps: [] }).length).toBeGreaterThan(0);
+  });
+
+  it("a past-self breadcrumb with only one way to reach it is an error (PST-1)", () => {
+    const issues = fixture((dir) => rmSync(join(dir, "dialogue", "pell.qdl")));
+    expect(issues.some((i) => /breadcrumb "ledger".*1 direction/.test(i.message))).toBe(true);
   });
 });

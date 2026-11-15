@@ -1,0 +1,32 @@
+// Checker K-9 at the Civic Core checkpoint. M1, the Checkpoint: the old insider credential still works.
+npc: checker_k
+name: Checker K-9
+start: done [flag:past_m1]
+start: known [clue:checkpoint_credential]
+start: first
+
+node: first
+  checker_k (flat): "CHECKPOINT. PRESENT A BAND. (The lamp on its chest waits, and waits, and does not turn.)"
+  > "Walk away." -> goodbye
+
+node: known
+  checker_k (flat): "CHECKPOINT. PRESENT A BAND. (The lamp on its chest is the same shade of green it was six years ago.)"
+  > "Present the old credential." {flag:past_m1=embrace, service:old_credential, trust:wren-1(used the old credential)} -> embraced
+  > "Refuse it. Wait in the queue like anyone else." {flag:past_m1=reject} -> rejected
+  > "Walk away." -> goodbye
+
+node: embraced
+  checker_k (flat): "CREDENTIAL ACCEPTED. WELCOME BACK, AUDITOR."
+  > "Thank you." -> goodbye
+
+node: rejected
+  checker_k (flat): "NO RECORD. PLEASE WAIT. (It will wait with you for as long as you like.)"
+  > "Thank you." -> goodbye
+
+node: done
+  checker_k (flat): "CHECKPOINT. PLEASE PROCEED."
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  checker_k: "NEXT."
+  end

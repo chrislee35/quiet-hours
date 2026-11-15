@@ -17,7 +17,7 @@ node: back
   > "Is there another way?" -> sewer
   > [!flag:sq_05_started] "Can you show me a safe way through?" -> offer
   > [flag:sq_05_started, !item:quill_token] "Where was the token?" -> token
-  > [item:quill_token, clue:train_cycle] "I have your token. And the trains: twelve seconds each, seven open and five a train, and each one starts at a different point." {-item:quill_token, flag:sq_05_done, trust:quill+1(passed the test), +clue:quill_shortcut, +clue:tunnel_scanners_low, flag:quill_opens_hollow, emit:quill_opens_hollow} -> passed
+  > [item:quill_token, clue:train_cycle] "I have your token. And the trains: twelve seconds each, seven open and five a train, and each one starts at a different point." {-item:quill_token, flag:sq_05_done, trust:quill+1(passed the test), +clue:quill_shortcut, +clue:tunnel_scanners_low, flag:quill_opens_hollow, emit:quill_opens_hollow, +clue:hollow_voice_note(quill)} -> passed
   > [item:quill_token, !clue:train_cycle] "I have your token." -> notyet
   > "Goodbye." -> goodbye
 

@@ -33,8 +33,8 @@ describe("the Stacks map", () => {
     expect(world.id).toBe("stacks");
     expect(world.zones.map((z) => z.id).sort()).toEqual(["laundry", "maintenance", "processing", "safehouse", "stacks_street", "super_office"]);
     expect(world.doors.map((d) => d.id).sort()).toEqual(["door_holding", "door_laundry", "door_office", "door_safehouse", "door_service"]);
-    expect(world.npcs.map((n) => n.id).sort()).toEqual(["doc_perrin", "mrs_adeyemi_roth", "odd_sam", "silas", "teeter", "wren"]);
-    expect(world.terminals.map((t) => t.id).sort()).toEqual(["locker_9", "service_panel", "wall_panel"]);
+    expect(world.npcs.map((n) => n.id).sort()).toEqual(["doc_perrin", "mrs_adeyemi_roth", "odd_sam", "pallas", "silas", "teeter", "wren"]);
+    expect(world.terminals.map((t) => t.id).sort()).toEqual(["locker_9", "pallas_log", "service_panel", "wall_panel"]);
     expect(world.places.map((p) => p.id).sort()).toEqual(["laundry", "safehouse", "stacks_street"]);
     expect(world.cameras.map((c) => c.id).sort()).toEqual(["cam_plaza_day", "cam_plaza_night"]);
   });

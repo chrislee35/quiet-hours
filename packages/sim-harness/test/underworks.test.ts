@@ -100,6 +100,7 @@ describe("the Transit Underworks", () => {
     expect(s.sim.state.flags.sq_05_done).toBe(true);
     expect(s.sim.state.doors["door_hollow"]!.locked).toBe(false);
     expect(s.sim.state.clues.quill_shortcut).toBeDefined();
+    expect(s.sim.state.clues.hollow_voice_note).toBeDefined();
     expect(s.sim.state.trust.quill).toBe(1);
   });
 

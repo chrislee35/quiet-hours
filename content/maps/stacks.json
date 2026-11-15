@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 71,
+ "nextobjectid": 73,
  "tilesets": [],
  "layers": [
   {
@@ -2448,6 +2448,39 @@
        "value": "Service tunnel to the Civic Core"
       }
      ]
+    },
+    {
+     "id": 70,
+     "name": "pallas",
+     "type": "npc",
+     "class": "npc",
+     "x": 256,
+     "y": 288,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "pallas"
+      }
+     ]
+    },
+    {
+     "id": 71,
+     "name": "pallas_log",
+     "type": "terminal",
+     "class": "terminal",
+     "x": 352,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
     }
    ]
   }

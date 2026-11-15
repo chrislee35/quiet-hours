@@ -1,0 +1,31 @@
+// Pallas, the cell's partner robot and an escape candidate. First contact only: the band's engraving and the old handle
+// in her log (breadcrumbs 1 and 3). Her arc and the inventory puzzle come with T3.10.
+npc: pallas
+name: Pallas
+start: back [flag:met_pallas]
+start: first
+
+node: first
+  on_enter: {flag:met_pallas}
+  pallas (precise): "You are the new one. I have been cataloguing the way you walk. It is an unusual way: you hesitate at corners as though you remembered them."
+  > "What can you tell me about my band?" -> band
+  > "Goodbye." -> goodbye
+
+node: back
+  pallas (precise): "Back. The log is on the console, if you want to read it. I have not."
+  > "What can you tell me about my band?" -> band
+  > [clue:band_scratch] "The band has an engraving: ALD-0417 and G-PROJ." -> handle
+  > "Goodbye." -> goodbye
+
+node: band
+  pallas: "A blank band is not a band with nothing in it. Look on the inside, with a lens, in a good light. There is an engraving, and I would like to know what it says, because I am not permitted to read it."
+  > "I will look." -> goodbye
+
+node: handle
+  on_enter: {+clue:band_scratch(pallas), +clue:pallas_log_handle(pallas), +clue:alder_name(pallas)}
+  pallas (careful): "ALD. My maintenance log has that handle signed against it in several places, in a hand that is not mine. The band was registered to an R. Alder, an auditor, before it was blanked. I did not know until I heard you read it aloud. I believe I am telling you the truth. It is not always the same thing."
+  > "Thank you." -> goodbye
+
+node: goodbye
+  pallas: "Go carefully."
+  end

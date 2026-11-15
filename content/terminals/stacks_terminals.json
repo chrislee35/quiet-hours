@@ -65,5 +65,20 @@
       }
     ],
     "solvedText": "Relay restored. The service door unlocks."
+  },
+  {
+    "id": "pallas_log",
+    "title": "Pallas's maintenance log",
+    "puzzle": "pallas_log_cipher",
+    "bypass": [],
+    "onSolve": [
+      {
+        "give_clue": {
+          "id": "pallas_log_handle",
+          "from": "pallas_log"
+        }
+      }
+    ],
+    "solvedText": "The log decrypts. Entry after entry is signed ALD, in a hand that is not Pallas's."
   }
 ]

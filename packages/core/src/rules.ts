@@ -13,6 +13,7 @@ import type { AlertLevel, ClueStatus, FlagValue, GameEvent, TrustLevel } from ".
 import type { Content } from "./dialogue/types.ts";
 import { isGrown } from "./hub.ts";
 import { dueIn } from "./machinery.ts";
+import { refreshPast } from "./past.ts";
 import { repayLoan, serviceStatus, takeLoan, totalOwed, useService } from "./economy.ts";
 import type { SimState } from "./state.ts";
 import { ticksPerGameMinute, type PassOrigin } from "./identity.ts";
@@ -182,6 +183,7 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
     if (state.flags[flag] !== value) {
       state.flags[flag] = value;
       events.push({ type: "FlagSet", tick, flag, value });
+      if (flag.startsWith("past_m")) refreshPast(state.flags, flag, value);
     }
   } else if ("add_item" in effect || "remove_item" in effect) {
     const [itemId, count] = "add_item" in effect ? effect.add_item : effect.remove_item;

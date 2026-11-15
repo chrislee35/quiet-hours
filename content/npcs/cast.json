@@ -166,5 +166,11 @@
     "name": "Window 4",
     "role": "clerk_bot",
     "district": "civic_core"
+  },
+  {
+    "id": "checker_k",
+    "name": "Checker K-9",
+    "role": "checker",
+    "district": "civic_core"
   }
 ]

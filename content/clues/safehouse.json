@@ -93,7 +93,8 @@
     "tags": [
       "topic:past_self",
       "topic:mentors",
-      "topic:breadcrumb"
+      "topic:breadcrumb",
+      "breadcrumb:mentor_slip"
     ],
     "links": [
       {

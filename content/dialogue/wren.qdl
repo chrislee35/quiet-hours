@@ -45,6 +45,7 @@ node: help
   > "I will go and talk to them." -> goodbye
 
 node: why
+  on_enter: {+clue:partial_truths(wren), +clue:hollow_voice_note(wren)}
   wren (quiet): "Because they each knew someone who is not here any more. I am not going to say more than that. I do not know more than that."
   > "I will go and talk to them." -> goodbye
 
@@ -59,7 +60,12 @@ node: back
   > [flag:wren_vouched] "Who were the four again?" -> help
   > "Is there anything I can do for the cell?" -> hub
   > "What am I, again?" -> what
+  > [flag:past_stance=embraced] "I am still the same person you took in." {trust:wren+1(reassured her)} -> mend
   > "Goodbye." -> goodbye
+
+node: mend
+  wren (steady): "I know. I am trying to believe it. Do not make me do it in public."
+  > "Thank you." -> goodbye
 
 node: hub
   wren (tired): "Stores, a bed, or coin in the pot. Pick one. I will pretend it is a hard decision."

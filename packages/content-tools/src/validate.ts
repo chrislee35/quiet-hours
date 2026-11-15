@@ -145,6 +145,20 @@ export function validateContent(bundle: ContentBundle): Issue[] {
     }
   }
 
+  // Past-self breadcrumbs (PST-1): each of the six is reachable from at least two independent directions: a
+  // conversation, a pickup on a map, or a terminal. Clues carry a `breadcrumb:<name>` tag.
+  const providers = new Map<string, Set<string>>();
+  const provide = (clue: string, who: string) => providers.set(clue, (providers.get(clue) ?? new Set()).add(who));
+  for (const { dialogue } of compiled) for (const c of cluesGiven(dialogue)) provide(c, `conversation ${dialogue.npc}`);
+  for (const { map } of mapData) for (const p of map.pickups ?? []) for (const part of p.grant.split("+")) { const [k, id] = part.split(":"); if (k === "clue" && id) provide(id, `pickup ${p.id}`); }
+  for (const { entity } of entities.terminals) for (const e of (entity.onSolve as { give_clue?: { id: string } }[] | undefined) ?? []) if (e.give_clue) provide(e.give_clue.id, `terminal ${String(entity.id)}`);
+  for (const { file, entity } of entities.clues) {
+    const crumb = ((entity.tags as string[] | undefined) ?? []).find((t) => t.startsWith("breadcrumb:"));
+    if (crumb && (providers.get(String(entity.id))?.size ?? 0) < 2) {
+      issues.push({ file, message: `breadcrumb "${crumb.slice(11)}" (clue "${entity.id}") is reachable from ${providers.get(String(entity.id))?.size ?? 0} direction(s); it needs at least 2 (PST-1)` });
+    }
+  }
+
   // Trust must always be recoverable: anyone whose trust can be lowered must be someone it can be raised with.
   for (const npc of unrecoverableTrust(compiled.map((c) => c.dialogue))) {
     issues.push({ file: `npc ${npc}`, message: `trust in "${npc}" can be lowered but there is no way to raise it from the worst state (CMP-4)` });

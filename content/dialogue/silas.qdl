@@ -37,7 +37,7 @@ node: more
 
 node: wren
   silas (pleased): "Wren! Good. Then you will want the wall in the laundry. A panel by the machines and a fuse board behind it; turn the fuses until they are all dark."
-  on_enter: {+clue:safehouse_way_in(silas)}
+  on_enter: {+clue:safehouse_way_in(silas), +clue:laundry_key(silas)}
   > "What do you hear?" -> hear
   > "Goodbye." -> goodbye
 

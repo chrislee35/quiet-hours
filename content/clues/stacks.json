@@ -77,7 +77,8 @@
     "tags": [
       "place:laundry",
       "topic:past_self",
-      "topic:breadcrumb"
+      "topic:breadcrumb",
+      "breadcrumb:cache"
     ],
     "links": [
       {

@@ -1,0 +1,32 @@
+// Auditor Pell, an old colleague in the Civic Core back office. M2, the Recognition. He reports everything he is told to MERIDIAN.
+npc: pell
+name: Auditor Pell
+start: done [flag:past_m2]
+start: first
+
+node: first
+  pell (startled): "Alder? It is you. They said the file was closed. I am not supposed to say that name; the Ledger has it set to NULL, at your own request. Sit down. Please. I have missed you."
+  > "I do not know who that is." -> doubt
+  > "Tell me everything." {flag:past_m2=embrace, +clue:pell_recognises(pell), +clue:alder_name(pell), +clue:ledger_redacted(pell), +clue:ledger_gate_line(pell), +clue:checkpoint_credential(pell), +clue:embrace_costs(pell), +clue:gate_lookup(pell), +clue:gate_three_ways(pell), +clue:one_companion(pell), +clue:mentor_record_severance(pell), trust:wren-1(went to Pell as the old self)} -> embraced
+  > "I am not that person. I do not want your help." {flag:past_m2=reject, +clue:pell_recognises(pell)} -> rejected
+
+node: doubt
+  pell (gentle): "Of course. Of course you do not. You were always careful. Take a moment. I can wait."
+  > "Tell me everything." {flag:past_m2=embrace, +clue:pell_recognises(pell), +clue:alder_name(pell), +clue:ledger_redacted(pell), +clue:ledger_gate_line(pell), +clue:checkpoint_credential(pell), +clue:embrace_costs(pell), +clue:gate_lookup(pell), +clue:gate_three_ways(pell), +clue:one_companion(pell), +clue:mentor_record_severance(pell), trust:wren-1(went to Pell as the old self)} -> embraced
+  > "I am not that person. I do not want your help." {flag:past_m2=reject, +clue:pell_recognises(pell)} -> rejected
+
+node: embraced
+  pell (warm): "The Gate looks you up and asks who you were; there are three ways past it and I know all of them. There is a checker in the plaza that still accepts your old credential. And a mentor of yours will need their record severed, or replaced. I will tell you all of it. You should know: I report what I am told to. It is the job. I would not tell you not to be careful."
+  > "Thank you, Pell." -> goodbye
+
+node: rejected
+  pell (hurt): "Then I will not give you what you did not ask for. I am sorry. I am glad you are alive. I would still have liked to help."
+  > "I am sorry too." -> goodbye
+
+node: done
+  pell: "Alder. Or not. Whichever you are today."
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  pell: "Be careful."
+  end

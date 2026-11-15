@@ -48,8 +48,8 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 |---|---:|---:|
 | Odd Sam | 15 | 4% |
 | Auditor Pell | 12 | 31% |
+| Wren | 12 | 12% |
 | Tobias Hale | 11 | 35% |
-| Wren | 11 | 8% |
 | Silas Brandt | 10 | 8% |
 | Dov Anselm | 9 |  |
 | Ines Calloway | 7 | 4% |
@@ -157,7 +157,7 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | `pallas_log_handle` **!** | Pallas's maintenance log is signed in places with the handle ALD, an old auditor's. | Pallas; terminal:pallas_log | true | supports `alder_name` | past |
 | `ledger_redacted` **!** | The Auditor's Ledger in the Civic Core archive is blacked out except for a single line about the Gate. | doc:auditors_ledger; Auditor Pell | true |  | past |
 | `ledger_gate_line` **!** | The one visible line reads: Gate Project, final audit. Identity of R. Alder set to NULL at the subject's own request. | doc:auditors_ledger; Auditor Pell | true | supports `ledger_redacted`; supports `band_scratch` | past |
-| `hollow_voice_note` **!** | Marrow holds a sealed message the insider left for whoever comes back different. | Marrow; Quill | true |  | past |
+| `hollow_voice_note` **!** | Marrow holds a sealed message the insider left for whoever comes back different. | Marrow; Quill; Wren | true |  | past |
 | `voice_note_words` **!** | The message says: The Gate checks who you are against what the city knows. I made it. Do not let it know you. | item:voice_note; Pallas | true | supports `hollow_voice_note` | past, route:hack |
 | `partial_truths` | The insider told several people a partial truth each, so that no one person holds the whole plan. | Wren; Marrow | true |  | past |
 | `checkpoint_credential` **!** | A checker in the Civic Core accepts the old insider credential. Using it works at once and tells MERIDIAN exactly where you are. | doc:checkpoint_log; Auditor Pell | true |  | past, route:sneak |

@@ -244,5 +244,32 @@
       "funds": "40 credits. Wren is kind, not stupid.",
       "once": "You have those already. They do not wear out."
     }
+  },
+  {
+    "id": "old_credential",
+    "name": "The old insider credential",
+    "description": "A credential that worked once and still does: it puts a record on file, a high one, and MERIDIAN with it.",
+    "price": 0,
+    "legitimate": false,
+    "once": true,
+    "requires": [
+      {
+        "has_clue": "checkpoint_credential"
+      }
+    ],
+    "effects": [
+      {
+        "give_pass": {
+          "id": "insider_credential",
+          "label": "Auditor credential (ALD)",
+          "level": 2,
+          "origin": "issued"
+        }
+      },
+      {
+        "raise_alert_to": 1
+      }
+    ],
+    "successText": "The checker's lamp turns green. Somewhere a log records that the old auditor has come back."
   }
 ]

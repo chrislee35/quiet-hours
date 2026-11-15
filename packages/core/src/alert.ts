@@ -25,7 +25,9 @@ export function alertSystem(ctx: Ctx): void {
     return;
   }
 
-  if (a.level > 0 && !anySees && state.tick - a.quietSince >= secondsToTicks(config.alert.decaySeconds, config)) {
+  // An embraced past is visible to MERIDIAN: the city never quite relaxes (PST-3).
+  const floor = state.flags.meridian_sees === true ? 1 : 0;
+  if (a.level > floor && !anySees && state.tick - a.quietSince >= secondsToTicks(config.alert.decaySeconds, config)) {
     const from = a.level;
     a.level = (a.level - 1) as AlertLevel;
     a.quietSince = state.tick;

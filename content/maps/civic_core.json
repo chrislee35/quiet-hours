@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 51,
+ "nextobjectid": 55,
  "tilesets": [],
  "layers": [
   {
@@ -2343,6 +2343,96 @@
        "name": "dialogue",
        "type": "string",
        "value": "ines"
+      }
+     ]
+    },
+    {
+     "id": 50,
+     "name": "pell",
+     "type": "npc",
+     "class": "npc",
+     "x": 1408,
+     "y": 448,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "pell"
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "name": "checker_k",
+     "type": "npc",
+     "class": "npc",
+     "x": 384,
+     "y": 640,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "checkpoint"
+      }
+     ]
+    },
+    {
+     "id": 52,
+     "name": "pk_ledger",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 960,
+     "y": 448,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "clue:ledger_redacted:auditors_ledger+clue:ledger_gate_line:auditors_ledger"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Read the Auditor's Ledger"
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "name": "pk_checkpoint_log",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 448,
+     "y": 672,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "clue:checkpoint_credential:checkpoint_log"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Read the checkpoint log"
       }
      ]
     }

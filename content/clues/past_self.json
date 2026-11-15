@@ -6,7 +6,8 @@
     "reliability": "true",
     "tags": [
       "topic:past_self",
-      "topic:breadcrumb"
+      "topic:breadcrumb",
+      "breadcrumb:band"
     ],
     "links": [
       {
@@ -49,7 +50,8 @@
     "tags": [
       "topic:past_self",
       "topic:breadcrumb",
-      "person:pallas"
+      "person:pallas",
+      "breadcrumb:pallas_log"
     ],
     "links": [
       {
@@ -92,7 +94,8 @@
     "tags": [
       "topic:past_self",
       "topic:gate",
-      "place:archive"
+      "place:archive",
+      "breadcrumb:ledger"
     ],
     "links": [
       {
@@ -121,11 +124,13 @@
       "topic:past_self",
       "topic:breadcrumb",
       "place:hollow",
-      "person:marrow"
+      "person:marrow",
+      "breadcrumb:voice_note"
     ],
     "links": [],
     "alsoFrom": [
-      "npc:quill"
+      "npc:quill",
+      "npc:wren"
     ],
     "critical": true,
     "for": [

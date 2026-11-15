@@ -1,0 +1,10 @@
+[
+  {
+    "id": "pallas_log_cipher",
+    "kind": "cipher",
+    "method": "caesar",
+    "plaintext": "MAINTENANCE LOG SIGNED ALD",
+    "key": "D",
+    "hint": "The handle at the bottom is three letters long."
+  }
+]
