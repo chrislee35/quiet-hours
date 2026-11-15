@@ -10,7 +10,7 @@ export type Extra =
   | "glasses" | "headphones" | "conductor_cap" | "hardhat" | "helmet" | "antenna" | "cracked_visor" | "chest_lamp" | "badge"
   | "scarf" | "satchel" | "pigeon" | "tie" | "apron" | "wheels" | "notes" | "eye" | "megaphone" | "train_face" | "papers"
   | "wrench" | "bun" | "bushy" | "flat_cap" | "hood" | "cardigan" | "lab_coat" | "shawl" | "slick" | "number" | "window"
-  | "mug" | "pads" | "cone" | "sprout" | "bow" | "stubble" | "visor_scan";
+  | "mug" | "pads" | "cone" | "sprout" | "bow" | "stubble" | "visor_scan" | "braid";
 
 export interface Look {
   form: "human" | "robot" | "machine";
@@ -60,7 +60,7 @@ export const NPC_LOOKS: Record<string, Look> = {
   civic_voice: L("machine", "#d8dce8", "#7be3ff", ["megaphone"], { ring: CYAN }),
   halloran_7: L("robot", "#2b2f3d", "#ff6b7a", ["badge", "visor_scan", "tie"], { ring: RED }),
   // beyond
-  marrow: L("human", "#5a6b3c", "#e8d8a0", ["shawl", "bushy"], { skin: "#7e5236", hair: "#cfcfcf", ring: TEAL }),
+  marrow: L("human", "#5a6b3c", "#e8d8a0", ["shawl", "braid"], { skin: "#7e5236", hair: "#8a3a24", ring: TEAL }),
   juniper: L("human", "#e0a040", "#fff0c0", ["bow", "sprout"], { skin: "#a8744f", hair: "#2a1a14", ring: TEAL }),
   bede: L("human", "#5f8a3c", "#d8f0a0", ["flat_cap", "sprout"], { skin: "#d1a07c", hair: "#5a3a22" }),
   odile: L("human", "#a98ac0", "#f0e0ff", ["shawl", "bun"], { skin: "#e6c3a4", hair: "#e0e0e0", ring: TEAL }),
@@ -201,6 +201,11 @@ function drawExtras(c: C, look: Look, has: (e: Extra) => boolean): void {
   if (has("stubble")) { c.fillStyle = "rgba(60,50,45,0.45)"; c.beginPath(); c.arc(32, 28, 8, 0.1, Math.PI - 0.1); c.fill(); }
   if (has("scarf")) { rr(c, 20, 34, 24, 7, 3, look.accent, OUT); rr(c, 38, 38, 6, 14, 3, look.accent, OUT); }
   if (has("shawl")) { c.beginPath(); c.moveTo(12, 40); c.quadraticCurveTo(32, 54, 52, 40); c.lineTo(46, 56); c.lineTo(18, 56); c.closePath(); c.fillStyle = look.accent; c.fill(); c.strokeStyle = OUT; c.lineWidth = 2; c.stroke(); }
+  if (has("braid")) {
+    // long side braid over the shoulder, tied off with the accent colour
+    for (const [x, y, r] of [[22, 36, 4.2], [21, 41, 4], [22, 46, 3.7], [23, 51, 3.2]] as const) circle(c, x, y, r, look.hair ?? "#8a3a24", OUT);
+    rr(c, 20, 53, 6, 3, 1.5, look.accent, OUT);
+  }
   if (has("tie")) { c.beginPath(); c.moveTo(32, 38); c.lineTo(36, 42); c.lineTo(34, 54); c.lineTo(32, 56); c.lineTo(30, 54); c.lineTo(28, 42); c.closePath(); c.fillStyle = look.accent; c.fill(); c.strokeStyle = OUT; c.lineWidth = 1.5; c.stroke(); }
   if (has("bow")) { c.fillStyle = look.accent; c.beginPath(); c.moveTo(32, 10); c.lineTo(22, 5); c.lineTo(22, 15); c.closePath(); c.moveTo(32, 10); c.lineTo(42, 5); c.lineTo(42, 15); c.closePath(); c.fill(); circle(c, 32, 10, 2.5, "#fff"); }
   if (has("badge")) { circle(c, 42, 44, 4.5, look.accent, OUT); c.fillStyle = OUT; c.fillRect(41, 42, 2, 4); }
