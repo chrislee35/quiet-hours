@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 57,
+ "nextobjectid": 58,
  "tilesets": [],
  "layers": [
   {
@@ -2485,6 +2485,26 @@
        "value": "Take a Form 12-C"
       }
      ]
+    },
+    {
+     "id": 57,
+     "name": "halloran_7",
+     "type": "npc",
+     "x": 1440,
+     "y": 448,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "halloran_7"
+      }
+     ],
+     "class": "npc"
     }
    ]
   }

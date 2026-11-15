@@ -32,6 +32,7 @@ describe("sim step", () => {
       "processing",
       "district-reactions",
       "hub",
+      "civic-voice",
     ]);
   });
 

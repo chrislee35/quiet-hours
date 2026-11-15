@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 75,
+ "nextobjectid": 76,
  "tilesets": [],
  "layers": [
   {
@@ -2507,6 +2507,26 @@
      "rotation": 0,
      "visible": true,
      "point": true
+    },
+    {
+     "id": 75,
+     "name": "halloran_7",
+     "type": "npc",
+     "x": 1344,
+     "y": 96,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "halloran_7"
+      }
+     ],
+     "class": "npc"
     }
    ]
   }

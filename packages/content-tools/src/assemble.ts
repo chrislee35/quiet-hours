@@ -46,7 +46,7 @@ export function assemble(bundle: ContentBundle): Assembled {
   const content: Content = {
     ...EMPTY_CONTENT, dialogues, clues,
     puzzles: all("puzzles"), terminals: all("terminals"), augments: all("augments"), items: all("items"),
-    services: all("services"), reactions: all("reactions"), quests: all("quests"), growth: all("growth"), companions: all("companions"), closing: all("closing"),
+    services: all("services"), reactions: all("reactions"), quests: all("quests"), growth: all("growth"), companions: all("companions"), closing: all("closing"), broadcasts: all("broadcasts"),
   };
   const worlds: Record<string, World> = {};
   for (const { file, data } of bundle.maps) {

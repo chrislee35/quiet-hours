@@ -81,6 +81,8 @@ export type Effect =
   | { emit: string }
   /** Rest in the Safehouse: the alert drops to Calm and the game saves. Only meaningful there; content gates it. */
   | { rest: true }
+  /** A form goes missing: the arrest record is wiped, so repeated-arrest escalation starts over (Halloran-7's deal). */
+  | { clear_arrests: true }
   /** Run these effects after this many in-game minutes (a repair crew arrives; the power comes back). */
   | { schedule: { inMinutes: number; effects: Effect[] } }
   /** Gives (or replaces) a pass. Expiry is in in-game minutes from now. */
@@ -238,6 +240,8 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
   } else if ("schedule" in effect) {
     if (!config) throw new RuleError("schedule needs the game config");
     state.timers.push({ dueTick: dueIn(tick, effect.schedule.inMinutes, config), effects: effect.schedule.effects });
+  } else if ("clear_arrests" in effect) {
+    state.arrestCount = 0;
   } else if ("rest" in effect) {
     if (state.alert.level > 0) {
       events.push({ type: "AlertChanged", tick, from: state.alert.level, to: 0 });
@@ -458,6 +462,7 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
       if (!isStr(a)) bad("expected a string");
       break;
     case "rest":
+    case "clear_arrests":
       if (a !== true) bad("expected true");
       break;
     case "schedule": {

@@ -1,0 +1,372 @@
+[
+  {
+    "id": "pa_welcome",
+    "text": "This is the Civic Voice. You are valued. Your value has been noted."
+  },
+  {
+    "id": "pa_comfort",
+    "text": "Reminder: contentment is a shared resource. Please do not hoard it."
+  },
+  {
+    "id": "pa_queue",
+    "text": "Queues are a form of community. Please enjoy yours."
+  },
+  {
+    "id": "pa_water",
+    "text": "Citizens are reminded that water is provided. Gratitude is optional but recorded."
+  },
+  {
+    "id": "pa_lost_item",
+    "text": "A lost item has been found: one sense of proportion. Please claim it at any window."
+  },
+  {
+    "id": "pa_cat",
+    "text": "The Stacks cat is not a citizen. Please stop registering it."
+  },
+  {
+    "id": "pa_forms",
+    "text": "Form 12-B is the Application for Application. Do not apply for the application to apply."
+  },
+  {
+    "id": "pa_rules",
+    "text": "All rules are equal. Some rules are more equal at Window 7."
+  },
+  {
+    "id": "pa_look",
+    "text": "If you see something, say something. If you say something, we will see you."
+  },
+  {
+    "id": "pa_noise",
+    "text": "Noise is a gift from you to your neighbours. Please give less."
+  },
+  {
+    "id": "pa_tidy",
+    "text": "A tidy citizen is an unremarkable citizen. Unremarkable is the goal."
+  },
+  {
+    "id": "pa_thanks",
+    "text": "Thank you for being exactly where you are supposed to be."
+  },
+  {
+    "id": "pa_morning",
+    "text": "Good morning. The day has been scheduled for you. Please enjoy it in order.",
+    "when": [
+      {
+        "not": {
+          "is_curfew": true
+        }
+      },
+      {
+        "time_between": [
+          300,
+          540
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pa_noon",
+    "text": "It is midday. Lunch is permitted for twenty minutes. Chewing is encouraged.",
+    "when": [
+      {
+        "not": {
+          "is_curfew": true
+        }
+      },
+      {
+        "time_between": [
+          690,
+          780
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pa_afternoon",
+    "text": "Productivity in the afternoon is up by a number we are pleased with.",
+    "when": [
+      {
+        "not": {
+          "is_curfew": true
+        }
+      },
+      {
+        "time_between": [
+          780,
+          1020
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pa_shift_change",
+    "text": "The Pump 4 night crew changes shift at 22:00. Please do not wave.",
+    "when": [
+      {
+        "time_between": [
+          1020,
+          1320
+        ]
+      }
+    ],
+    "weight": 2,
+    "effects": [
+      {
+        "give_clue": {
+          "id": "pa_shift_time",
+          "from": "broadcast:civic_voice"
+        }
+      }
+    ]
+  },
+  {
+    "id": "pa_evening",
+    "text": "Evening is for rest. Rest is a duty. Please do your duty.",
+    "when": [
+      {
+        "time_between": [
+          1080,
+          1320
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pa_curfew",
+    "text": "Curfew is in force. Citizens without a night pass are reminded that they are being thought of.",
+    "when": [
+      {
+        "is_curfew": true
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_curfew_home",
+    "text": "It is late. Home is where your registered address is. Please be there.",
+    "when": [
+      {
+        "is_curfew": true
+      }
+    ],
+    "weight": 2
+  },
+  {
+    "id": "pa_curfew_quiet",
+    "text": "Quiet Hours are the city's gift to itself. Please do not wake it.",
+    "when": [
+      {
+        "is_quiet_hours": true
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_quiet_sleep",
+    "text": "Sleep is mandatory for those assigned it. Dreams must be declared in the morning.",
+    "when": [
+      {
+        "is_quiet_hours": true
+      }
+    ],
+    "weight": 2
+  },
+  {
+    "id": "pa_quiet_lights",
+    "text": "The lights you can see are watching over you. The lights you cannot see are doing the same.",
+    "when": [
+      {
+        "is_quiet_hours": true
+      }
+    ]
+  },
+  {
+    "id": "pa_alert_calm",
+    "text": "The city is calm. Please keep it that way by being calm in it.",
+    "when": [
+      {
+        "not": {
+          "alert_gte": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "pa_alert_one",
+    "text": "A citizen is being unusual. Please be usual on their behalf.",
+    "when": [
+      {
+        "alert_gte": 1
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_alert_hunting",
+    "text": "Robots are assisting a citizen. Please do not help the citizen. Thank you.",
+    "when": [
+      {
+        "alert_gte": 2
+      }
+    ],
+    "weight": 4
+  },
+  {
+    "id": "pa_alert_lockdown",
+    "text": "The city is closed for your safety. It will reopen when you have forgotten why.",
+    "when": [
+      {
+        "alert_gte": 3
+      }
+    ],
+    "weight": 6
+  },
+  {
+    "id": "pa_content_low",
+    "text": "Contentment is currently under target. A reminder will be issued to each of you separately.",
+    "when": [
+      {
+        "metric_lte": [
+          "contentment",
+          40
+        ]
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_content_high",
+    "text": "Contentment is excellent. If you do not feel it, please report to the nearest window.",
+    "when": [
+      {
+        "metric_gte": [
+          "contentment",
+          70
+        ]
+      }
+    ],
+    "weight": 2
+  },
+  {
+    "id": "pa_order_low",
+    "text": "A disturbance in order has been noted. Order will be restored by being restored.",
+    "when": [
+      {
+        "metric_lte": [
+          "order",
+          40
+        ]
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_power_low",
+    "text": "Power is being conserved on your behalf. The darkness is a form of efficiency.",
+    "when": [
+      {
+        "metric_lte": [
+          "power",
+          40
+        ]
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_arrest_one",
+    "text": "Citizens who have been processed once are reminded that the process is gentle. Once.",
+    "when": [
+      {
+        "arrest_count_gte": 1
+      }
+    ],
+    "weight": 2
+  },
+  {
+    "id": "pa_arrest_two",
+    "text": "A repeat citizen has been noticed. The city is not angry. The city is attentive.",
+    "when": [
+      {
+        "arrest_count_gte": 2
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_arrest_three",
+    "text": "One citizen has been processed three times and is now eligible for personal attention. Case Officer Halloran-7 is available.",
+    "when": [
+      {
+        "arrest_count_gte": 3
+      }
+    ],
+    "weight": 5
+  },
+  {
+    "id": "pa_arrest_file",
+    "text": "Files that contain contradictions may be corrected. Files that contain citizens may be forgotten.",
+    "when": [
+      {
+        "arrest_count_gte": 3
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_arrest_none",
+    "text": "This citizen has never been processed. This citizen is a credit to the form.",
+    "when": [
+      {
+        "not": {
+          "arrest_count_gte": 1
+        }
+      }
+    ],
+    "weight": 1
+  },
+  {
+    "id": "pa_pirate",
+    "text": "A recording of an unauthorised song has been corrected. The song was never played. The song was lovely.",
+    "when": [
+      {
+        "flag": "pirate_played"
+      }
+    ],
+    "weight": 4
+  },
+  {
+    "id": "pa_clue_sloppy",
+    "text": "Please do not assemble information. It is inefficient and it is often wrong.",
+    "when": [
+      {
+        "has_clue": "stacks_cameras_night"
+      }
+    ],
+    "weight": 2
+  },
+  {
+    "id": "pa_perrin",
+    "text": "Statistics show that eight in ten citizens are better off than the other two. Please do not check.",
+    "when": [
+      {
+        "flag": "sq_09_done"
+      }
+    ],
+    "weight": 2
+  },
+  {
+    "id": "pa_stitch",
+    "text": "A report from an informant has been received and is being lovingly ignored.",
+    "when": [
+      {
+        "flag": "mrs_sold"
+      }
+    ],
+    "weight": 3
+  },
+  {
+    "id": "pa_walk",
+    "text": "Walking is permitted. Wandering is a different form, and has not been filed."
+  }
+]

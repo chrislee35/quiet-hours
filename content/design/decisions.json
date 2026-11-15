@@ -668,6 +668,27 @@
           "kind": "outcome",
           "status": "implemented",
           "engine": true
+        },
+        {
+          "id": "caught",
+          "label": "Caught: processed, belongings in the locker, a setback not an ending",
+          "kind": "outcome",
+          "status": "implemented",
+          "engine": true
+        },
+        {
+          "id": "escalate",
+          "label": "Each arrest holds longer; at three MERIDIAN tracks you (higher alert, quicker notice)",
+          "kind": "outcome",
+          "status": "implemented",
+          "engine": true
+        },
+        {
+          "id": "halloran",
+          "label": "Show Halloran-7 two rules that contradict: the file is lost and the count is wiped",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "halloran_dealt"
         }
       ],
       "edges": [
@@ -688,6 +709,16 @@
           "from": "hollowdoor",
           "to": "hollowrisk",
           "label": "a trail to the Hollow"
+        },
+        {
+          "from": "caught",
+          "to": "escalate",
+          "label": "again and again"
+        },
+        {
+          "from": "escalate",
+          "to": "halloran",
+          "label": "at three arrests"
         }
       ]
     },

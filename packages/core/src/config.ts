@@ -112,6 +112,20 @@ export interface Config {
     holdSeconds: number;
     /** Alert level (0-3) the city is at least raised to after processing: the setback (FAIL-2). */
     alertAfterProcessing: number;
+    /** FAIL-4: each arrest after the first holds the player this many seconds longer, up to `holdMaxSeconds`. */
+    holdPerArrest: number;
+    holdMaxSeconds: number;
+    /** From this arrest on, MERIDIAN tracks the player: the alert is raised to `trackedAlert` and robots take notice `trackedGainFactor` times faster. */
+    trackingAfterArrests: number;
+    trackedAlert: number;
+    trackedGainFactor: number;
+  };
+  /** The Civic Voice's public-address broadcasts (T3.15). */
+  pa: {
+    /** In-game minutes between announcements. */
+    intervalMinutes: number;
+    /** A line is not repeated until this many others have played. */
+    noRepeat: number;
   };
   /** Robot-to-robot alerts and the city's shared memory of where the player was last seen (ROB-2). */
   comms: {
@@ -250,7 +264,8 @@ const SHAPE: Shape = {
     checkThreshold: "number",
     enforcerThreshold: "number",
   },
-  failure: { holdSeconds: "number", alertAfterProcessing: "number" },
+  failure: { holdSeconds: "number", alertAfterProcessing: "number", holdPerArrest: "number", holdMaxSeconds: "number", trackingAfterArrests: "number", trackedAlert: "number", trackedGainFactor: "number" },
+  pa: { intervalMinutes: "number", noRepeat: "number" },
   comms: { rangeTiles: "number", latencySeconds: "number", primedSuspicion: "number", memorySeconds: "number" },
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },

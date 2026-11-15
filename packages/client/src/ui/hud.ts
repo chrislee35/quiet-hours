@@ -30,6 +30,7 @@ export class Hud {
     host.append(this.root);
     sim.bus.subscribe((e) => {
       if (e.type === "PlayerCaught") this.say("CAUGHT", 2500);
+      else if (e.type === "Broadcast") this.say(`The Civic Voice: "${e.text}"`, 7000);
       else if (e.type === "PlayerProcessed") this.say(`PROCESSED (arrest #${e.arrestCount}): belongings confiscated. Find the locker to recover them.`, 5000);
       else if (e.type === "LockerOpened") this.say("Belongings recovered.", 2500);
       else if (e.type === "TerminalSolved") this.say("Access gained.", 2500);

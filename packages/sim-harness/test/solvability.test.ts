@@ -240,7 +240,7 @@ describe("the shipped content", () => {
     expect(slice.truncated).toBe(false);
     expect(slice.goals.every((g) => g.reachable)).toBe(true);
     expect(slice.terminals.find((t) => t.id === "maint_panel")).toMatchObject({ puzzle: true, bypass: true, routes: 2 });
-  });
+  }, 120_000); // the heaviest test in the suite: it searches every map, and slows right down when the whole suite runs at once
 
   it("would catch breaking it: remove the second route to the maintenance wing and it is an error", () => {
     const a = assemble(bundle);

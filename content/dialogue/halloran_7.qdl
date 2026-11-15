@@ -1,0 +1,102 @@
+// Case Officer Halloran-7. MERIDIAN's case manager for the repeatedly processed: warm in the way a form is warm.
+// FAIL-4: what he says depends on how often the player has been arrested; at three he offers to lose a file, for a price in logic.
+npc: halloran_7
+name: Case Officer Halloran-7
+start: closed [flag:halloran_dealt]
+start: deal [arrests>=3]
+start: second [arrests>=2]
+start: once [arrests>=1]
+start: none
+
+node: none
+  halloran_7 (warm): "Case Officer Halloran-7, Reintegration. I am sorry, I do not seem to have a file on you. That is the best thing I can say about anyone."
+  > "What do case officers do?" -> job
+  > "Goodbye." -> goodbye
+
+node: job
+  halloran_7 (warm): "I help people who have been processed to be processed more smoothly. The first time is a misunderstanding. The second is a pattern. The third is a relationship, and I enjoy relationships."
+  > "What happens at the third time?" -> third_hint
+  > "Goodbye." -> goodbye
+
+node: third_hint
+  on_enter: {+clue:halloran_deal(halloran_7)}
+  halloran_7 (careful): "I should not say. After three, I may exercise discretion. A file with a real contradiction in it is a file I am obliged to lose. You would have to show me one. Two rules that disagree. I do not get to see them very often, which is the sad part of the job."
+  > "Thank you." -> none
+
+node: once
+  halloran_7 (warm): "Ah. You have been processed. Once. Please do not take it personally; it was done with great personal warmth, by a machine. Everything was kept safe for you, and is waiting in the locker."
+  > "Why were you not there?" -> once_why
+  > "What happens if it happens again?" -> escalation
+  > "Goodbye." -> goodbye
+
+node: once_why
+  halloran_7 (flat): "I was in a meeting about the meeting. You will find, citizen, that this is where I am. Rule 9 says a window may not stamp anything without a permit. It is displayed behind plastic in the Civic Core, if you want something to read while you are held."
+  on_enter: {+clue:permit_rule_9(halloran_7)}
+  > "Back." -> once
+
+node: escalation
+  halloran_7 (careful): "Each time, we hold you a little longer, because we have got to know you. After three, we keep an eye on you, which is to say that the robots do, and sooner. I would avoid three."
+  > "Back." -> once
+
+node: second
+  halloran_7 (warm): "Twice now. I have opened a file. It is quite a thin file. Please do not make it thicker; a thick file is a heavy decision, and I am not allowed to lift those."
+  > "What does the file say?" -> second_file
+  > "How do I stay out of it?" -> escalation_two
+  > "I heard the cat has a file too." -> cat
+  > "Goodbye." -> goodbye
+
+node: second_file
+  halloran_7 (warm): "It says you are a pattern. Patterns are not bad. They are simply not welcome, in the city, in the long term."
+  > "Back." -> second
+
+node: escalation_two
+  halloran_7 (careful): "One more and you are tracked: they keep you in mind between sightings, and the robots notice you faster, and processing begins at a higher alert. At three, and only at three, I am permitted to be kind."
+  > "Kind how?" -> third_hint
+  > "Back." -> second
+
+node: cat
+  on_enter: {+clue:cat_halloran(halloran_7)}
+  halloran_7 (warm): "The Stacks cat. It has a file. It is, I am pleased to say, looking fuller. I do not know how to treat a file that gains weight. It does not feel like an offence."
+  > "Back." -> second
+
+node: deal
+  halloran_7 (warm): "Three. Oh, citizen, I am so sorry, and so pleased; I have been saving a form for you. I am able to lose one file, if the file contains a real contradiction. Show me two rules that disagree and I will have nothing to file. It is a rare pleasure."
+  on_enter: {+clue:halloran_deal(halloran_7)}
+  > "Show him the rules." -> show
+  > "What happens now that it is three?" -> tracked
+  > "Goodbye." -> goodbye
+
+node: tracked
+  halloran_7 (careful): "You are tracked. Robots will notice you faster, and processing starts at a higher alert, and the hold is long. All of that goes away if the file is lost. I would very much like to lose it."
+  > "Show him the rules." -> show
+  > "Back." -> deal
+
+node: show
+  halloran_7: "Show me what you have."
+  present:
+    permit_rule_4 [clue:permit_rule_9] {flag:halloran_dealt, lose_form} -> lost
+    permit_rule_9 [clue:permit_rule_4] {flag:halloran_dealt, lose_form} -> lost
+    permit_rule_4 -> half
+    permit_rule_9 -> half
+    * -> shrug
+  > "Never mind." -> deal
+
+node: half
+  halloran_7 (flat): "That is a rule. It disagrees with nothing I am holding. I need two that cannot both be followed. Bring me the other."
+  > "Back." -> deal
+
+node: shrug
+  halloran_7 (flat): "That is a fact, which is not a contradiction. I would have to have a form for it."
+  > "Back." -> deal
+
+node: lost
+  halloran_7 (moved): "Four says a permit needs Window 7's stamp. Nine says Window 7 may not stamp without a permit. A contradiction, in the file itself. I am afraid I have to lose the form. Oh dear. Where did it go? There is no form. There was never a form. Citizen: you have never been processed. Please go and be unremarkable."
+  > "Thank you." -> closed
+
+node: closed
+  halloran_7 (warm): "Case Officer Halloran-7. I am sorry, I do not seem to have a file on you. It is quite the loss. I have never been so glad of a form I cannot find."
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  halloran_7 (flat): "Do be unremarkable."
+  end

@@ -36,7 +36,16 @@
   },
   "failure": {
     "holdSeconds": 4,
-    "alertAfterProcessing": 1
+    "alertAfterProcessing": 1,
+    "holdPerArrest": 2,
+    "holdMaxSeconds": 12,
+    "trackingAfterArrests": 3,
+    "trackedAlert": 2,
+    "trackedGainFactor": 1.3
+  },
+  "pa": {
+    "intervalMinutes": 25,
+    "noRepeat": 8
   },
   "identity": {
     "nullGainFactor": 1.0,

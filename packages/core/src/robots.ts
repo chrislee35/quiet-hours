@@ -12,6 +12,7 @@ import { menderStep } from "./repairs.ts";
 import { Rng } from "./rng.ts";
 import type { RobotState, SimState } from "./state.ts";
 import { canSee, degToRad, lineOfSight } from "./vision.ts";
+import { trackingFactor } from "./processing.ts";
 import { isSolid, zoneAt, type ZoneDef } from "./world.ts";
 
 /**
@@ -114,7 +115,7 @@ export function robotPerception(ctx: Ctx): void {
         const stance = player.intent.mode === "sneak" ? vis.sneakGainFactor : 1;
         robot.suspicion = Math.min(
           1,
-          robot.suspicion + vis.suspicionGainPerSecond * proximity * stance * idFactor(config, scan.outcome) * prof.gainFactor * dt,
+          robot.suspicion + vis.suspicionGainPerSecond * proximity * stance * idFactor(config, scan.outcome) * prof.gainFactor * trackingFactor(state, config) * dt,
         );
       }
 

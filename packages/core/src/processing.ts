@@ -1,14 +1,34 @@
+import type { Config } from "./config.ts";
 import type { Ctx } from "./ctx.ts";
+import type { SimState } from "./state.ts";
 import { secondsToTicks } from "./ctx.ts";
 import type { AlertLevel, GameEvent } from "./events.ts";
 import { spawnPoint } from "./world.ts";
+
+/** Seconds held after the Nth arrest: stricter each time, to a ceiling. */
+export function holdSecondsFor(config: Config, arrest: number): number {
+  const f = config.failure;
+  return Math.min(f.holdMaxSeconds, f.holdSeconds + f.holdPerArrest * Math.max(0, arrest - 1));
+}
+
+/** True once repeated arrests have put the player on MERIDIAN's watch list. */
+export function isTracked(state: Readonly<SimState>, config: Config): boolean {
+  return state.arrestCount >= config.failure.trackingAfterArrests;
+}
+
+/** How much faster robots notice a tracked player. */
+export function trackingFactor(state: Readonly<SimState>, config: Config): number {
+  return isTracked(state, config) ? config.failure.trackedGainFactor : 1;
+}
 
 /**
  * Soft failure (T1.6, FAIL-1/2/5). When a robot catches the player they are *processed*, not killed:
  *  - everything carried (items and credits) is confiscated into the locker,
  *  - they wake in the holding facility (the "holding" spawn) and are held for `failure.holdSeconds`,
  *  - every robot stands down, and the alert is set back to at least `failure.alertAfterProcessing`,
- *  - the arrest count goes up (which later escalates how MERIDIAN treats them).
+ *  - the arrest count goes up, and repeated arrests escalate (FAIL-4): every arrest after the first is held longer,
+ *    and from `failure.trackingAfterArrests` MERIDIAN tracks them: the alert stays higher after processing and
+ *    robots notice them faster (see `trackingFactor`). Halloran-7's deal (T3.15) wipes the count.
  * Flags, clues, and trust are never touched (FAIL-5): the game continues.
  */
 export function processingSystem(ctx: Ctx): void {
@@ -35,7 +55,7 @@ export function processingSystem(ctx: Ctx): void {
   state.demerits = { points: 0, level: 0, last: {} };
 
   state.arrestCount += 1;
-  state.processingUntil = state.tick + secondsToTicks(config.failure.holdSeconds, config);
+  state.processingUntil = state.tick + secondsToTicks(holdSecondsFor(config, state.arrestCount), config);
   state.player.intent = { dx: 0, dy: 0, mode: "walk" };
   const holding = spawnPoint(world, "holding") ?? spawnPoint(world, "start");
   if (holding) {
@@ -61,7 +81,7 @@ export function processingSystem(ctx: Ctx): void {
   state.messages = [];
 
   const before = state.alert.level;
-  const level = Math.max(before, config.failure.alertAfterProcessing) as AlertLevel;
+  const level = Math.max(before, isTracked(state, config) ? config.failure.trackedAlert : config.failure.alertAfterProcessing) as AlertLevel;
   state.alert.quietSince = state.tick;
   if (level !== before) {
     state.alert.level = level;

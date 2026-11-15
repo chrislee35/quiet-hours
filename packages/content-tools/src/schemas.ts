@@ -228,6 +228,13 @@ export const closingSchema = {
   },
 } as const;
 
+export const broadcastSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "text"],
+  properties: { id, text: { type: "string", minLength: 1 }, when: { type: "array" }, weight: { type: "integer", minimum: 1, maximum: 10 }, effects: { type: "array" } },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -243,6 +250,7 @@ export const kinds = {
   growth: growthSchema,
   companions: companionSchema,
   closing: closingSchema,
+  broadcasts: broadcastSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

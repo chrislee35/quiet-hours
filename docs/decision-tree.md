@@ -191,12 +191,17 @@ flowchart TD
   n_hollowdoor["Quill opens the Hollow service tunnel"]
   n_hollowrisk["Hollow safety: sloppy stealth, informants, a loud escape"]
   n_stunned["Stun or destroy a robot: order and contentment fall"]
+  n_caught["Caught: processed, belongings in the locker, a setback not an ending"]
+  n_escalate["Each arrest holds longer; at three MERIDIAN tracks you (higher alert, quicker notice)"]
+  n_halloran["Show Halloran-7 two rules that contradict: the file is lost and the count is wiped"]
   n_power --> n_blackout
   n_node2 -->|presses rest open| n_stopped
   n_interlock --> n_stopped
   n_hollowdoor -.->|a trail to the Hollow| n_hollowrisk
-  class n_power,n_node2,n_interlock decision
-  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned outcome
+  n_caught -->|again and again| n_escalate
+  n_escalate -->|at three arrests| n_halloran
+  class n_power,n_node2,n_interlock,n_halloran decision
+  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate outcome
   class n_hollowrisk planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222

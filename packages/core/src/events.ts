@@ -55,6 +55,8 @@ export type GameEvent =
   | { type: "TrustChanged"; tick: number; npc: string; from: TrustLevel; to: TrustLevel; cause: string }
   /** Free-form hook raised by an effect, for scripted content to react to. */
   | { type: "Custom"; tick: number; name: string }
+  /** The Civic Voice says a line over the public address (T3.15). */
+  | { type: "Broadcast"; tick: number; id: string; text: string }
   /** The player was processed after being caught: confiscation, holding, setback (FAIL-1/2). */
   | { type: "PlayerProcessed"; tick: number; arrestCount: number; items: Record<string, number>; credits: number }
   | { type: "PlayerReleased"; tick: number }

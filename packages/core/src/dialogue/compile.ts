@@ -105,6 +105,7 @@ function parseEffects(text: string, defaultFrom: string, fail: (m: string) => vo
     else if ((m = token.match(new RegExp(`^trust:(${ID})([+-]\\d+)(?:\\(([^)]+)\\))?$`)))) e = { adjust_trust: [m[1]!, Number(m[2]), m[3]?.trim() || where || "dialogue"] };
     else if ((m = token.match(new RegExp(`^\\+augment:(${ID})$`)))) e = { grant_augment: m[1]! };
     else if (token === "rest") e = { rest: true };
+    else if (token === "lose_form") e = { clear_arrests: true };
     else if ((m = token.match(new RegExp(`^service:(${ID})$`)))) e = { use_service: m[1]! };
     else if ((m = token.match(new RegExp(`^loan:(${ID})\\*(\\d+)$`)))) e = { take_loan: [m[1]!, Number(m[2])] };
     else if ((m = token.match(new RegExp(`^repay:(${ID})\\*(\\d+)$`)))) e = { repay_loan: [m[1]!, Number(m[2])] };
