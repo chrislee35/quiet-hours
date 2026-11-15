@@ -235,6 +235,13 @@ export const broadcastSchema = {
   properties: { id, text: { type: "string", minLength: 1 }, when: { type: "array" }, weight: { type: "integer", minimum: 1, maximum: 10 }, effects: { type: "array" } },
 } as const;
 
+export const hintSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "topic", "for", "when", "done", "nudge", "direct"],
+  properties: { id, topic: { type: "string", minLength: 1 }, for: { type: "array", minItems: 1, items: { type: "string", minLength: 1 } }, when: { type: "array" }, done: { type: "array" }, nudge: { type: "string", minLength: 1 }, direct: { type: "string", minLength: 1 } },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -251,6 +258,7 @@ export const kinds = {
   companions: companionSchema,
   closing: closingSchema,
   broadcasts: broadcastSchema,
+  hints: hintSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

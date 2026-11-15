@@ -1,4 +1,5 @@
 import { PALETTES, PALETTE_IDS, cssVariables, type PaletteId } from "./palette.ts";
+import { HINT_LEVELS, type HintLevel } from "@qh/core";
 import { safeStorage } from "./storage.ts";
 
 /**
@@ -18,9 +19,11 @@ export interface Settings {
   alertCues: boolean;
   /** The puzzle-skip assist: after enough attempts a puzzle can be skipped (HAK-3). Never needed for progress. */
   puzzleSkip: boolean;
+  /** Notebook hints (CLU-7): off, a nudge, or a direct hint. */
+  hintLevel: HintLevel;
 }
 
-export const DEFAULT_SETTINGS: Settings = { textScale: 100, palette: "default", reduceMotion: false, alertCues: true, puzzleSkip: false };
+export const DEFAULT_SETTINGS: Settings = { textScale: 100, palette: "default", reduceMotion: false, alertCues: true, puzzleSkip: false, hintLevel: "off" };
 
 const KEY = "settings";
 
@@ -32,6 +35,7 @@ export function parseSettings(raw: unknown, fallback: Settings = DEFAULT_SETTING
     reduceMotion: typeof r.reduceMotion === "boolean" ? r.reduceMotion : fallback.reduceMotion,
     alertCues: typeof r.alertCues === "boolean" ? r.alertCues : fallback.alertCues,
     puzzleSkip: typeof r.puzzleSkip === "boolean" ? r.puzzleSkip : fallback.puzzleSkip,
+    hintLevel: (HINT_LEVELS as readonly unknown[]).includes(r.hintLevel) ? (r.hintLevel as HintLevel) : fallback.hintLevel,
   };
 }
 

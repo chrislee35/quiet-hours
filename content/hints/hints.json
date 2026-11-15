@@ -1,0 +1,247 @@
+[
+  {
+    "id": "act1",
+    "topic": "Find the people who help",
+    "for": [
+      "act1"
+    ],
+    "when": [
+      {
+        "not": {
+          "flag": "met_wren"
+        }
+      }
+    ],
+    "done": [
+      {
+        "flag": "met_wren"
+      }
+    ],
+    "nudge": "You landed in a laundry. Somebody in the Stacks knows something about it. Talk to the people in the plaza.",
+    "direct": "Odd Sam, in the plaza, knows the way in: a panel by the machines in the laundry, behind which is the Safehouse. Wren is waiting inside."
+  },
+  {
+    "id": "locker_9",
+    "topic": "Locker 9",
+    "for": [
+      "terminal:locker_9"
+    ],
+    "when": [
+      {
+        "has_clue": "laundry_key"
+      }
+    ],
+    "done": [
+      {
+        "flag": "quiet_step_found"
+      }
+    ],
+    "nudge": "The key that came down the chute with you belongs to something in the laundry. Lockers have numbers, and your wrist band has been scratched.",
+    "direct": "Locker 9 is in the laundry. Use the brass key on it, or turn its dials to the number engraved inside your wrist band (ALD-0417): the puzzle and the key both open it."
+  },
+  {
+    "id": "wall_panel",
+    "topic": "The wall that is not a wall",
+    "for": [
+      "terminal:wall_panel"
+    ],
+    "when": [
+      {
+        "has_clue": "safehouse_way_in"
+      }
+    ],
+    "done": [
+      {
+        "flag": "found_safehouse"
+      }
+    ],
+    "nudge": "The panel by the machines in the laundry is the way in. You were told how it works, so it need not be a puzzle.",
+    "direct": "Use the panel by the laundry machines. Having been told the way in, it opens without the fuse puzzle; or tap fuses until all of them are off (each tap flips its neighbours too)."
+  },
+  {
+    "id": "maint_panel",
+    "topic": "The maintenance door",
+    "for": [
+      "terminal:maint_panel"
+    ],
+    "when": [
+      {
+        "flag": "met_wren"
+      }
+    ],
+    "done": [
+      {
+        "flag": "maint_panel_hacked"
+      }
+    ],
+    "nudge": "A maintenance door is held shut by a controller. There is a puzzle, and somebody in the plaza may know a way around it for a price.",
+    "direct": "Route the power from the source to every node (rotate the pieces), or buy the service override code from Odd Sam for 30 credits."
+  },
+  {
+    "id": "node_4",
+    "topic": "Power node 4",
+    "for": [
+      "terminal:node_4"
+    ],
+    "when": [
+      {
+        "has_clue": "node4_location"
+      }
+    ],
+    "done": [
+      {
+        "flag": "gate_broken"
+      }
+    ],
+    "nudge": "Node 4 is behind Pump 4's side door. Cutting it has consequences all over the city, and it can be done with a puzzle or with a favour.",
+    "direct": "Pump 4's side door in the Industrial Belt. Route the power puzzle, or finish Pump 4's side-quest (the thermos) and the crew lets you through. Cutting Node 4 drops the Gate's auxiliary power, and the Stacks lose power for an hour."
+  },
+  {
+    "id": "gate_controller",
+    "topic": "The Gate controller",
+    "for": [
+      "terminal:gate_controller"
+    ],
+    "when": [
+      {
+        "has_clue": "gate_prompt"
+      }
+    ],
+    "done": [
+      {
+        "flag": "gate_controller_open"
+      }
+    ],
+    "nudge": "The controller asks you to be someone. It wants a code in two halves, and the people who might have the halves are people you already know.",
+    "direct": "The first half of the code is in the margin of the Auditor's Ledger (Civic Core). The second is in Pallas's maintenance log. Or, if you have embraced your past, answer the controller as the person who built it."
+  },
+  {
+    "id": "route_sneak",
+    "topic": "The Gate: the service platform",
+    "for": [
+      "route:sneak"
+    ],
+    "when": [
+      {
+        "has_clue": "gate_three_ways"
+      }
+    ],
+    "done": [
+      {
+        "flag": "route_taken"
+      }
+    ],
+    "nudge": "The Gate is only watched closely at some hours. Trains reach it too. The null state will not get you through a record check.",
+    "direct": "Be at the service platform between 13:50 and 14:00 (Train 7 runs there at 13:52), when it is unwatched. You need a record on file, which is a permit, not the null state."
+  },
+  {
+    "id": "route_hack",
+    "topic": "The Gate: the lookup",
+    "for": [
+      "route:hack"
+    ],
+    "when": [
+      {
+        "has_clue": "gate_three_ways"
+      }
+    ],
+    "done": [
+      {
+        "flag": "route_taken"
+      }
+    ],
+    "nudge": "The Gate looks you up in the city's records and asks you for a code. Both halves are written down somewhere you can read.",
+    "direct": "Open the Gate controller panel (see the Gate controller hint), then use the hack route at the Gate exit."
+  },
+  {
+    "id": "route_break",
+    "topic": "The Gate: the open-when-unsure rule",
+    "for": [
+      "route:break"
+    ],
+    "when": [
+      {
+        "has_clue": "gate_three_ways"
+      }
+    ],
+    "done": [
+      {
+        "flag": "route_taken"
+      }
+    ],
+    "nudge": "The Gate fails open if its auxiliary power drops while it is unsure about someone. Where does that power come from? Remember what it costs the people left behind.",
+    "direct": "Cut Node 4 in the Industrial Belt (the Pump 4 crew changes at 21:40; the Civic Voice's 22:00 is wrong), then go to the Gate while the power is off. The Hollow will pay for it."
+  },
+  {
+    "id": "mentor",
+    "topic": "A mentor",
+    "for": [
+      "mentor"
+    ],
+    "when": [
+      {
+        "flag": "wren_vouched"
+      },
+      {
+        "not": {
+          "flag": "mentor"
+        }
+      }
+    ],
+    "done": [
+      {
+        "flag": "mentor"
+      }
+    ],
+    "nudge": "Wren named four people. Meet them in their own places, and when you have met all four, ask for help from the one you trust.",
+    "direct": "The four are Ines, Maren, Tobias and Silas. Meet each of them in their own place, then ask the one you want for help once all four are met; the other three become minor."
+  },
+  {
+    "id": "companion",
+    "topic": "Who comes with you",
+    "for": [
+      "companion"
+    ],
+    "when": [
+      {
+        "has_clue": "one_companion"
+      },
+      {
+        "not": {
+          "flag": "companion"
+        }
+      }
+    ],
+    "done": [
+      {
+        "flag": "companion"
+      }
+    ],
+    "nudge": "The Gate counts one companion. Someone has to trust you, and be ready: each has something that still stands in their way.",
+    "direct": "Ask them in person: a mentor (after they have helped you and awakened), Pallas (once repaired and registered as cargo), June or Odile when their stories allow it. Each Gate route also asks something of the companion."
+  },
+  {
+    "id": "past",
+    "topic": "The person you were",
+    "for": [
+      "past"
+    ],
+    "when": [
+      {
+        "has_clue": "band_scratch"
+      },
+      {
+        "not": {
+          "flag": "past_stance"
+        }
+      }
+    ],
+    "done": [
+      {
+        "flag": "past_stance"
+      }
+    ],
+    "nudge": "Your wrist band, a name and a handle all point at someone who was here before you. There are moments in the city when you will have to say how you feel about that.",
+    "direct": "The past-self moments (the Checkpoint, the Recognition, the Gate's prompt) ask whether you embrace or reject who you were. Embracing makes shortcuts and costs; rejecting keeps the null edge. Both ways reach the Gate."
+  }
+]

@@ -42,3 +42,4 @@ export * from "./past.ts";
 export * from "./companions.ts";
 export * from "./closing.ts";
 export * from "./broadcast.ts";
+export * from "./hints.ts";

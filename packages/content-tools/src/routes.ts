@@ -213,11 +213,12 @@ export function checkCompanions(worlds: Record<string, World>, content: Content,
  * Everything the cross-map closure can make true from a fresh start (optimistic about time, money and position, exact about
  * flags, items and clues). For quests the per-map search cannot finish (it is cut short on the big maps): "can this flag ever be set?".
  */
-export function reachableFacts(worlds: Record<string, World>, content: Content, start: { items: Record<string, number> }, startMap = "stacks"): { flag: (name: string, value?: string) => boolean; item: (id: string) => boolean; clue: (id: string) => boolean } {
+export function reachableFacts(worlds: Record<string, World>, content: Content, start: { items: Record<string, number> }, startMap = "stacks"): { flag: (name: string, value?: string) => boolean; item: (id: string) => boolean; clue: (id: string) => boolean; /** Can every condition become true (optimistic about time and money)? */ holds: (conds: Condition[]) => boolean } {
   const f = closure(rulesOf(worlds, content), content, start, startMap, false);
   return {
     flag: (name, value) => (value === undefined ? [...(f.flags.get(name) ?? [])].some((v) => v !== "false" && v !== "0") : (f.flags.get(name)?.has(value) ?? false)),
     item: (id) => f.items.has(id),
     clue: (id) => f.clues.has(id),
+    holds: (conds) => conds.every((c) => holds(c, f)),
   };
 }

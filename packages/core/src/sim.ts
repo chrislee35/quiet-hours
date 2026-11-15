@@ -1,4 +1,5 @@
 import { broadcastSystem } from "./broadcast.ts";
+import { activeHints, type HintLevel, type HintView } from "./hints.ts";
 import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
 import { chooseOption, dialogueView, endConversation, notebookEntries, presentClue, startConversation, type DialogueView, type NotebookEntryView } from "./dialogue/runtime.ts";
@@ -453,6 +454,11 @@ export class Sim {
 
   conflicts(): Conflict[] {
     return conflicts(this.current, this.content);
+  }
+
+  /** The notebook's hints at the player's chosen hint level (a player setting, never in a save). */
+  hints(level: HintLevel): HintView[] {
+    return activeHints(this.current, this.config, this.content, level);
   }
 
   questLog(): QuestView[] {

@@ -1,4 +1,4 @@
-import { compileDialogue, composeMentors, type MentorVoicing, type AugmentDef, type ServiceDef, type ReactionDef, type QuestDef, type GrowthDef, type CompanionDef, type ClosingDef, type BroadcastDef, type ItemDef, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
+import { compileDialogue, composeMentors, type MentorVoicing, type AugmentDef, type ServiceDef, type ReactionDef, type QuestDef, type GrowthDef, type CompanionDef, type ClosingDef, type BroadcastDef, type HintDef, type ItemDef, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
 
 /**
  * Loads dialogue (.qdl) and clue definitions from content/ at startup. The same compiler and checks run in
@@ -18,6 +18,7 @@ const reactionFiles = import.meta.glob("../../../content/reactions/*.json", { im
 const questFiles = import.meta.glob("../../../content/quests/*.json", { import: "default", eager: true }) as Record<string, QuestDef[]>;
 const companionFiles = import.meta.glob("../../../content/companions/*.json", { import: "default", eager: true }) as Record<string, CompanionDef[]>;
 const broadcastFiles = import.meta.glob("../../../content/broadcasts/*.json", { import: "default", eager: true }) as Record<string, BroadcastDef[]>;
+const hintFiles = import.meta.glob("../../../content/hints/*.json", { import: "default", eager: true }) as Record<string, HintDef[]>;
 const closingFiles = import.meta.glob("../../../content/closing/*.json", { import: "default", eager: true }) as Record<string, ClosingDef[]>;
 const growthFiles = import.meta.glob("../../../content/growth/*.json", { import: "default", eager: true }) as Record<string, GrowthDef[]>;
 
@@ -54,7 +55,9 @@ export function loadContent(): Content {
   for (const list of Object.values(companionFiles)) for (const c of list) companions[c.id] = c;
   const closing: Content["closing"] = {};
   for (const list of Object.values(closingFiles)) for (const c of list) closing[c.id] = c;
+  const hints: Content["hints"] = {};
+  for (const list of Object.values(hintFiles)) for (const h of list) hints[h.id] = h;
   const broadcasts: Content["broadcasts"] = {};
   for (const list of Object.values(broadcastFiles)) for (const b of list) broadcasts[b.id] = b;
-  return { dialogues, clues, puzzles, terminals, augments, items, services, reactions, quests, growth, companions, closing, broadcasts };
+  return { dialogues, clues, puzzles, terminals, augments, items, services, reactions, quests, growth, companions, closing, broadcasts, hints };
 }

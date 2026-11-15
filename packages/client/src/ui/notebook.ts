@@ -1,8 +1,8 @@
-import { searchNotebook, tagKinds, type ClueStatus, type NotebookItem, type Sim } from "@qh/core";
+import { searchNotebook, tagKinds, type ClueStatus, type HintLevel, type NotebookItem, type Sim } from "@qh/core";
 import { mapMarkup } from "./diagrams.ts";
 
-type Tab = "clues" | "quests" | "map";
-const TAB_NAMES: Record<Tab, string> = { clues: "Clues", quests: "Quests", map: "Map" };
+type Tab = "clues" | "quests" | "map" | "hints";
+const TAB_NAMES: Record<Tab, string> = { clues: "Clues", quests: "Quests", map: "Map", hints: "Hints" };
 const STATUS_WORDS: Record<ClueStatus, string> = { unverified: "unverified", verified: "verified", disproved: "disproved" };
 const KIND_WORDS = { supports: "supports", contradicts: "contradicts", updates: "updates" } as const;
 
@@ -21,8 +21,11 @@ export class NotebookPanel {
   /** The clue being linked: the next "Link to this" press completes the link. */
   private linking: string | null = null;
 
-  constructor(sim: Sim, host: HTMLElement) {
+  private readonly hintLevel: () => HintLevel;
+
+  constructor(sim: Sim, host: HTMLElement, hintLevel: () => HintLevel = () => "off") {
     this.sim = sim;
+    this.hintLevel = hintLevel;
     this.root = document.createElement("aside");
     this.root.className = "qh-panel qh-notebook";
     this.root.setAttribute("aria-label", "Notebook");
@@ -66,7 +69,8 @@ export class NotebookPanel {
     root.replaceChildren(this.el("h2", "Notebook"));
     const tabs = this.el("div", "", "tabs");
     tabs.setAttribute("role", "tablist");
-    for (const t of Object.keys(TAB_NAMES) as Tab[]) {
+    if (this.hintLevel() === "off" && this.tab === "hints") this.tab = "clues";
+    for (const t of (Object.keys(TAB_NAMES) as Tab[]).filter((x) => x !== "hints" || this.hintLevel() !== "off")) {
       const b = this.button(TAB_NAMES[t], () => {
         this.tab = t;
         this.refresh();
@@ -78,12 +82,30 @@ export class NotebookPanel {
     root.append(tabs);
     if (this.tab === "clues") this.clues(root);
     else if (this.tab === "quests") this.quests(root);
+    else if (this.tab === "hints") this.hints(root);
     else this.map(root);
     root.append(this.el("p", "Not every clue is true. Cross-check what you learn. Esc or N closes.", "hint"));
     if (keep) {
       const input = root.querySelector<HTMLInputElement>(`#${keep.id}`);
       input?.focus();
       if (input && keep.at !== null) input.setSelectionRange(keep.at, keep.at);
+    }
+  }
+
+  // ---- Hints ------------------------------------------------------------------------------
+
+  private hints(root: HTMLElement): void {
+    const level = this.hintLevel();
+    const list = this.sim.hints(level);
+    root.append(this.el("p", level === "nudge" ? "Nudges: which way to look. Change this in Settings." : "Direct hints: what to do. Change this in Settings.", "hint"));
+    if (list.length === 0) {
+      root.append(this.el("p", "Nothing to hint at right now. Keep exploring: as you learn things, what you could try next appears here.", "hint"));
+      return;
+    }
+    for (const h of list) {
+      const card = this.el("div", "", "quest");
+      card.append(this.el("h3", h.topic), this.el("p", h.text));
+      root.append(card);
     }
   }
 

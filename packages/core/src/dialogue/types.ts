@@ -3,6 +3,7 @@ import type { GrowthDef } from "../hub.ts";
 import type { CompanionDef } from "../companions.ts";
 import type { ClosingDef } from "../closing.ts";
 import type { BroadcastDef } from "../broadcast.ts";
+import type { HintDef } from "../hints.ts";
 import type { QuestDef } from "../notebook.ts";
 import type { ReactionDef } from "../districts.ts";
 import type { ServiceDef } from "../economy.ts";
@@ -114,6 +115,8 @@ export interface Content {
   closing: Record<string, ClosingDef>;
   /** The Civic Voice's pool (broadcast.ts). */
   broadcasts: Record<string, BroadcastDef>;
+  /** Notebook hints for the critical path (hints.ts). */
+  hints: Record<string, HintDef>;
 }
 
-export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {}, augments: {}, items: {}, services: {}, reactions: {}, quests: {}, growth: {}, companions: {}, closing: {}, broadcasts: {} };
+export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {}, augments: {}, items: {}, services: {}, reactions: {}, quests: {}, growth: {}, companions: {}, closing: {}, broadcasts: {}, hints: {} };

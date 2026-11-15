@@ -78,7 +78,7 @@ if (wantsTouchControls({ coarsePointer: matchMedia("(pointer: coarse)").matches,
 }
 const hud = new Hud(sim, document.body, controller);
 const dialogue = new DialogueWindow(sim, document.body);
-const notebook = new NotebookPanel(sim, document.body);
+const notebook = new NotebookPanel(sim, document.body, () => settings.get().hintLevel);
 const terminal = new TerminalWindow(sim, document.body);
 const gear = new GearPanel(sim, document.body);
 const settingsPanel = new SettingsPanel(settings, controller, storage, document.body);

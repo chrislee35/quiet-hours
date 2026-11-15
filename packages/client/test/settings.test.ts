@@ -35,6 +35,9 @@ describe("settings", () => {
   });
 
   it("an unreadable or tampered value falls back to the default for that field only", () => {
+    expect(DEFAULT_SETTINGS.hintLevel).toBe("off");
+    expect(parseSettings({ hintLevel: "direct" }).hintLevel).toBe("direct");
+    expect(parseSettings({ hintLevel: "spoilers" }).hintLevel).toBe("off");
     expect(parseSettings({ textScale: 175, palette: "neon", reduceMotion: "yes", alertCues: false, puzzleSkip: 1 })).toEqual({ ...DEFAULT_SETTINGS, alertCues: false });
     expect(parseSettings(null)).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings([1, 2])).toEqual(DEFAULT_SETTINGS);

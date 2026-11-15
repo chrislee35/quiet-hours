@@ -19,7 +19,7 @@
  * stealth, district reactions, companions and the three-way ending matrix. Every action here is something a
  * player does without any of those, which is exactly what "no route needs combat" asks.
  */
-import { checkRoutes, type RouteReport } from "./routes.ts";
+import { checkRoutes, reachableFacts, type RouteReport } from "./routes.ts";
 import {
   chooseOption, completeTerminal, createInitialState, dialogueView, endConversation, evalAll, gameTimeAt, isActive, parseActiveWhen, pickupAvailable, pickupEffects, presentClue, equipAugment, unequipAugment, equipRefusal,
   puzzleModule, applyEffects, startConversation, spawnPoint,
@@ -71,6 +71,8 @@ export interface MapReport {
 
 export interface Report {
   routes?: RouteReport[];
+  /** Every critical terminal in the game, however it was checked (PUZ-1): the search of its map, or the cross-map closure for a map with no goals of its own. */
+  critical?: TerminalReport[];
   maps: MapReport[];
   /** Findings about the whole game rather than one map (a quest no map can complete). */
   findings: Finding[];
@@ -668,8 +670,38 @@ export function checkSolvability(
     severity: incomplete ? "warning" : "error", kind: "quest-impossible",
     message: `quest "${q.title}" can never be completed on any map${incomplete ? " (a search was cut short)" : ""}`,
   }));
+  // Where a map's search was cut short, a critical terminal's ways through are counted again from the cross-map closure
+  // (exact about items, clues and flags): the search not reaching a state is not proof that there is no way.
+  if (maps.some((m) => m.truncated)) {
+    const truncFacts = reachableFacts(worlds, content, start, "stacks" in worlds ? "stacks" : Object.keys(worlds)[0] ?? "stacks");
+    for (const m of maps.filter((x) => x.truncated)) {
+      for (const t of m.terminals) {
+        if (t.routes >= 2) continue;
+        const def = content.terminals[t.id];
+        const puzzle = def ? content.puzzles[def.puzzle] : undefined;
+        const mod = puzzle ? puzzleModule(puzzle) : undefined;
+        const solvable = !!puzzle && !!mod && mod.solve(puzzle, mod.init(puzzle)) !== null;
+        t.puzzle = t.puzzle || (solvable && truncFacts.holds(def?.puzzleRequires ?? []));
+        t.bypass = t.bypass || ((def?.bypass.length ?? 0) > 0 && truncFacts.holds(def!.bypass));
+        t.routes = Number(t.puzzle) + Number(t.bypass) + Number(t.alternative);
+        if (t.routes >= 2) m.findings = m.findings.filter((f) => !(f.kind === "single-route" && f.message.includes(`"${t.id}"`)));
+      }
+    }
+  }
+  const critical: TerminalReport[] = maps.flatMap((m) => m.terminals);
+  const seenIds = new Set(critical.map((t) => t.id));
+  const facts = reachableFacts(worlds, content, start, "stacks" in worlds ? "stacks" : Object.keys(worlds)[0] ?? "stacks");
+  for (const def of Object.values(content.terminals).filter((t) => t.critical && !seenIds.has(t.id))) {
+    const puzzle = content.puzzles[def.puzzle];
+    const mod = puzzle ? puzzleModule(puzzle) : undefined;
+    const solvable = !!puzzle && !!mod && mod.solve(puzzle, mod.init(puzzle)) !== null;
+    const t: TerminalReport = { id: def.id, critical: true, puzzle: solvable && facts.holds(def.puzzleRequires ?? []), bypass: def.bypass.length > 0 && facts.holds(def.bypass), alternative: false, routes: 0 };
+    t.routes = Number(t.puzzle) + Number(t.bypass);
+    if (t.routes < 2) findings.push({ severity: "error", kind: "single-route", message: `critical terminal "${def.id}" has ${t.routes} way(s) through; it needs at least two` });
+    critical.push(t);
+  }
   const all = [...maps.flatMap((m) => m.findings), ...findings];
-  const base: Report = { maps, findings, errors: all.filter((f) => f.severity === "error").length, warnings: all.filter((f) => f.severity === "warning").length };
+  const base: Report = { critical, maps, findings, errors: all.filter((f) => f.severity === "error").length, warnings: all.filter((f) => f.severity === "warning").length };
   return withRoutes(base, checkRoutes(worlds, content, start, "stacks" in worlds ? "stacks" : Object.keys(worlds)[0] ?? "stacks"));
 }
 
@@ -700,6 +732,7 @@ export function formatReport(r: Report): string {
     lines.push(`route ${rt.route} (${rt.service}): ${rt.reachable ? "reachable" : "NOT reachable"}${rt.reachable ? (rt.reachableNull ? ", also without embracing the past" : ", only by embracing the past") : ""}`);
     if (rt.reachable) lines.push(`    ${rt.chain.join(" -> ")}`);
   }
+  if (r.critical) lines.push(`critical puzzles: ${r.critical.length}, ${r.critical.filter((t) => t.routes >= 2).length} with at least two ways through (PUZ-1)`);
   for (const f of r.findings) lines.push(`${f.severity.toUpperCase()} [${f.kind}] ${f.message}`);
   lines.push(`${r.errors} error(s), ${r.warnings} warning(s)`);
   return lines.join("\n");

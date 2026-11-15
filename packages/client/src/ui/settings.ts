@@ -3,6 +3,7 @@ import {
   DEFAULT_KEYS, DEFAULT_PAD, loadBindings, loadPadBindings, type Action, type KeyBindings, type PadBindings,
 } from "../input/actions.ts";
 import type { InputController } from "../input/controller.ts";
+import type { HintLevel } from "@qh/core";
 import { PALETTES, PALETTE_IDS, type PaletteId } from "../palette.ts";
 import type { SettingsStore } from "../settings-store.ts";
 import { TEXT_SCALES, type TextScale } from "../settings.ts";
@@ -127,6 +128,16 @@ export class SettingsPanel {
 
     root.append(this.el("h3", "Assists"));
     root.append(this.check("Puzzle skip", s.puzzleSkip, (v) => this.store.update({ puzzleSkip: v }), "After many attempts at a puzzle you can skip it. The game never requires it, and it is kept in your save."));
+
+    const hints = this.el("select");
+    for (const [v, label] of [["off", "Off"], ["nudge", "A nudge"], ["direct", "Direct"]] as const) {
+      const o = this.el("option", label);
+      o.value = v;
+      o.selected = v === s.hintLevel;
+      hints.append(o);
+    }
+    hints.addEventListener("change", () => this.store.update({ hintLevel: hints.value as HintLevel }));
+    root.append(this.field("Hints", hints, "Adds a Hints page to the notebook for whatever you are stuck on: a nudge says where to look, direct says what to do. The game never needs them."));
 
     root.append(this.el("h3", "Controls"));
     if (this.message) root.append(this.el("p", this.message, "note"));

@@ -39,7 +39,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [], growth: [], companions: [], closing: [], broadcasts: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [], growth: [], companions: [], closing: [], broadcasts: [], hints: [] };
 
   if (bundle.config) {
     try {
@@ -88,7 +88,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set(), growth: new Set(), companions: new Set(), closing: new Set(), broadcasts: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set(), growth: new Set(), companions: new Set(), closing: new Set(), broadcasts: new Set(), hints: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -315,6 +315,23 @@ export function validateContent(bundle: ContentBundle): Issue[] {
       for (const m of validateEffect(e, `effects[${i}]`)) issues.push({ file, message: `broadcast "${entity.id}": ${m}` });
     });
     for (const m of JSON.stringify(entity.effects ?? []).matchAll(/"give_clue":\{"id":"([^"]+)"/g)) if (!ids.clues.has(m[1]!)) issues.push({ file, message: `broadcast "${entity.id}" gives unknown clue "${m[1]}"` });
+  }
+  // Hints (CLU-7, PUZ-3): well-formed; every critical puzzle, Gate route and stage of the main path has one; nudge and direct say different things.
+  for (const { file, entity } of entities.hints) {
+    for (const [where, conds] of [["when", entity.when], ["done", entity.done]] as [string, unknown[]][]) conds.forEach((c, i) => {
+      for (const m of validateCondition(c, `${where}[${i}]`)) issues.push({ file, message: `hint "${entity.id}": ${m}` });
+      for (const id of clueRefs(c)) if (!ids.clues.has(id)) issues.push({ file, message: `hint "${entity.id}": ${where}[${i}] refers to unknown clue "${id}"` });
+    });
+    if (entity.nudge === entity.direct) issues.push({ file, message: `hint "${entity.id}": the nudge and the direct hint must differ` });
+    for (const f of entity.for as string[]) {
+      const m = f.match(/^terminal:(.+)$/);
+      if (m && !ids.terminals.has(m[1]!)) issues.push({ file, message: `hint "${entity.id}" is for unknown terminal "${m[1]}"` });
+    }
+  }
+  {
+    const covered = new Set(entities.hints.flatMap(({ entity }) => entity.for as string[]));
+    const needed = [...entities.terminals.filter(({ entity }) => entity.critical).map(({ entity }) => `terminal:${entity.id}`), "route:sneak", "route:hack", "route:break", "act1", "mentor", "companion", "past"];
+    for (const n of needed) if (!covered.has(n)) issues.push({ file: "hints", message: `nothing hints at "${n}": every critical puzzle, Gate route and stage of the main path needs a hint` });
   }
   // The closing scene (END-2): one scene; a mentor must be voiced both ways (romantic or platonic is the player's choice).
   if (entities.closing.length !== 1 || entities.closing[0]!.entity.id !== "scene") issues.push({ file: "closing", message: `there must be exactly one closing scene with the id "scene" (found ${entities.closing.length})` });
