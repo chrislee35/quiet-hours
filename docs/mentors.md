@@ -31,3 +31,10 @@ Flag `mentor=<id>` (set by the Act I choice, T3.8) picks who runs the arc. Each 
 Services take `discounts: [{ when: [conditions], price }]`; the lowest applicable price wins.
 
 Tests: `packages/sim-harness/test/mentors.test.ts`.
+
+## Choosing the mentor (T3.8)
+Wren vouches for all four (`wren_vouched`, from her "Is there anyone who can help me?" talk). The player then meets each in their own place: Silas in the Stacks, Ines on the Civic Core plaza, Maren at Underworks dispatch, Tobias in the Belt yard. Their first visit is the introduction and sets `met_<id>`.
+
+Once Wren has vouched and all four are met, each mentor's talk offers "Will you help me get out of the city?". Choosing sets `mentor=<id>` and drops straight into that mentor's vouch beat (`arc_vouch`); the ask is then hidden everywhere. The other three get a short `minor` conversation and never run the arc (`start: minor [flag:mentor, !flag:mentor=<id>]`).
+
+Tests: `packages/sim-harness/test/mentor-choice.test.ts` (each of the four choices end to end, and the gating).

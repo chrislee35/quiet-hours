@@ -2,6 +2,7 @@
 npc: ines
 name: Ines Calloway
 trust: yes
+start: minor [flag:mentor, !flag:mentor=ines]
 start: back [flag:met_ines]
 start: first
 
@@ -9,17 +10,23 @@ node: first
   on_enter: {flag:met_ines, +clue:ines_records(ines)}
   ines (dry): "Records Annex, second desk. If you need something filed, I will file it. If you need something unfiled, that is a different form, and I may know it."
   > "What do you do here?" -> job
+  > [flag:wren_vouched, flag:met_ines, flag:met_maren, flag:met_tobias, flag:met_silas, !flag:mentor] "Will you help me get out of the city?" {flag:mentor=ines} -> arc_vouch
   > "Goodbye." -> goodbye
 
 node: back
   ines (dry): "Back again. The form has not changed. Neither has my opinion of it."
   > "What do you do here?" -> job
+  > [flag:wren_vouched, flag:met_ines, flag:met_maren, flag:met_tobias, flag:met_silas, !flag:mentor] "Will you help me get out of the city?" {flag:mentor=ines} -> arc_vouch
   > "Goodbye." -> goodbye
 
 node: job
   on_enter: {+clue:permit_levels(ines), +clue:annex_pass(ines)}
   ines: "I read permits aloud for people who cannot. Level one gets you the plaza. Level two gets you the annex, and a pass for it is one signature from a form nobody reads. I never said that."
   > "Thank you." -> goodbye
+
+node: minor
+  ines (dry): "You have chosen someone else. Good: do not look so apologetic, it creases. I am still here for the paperwork."
+  > "Goodbye." -> goodbye
 
 node: goodbye
   ines: "Mind the queue."

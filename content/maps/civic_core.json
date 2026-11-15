@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 50,
+ "nextobjectid": 51,
  "tilesets": [],
  "layers": [
   {
@@ -2323,6 +2323,26 @@
        "name": "label",
        "type": "string",
        "value": "Stairs down to the Transit Underworks"
+      }
+     ]
+    },
+    {
+     "id": 49,
+     "name": "ines",
+     "type": "npc",
+     "class": "npc",
+     "x": 960,
+     "y": 576,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "ines"
       }
      ]
     }

@@ -1,7 +1,8 @@
-// Silas Brandt, the Stacks superintendent and rumour collector (a mentor candidate; the mentor choice is T3.8).
+// Silas Brandt, the Stacks superintendent and rumour collector (a mentor candidate; the Act I choice is made here).
 npc: silas
 name: Silas Brandt
 trust: yes
+start: minor [flag:mentor, !flag:mentor=silas]
 start: back [flag:met_silas]
 start: first
 
@@ -16,6 +17,7 @@ node: hear
   silas (conspiratorial): "Oh, the usual. A cat is missing and Teeter is beside himself. Dov at the Permit Hall is in love with a form. The hackers have fallen out again. I could go on. I usually do."
   > "How do I stay out of trouble here?" -> trouble
   > "Wren sent me." -> wren
+  > [flag:wren_vouched, flag:met_ines, flag:met_maren, flag:met_tobias, flag:met_silas, !flag:mentor] "Will you help me get out of the city?" {flag:mentor=silas} -> arc_vouch
   > "Goodbye." -> goodbye
 
 node: trouble
@@ -43,6 +45,11 @@ node: back
   silas (warm): "Back again! Mind the third step."
   > "What do you hear?" -> hear
   > "How do I stay out of trouble here?" -> trouble
+  > [flag:wren_vouched, flag:met_ines, flag:met_maren, flag:met_tobias, flag:met_silas, !flag:mentor] "Will you help me get out of the city?" {flag:mentor=silas} -> arc_vouch
+  > "Goodbye." -> goodbye
+
+node: minor
+  silas (warm): "Oh, you chose! I heard already, naturally. No hard feelings, love; the tea is always on."
   > "Goodbye." -> goodbye
 
 node: goodbye

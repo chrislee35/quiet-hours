@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 49,
+ "nextobjectid": 51,
  "tilesets": [],
  "layers": [
   {
@@ -2319,6 +2319,26 @@
        "name": "label",
        "type": "string",
        "value": "Press hall"
+      }
+     ]
+    },
+    {
+     "id": 49,
+     "name": "tobias",
+     "type": "npc",
+     "class": "npc",
+     "x": 192,
+     "y": 704,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "tobias"
       }
      ]
     }
