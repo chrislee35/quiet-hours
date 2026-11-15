@@ -1,6 +1,7 @@
 import { gameTimeAt } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, MoveMode, TrustLevel } from "./events.ts";
+import type { Effect } from "./rules.ts";
 import type { Pass } from "./identity.ts";
 import type { Loan } from "./economy.ts";
 import { parseActiveWhen, type ActiveWhen } from "./districts.ts";
@@ -52,6 +53,8 @@ export interface SimState {
   inventory: { credits: number; items: Record<string, number> };
   /** The wrist band: augments owned and worn, its capacity, and the timers of active augments (AUG-2). */
   augments: AugmentState;
+  /** Effects waiting for their time (see machinery.ts). */
+  timers: { dueTick: number; effects: Effect[] }[];
   /** The map the player is on. */
   map: string;
   /** What the maps the player has left look like (doors, robots, cameras, people), restored when they return. */
@@ -305,6 +308,7 @@ export function createInitialState(seed: number, config: Config, world: World = 
     flags: {},
     clues: {},
     inventory: { credits: 0, items: {} },
+    timers: [],
     hub: { grown: [] },
     assist: { puzzleSkip: false },
     notebook: { links: [] },

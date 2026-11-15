@@ -1,3 +1,4 @@
+import { parseActiveWhen } from "./districts.ts";
 import { ROBOT_KINDS, type ExitDef, type PropDef, type PlaceDef, type SpotDef, type PickupDef, type DoorDef, type LockerDef, type MapData, type NpcDef, type TerminalPlacement, type CameraDef, type RobotDef, type RobotKind, type RouteDef, type SpawnDef, type ZoneDef } from "./world.ts";
 
 /**
@@ -25,6 +26,9 @@ import { ROBOT_KINDS, type ExitDef, type PropDef, type PlaceDef, type SpotDef, t
  *    while that growth exists).
  *    Class "exit": a way to another map (Name is its id; strings `to` = map id, `spawn` = spawn id there (default "start"),
  *    `label` = the prompt, optional `fare` = a service that must succeed to travel, like a ticket).
+ *    Doors may be machinery: string `cycle` "open/closed[/offset]" in seconds (opens and shuts on a timer), `runsWhen`
+ *    ("belt:node2!=off": it only runs while that district value holds, else rests open) and `unlockedWhen`
+ *    ("time:21:40-06:00": unlocked while that holds, locked again after), the same syntax as `activeWhen`.
  *    Class "locker": where confiscated items are recovered after processing.
  *    Class "robot": string `kind` (default "warden"), number `facing` in degrees (0 = east, 90 = south,
  *    default 0), optional string `route`. Class "waypoint": string `route`, number `order` (default:
@@ -163,7 +167,19 @@ export function importTiled(raw: unknown, id: string): MapData {
     const tx = Math.floor(o.x / tilewidth);
     const ty = Math.floor(o.y / tileheight);
     if (kind === "door") {
-      doors.push({ id: oid, x: tx, y: ty, open: prop(o, "open") === true, locked: prop(o, "locked") === true });
+      const cyc = prop(o, "cycle");
+      const runs = prop(o, "runsWhen");
+      const unl = prop(o, "unlockedWhen");
+      let cycle: DoorDef["cycle"];
+      if (typeof cyc === "string") {
+        const m = cyc.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?$/);
+        if (!m || Number(m[1]) <= 0 || Number(m[2]) <= 0) errors.push(`door "${oid}" has a bad cycle "${cyc}" (expected open/closed or open/closed/offset, in seconds)`);
+        else cycle = { openSeconds: Number(m[1]), closedSeconds: Number(m[2]), offsetSeconds: Number(m[3] ?? 0) };
+      }
+      for (const [name, v] of [["runsWhen", runs], ["unlockedWhen", unl]] as const) {
+        if (typeof v === "string" && !parseActiveWhen(v)) errors.push(`door "${oid}" has a bad ${name} "${v}" (expected "district:key=value" or "time:HH:MM-HH:MM")`);
+      }
+      doors.push({ id: oid, x: tx, y: ty, open: prop(o, "open") === true, locked: prop(o, "locked") === true, ...(cycle ? { cycle } : {}), ...(typeof runs === "string" ? { runsWhen: runs } : {}), ...(typeof unl === "string" ? { unlockedWhen: unl } : {}) });
     } else if (kind === "spawn") {
       // Spawns stand at the centre of their tile.
       spawns.push({ id: oid, x: tx + 0.5, y: ty + 0.5 });

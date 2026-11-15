@@ -197,6 +197,12 @@ export interface DoorDef {
   /** Initial state; may change at runtime. */
   open: boolean;
   locked: boolean;
+  /** Machinery: the door opens and shuts on a timer (a press, a gate). Safe to cross only while it is open. */
+  cycle?: { openSeconds: number; closedSeconds: number; offsetSeconds: number };
+  /** The machinery only runs while this holds ("belt:node2!=off": its power node is not cut). Otherwise it rests open. */
+  runsWhen?: string;
+  /** The door is unlocked while this holds ("time:21:40-06:00": the night shift leaves it open), and locks again after. */
+  unlockedWhen?: string;
 }
 
 export interface SpawnDef {
@@ -266,6 +272,8 @@ export interface DoorState {
   locked: boolean;
   /** Tick it was unlocked by an effect (set only for doors that began locked); the city re-locks it later. */
   unlockedAt?: number;
+  /** Unlocked by its schedule (`unlockedWhen`) rather than by the player: it locks again when the schedule ends. */
+  scheduled?: boolean;
 }
 
 const tileKey = (w: World, x: number, y: number) => y * w.width + x;

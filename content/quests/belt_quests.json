@@ -1,0 +1,107 @@
+[
+  {
+    "id": "pump4_thermos",
+    "title": "Pump 4 Thermos",
+    "summary": "Gus Varga wants his thermos back from the annex locker. The night crew leave the side door open after 21:40.",
+    "start": [
+      {
+        "flag": "sq_03_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "learn",
+        "text": "Find out how to get into the annex (the side door, the lock)",
+        "done": [
+          {
+            "any": [
+              {
+                "has_clue": "pump4_shift"
+              },
+              {
+                "flag": "sq_03_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fetch",
+        "text": "Take the thermos from the locker",
+        "done": [
+          {
+            "any": [
+              {
+                "has_item": "thermos"
+              },
+              {
+                "flag": "sq_03_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "return",
+        "text": "Return it to Gus",
+        "done": [
+          {
+            "flag": "sq_03_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_03_done"
+      }
+    ]
+  },
+  {
+    "id": "brindles_hum",
+    "title": "Brindle's Hum",
+    "summary": "Conveyor unit 7 hums an old tune and is on the scrap queue. Recycling is on day 5.",
+    "start": [
+      {
+        "has_clue": "brindle_scrap"
+      }
+    ],
+    "steps": [
+      {
+        "id": "find",
+        "text": "Find Brindle in the scrap yard",
+        "done": [
+          {
+            "any": [
+              {
+                "flag": "met_brindle"
+              },
+              {
+                "flag": "brindle_freed"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "free",
+        "text": "Pull Brindle's unit off the queue (the scrap controller)",
+        "done": [
+          {
+            "flag": "brindle_freed"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "brindle_freed"
+      }
+    ],
+    "failed": [
+      {
+        "flag": "brindle_lost"
+      }
+    ]
+  }
+]

@@ -20,7 +20,7 @@
  * player does without any of those, which is exactly what "no route needs combat" asks.
  */
 import {
-  chooseOption, completeTerminal, createInitialState, dialogueView, endConversation, evalAll, gameTimeAt, pickupAvailable, pickupEffects, presentClue, equipAugment, unequipAugment, equipRefusal,
+  chooseOption, completeTerminal, createInitialState, dialogueView, endConversation, evalAll, gameTimeAt, isActive, parseActiveWhen, pickupAvailable, pickupEffects, presentClue, equipAugment, unequipAugment, equipRefusal,
   puzzleModule, applyEffects, startConversation, spawnPoint,
   type Config, type Content, type Ctx, type SimState, type World,
 } from "@qh/core";
@@ -211,7 +211,7 @@ function keyOf(s: SimState, phase: number, withTime: boolean, itemCapacity: numb
 }
 
 /** Tiles the player can stand on (or beside) given which doors are unlocked: a flood fill from the start. */
-function reachableTiles(world: World, state: SimState): Set<number> {
+function reachableTiles(world: World, state: SimState, config: Config): Set<number> {
   const start = spawnPoint(world, "start");
   const seen = new Set<number>();
   if (!start || world.width === 0) return seen;
@@ -223,7 +223,8 @@ function reachableTiles(world: World, state: SimState): Set<number> {
     const y = Math.floor(i / world.width);
     if (x < 0 || y < 0 || x >= world.width || y >= world.height || world.wall[i]) continue;
     const door = world.doorByTile.get(i);
-    if (door && state.doors[door.id]?.locked) continue;
+    // A door on a schedule ("the night shift leaves it unlocked") is passable while its schedule says so.
+    if (door && state.doors[door.id]?.locked && !(door.unlockedWhen && isActive(state, parseActiveWhen(door.unlockedWhen), config))) continue;
     seen.add(i);
     stack.push(i + 1, i - 1, i + world.width, i - world.width);
   }
@@ -509,7 +510,7 @@ export function checkMap(
       add(key, next, via, phase);
     };
 
-    const tiles = reachableTiles(aw, state);
+    const tiles = reachableTiles(aw, state, config);
     // Loose change can only help, so it is collected on sight rather than branched on (this keeps independent coins from multiplying the search).
     for (const p of aw.pickups) {
       if (!freePickups.has(p.id) || state.flags[`picked_${p.id}`] || !reachable(tiles, aw, p.x, p.y)) continue;

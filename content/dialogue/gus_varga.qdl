@@ -1,0 +1,53 @@
+// Gus Varga, foreman of Pump 4. Lost his thermos in the annex locker. SQ-03 "Pump 4 Thermos".
+npc: gus_varga
+name: Gus Varga
+start: done [flag:sq_03_done]
+start: back [flag:met_gus]
+start: first
+
+node: first
+  on_enter: {flag:met_gus}
+  gus_varga (gruff): "Pump 4. Foreman Varga. If you are from the Authority, my paperwork is in order. If you are not, my thermos is in the annex and I am not."
+  > "What happened to the thermos?" -> thermos
+  > "What do you run here?" -> job
+  > "Goodbye." -> goodbye
+
+node: job
+  gus_varga: "The pump, the presses, the conveyor. Four power nodes feed the Belt, and Node 4 is behind that side door. It feeds the Gate, too, they say. I do not ask."
+  on_enter: {+clue:power_node_map(gus_varga)}
+  > "What happened to the thermos?" -> thermos
+  > "Goodbye." -> goodbye
+
+node: thermos
+  on_enter: {flag:sq_03_started, +clue:thermos_locker(gus_varga)}
+  gus_varga (wistful): "Forty years of coffee in that thing. The annex locker. I left it there in spring and the lock has not liked me since."
+  > "How do I get in?" -> way
+  > "I will see what I can do." -> hub
+
+node: way
+  on_enter: {+clue:pump4_shift(gus_varga)}
+  gus_varga: "The night crew leave the side door open from twenty to ten until six, for their lunches. Otherwise it is a lock, and I never could remember the number."
+  > "I will see what I can do." -> hub
+
+node: hub
+  gus_varga: "Pump 4."
+  > [item:thermos] "I have your thermos." {-item:thermos, flag:sq_03_done, trust:gus_varga+1(returned the thermos), +clue:node4_location(gus_varga), +clue:scrap_pallas(gus_varga)} -> returned
+  > [!item:thermos] "About the annex..." -> way
+  > "Goodbye." -> goodbye
+
+node: returned
+  gus_varga (warm): "Still warm. Forty years. Listen, Node 4 is the one behind the side door; it feeds the Gate. I never told you that. And the Pallas unit they called scrap: I say the drive is cracked, and I say a great many things."
+  > "Thank you." -> goodbye
+
+node: back
+  gus_varga: "You again."
+  > "About the thermos..." -> thermos
+  > "Goodbye." -> goodbye
+
+node: done
+  gus_varga (warm): "Pump 4 thanks you. I do not."
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  gus_varga: "Mind the presses."
+  end

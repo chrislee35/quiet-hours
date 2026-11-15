@@ -1,0 +1,34 @@
+// Brindle, conveyor unit 7. Humming an old tune, on the scrap queue. SQ-04 "Brindle's Hum".
+npc: brindle
+name: Brindle
+start: free [flag:brindle_freed]
+start: lost [flag:brindle_lost]
+start: first
+
+node: first
+  on_enter: {flag:met_brindle}
+  brindle (flat): "UNIT 7. CONVEYOR. QUEUED FOR RECYCLING. (hum, hum, hum)"
+  > "What is that tune?" -> hum
+  > "Node 4 is behind the side door. Do you know it?" -> node4
+  > "Goodbye." -> goodbye
+
+node: hum
+  brindle (soft): "It was in my memory when they gave me to the belt. Nobody has asked in eleven years. They will recycle me on day five. I would like to finish it first."
+  > "I will see what I can do." -> goodbye
+
+node: node4
+  on_enter: {+clue:node4_location(brindle), +clue:node4_cut_effect(brindle)}
+  brindle: "Cutting Node 4 blacks out the Stacks cameras and slows the Gate's re-verification. A repair crew arrives in about an hour. I hear the lines. It is mostly what I do."
+  > "Thank you." -> goodbye
+
+node: free
+  brindle (soft): "Unit 7, unqueued. (hum) It has a second verse. I will find it."
+  > "Goodbye." -> goodbye
+
+node: lost
+  brindle: "UNIT 7. SCRAPPED."
+  end
+
+node: goodbye
+  brindle: "(hum)"
+  end

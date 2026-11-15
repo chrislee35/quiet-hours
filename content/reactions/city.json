@@ -200,5 +200,33 @@
         ]
       }
     ]
+  },
+  {
+    "id": "brindle_recycled",
+    "on": "DayChanged",
+    "match": {
+      "day": 5
+    },
+    "if": [
+      {
+        "not": {
+          "flag": "brindle_freed"
+        }
+      }
+    ],
+    "effects": [
+      {
+        "set_flag": [
+          "brindle_lost",
+          true
+        ]
+      },
+      {
+        "adjust_metric": [
+          "contentment",
+          -2
+        ]
+      }
+    ]
   }
 ]

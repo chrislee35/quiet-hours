@@ -116,3 +116,23 @@ describe("importTiled", () => {
     }
   });
 });
+
+describe("machinery doors", () => {
+  const withDoor = (props: { name: string; value: unknown }[]) => {
+    const t = tiled();
+    (t.layers[2] as { objects: unknown[] }).objects[1] = { name: "press", class: "door", x: 64, y: 32, properties: props };
+    return t;
+  };
+  it("reads a timer, the power it runs on and a night-shift unlock", () => {
+    const d = importTiled(withDoor([{ name: "cycle", value: "6/3/2" }, { name: "runsWhen", value: "belt:node2!=off" }, { name: "unlockedWhen", value: "time:21:40-06:00" }]), "m").doors[0]!;
+    expect(d.cycle).toEqual({ openSeconds: 6, closedSeconds: 3, offsetSeconds: 2 });
+    expect(d.runsWhen).toBe("belt:node2!=off");
+    expect(d.unlockedWhen).toBe("time:21:40-06:00");
+  });
+  it("refuses a bad cycle or a bad condition", () => {
+    expect(() => importTiled(withDoor([{ name: "cycle", value: "fast" }]), "m")).toThrow(/bad cycle/);
+    expect(() => importTiled(withDoor([{ name: "runsWhen", value: "when it feels like it" }]), "m")).toThrow(/bad runsWhen/);
+    expect(() => importTiled(withDoor([{ name: "unlockedWhen", value: "time:25:00-06:00" }]), "m")).toThrow(/bad unlockedWhen/);
+  });
+});
+

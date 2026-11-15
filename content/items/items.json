@@ -135,5 +135,13 @@
     "stackable": false,
     "tags": [],
     "description": "A permit stamp, applied under protest, valid and invalid at once."
+  },
+  {
+    "id": "thermos",
+    "name": "Gus's thermos",
+    "type": "junk",
+    "stackable": false,
+    "tags": [],
+    "description": "Dented, heavy, and still warm somehow. Gus Varga has been missing it since the spring."
   }
 ]

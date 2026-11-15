@@ -7,6 +7,7 @@ import { equipAugment, modifier, unequipAugment, useAugment } from "./augments.t
 import { useItem } from "./combat.ts";
 import { npcSystem } from "./npcs.ts";
 import { hubSystem } from "./hub.ts";
+import { machinerySystem, timerSystem } from "./machinery.ts";
 import { reactionSystem } from "./districts.ts";
 import { annotatedMap, conflicts, linkClues, notebookItems, questLog, unlinkClues, type AnnotatedMap, type Conflict, type NotebookItem, type QuestView } from "./notebook.ts";
 import { economySystem, useService } from "./economy.ts";
@@ -303,6 +304,8 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "player", run: movePlayer },
   { name: "zones", run: trackZone },
   { name: "clock", run: advanceClock },
+  { name: "machinery", run: machinerySystem },
+  { name: "timers", run: timerSystem },
   { name: "economy", run: economySystem },
   { name: "npcs", run: npcSystem },
   { name: "robot-perception", run: robotPerception },

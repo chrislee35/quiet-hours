@@ -106,5 +106,48 @@
     "for": [
       "companion:pallas"
     ]
+  },
+  {
+    "id": "press_timer",
+    "text": "Each press on the line cycles the same way: six seconds open, three seconds shut, and they are staggered, so there is always a gap to walk through.",
+    "source": "doc:press_board",
+    "reliability": "true",
+    "tags": [
+      "place:belt",
+      "topic:machinery"
+    ],
+    "links": [],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "brindle_scrap",
+    "text": "Brindle, conveyor unit 7, is on the scrap queue. Recycling is on day 5.",
+    "source": "doc:scrap_board",
+    "reliability": "true",
+    "tags": [
+      "person:brindle",
+      "place:belt",
+      "topic:companions"
+    ],
+    "links": [],
+    "for": [
+      "quest:sq_04"
+    ]
+  },
+  {
+    "id": "thermos_locker",
+    "text": "Gus keeps his thermos in the locker in Pump 4's annex, behind the side door.",
+    "source": "npc:gus_varga",
+    "reliability": "true",
+    "tags": [
+      "place:pump4",
+      "person:gus_varga"
+    ],
+    "links": [],
+    "for": [
+      "side:sq_03"
+    ]
   }
 ]

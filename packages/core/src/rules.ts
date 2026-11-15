@@ -12,6 +12,7 @@ import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, GameEvent, TrustLevel } from "./events.ts";
 import type { Content } from "./dialogue/types.ts";
 import { isGrown } from "./hub.ts";
+import { dueIn } from "./machinery.ts";
 import { repayLoan, serviceStatus, takeLoan, totalOwed, useService } from "./economy.ts";
 import type { SimState } from "./state.ts";
 import { ticksPerGameMinute, type PassOrigin } from "./identity.ts";
@@ -73,6 +74,8 @@ export type Effect =
   | { emit: string }
   /** Rest in the Safehouse: the alert drops to Calm and the game saves. Only meaningful there; content gates it. */
   | { rest: true }
+  /** Run these effects after this many in-game minutes (a repair crew arrives; the power comes back). */
+  | { schedule: { inMinutes: number; effects: Effect[] } }
   /** Gives (or replaces) a pass. Expiry is in in-game minutes from now. */
   | {
       give_pass: {
@@ -214,6 +217,9 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       state.alert.quietSince = tick;
       events.push({ type: "AlertChanged", tick, from, to: effect.raise_alert_to });
     }
+  } else if ("schedule" in effect) {
+    if (!config) throw new RuleError("schedule needs the game config");
+    state.timers.push({ dueTick: dueIn(tick, effect.schedule.inMinutes, config), effects: effect.schedule.effects });
   } else if ("rest" in effect) {
     if (state.alert.level > 0) {
       events.push({ type: "AlertChanged", tick, from: state.alert.level, to: 0 });
@@ -254,6 +260,7 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
     const door = state.doors[effect.unlock_door];
     if (door?.locked) {
       door.locked = false;
+      door.scheduled = false; // by hand now: the schedule never takes it back
       door.unlockedAt = tick;
       events.push({ type: "DoorUnlocked", tick, doorId: effect.unlock_door });
     }
@@ -433,6 +440,12 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
     case "rest":
       if (a !== true) bad("expected true");
       break;
+    case "schedule": {
+      const o = a as { inMinutes?: unknown; effects?: unknown } | null;
+      if (typeof o !== "object" || o === null || !isInt(o.inMinutes, 1) || !Array.isArray(o.effects) || o.effects.length === 0) bad("expected { inMinutes >= 1, effects: [...] }");
+      else o.effects.forEach((e, i) => errors.push(...validateEffect(e, `${path}.schedule.effects[${i}]`)));
+      break;
+    }
     case "set_flag":
       if (!isTuple(a, 2) || !isStr(a[0]) || !isFlagValue(a[1])) bad("expected [flag, boolean|number|string]");
       break;

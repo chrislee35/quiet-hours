@@ -12,8 +12,8 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 
 ## At a glance
 
-- **93 clues** in the main web, 47 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
-- Of the main web:  true 75 (81%), outdated 6, false 8, planted 4.
+- **96 clues** in the main web, 47 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
+- Of the main web:  true 78 (81%), outdated 6, false 8, planted 4.
 - **21 corrections** (a clue that contradicts or updates another): the cross-checking puzzles.
 
 ### What each way forward needs
@@ -30,11 +30,13 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | lull | 3 | 2 |  |
 | mentor | 7 | 2 |  |
 | past | 18 | 13 | 6 |
+| quest:sq_04 | 1 | 0 |  |
 | route:break | 11 | 8 | 4 |
 | route:hack | 11 | 11 | 5 |
-| route:sneak | 20 | 9 | 4 |
+| route:sneak | 21 | 9 | 4 |
 | side:sq_01 | 6 | 0 |  |
 | side:sq_02 | 2 | 0 |  |
+| side:sq_03 | 1 | 0 |  |
 | slice | 1 | 0 |  |
 | world | 6 | 0 |  |
 
@@ -51,9 +53,9 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | Ines Calloway | 7 | 4% |
 | Marrow | 7 | 12% |
 | Pallas | 7 | 27% |
+| Gus Varga | 6 | 4% |
 | Maren Okafor | 6 | 4% |
 | Doc Perrin | 5 |  |
-| Gus Varga | 5 | 4% |
 | Mrs. Adeyemi-Roth | 5 | 4% |
 | Quill | 5 | 4% |
 | Bede | 4 |  |
@@ -75,6 +77,9 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | `node4_cut_effect` **!** | Cutting Node 4 blacks out the Stacks cameras and slows the Gate's re-verification. A repair crew arrives in about an hour. | Brindle; Pallas | true | supports `node4_location` | route:break |
 | `gate_fails_open` **!** | If the Gate's auxiliary power drops while it is unsure about someone, its doors stay open. | Tobias Hale; doc:gate_manual | true | supports `node4_cut_effect` | route:break |
 | `scrap_pallas` | Pallas is scrap. Its drive is cracked and nobody can repair it. | Gus Varga | outdated | updates `pallas_cargo` | companion:pallas |
+| `press_timer` | Each press on the line cycles the same way: six seconds open, three seconds shut, and they are staggered, so there is always a gap to walk through. | doc:press_board | true |  | route:sneak |
+| `brindle_scrap` | Brindle, conveyor unit 7, is on the scrap queue. Recycling is on day 5. | doc:scrap_board | true |  | quest:sq_04 |
+| `thermos_locker` | Gus keeps his thermos in the locker in Pump 4's annex, behind the side door. | Gus Varga | true |  | side:sq_03 |
 
 ## Civic core
 

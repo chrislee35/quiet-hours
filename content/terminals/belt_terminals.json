@@ -1,0 +1,118 @@
+[
+  {
+    "id": "node_1",
+    "title": "Power node 1: yard",
+    "puzzle": "fuse_board",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_district": [
+          "belt",
+          "node1",
+          "off"
+        ]
+      }
+    ],
+    "solvedText": "Node 1 drops. The yard warden's charge dies with it."
+  },
+  {
+    "id": "node_2",
+    "title": "Power node 2: presses",
+    "puzzle": "wall_fuses",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_district": [
+          "belt",
+          "node2",
+          "off"
+        ]
+      }
+    ],
+    "solvedText": "Node 2 drops. The presses stop, open, and stay that way."
+  },
+  {
+    "id": "node_3",
+    "title": "Power node 3: scrap yard",
+    "puzzle": "fuse_board",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_district": [
+          "belt",
+          "node3",
+          "off"
+        ]
+      }
+    ],
+    "solvedText": "Node 3 drops. The scrap yard sentry's sensors go dark."
+  },
+  {
+    "id": "node_4",
+    "title": "Power node 4: Pump 4 and the Gate feed",
+    "puzzle": "maint_power",
+    "bypass": [
+      {
+        "flag": "sq_03_done"
+      }
+    ],
+    "onSolve": [
+      {
+        "set_district": [
+          "belt",
+          "node4",
+          "off"
+        ]
+      },
+      {
+        "emit": "sabotage_power"
+      },
+      {
+        "schedule": {
+          "inMinutes": 60,
+          "effects": [
+            {
+              "emit": "restore_power"
+            },
+            {
+              "set_district": [
+                "belt",
+                "node4",
+                "on"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "solvedText": "Node 4 drops. Far away the Stacks go dark. A repair crew will arrive in about an hour.",
+    "critical": true
+  },
+  {
+    "id": "annex_lock",
+    "title": "Pump 4 annex lock",
+    "puzzle": "stash_lock",
+    "bypass": [],
+    "onSolve": [
+      {
+        "unlock_door": "door_pump_side"
+      }
+    ],
+    "solvedText": "The annex lock clicks."
+  },
+  {
+    "id": "scrap_panel",
+    "title": "Scrap queue controller",
+    "puzzle": "relay_alignment",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_flag": [
+          "brindle_freed",
+          true
+        ]
+      }
+    ],
+    "solvedText": "Brindle's unit is pulled from the queue."
+  }
+]

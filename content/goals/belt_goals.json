@@ -1,0 +1,22 @@
+[
+  {
+    "id": "sq_03",
+    "name": "Return Gus Varga's thermos (Pump 4 Thermos)",
+    "map": "belt",
+    "require": [
+      {
+        "flag": "sq_03_done"
+      }
+    ]
+  },
+  {
+    "id": "sq_04",
+    "name": "Save Brindle from the scrap queue (Brindle's Hum)",
+    "map": "belt",
+    "require": [
+      {
+        "flag": "brindle_freed"
+      }
+    ]
+  }
+]

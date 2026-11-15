@@ -36,3 +36,4 @@ export * from "./npcs.ts";
 export * from "./save.ts";
 export * from "./notebook.ts";
 export * from "./hub.ts";
+export * from "./machinery.ts";

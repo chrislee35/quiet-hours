@@ -18,6 +18,8 @@ describe("sim step", () => {
       "player",
       "zones",
       "clock",
+      "machinery",
+      "timers",
       "economy",
       "npcs",
       "robot-perception",
