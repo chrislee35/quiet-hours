@@ -7,3 +7,4 @@ export * from "./assemble.ts";
 export * from "./solvability.ts";
 export * from "./web.ts";
 export * from "./web-sheet.ts";
+export * from "./tree.ts";

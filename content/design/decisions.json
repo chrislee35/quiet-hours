@@ -1,0 +1,710 @@
+{
+  "about": "The decision and achievement tree's hand-written spine. `pnpm tree -- --write` renders it, with the side-quests derived from content/quests and content/goals, into docs/decision-tree.md. status: implemented nodes name a `flag` that the validator checks is set somewhere in the content (or by the engine, with engine: true); planned nodes are drawn dashed and are not checked yet. When you build one, flip it to implemented and name its flag.",
+  "sections": [
+    {
+      "id": "spine",
+      "title": "The whole game at a glance",
+      "intro": "Solid boxes exist in the game today; dashed boxes are designed and still to be built.",
+      "nodes": [
+        {
+          "id": "wake",
+          "label": "Wake in the laundry chute (null state)",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "met_wren"
+        },
+        {
+          "id": "mentor",
+          "label": "Choose a mentor (4)",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "mentor"
+        },
+        {
+          "id": "past",
+          "label": "Past-self moments M1, M2, M3",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "past_stance",
+          "engine": true
+        },
+        {
+          "id": "side",
+          "label": "Side-quests and the world's reactions",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "sq_03_done"
+        },
+        {
+          "id": "pieces",
+          "label": "Act II: gather information and means",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "wren_vouched"
+        },
+        {
+          "id": "optional",
+          "label": "Optional areas: the Hollow and the Lull",
+          "kind": "decision",
+          "status": "planned"
+        },
+        {
+          "id": "companion",
+          "label": "Choose the one companion (4)",
+          "kind": "decision",
+          "status": "planned"
+        },
+        {
+          "id": "route",
+          "label": "Choose a Gate route (3)",
+          "kind": "decision",
+          "status": "planned"
+        },
+        {
+          "id": "m3",
+          "label": "M3: answer the Gate's prompt",
+          "kind": "decision",
+          "status": "planned"
+        },
+        {
+          "id": "closing",
+          "label": "Closing scene and sequel card (no epilogue)",
+          "kind": "outcome",
+          "status": "planned"
+        }
+      ],
+      "edges": [
+        {
+          "from": "wake",
+          "to": "mentor"
+        },
+        {
+          "from": "mentor",
+          "to": "pieces"
+        },
+        {
+          "from": "pieces",
+          "to": "past"
+        },
+        {
+          "from": "pieces",
+          "to": "side"
+        },
+        {
+          "from": "pieces",
+          "to": "optional"
+        },
+        {
+          "from": "past",
+          "to": "companion"
+        },
+        {
+          "from": "side",
+          "to": "companion"
+        },
+        {
+          "from": "optional",
+          "to": "companion"
+        },
+        {
+          "from": "companion",
+          "to": "route"
+        },
+        {
+          "from": "route",
+          "to": "m3"
+        },
+        {
+          "from": "m3",
+          "to": "closing"
+        }
+      ]
+    },
+    {
+      "id": "mentor",
+      "title": "The mentor",
+      "intro": "One arc voiced four times. The choice is made once; the beats are the same for everyone; the romance and the leave/stay choices are the player's.",
+      "nodes": [
+        {
+          "id": "vouch",
+          "label": "Wren vouches for four people",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "wren_vouched"
+        },
+        {
+          "id": "meet",
+          "label": "Meet Ines, Maren, Tobias and Silas in their own places",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "met_silas"
+        },
+        {
+          "id": "ask",
+          "label": "Ask one for help",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "mentor"
+        },
+        {
+          "id": "ines",
+          "label": "Ines: paperwork, cheaper forged identity",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "perk_paperwork"
+        },
+        {
+          "id": "maren",
+          "label": "Maren: timetables, cheaper fares",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "perk_timetables"
+        },
+        {
+          "id": "tobias",
+          "label": "Tobias: Gate security, shift knowledge",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "perk_gate_insight"
+        },
+        {
+          "id": "silas",
+          "label": "Silas: rumors, extra clues",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "perk_rumors"
+        },
+        {
+          "id": "slip",
+          "label": "Beats: vouch, first lesson, slip (Alder), refusal",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "mb_slip"
+        },
+        {
+          "id": "warm",
+          "label": "Warmth or steadiness at the refusal",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "mentor_romance"
+        },
+        {
+          "id": "shake",
+          "label": "Shake: the Gate cannot pass anyone it knows",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "mb_shake"
+        },
+        {
+          "id": "turn",
+          "label": "Leave with you, or stay behind?",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "mentor_choice"
+        },
+        {
+          "id": "leave",
+          "label": "Mentor leaves (a companion candidate)",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "mentor_choice"
+        },
+        {
+          "id": "stay",
+          "label": "Mentor stays (sequel flag: left in the city)",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "mentor_choice"
+        },
+        {
+          "id": "awake",
+          "label": "Awakening: they say the old name, whatever route is taken",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "mb_awakening"
+        },
+        {
+          "id": "sequel",
+          "label": "Sequel flag: free, hiding, arrested or left; ally, wary or estranged",
+          "kind": "outcome",
+          "status": "planned"
+        }
+      ],
+      "edges": [
+        {
+          "from": "vouch",
+          "to": "meet"
+        },
+        {
+          "from": "meet",
+          "to": "ask"
+        },
+        {
+          "from": "ask",
+          "to": "ines",
+          "label": "Ines"
+        },
+        {
+          "from": "ask",
+          "to": "maren",
+          "label": "Maren"
+        },
+        {
+          "from": "ask",
+          "to": "tobias",
+          "label": "Tobias"
+        },
+        {
+          "from": "ask",
+          "to": "silas",
+          "label": "Silas"
+        },
+        {
+          "from": "ines",
+          "to": "slip"
+        },
+        {
+          "from": "maren",
+          "to": "slip"
+        },
+        {
+          "from": "tobias",
+          "to": "slip"
+        },
+        {
+          "from": "silas",
+          "to": "slip"
+        },
+        {
+          "from": "slip",
+          "to": "warm"
+        },
+        {
+          "from": "warm",
+          "to": "shake",
+          "label": "either way"
+        },
+        {
+          "from": "shake",
+          "to": "turn"
+        },
+        {
+          "from": "turn",
+          "to": "leave",
+          "label": "come with me"
+        },
+        {
+          "from": "turn",
+          "to": "stay",
+          "label": "stay"
+        },
+        {
+          "from": "leave",
+          "to": "awake"
+        },
+        {
+          "from": "stay",
+          "to": "awake"
+        },
+        {
+          "from": "awake",
+          "to": "sequel"
+        }
+      ]
+    },
+    {
+      "id": "past",
+      "title": "The past self",
+      "intro": "Three explicit moments. The majority sets the stance; with one of each, the latest wins. Embracing opens shortcuts at a cost; rejecting keeps the null edge.",
+      "nodes": [
+        {
+          "id": "learn",
+          "label": "Learn who you were (six breadcrumbs, each reachable two ways)",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "mb_slip"
+        },
+        {
+          "id": "m1",
+          "label": "M1 Checkpoint: use the old credential?",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "past_m1"
+        },
+        {
+          "id": "m2",
+          "label": "M2 Recognition: accept Pell's help as the old self?",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "past_m2"
+        },
+        {
+          "id": "m3",
+          "label": "M3 Prompt: authenticate at the Gate as the builder?",
+          "kind": "decision",
+          "status": "planned",
+          "flag": "past_m3"
+        },
+        {
+          "id": "embrace",
+          "label": "Embraced",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "past_stance",
+          "engine": true
+        },
+        {
+          "id": "reject",
+          "label": "Rejected",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "past_stance",
+          "engine": true
+        },
+        {
+          "id": "none",
+          "label": "Undiscovered (no moment chosen)",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "past_stance",
+          "engine": true
+        },
+        {
+          "id": "gain",
+          "label": "Shortcuts: old credential, Pell's Gate knowledge, the Prompt",
+          "kind": "achievement",
+          "status": "implemented",
+          "engine": true
+        },
+        {
+          "id": "cost",
+          "label": "Costs: MERIDIAN sees you (alert never calms), Wren trusts you less",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "meridian_sees",
+          "engine": true
+        },
+        {
+          "id": "edge",
+          "label": "Keep the null edge: checkers stall on you, no record to trace",
+          "kind": "achievement",
+          "status": "implemented",
+          "flag": "past_m1",
+          "engine": true
+        }
+      ],
+      "edges": [
+        {
+          "from": "learn",
+          "to": "m1"
+        },
+        {
+          "from": "learn",
+          "to": "m2"
+        },
+        {
+          "from": "m1",
+          "to": "m3"
+        },
+        {
+          "from": "m2",
+          "to": "m3"
+        },
+        {
+          "from": "m1",
+          "to": "embrace",
+          "label": "embrace"
+        },
+        {
+          "from": "m2",
+          "to": "embrace",
+          "label": "embrace"
+        },
+        {
+          "from": "m3",
+          "to": "embrace",
+          "label": "embrace"
+        },
+        {
+          "from": "m1",
+          "to": "reject",
+          "label": "reject"
+        },
+        {
+          "from": "m2",
+          "to": "reject",
+          "label": "reject"
+        },
+        {
+          "from": "m3",
+          "to": "reject",
+          "label": "reject"
+        },
+        {
+          "from": "learn",
+          "to": "none",
+          "label": "never choose"
+        },
+        {
+          "from": "embrace",
+          "to": "gain"
+        },
+        {
+          "from": "embrace",
+          "to": "cost"
+        },
+        {
+          "from": "reject",
+          "to": "edge"
+        },
+        {
+          "from": "none",
+          "to": "edge"
+        }
+      ]
+    },
+    {
+      "id": "world",
+      "title": "Choices that change the world",
+      "intro": "Things the player does that the city, the Belt and the Underworks remember.",
+      "nodes": [
+        {
+          "id": "power",
+          "label": "Cut Node 4 (Belt)",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "sabotage_power",
+          "emitted": true
+        },
+        {
+          "id": "blackout",
+          "label": "The Stacks lose power and cameras for an hour; a crew restores them",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "sabotage_power",
+          "emitted": true
+        },
+        {
+          "id": "node2",
+          "label": "Stop the presses (Node 2)",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "node2",
+          "district": true
+        },
+        {
+          "id": "interlock",
+          "label": "Beat the dispatcher's interlock",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "trains",
+          "district": true
+        },
+        {
+          "id": "stopped",
+          "label": "Every tunnel train stands with its doors open",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "trains",
+          "district": true
+        },
+        {
+          "id": "hollowdoor",
+          "label": "Quill opens the Hollow service tunnel",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "quill_opens_hollow"
+        },
+        {
+          "id": "hollowrisk",
+          "label": "Hollow safety: sloppy stealth, informants, a loud escape",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "stunned",
+          "label": "Stun or destroy a robot: order and contentment fall",
+          "kind": "outcome",
+          "status": "implemented",
+          "engine": true
+        }
+      ],
+      "edges": [
+        {
+          "from": "power",
+          "to": "blackout"
+        },
+        {
+          "from": "node2",
+          "to": "stopped",
+          "label": "presses rest open"
+        },
+        {
+          "from": "interlock",
+          "to": "stopped"
+        },
+        {
+          "from": "hollowdoor",
+          "to": "hollowrisk",
+          "label": "a trail to the Hollow"
+        }
+      ]
+    },
+    {
+      "id": "ending",
+      "title": "The ending: companion, route, aftermath",
+      "intro": "Planned (T3.10 to T3.13). One companion, one of three routes, the same closing scene with only the companion's voice changing. The fate of the Hollow, the Lull, the cell and Pallas are recorded as sequel flags and shown only lightly.",
+      "nodes": [
+        {
+          "id": "cp",
+          "label": "Who comes with you?",
+          "kind": "decision",
+          "status": "planned"
+        },
+        {
+          "id": "pallas",
+          "label": "Pallas (partner)",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "june",
+          "label": "June (ward)",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "odile",
+          "label": "Odile (convert)",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "mentorc",
+          "label": "Your mentor",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "rt",
+          "label": "Which Gate route?",
+          "kind": "decision",
+          "status": "planned"
+        },
+        {
+          "id": "sneak",
+          "label": "Sneak: Train 7 and the platform window",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "hack",
+          "label": "Hack: the lookup, the controller, the null stall",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "break",
+          "label": "Break the Gate: leave it open, the cost falls on those left",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "scene",
+          "label": "Closing scene: outside, gratitude, the turn, black, sequel card",
+          "kind": "outcome",
+          "status": "planned"
+        },
+        {
+          "id": "flags",
+          "label": "Sequel flags: Hollow, Lull, cell, Pallas, mentor, past stance",
+          "kind": "state",
+          "status": "planned"
+        }
+      ],
+      "edges": [
+        {
+          "from": "cp",
+          "to": "pallas"
+        },
+        {
+          "from": "cp",
+          "to": "june"
+        },
+        {
+          "from": "cp",
+          "to": "odile"
+        },
+        {
+          "from": "cp",
+          "to": "mentorc"
+        },
+        {
+          "from": "pallas",
+          "to": "rt"
+        },
+        {
+          "from": "june",
+          "to": "rt"
+        },
+        {
+          "from": "odile",
+          "to": "rt"
+        },
+        {
+          "from": "mentorc",
+          "to": "rt"
+        },
+        {
+          "from": "rt",
+          "to": "sneak"
+        },
+        {
+          "from": "rt",
+          "to": "hack"
+        },
+        {
+          "from": "rt",
+          "to": "break"
+        },
+        {
+          "from": "sneak",
+          "to": "scene"
+        },
+        {
+          "from": "hack",
+          "to": "scene"
+        },
+        {
+          "from": "break",
+          "to": "scene"
+        },
+        {
+          "from": "scene",
+          "to": "flags"
+        }
+      ]
+    }
+  ],
+  "achievements": [
+    {
+      "name": "Both embrace and reject are playable",
+      "flag": "past_stance",
+      "status": "implemented",
+      "engine": true
+    },
+    {
+      "name": "Met all four mentors",
+      "flag": "met_tobias",
+      "status": "implemented"
+    },
+    {
+      "name": "The Hollow is never found",
+      "status": "planned"
+    },
+    {
+      "name": "Everyone you could help, helped (all ten side-quests)",
+      "status": "planned"
+    }
+  ]
+}
