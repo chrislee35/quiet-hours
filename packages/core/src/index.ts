@@ -19,6 +19,7 @@ export * from "./processing.ts";
 export * from "./dialogue/compile.ts";
 export * from "./dialogue/runtime.ts";
 export * from "./dialogue/types.ts";
+export * from "./dialogue/mentors.ts";
 export * from "./terminal.ts";
 export * from "./puzzles/index.ts";
 export type { PuzzleState } from "./puzzles/power-routing.ts";

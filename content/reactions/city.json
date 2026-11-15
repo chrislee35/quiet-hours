@@ -240,5 +240,27 @@
         "unlock_door": "door_hollow"
       }
     ]
+  },
+  {
+    "id": "mentor_slip_due",
+    "on": "Custom",
+    "match": {
+      "name": "mb_first_lesson"
+    },
+    "effects": [
+      {
+        "schedule": {
+          "inMinutes": 180,
+          "effects": [
+            {
+              "set_flag": [
+                "mb_slip_ready",
+                true
+              ]
+            }
+          ]
+        }
+      }
+    ]
   }
 ]

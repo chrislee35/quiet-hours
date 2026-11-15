@@ -1,0 +1,37 @@
+{
+  "id": "maren",
+  "name": "Maren Okafor",
+  "specialty": {
+    "id": "timetables",
+    "name": "Timetables",
+    "summary": "Transit fares cost less; she knows every train by heart.",
+    "grant": "flag:perk_timetables, +clue:train7_gate(maren), +clue:service_platform_unwatched(maren)"
+  },
+  "voice": {
+    "vouch.a": "Wren sent word. I dispatch trains. I have no idea why that makes me a good person to ask for help, but Wren is rarely wrong about people and always wrong about timetables.",
+    "vouch.opt": "Will you help me?",
+    "vouch.b": "Yes. I do not say it twice and I do not take it back. Come to Dispatch when you need to be somewhere before the city notices you left.",
+    "first_lesson.a": "Lesson one. A train is a promise with a time on it. Once you know when the promise is made you know exactly when it is not being watched. Learn the timetable and you learn where the city is looking.",
+    "first_lesson.opt": "Show me the timetable.",
+    "first_lesson.b": "Train 7 takes service staff to the Gate at 13:52, and the platform is checked for passes, not faces, from ten to two. Take it. I am knocking a few credits off your fares, as of now.",
+    "slip.a": "You hold a platform edge the way Alder did. Heels back, so the draught does not take the hem. I have not said that name in six years.",
+    "slip.opt": "Who is Alder?",
+    "slip.b": "A name. Forget it. I am tired and I misread the board.",
+    "refusal.a": "Do not ask me twice. I will not say how I know what I know, and you would not like the timetable it is on.",
+    "refusal.warm": "Stand by me a minute. The board can wait.",
+    "refusal.steady": "No. I will not ask again.",
+    "shake.a": "I walked the Gate's service line to check a signal and the Gate is a question that asks every traveller who they were. Nothing ever gets through it that it already knows. I have dispatched a thousand trains and not one of them ever came back.",
+    "shake.opt": "So the Gate cannot be passed by anyone it knows.",
+    "shake.b": "Then you are the only person in the city it cannot know. That is not a comfort, that is a schedule. I can get you to the platform on time.",
+    "choice.a": "Somebody still has to run the trains. If I go, the Underworks stops, and a lot of people ride it who have nowhere else to be. I have to decide whether to go or to stay.",
+    "choice.leave": "Come with me.",
+    "choice.stay": "Stay. They need the trains.",
+    "choice.leave_b": "Fine. I will write my own leave into the schedule, and the trains can find out afterwards.",
+    "choice.stay_b": "Fine. I will keep the trains running. Someone has to be the reason they are on time.",
+    "awakening.a": "I have the shift records from the day you were removed. I always knew whose name was on the transfer. I just never read it out loud.",
+    "awakening.opt": "Say it.",
+    "awakening.b": "Alder. You boarded the 13:52 and never got off at the other end. I will not misplace you twice.",
+    "out": "Mind the gap.",
+    "idle": "I am on shift."
+  }
+}

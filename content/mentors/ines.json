@@ -1,0 +1,37 @@
+{
+  "id": "ines",
+  "name": "Ines Calloway",
+  "specialty": {
+    "id": "paperwork",
+    "name": "Paperwork",
+    "summary": "Forged and altered records cost less; she knows how a permit is read.",
+    "grant": "flag:perk_paperwork, +clue:forged_pass_scan(ines), +clue:permit_levels(ines)"
+  },
+  "voice": {
+    "vouch.a": "Wren says you need someone who knows how the Civic Core files things. I file things. It is a small talent and a lot of people have confused it for a character flaw.",
+    "vouch.opt": "Will you help me?",
+    "vouch.b": "I will help you the way I help everyone I like: slightly outside the rules, and with a receipt. Come to me when you need a record that says something other than what it says.",
+    "first_lesson.a": "Lesson one. A permit is only a sentence that someone with the right stamp agreed to read aloud. Nobody checks the stamp, they check the reader. So you do not forge the paper. You change who is reading it.",
+    "first_lesson.opt": "And a forged pass?",
+    "first_lesson.b": "Fools a plain scan, never an Auditor's. I can make a second identity cheaper than the black market can, because I know which boxes nobody ticks. Use it kindly.",
+    "slip.a": "You have your hands folded just as Alder used to. Alder never could sit still without folding them, I remember it from the Records Annex.",
+    "slip.opt": "Who is Alder?",
+    "slip.b": "Nobody. I misspoke. I have been up since four and I file names in the wrong drawer when I am tired.",
+    "refusal.a": "Please do not ask me again. I will not tell you how I know a thing that I do not know.",
+    "refusal.warm": "Take my hand a moment. You are not the only one who is frightened.",
+    "refusal.steady": "I will not ask again. I trust you to tell me when you can.",
+    "shake.a": "I went to the archive to check a date and found the Gate's lookup is not a door. It is a question, and it asks everyone who they were. I have spent thirty years certain a form could always be corrected.",
+    "shake.opt": "The Gate cannot be passed by anyone it knows.",
+    "shake.b": "Then the paper has to say that you are nobody, and mean it. I can do the paper. It is the one thing I have always been able to do.",
+    "choice.a": "There is a place in the line for me, if I want it. But my neighbours still queue at Window 4 every morning, and someone has to know which forms they need. I have to decide whether to go or to stay.",
+    "choice.leave": "Come with me. Please.",
+    "choice.stay": "You should stay with them; they need you.",
+    "choice.leave_b": "Then I will sever my own record and follow you out. It will be the cleanest piece of paperwork I ever produce.",
+    "choice.stay_b": "Then I will stay and keep the files in order. Someone has to remember who was here, and the paper has never been wrong about that.",
+    "awakening.a": "I opened your file, the real one, the one with the name in it. I knew, did I not? I have been filing that name in the wrong drawer for a year.",
+    "awakening.opt": "Say it.",
+    "awakening.b": "Alder. I filed you under a different letter and told myself it was an error. I will not file you wrongly again.",
+    "out": "Mind the queue on your way out. It bites.",
+    "idle": "I am busy, and politely so."
+  }
+}

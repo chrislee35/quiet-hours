@@ -1,0 +1,75 @@
+// The mentor arc, voiced four times (CMP-2). The beats are shared; the double-brace slots are filled from content/mentors/<id>.json.
+// Beats in order: vouch, first_lesson, slip, refusal, shake, choice, awakening. Flag mb_<beat> marks each as done.
+// The mentor is chosen in Act I (flag mentor=<id>); the awakening is raised late in Act III (flag mentor_awakening).
+start: arc_awakening [flag:mentor={{id}}, flag:mentor_awakening, !flag:mb_awakening]
+start: arc_choice [flag:mentor={{id}}, flag:mb_shake, !flag:mb_choice]
+start: arc_shake [flag:mentor={{id}}, flag:mb_refusal, clue:gate_lookup, !flag:mb_shake]
+start: arc_slip [flag:mentor={{id}}, flag:mb_first_lesson, flag:mb_slip_ready, !flag:mb_slip]
+start: arc_first_lesson [flag:mentor={{id}}, flag:mb_vouch, !flag:mb_first_lesson]
+start: arc_vouch [flag:mentor={{id}}, !flag:mb_vouch]
+
+node: arc_vouch
+  on_enter: {flag:mb_vouch}
+  {{id}}: "{{vouch.a}}"
+  > "{{vouch.opt}}" -> arc_vouch_b
+
+node: arc_vouch_b
+  {{id}}: "{{vouch.b}}"
+  > "Thank you." {trust:{{id}}+1(took them up on the offer)} -> arc_out
+
+node: arc_first_lesson
+  on_enter: {flag:mb_first_lesson, {{specialty.grant}}, emit:mb_first_lesson}
+  {{id}}: "{{first_lesson.a}}"
+  > "{{first_lesson.opt}}" -> arc_first_lesson_b
+
+node: arc_first_lesson_b
+  {{id}}: "{{first_lesson.b}}"
+  > "I will remember that." -> arc_out
+
+node: arc_slip
+  on_enter: {flag:mb_slip, +clue:mentor_slip({{id}})}
+  {{id}}: "{{slip.a}}"
+  > "{{slip.opt}}" -> arc_refusal
+
+node: arc_refusal
+  on_enter: {flag:mb_refusal}
+  {{id}}: "{{slip.b}}"
+  {{id}}: "{{refusal.a}}"
+  > "{{refusal.warm}}" {flag:mentor_romance=true} -> arc_out
+  > "{{refusal.steady}}" {flag:mentor_romance=false} -> arc_out
+
+node: arc_shake
+  on_enter: {flag:mb_shake}
+  {{id}}: "{{shake.a}}"
+  > "{{shake.opt}}" -> arc_shake_b
+
+node: arc_shake_b
+  {{id}}: "{{shake.b}}"
+  > "We will find a way." {trust:{{id}}+1(shared the truth about the Gate)} -> arc_out
+
+node: arc_choice
+  on_enter: {flag:mb_choice}
+  {{id}}: "{{choice.a}}"
+  > "{{choice.leave}}" {flag:mentor_choice=leave} -> arc_choice_leave
+  > "{{choice.stay}}" {flag:mentor_choice=stay} -> arc_choice_stay
+
+node: arc_choice_leave
+  {{id}}: "{{choice.leave_b}}"
+  > "Then we are agreed." -> arc_out
+
+node: arc_choice_stay
+  {{id}}: "{{choice.stay_b}}"
+  > "Then we are agreed." -> arc_out
+
+node: arc_awakening
+  on_enter: {flag:mb_awakening}
+  {{id}}: "{{awakening.a}}"
+  > "{{awakening.opt}}" -> arc_awakening_b
+
+node: arc_awakening_b
+  {{id}}: "{{awakening.b}}"
+  > "I know." -> arc_out
+
+node: arc_out
+  {{id}}: "{{out}}"
+  end

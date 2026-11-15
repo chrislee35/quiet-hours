@@ -28,8 +28,8 @@ export interface ServiceDef {
   /** Can only be used once per game. */
   once: boolean;
   requires: Condition[];
-  /** The price is waived while these hold (a free pass for the run). */
-  freeWhen?: Condition[];
+  /** Cheaper prices while conditions hold (a mentor's perk, a free pass for the run); the lowest that applies wins. */
+  discounts?: { when: Condition[]; price: number }[];
   effects: Effect[];
   successText: string;
   /** Lines for each way it can be refused; sensible defaults apply to any left out. */
@@ -48,7 +48,9 @@ export type ServiceRefusal = "unknown" | "null_state" | "requirements" | "funds"
 
 /** What the service costs right now. */
 export function priceOf(state: Readonly<SimState>, content: Content, config: Config, s: ServiceDef): number {
-  return s.freeWhen && s.freeWhen.length > 0 && evalAll(s.freeWhen, state, config, content) ? 0 : s.price;
+  let price = s.price;
+  for (const d of s.discounts ?? []) if (d.price < price && evalAll(d.when, state, config, content)) price = d.price;
+  return price;
 }
 
 export type ServiceStatus = { ok: true } | { ok: false; reason: ServiceRefusal; text: string };

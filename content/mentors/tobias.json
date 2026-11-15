@@ -1,0 +1,37 @@
+{
+  "id": "tobias",
+  "name": "Tobias Hale",
+  "specialty": {
+    "id": "gate_security",
+    "name": "Gate security",
+    "summary": "He knows the Gate's shifts and where it is weak.",
+    "grant": "flag:perk_gate_insight, +clue:gate_reverifies_night(tobias), +clue:auditor_night(tobias)"
+  },
+  "voice": {
+    "vouch.a": "Wren says you want to get out. Wren says a great many things. I stood at that Gate for eleven years. I know what is on the other side of the question it asks, which is nothing, and I stood there anyway.",
+    "vouch.opt": "Will you help me?",
+    "vouch.b": "I will help. I owe somebody, and I never found out who. Do not ask me to forgive myself, I am busy.",
+    "first_lesson.a": "Lesson one. A guard watches the thing that is moving. Stand still and let the shift change do the walking for you. They hand the post over at the turn of the hour and for about ninety seconds nobody is looking at anything.",
+    "first_lesson.opt": "What else do you know?",
+    "first_lesson.b": "The Gate re-verifies at night and the night wardens are an Auditor's problem, not a guard's. I know where the patrols stop. Where the Gate is weak, you will have to find out for yourself. But I can point.",
+    "slip.a": "Easy, Alder. Sorry. Easy.",
+    "slip.opt": "Who is Alder?",
+    "slip.b": "I said nothing. I have been awake since the shift bell and the shift bell is not what it was.",
+    "refusal.a": "Leave it. I will not tell you how I know, and you would not thank me for it.",
+    "refusal.warm": "You do not have to carry that alone.",
+    "refusal.steady": "I will leave it. When you want to talk, I am here.",
+    "shake.a": "I went back to the Gate with my old pass and it asked me who I was. Not what. Who. It has been asking everyone, all along. I took a thousand people to that line and never once heard the question.",
+    "shake.opt": "The Gate cannot be passed by anyone it knows.",
+    "shake.b": "Then I put them in front of a thing that could only fail them. I will not do it again. I can tell you which hour it looks away.",
+    "choice.a": "There are men on that line who still think they are guarding something. Someone should tell them. I have to decide whether to go or to stay.",
+    "choice.leave": "Come with me.",
+    "choice.stay": "Stay and tell them.",
+    "choice.leave_b": "Then I walk out through the gate I guarded. It is a short walk. I have thought about it for eleven years.",
+    "choice.stay_b": "Then I stay and I tell them. It will not be easy to say. I will say it anyway.",
+    "awakening.a": "I found the roster for the Gate project. Your handle is on the first page. It is your handwriting, no mistaking it. I thought I was losing my mind.",
+    "awakening.opt": "Say it.",
+    "awakening.b": "Alder. You built the thing. And then you tried to leave it. I stood on the line the day you did and I did not stop you. I am glad.",
+    "out": "Stand easy.",
+    "idle": "Move along."
+  }
+}

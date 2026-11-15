@@ -1,0 +1,26 @@
+// Ines Calloway, Civic Core records clerk and a mentor candidate. Everyday talk; the mentor arc is composed in from content/mentors/.
+npc: ines
+name: Ines Calloway
+trust: yes
+start: back [flag:met_ines]
+start: first
+
+node: first
+  on_enter: {flag:met_ines, +clue:ines_records(ines)}
+  ines (dry): "Records Annex, second desk. If you need something filed, I will file it. If you need something unfiled, that is a different form, and I may know it."
+  > "What do you do here?" -> job
+  > "Goodbye." -> goodbye
+
+node: back
+  ines (dry): "Back again. The form has not changed. Neither has my opinion of it."
+  > "What do you do here?" -> job
+  > "Goodbye." -> goodbye
+
+node: job
+  on_enter: {+clue:permit_levels(ines), +clue:annex_pass(ines)}
+  ines: "I read permits aloud for people who cannot. Level one gets you the plaza. Level two gets you the annex, and a pass for it is one signature from a form nobody reads. I never said that."
+  > "Thank you." -> goodbye
+
+node: goodbye
+  ines: "Mind the queue."
+  end

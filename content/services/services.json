@@ -2,7 +2,7 @@
   {
     "id": "transit_fare",
     "name": "Transit fare",
-    "description": "A ticket on the municipal rail. Needs a record on file. Free once the Conductor's timetable is fixed.",
+    "description": "A ticket on the municipal rail. Needs a record on file. Free once the Conductor's timetable is fixed; cheaper with Maren's help.",
     "price": 5,
     "legitimate": true,
     "once": false,
@@ -19,9 +19,22 @@
     "refusals": {
       "null_state": "The turnstile reads your band, finds nothing, and displays: PENDING REVIEW. Please wait for an officer."
     },
-    "freeWhen": [
+    "discounts": [
       {
-        "flag": "conductor_fixed"
+        "when": [
+          {
+            "flag": "conductor_fixed"
+          }
+        ],
+        "price": 0
+      },
+      {
+        "when": [
+          {
+            "flag": "perk_timetables"
+          }
+        ],
+        "price": 2
       }
     ]
   },
@@ -47,7 +60,17 @@
         }
       }
     ],
-    "successText": "Sam slides a card across the counter. It looks real. It is not."
+    "successText": "Sam slides a card across the counter. It looks real. It is not.",
+    "discounts": [
+      {
+        "when": [
+          {
+            "flag": "perk_paperwork"
+          }
+        ],
+        "price": 25
+      }
+    ]
   },
   {
     "id": "sell_scrap",
@@ -98,7 +121,17 @@
         }
       }
     ],
-    "successText": "The clerk never looks up. Your band now carries a record. It is not yours."
+    "successText": "The clerk never looks up. Your band now carries a record. It is not yours.",
+    "discounts": [
+      {
+        "when": [
+          {
+            "flag": "perk_paperwork"
+          }
+        ],
+        "price": 37
+      }
+    ]
   },
   {
     "id": "quiet_hours_forgery",

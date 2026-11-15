@@ -1,0 +1,37 @@
+{
+  "id": "silas",
+  "name": "Silas Brandt",
+  "specialty": {
+    "id": "rumors",
+    "name": "Rumors",
+    "summary": "He hears things: extra clues, and the hacker feud, the cat.",
+    "grant": "flag:perk_rumors, +clue:dex_rewrote_it(silas), +clue:cat_stairwell(silas), +clue:neighbor_wellness(silas)"
+  },
+  "voice": {
+    "vouch.a": "Wren sent you, and Wren sends me everyone, because I know everyone. I know whose pipe leaks, who is behind on rent and who is in the wrong building. Naturally I know about you.",
+    "vouch.opt": "Will you help me?",
+    "vouch.b": "Of course I will, love. Come by whenever. I will have heard something by then, I always have.",
+    "first_lesson.a": "Lesson one. Nobody ever tells a secret, they tell a story and hope you work out the secret. Listen for what a person is careful not to say. The cat is missing, the hackers have fallen out, and old Dov is in love with a form. All of it is true. Some of it is useful.",
+    "first_lesson.opt": "Tell me more.",
+    "first_lesson.b": "Wait a day and ask me again. A rumour is like a loaf: best the day after. And if you need a name, a door or a pipe, I am the one to ask.",
+    "slip.a": "Oh! Alder, that cardigan suits you. Oh. I have no idea why I said that.",
+    "slip.opt": "Who is Alder?",
+    "slip.b": "Nobody at all. I am a chatterbox and my tongue ran ahead of me. Forget it.",
+    "refusal.a": "Please, dear, do not ask me where I heard it. I do not remember. I truly do not, and that frightens me more than anything.",
+    "refusal.warm": "Come and sit with me. You are the best thing that has happened to this building.",
+    "refusal.steady": "I will not ask again. Tea, whenever you want.",
+    "shake.a": "I asked around about the Gate. Everyone I know has a cousin who went to it. Nobody knows anyone who came back. Nobody ever asked how it knew them. I have collected rumours for forty years and this is the first one that is not funny.",
+    "shake.opt": "The Gate cannot be passed by anyone it knows.",
+    "shake.b": "Then it is the one door in the city with no gossip behind it. You will need a story it has never heard. I know quite a few.",
+    "choice.a": "This whole building is my family, you know. Half of them would be lost without me. I have to decide whether to go or to stay.",
+    "choice.leave": "Come with me.",
+    "choice.stay": "Stay with them.",
+    "choice.leave_b": "Then I will go, and I will tell everyone I know, quietly. They will hear it by morning. They always do.",
+    "choice.stay_b": "Then I will stay and keep the building warm, and tell the story right when you are gone.",
+    "awakening.a": "I remembered where I heard the name. Not from a rumour. From you. You told me once, in the stairwell, years ago. I have been carrying it ever since without knowing.",
+    "awakening.opt": "Say it.",
+    "awakening.b": "Alder. You said it was a good name for someone who meant to be forgotten. I am sorry I did not say so. I am so glad you came back.",
+    "out": "Mind the stairs, they have opinions.",
+    "idle": "Oh, do come in."
+  }
+}

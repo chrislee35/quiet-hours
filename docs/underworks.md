@@ -15,7 +15,7 @@ Platform A (arrival, interlock, the token on the grate), Dispatch (Maren), the j
 
 ## Side-quests
 - **SQ-05 Right on Time** (Quill): bring the token from Platform A and the trains' pattern. Reward: trust, `door_hollow` unlocked (reaction on the custom event `quill_opens_hollow`), clues `quill_shortcut`, `tunnel_scanners_low`.
-- **SQ-06 Apology, Express** (the Conductor): slide the corrupted timetable apart at `signal_box` (a schedule-alignment puzzle; Train 7 must run at 13:52). Reward: free rides (`transit_fare` has `freeWhen: [flag conductor_fixed]`), Maren's backstory clue, the corrected Train 7 time.
+- **SQ-06 Apology, Express** (the Conductor): slide the corrupted timetable apart at `signal_box` (a schedule-alignment puzzle; Train 7 must run at 13:52). Reward: free rides (`transit_fare` has ``discounts``), Maren's backstory clue, the corrected Train 7 time.
 
 Maren's mentor voicings come with T3.7/T3.8; her talk here is the timetable and tunnel talk only.
 

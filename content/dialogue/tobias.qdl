@@ -1,0 +1,26 @@
+// Tobias Hale, retired Gate-shift guard and a mentor candidate. Everyday talk; the mentor arc is composed in from content/mentors/.
+npc: tobias
+name: Tobias Hale
+trust: yes
+start: back [flag:met_tobias]
+start: first
+
+node: first
+  on_enter: {flag:met_tobias, +clue:gate_reverifies_night(tobias)}
+  tobias (gruff): "I do not take visitors. I used to stand at a gate. Now I stand at this one. It is smaller. Fewer questions."
+  > "What do you know about the Gate?" -> gate
+  > "Goodbye." -> goodbye
+
+node: back
+  tobias (gruff): "You again."
+  > "What do you know about the Gate?" -> gate
+  > "Goodbye." -> goodbye
+
+node: gate
+  on_enter: {+clue:gate_three_ways(tobias), +clue:gate_unguarded_night(tobias), +clue:gate_lookup(tobias)}
+  tobias: "It re-verifies at night and it does not like a person who is not there. There are three ways it can be got past. I have been over all three in my sleep. Ask me when I am not on shift."
+  > "Thank you." -> goodbye
+
+node: goodbye
+  tobias: "Stand easy."
+  end

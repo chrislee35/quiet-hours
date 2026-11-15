@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { composeMentors, mentorIssues, type MentorVoicing } from "@qh/core";
 import { kinds, type Kind } from "./schemas.ts";
 import type { ContentBundle, ContentFile, Issue } from "./validate.ts";
 
@@ -47,5 +48,20 @@ export function loadContent(root: string): { bundle: ContentBundle; issues: Issu
         .sort()
         .map((f) => ({ file: `dialogue/${f}`, text: readFileSync(join(dialogueDir, f), "utf8") }))
     : [];
-  return { bundle: { ...(config ? { config } : {}), ...(start ? { start } : {}), dialogues, maps, files }, issues };
+  // The mentor arc: shared beats voiced four times, composed into each mentor's conversation (CMP-2).
+  const mentorDir = join(root, "mentors");
+  let composed = dialogues;
+  if (existsSync(join(mentorDir, "arc.qdl"))) {
+    const arc = readFileSync(join(mentorDir, "arc.qdl"), "utf8");
+    const voicings: MentorVoicing[] = [];
+    for (const f of readdirSync(mentorDir).filter((n) => n.endsWith(".json")).sort()) {
+      const c = read(join(mentorDir, f), `mentors/${f}`);
+      if (c) voicings.push(c.data as MentorVoicing);
+    }
+    for (const m of mentorIssues(arc, voicings)) issues.push({ file: "mentors/arc.qdl", message: m });
+    const byId = Object.fromEntries(dialogues.map((d) => [d.file.replace(/^dialogue\//, "").replace(/\.qdl$/, ""), d.text]));
+    const out = composeMentors(byId, arc, voicings);
+    composed = Object.entries(out).sort(([a], [b]) => (a < b ? -1 : 1)).map(([id, text]) => ({ file: `dialogue/${id}.qdl`, text }));
+  }
+  return { bundle: { ...(config ? { config } : {}), ...(start ? { start } : {}), dialogues: composed, maps, files }, issues };
 }
