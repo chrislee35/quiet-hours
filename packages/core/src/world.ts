@@ -198,7 +198,7 @@ export interface DoorDef {
   open: boolean;
   locked: boolean;
   /** Machinery: the door opens and shuts on a timer (a press, a gate). Safe to cross only while it is open. */
-  cycle?: { openSeconds: number; closedSeconds: number; offsetSeconds: number };
+  cycle?: { openSeconds: number; closedSeconds: number; offsetSeconds: number; /** The offset is drawn from the run's seed: a different phase each run, the same within one. */ seeded?: boolean };
   /** The machinery only runs while this holds ("belt:node2!=off": its power node is not cut). Otherwise it rests open. */
   runsWhen?: string;
   /** The door is unlocked while this holds ("time:21:40-06:00": the night shift leaves it open), and locks again after. */

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "right_on_time",
+    "title": "Right on Time",
+    "summary": "Quill wants a token fetched from Platform A and the pattern of the tunnel trains.",
+    "start": [
+      {
+        "flag": "sq_05_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "token",
+        "text": "Take the token from the grate on Platform A",
+        "done": [
+          {
+            "any": [
+              {
+                "has_item": "quill_token"
+              },
+              {
+                "flag": "sq_05_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pattern",
+        "text": "Learn the trains' pattern (the signal lamps at the junction)",
+        "done": [
+          {
+            "any": [
+              {
+                "has_clue": "train_cycle"
+              },
+              {
+                "flag": "sq_05_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "tell",
+        "text": "Bring Quill the token and the pattern",
+        "done": [
+          {
+            "flag": "sq_05_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_05_done"
+      }
+    ]
+  },
+  {
+    "id": "apology_express",
+    "title": "Apology, Express",
+    "summary": "The Conductor's timetable has two trains in one slot. Slide them apart at the signal box.",
+    "start": [
+      {
+        "flag": "sq_06_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "box",
+        "text": "Find the signal box in the signal room",
+        "done": [
+          {
+            "any": [
+              {
+                "has_clue": "conductor_corrupt"
+              },
+              {
+                "flag": "sq_06_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fix",
+        "text": "Reconcile the timetable (no two trains in a slot; Train 7 at 13:52)",
+        "done": [
+          {
+            "flag": "sq_06_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_06_done"
+      }
+    ]
+  }
+]

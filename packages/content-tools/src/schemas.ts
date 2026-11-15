@@ -145,6 +145,7 @@ export const serviceSchema = {
     legitimate: { type: "boolean" },
     once: { type: "boolean" },
     requires: { type: "array" },
+    freeWhen: { type: "array" },
     effects: { type: "array" },
     successText: { type: "string" },
     refusals: {

@@ -228,5 +228,17 @@
         ]
       }
     ]
+  },
+  {
+    "id": "quill_opens_hollow",
+    "on": "Custom",
+    "match": {
+      "name": "quill_opens_hollow"
+    },
+    "effects": [
+      {
+        "unlock_door": "door_hollow"
+      }
+    ]
   }
 ]

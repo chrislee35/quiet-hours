@@ -1,0 +1,58 @@
+[
+  {
+    "id": "track_interlock",
+    "title": "Dispatcher's interlock",
+    "puzzle": "dispatch_interlock",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_district": [
+          "underworks",
+          "trains",
+          "off"
+        ]
+      },
+      {
+        "give_clue": {
+          "id": "train_cycle",
+          "from": "track_interlock"
+        }
+      }
+    ],
+    "solvedText": "The interlock cannot decide whether the block is red or green, so it decides nothing. Every train in the tunnel stops where it is, doors open, lamps dark."
+  },
+  {
+    "id": "signal_box",
+    "title": "The Conductor's timetable",
+    "puzzle": "corrupt_timetable",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_flag": [
+          "conductor_fixed",
+          true
+        ]
+      },
+      {
+        "set_flag": [
+          "sq_06_done",
+          true
+        ]
+      },
+      {
+        "adjust_trust": [
+          "conductor",
+          1,
+          "reconciled the timetable"
+        ]
+      },
+      {
+        "give_clue": {
+          "id": "maren_backstory",
+          "from": "conductor"
+        }
+      }
+    ],
+    "solvedText": "The slots separate. Somewhere above you a train that has been standing for eleven years is released."
+  }
+]

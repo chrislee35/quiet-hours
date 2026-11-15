@@ -2,7 +2,7 @@
   {
     "id": "transit_fare",
     "name": "Transit fare",
-    "description": "A ticket on the municipal rail. Needs a record on file.",
+    "description": "A ticket on the municipal rail. Needs a record on file. Free once the Conductor's timetable is fixed.",
     "price": 5,
     "legitimate": true,
     "once": false,
@@ -18,7 +18,12 @@
     "successText": "The turnstile accepts your band and clicks. A ticket prints.",
     "refusals": {
       "null_state": "The turnstile reads your band, finds nothing, and displays: PENDING REVIEW. Please wait for an officer."
-    }
+    },
+    "freeWhen": [
+      {
+        "flag": "conductor_fixed"
+      }
+    ]
   },
   {
     "id": "forge_stacks_pass",

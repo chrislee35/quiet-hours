@@ -1,0 +1,22 @@
+[
+  {
+    "id": "sq_05",
+    "name": "Learn the tunnel trains (Right on Time)",
+    "map": "underworks",
+    "require": [
+      {
+        "flag": "sq_05_done"
+      }
+    ]
+  },
+  {
+    "id": "sq_06",
+    "name": "Fix the Conductor's timetable (Apology, Express)",
+    "map": "underworks",
+    "require": [
+      {
+        "flag": "sq_06_done"
+      }
+    ]
+  }
+]

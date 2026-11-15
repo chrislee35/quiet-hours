@@ -1,0 +1,25 @@
+// Maren Okafor, dispatcher. A mentor candidate; her mentor voicings arrive in T3.7. This is the timetable and tunnel talk.
+npc: maren
+name: Maren Okafor
+start: back [flag:met_maren]
+start: first
+
+node: first
+  on_enter: {flag:met_maren, +clue:train7_gate(maren), +clue:service_platform_unwatched(maren)}
+  maren (blunt): "Dispatch. You are not on my list and I do not mind. Train 7 takes the service staff to the Gate at 13:52. The platform is checked for passes, not faces, from ten to two. Do not quote me."
+  > "What about the tunnel?" -> tunnel
+  > "Goodbye." -> goodbye
+
+node: back
+  maren (blunt): "Timetables do not change because you ask politely."
+  > "What about the tunnel?" -> tunnel
+  > "Goodbye." -> goodbye
+
+node: tunnel
+  on_enter: {+clue:track_interlock(maren), +clue:quill_shortcut(maren), +clue:tunnel_scanners_low(maren)}
+  maren: "Trains in the tunnel every twelve seconds, each at its own point in the cycle. There is a drain under it. And the interlock at the platform end: if you can make it contradict itself, nothing runs. Quill knows the service tunnel east to the Hollow's outer ring. Ask him nicely, or do him a favour."
+  > "Thank you." -> goodbye
+
+node: goodbye
+  maren: "Mind the platform edge."
+  end

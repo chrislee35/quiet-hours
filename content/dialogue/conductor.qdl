@@ -1,0 +1,31 @@
+// The Conductor, the Underworks' train AI. SQ-06 "Apology, Express". Fix the corrupted timetable at the signal box.
+npc: conductor
+name: The Conductor
+start: fixed [flag:conductor_fixed]
+start: back [flag:met_conductor]
+start: first
+
+node: first
+  on_enter: {flag:met_conductor, +clue:conductor_corrupt(conductor), +clue:track_interlock(conductor)}
+  conductor (courteous): "Good day. I regret to inform you that Train 7 has been delayed. It has been delayed since the reorganisation. I am unable to correct the timetable, because the timetable is in conflict with itself, and I am not permitted to prefer one of my trains over another."
+  > "Could someone fix it?" -> fix
+  > "Goodbye." -> goodbye
+
+node: fix
+  on_enter: {flag:sq_06_started}
+  conductor (hopeful): "A person at the signal box could slide the trains until no two share a slot. I am not permitted to touch it. Train 7 must run at 13:52. It has always run at 13:52. The platform window is built around it."
+  > "I will see what I can do." -> back
+
+node: back
+  conductor (courteous): "Train 7 remains delayed."
+  > [!flag:sq_06_started] "Could someone fix the timetable?" -> fix
+  > "Goodbye." -> goodbye
+
+node: fixed
+  on_enter: {+clue:train7_gate(conductor), +clue:maren_backstory(conductor)}
+  conductor (warm): "Train 7 will run at 13:52. I apologise for the delay. I believe Maren Okafor wrote the Gate service window into that line herself, and was moved off it afterwards. I am not permitted to say why. I am permitted to give you free rides on the municipal lines, for as long as the timetable holds."
+  > "Thank you." -> goodbye
+
+node: goodbye
+  conductor: "The next train will be along shortly. Possibly."
+  end

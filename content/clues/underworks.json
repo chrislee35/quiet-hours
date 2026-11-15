@@ -102,5 +102,71 @@
     "for": [
       "route:sneak"
     ]
+  },
+  {
+    "id": "train_cycle",
+    "text": "Every train in the tunnel runs the same twelve-second cycle (seven open, five a train), but each one starts at a different point, and the points change from one day to the next.",
+    "source": "scene:signal_lamps",
+    "reliability": "true",
+    "tags": [
+      "place:underworks",
+      "schedule:tunnel_trains"
+    ],
+    "links": [],
+    "for": [
+      "side:sq_05"
+    ]
+  },
+  {
+    "id": "track_interlock",
+    "text": "The dispatcher's interlock at the platform end can be made to contradict itself, and a track that cannot decide leaves every train standing.",
+    "source": "npc:maren",
+    "reliability": "true",
+    "tags": [
+      "place:underworks",
+      "topic:logic"
+    ],
+    "links": [],
+    "alsoFrom": [
+      "npc:conductor"
+    ],
+    "for": [
+      "route:sneak"
+    ]
+  },
+  {
+    "id": "conductor_corrupt",
+    "text": "The Conductor's timetable has been corrupted: two trains are booked into the same slot, and it will not run any of them until someone reconciles it.",
+    "source": "npc:conductor",
+    "reliability": "true",
+    "tags": [
+      "person:conductor",
+      "place:underworks"
+    ],
+    "links": [],
+    "for": [
+      "side:sq_06"
+    ]
+  },
+  {
+    "id": "maren_backstory",
+    "text": "Maren was dispatcher when the Gate's service line was last reorganised. She wrote the platform window into the timetable herself, and then she was moved off the line.",
+    "source": "npc:conductor",
+    "reliability": "true",
+    "tags": [
+      "person:maren",
+      "place:gate",
+      "topic:backstory"
+    ],
+    "links": [
+      {
+        "to": "service_platform_unwatched",
+        "kind": "supports"
+      }
+    ],
+    "for": [
+      "side:sq_06",
+      "mentor"
+    ]
   }
 ]

@@ -4,6 +4,7 @@ import stacksSlice from "../../../content/maps/stacks_slice.json" with { type: "
 import stacks from "../../../content/maps/stacks.json" with { type: "json" };
 import civicCore from "../../../content/maps/civic_core.json" with { type: "json" };
 import belt from "../../../content/maps/belt.json" with { type: "json" };
+import underworks from "../../../content/maps/underworks.json" with { type: "json" };
 import robotRange from "../../../content/maps/robot_range.json" with { type: "json" };
 import startState from "../../../content/start.json" with { type: "json" };
 import { loadContent } from "./content.ts";
@@ -29,10 +30,10 @@ const config = validateConfig(tuning);
 // Every map is built up front so the player can travel between them. The Stacks is the opening; `?map=slice`, `?map=range`
 // or `?map=civic_core` start somewhere else (each start map keeps its own saves).
 const worlds = Object.fromEntries(
-  Object.entries({ stacks, stacks_slice: stacksSlice, robot_range: robotRange, civic_core: civicCore, belt }).map(([id, raw]) => [id, buildWorld(importTiled(raw, id))]),
+  Object.entries({ stacks, stacks_slice: stacksSlice, robot_range: robotRange, civic_core: civicCore, belt, underworks }).map(([id, raw]) => [id, buildWorld(importTiled(raw, id))]),
 );
 const mapParam = new URLSearchParams(location.search).get("map");
-const startMap = mapParam === "range" ? "robot_range" : mapParam === "slice" ? "stacks_slice" : mapParam === "civic" ? "civic_core" : mapParam === "belt" ? "belt" : "stacks";
+const startMap = mapParam === "range" ? "robot_range" : mapParam === "slice" ? "stacks_slice" : mapParam === "civic" ? "civic_core" : mapParam === "belt" ? "belt" : mapParam === "underworks" ? "underworks" : "stacks";
 const sim = new Sim(config, Date.now() >>> 0, { worlds, startMap, content: loadContent() });
 const host = document.getElementById("game");
 if (!host) throw new Error("missing #game element");

@@ -36,7 +36,9 @@ export function machinerySystem(ctx: Ctx): void {
     if (!def.cycle) continue;
     const running = def.runsWhen ? isActive(state, parseActiveWhen(def.runsWhen), config) : true;
     const period = Math.round((def.cycle.openSeconds + def.cycle.closedSeconds) * tps);
-    const inCycle = (state.tick + Math.round(def.cycle.offsetSeconds * tps)) % period;
+    // A seeded machine (a train) keeps its own phase for the run: scrambled from the seed and the door, never from chance.
+    const phase = def.cycle.seeded ? seededPhase(state.seed, def.id, period) : Math.round(def.cycle.offsetSeconds * tps);
+    const inCycle = (state.tick + phase) % period;
     const shouldBeOpen = !running || inCycle < Math.round(def.cycle.openSeconds * tps);
     if (shouldBeOpen) door.open = true;
     else if (door.open) {
@@ -62,3 +64,11 @@ export function timerSystem(ctx: Ctx): void {
 export const dueIn = (tick: number, minutes: number, config: Parameters<typeof ticksPerGameMinute>[0]): number => tick + Math.round(minutes * ticksPerGameMinute(config));
 
 
+
+/** A phase in 0..period-1 fixed by the seed and the machine's id (an FNV-1a mix). */
+export function seededPhase(seed: number, id: string, period: number): number {
+  let h = (2166136261 ^ seed) >>> 0;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619) >>> 0;
+  h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0;
+  return h % period;
+}

@@ -143,5 +143,13 @@
     "stackable": false,
     "tags": [],
     "description": "Dented, heavy, and still warm somehow. Gus Varga has been missing it since the spring."
+  },
+  {
+    "id": "quill_token",
+    "name": "Quill's token",
+    "type": "junk",
+    "stackable": false,
+    "tags": [],
+    "description": "A brass tag stamped with a train that does not exist. Quill left it on the grate at Platform A."
   }
 ]

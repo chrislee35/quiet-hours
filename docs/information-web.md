@@ -12,8 +12,8 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 
 ## At a glance
 
-- **96 clues** in the main web, 47 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
-- Of the main web:  true 78 (81%), outdated 6, false 8, planted 4.
+- **100 clues** in the main web, 47 of them critical, plus **28 optional gossip clues** (see "Optional gossip": nothing in the game depends on them).
+- Of the main web:  true 82 (82%), outdated 6, false 8, planted 4.
 - **21 corrections** (a clue that contradicts or updates another): the cross-checking puzzles.
 
 ### What each way forward needs
@@ -28,15 +28,17 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | halloran | 2 | 0 |  |
 | hollow | 4 | 2 |  |
 | lull | 3 | 2 |  |
-| mentor | 7 | 2 |  |
+| mentor | 8 | 2 |  |
 | past | 18 | 13 | 6 |
 | quest:sq_04 | 1 | 0 |  |
 | route:break | 11 | 8 | 4 |
 | route:hack | 11 | 11 | 5 |
-| route:sneak | 21 | 9 | 4 |
+| route:sneak | 22 | 9 | 4 |
 | side:sq_01 | 6 | 0 |  |
 | side:sq_02 | 2 | 0 |  |
 | side:sq_03 | 1 | 0 |  |
+| side:sq_05 | 1 | 0 |  |
+| side:sq_06 | 2 | 0 |  |
 | slice | 1 | 0 |  |
 | world | 6 | 0 |  |
 
@@ -51,20 +53,20 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | Silas Brandt | 10 | 8% |
 | Dov Anselm | 9 |  |
 | Ines Calloway | 7 | 4% |
+| Maren Okafor | 7 | 4% |
 | Marrow | 7 | 12% |
 | Pallas | 7 | 27% |
 | Gus Varga | 6 | 4% |
-| Maren Okafor | 6 | 4% |
 | Doc Perrin | 5 |  |
 | Mrs. Adeyemi-Roth | 5 | 4% |
 | Quill | 5 | 4% |
 | Bede | 4 |  |
 | Brindle | 4 | 8% |
+| The Conductor | 4 |  |
 | The Host | 4 |  |
 | Case Officer Halloran-7 | 2 |  |
 | Teeter | 2 |  |
 | Ticket | 2 |  |
-| The Conductor | 1 |  |
 | Lila Voss | 1 |  |
 | Odile Marchetti | 1 |  |
 
@@ -213,6 +215,10 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | `quill_shortcut` **!** | Quill knows a service tunnel from the Underworks to the Hollow's outer ring. | Quill; Maren Okafor | true |  | companion:june, route:sneak |
 | `tunnel_scanners_low` **!** | The scanners in Quill's tunnel are set low enough that a child can pass beneath them. | Quill; Maren Okafor | true | supports `quill_shortcut` | companion:june |
 | `service_platform_unwatched` **!** | The Gate's service platform is checked for passes, not faces, between 13:50 and 14:10. | Maren Okafor; Tobias Hale | true | supports `train7_gate` | route:sneak |
+| `train_cycle` | Every train in the tunnel runs the same twelve-second cycle (seven open, five a train), but each one starts at a different point, and the points change from one day to the next. | scene:signal_lamps | true |  | side:sq_05 |
+| `track_interlock` | The dispatcher's interlock at the platform end can be made to contradict itself, and a track that cannot decide leaves every train standing. | Maren Okafor; The Conductor | true |  | route:sneak |
+| `conductor_corrupt` | The Conductor's timetable has been corrupted: two trains are booked into the same slot, and it will not run any of them until someone reconciles it. | The Conductor | true |  | side:sq_06 |
+| `maren_backstory` | Maren was dispatcher when the Gate's service line was last reorganised. She wrote the platform window into the timetable herself, and then she was moved off the line. | The Conductor | true | supports `service_platform_unwatched` | side:sq_06, mentor |
 
 ## Optional gossip
 

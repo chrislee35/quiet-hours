@@ -172,9 +172,9 @@ export function importTiled(raw: unknown, id: string): MapData {
       const unl = prop(o, "unlockedWhen");
       let cycle: DoorDef["cycle"];
       if (typeof cyc === "string") {
-        const m = cyc.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?$/);
+        const m = cyc.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?|seed))?$/);
         if (!m || Number(m[1]) <= 0 || Number(m[2]) <= 0) errors.push(`door "${oid}" has a bad cycle "${cyc}" (expected open/closed or open/closed/offset, in seconds)`);
-        else cycle = { openSeconds: Number(m[1]), closedSeconds: Number(m[2]), offsetSeconds: Number(m[3] ?? 0) };
+        else cycle = { openSeconds: Number(m[1]), closedSeconds: Number(m[2]), offsetSeconds: m[3] === "seed" ? 0 : Number(m[3] ?? 0), ...(m[3] === "seed" ? { seeded: true } : {}) };
       }
       for (const [name, v] of [["runsWhen", runs], ["unlockedWhen", unl]] as const) {
         if (typeof v === "string" && !parseActiveWhen(v)) errors.push(`door "${oid}" has a bad ${name} "${v}" (expected "district:key=value" or "time:HH:MM-HH:MM")`);

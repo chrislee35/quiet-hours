@@ -1,0 +1,52 @@
+// Quill, tunnel runner at the Underworks junction. SQ-05 "Right on Time". Leads to the Hollow's service tunnel if trusted.
+npc: quill
+name: Quill
+start: done [flag:sq_05_done]
+start: back [flag:met_quill]
+start: first
+
+node: first
+  on_enter: {flag:met_quill, +clue:train7_old(quill)}
+  quill (quick): "Do not stand there. The tunnel runs a train every twelve seconds and none of them has ever apologised. You came through it? Then you are lucky or you are a clock."
+  > "Is there another way?" -> sewer
+  > "Can you show me a safe way through?" -> offer
+  > "Goodbye." -> goodbye
+
+node: back
+  quill (quick): "Still alive. Good. Tunnel, drain, or a favour?"
+  > "Is there another way?" -> sewer
+  > [!flag:sq_05_started] "Can you show me a safe way through?" -> offer
+  > [flag:sq_05_started, !item:quill_token] "Where was the token?" -> token
+  > [item:quill_token, clue:train_cycle] "I have your token. And the trains: twelve seconds each, seven open and five a train, and each one starts at a different point." {-item:quill_token, flag:sq_05_done, trust:quill+1(passed the test), +clue:quill_shortcut, +clue:tunnel_scanners_low, flag:quill_opens_hollow, emit:quill_opens_hollow} -> passed
+  > [item:quill_token, !clue:train_cycle] "I have your token." -> notyet
+  > "Goodbye." -> goodbye
+
+node: sewer
+  quill: "The drain runs under the tunnel, platform to junction. No trains. One warden on a loop and a great deal of water. Ankle-deep, mostly."
+  > "Thank you." -> back
+
+node: offer
+  on_enter: {flag:sq_05_started}
+  quill (grinning): "A test. I left a token on the grate at Platform A. Bring it here. Then tell me what the trains are doing, because every day they start at a different point and nobody has noticed but me. Watch the lamps by the junction until you see it."
+  > "Right." -> back
+
+node: token
+  quill: "On the grate at the west end of Platform A. Watch the signal lamps here at the junction too. They tell you the rest."
+  > "Right." -> back
+
+node: notyet
+  quill (flat): "A token is a token. Tell me what the trains do. Watch the lamps."
+  > "Right." -> back
+
+node: passed
+  quill (delighted): "Twelve seconds, seven and five, and every one on its own point. Nobody listens. Come on: there is a service tunnel east of here that goes out to the Hollow's outer ring. The scanners in it sit low, low enough for a child. I am opening it for you. Do not make me regret it."
+  > "Thank you." -> done
+
+node: done
+  quill (quick): "The east door is open. Mind the trains on your way back."
+  > "Is there another way?" -> sewer
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  quill: "Mind the trains."
+  end

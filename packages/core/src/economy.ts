@@ -28,6 +28,8 @@ export interface ServiceDef {
   /** Can only be used once per game. */
   once: boolean;
   requires: Condition[];
+  /** The price is waived while these hold (a free pass for the run). */
+  freeWhen?: Condition[];
   effects: Effect[];
   successText: string;
   /** Lines for each way it can be refused; sensible defaults apply to any left out. */
@@ -44,6 +46,11 @@ export interface Loan {
 
 export type ServiceRefusal = "unknown" | "null_state" | "requirements" | "funds" | "once";
 
+/** What the service costs right now. */
+export function priceOf(state: Readonly<SimState>, content: Content, config: Config, s: ServiceDef): number {
+  return s.freeWhen && s.freeWhen.length > 0 && evalAll(s.freeWhen, state, config, content) ? 0 : s.price;
+}
+
 export type ServiceStatus = { ok: true } | { ok: false; reason: ServiceRefusal; text: string };
 
 const doneFlag = (id: string) => `service_done_${id}`;
@@ -57,7 +64,7 @@ export function serviceStatus(state: Readonly<SimState>, content: Content, confi
   }
   if (s.once && state.flags[doneFlag(id)]) return { ok: false, reason: "once", text: r.once ?? "That has already been done." };
   if (!evalAll(s.requires, state, config, content)) return { ok: false, reason: "requirements", text: r.requirements ?? "You do not meet the requirements." };
-  if (state.inventory.credits < s.price) return { ok: false, reason: "funds", text: r.funds ?? `That costs ${s.price} credits.` };
+  if (state.inventory.credits < priceOf(state, content, config, s)) return { ok: false, reason: "funds", text: r.funds ?? `That costs ${s.price} credits.` };
   return { ok: true };
 }
 
@@ -71,10 +78,11 @@ export function useService(state: SimState, content: Content, config: Config, ev
     return false;
   }
   const s = content.services[id]!;
-  if (s.price > 0) applyEffects([{ add_credits: -s.price }], state, events, config, content);
+  const price = priceOf(state, content, config, s);
+  if (price > 0) applyEffects([{ add_credits: -price }], state, events, config, content);
   if (s.once) state.flags[doneFlag(id)] = true;
   applyEffects(s.effects, state, events, config, content);
-  events.push({ type: "ServiceUsed", tick, serviceId: id, price: s.price });
+  events.push({ type: "ServiceUsed", tick, serviceId: id, price });
   if (state.conversation && s.successText) state.conversation.notice = s.successText;
   return true;
 }

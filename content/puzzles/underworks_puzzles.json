@@ -1,0 +1,129 @@
+[
+  {
+    "id": "corrupt_timetable",
+    "kind": "schedule_align",
+    "slots": 10,
+    "labels": [
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15"
+    ],
+    "exclusive": true,
+    "tracks": [
+      {
+        "id": "t3",
+        "name": "Train 3 (Belt)",
+        "pattern": "#.#.......",
+        "locked": true
+      },
+      {
+        "id": "t5",
+        "name": "Train 5 (Civic)",
+        "pattern": "##........"
+      },
+      {
+        "id": "t7",
+        "name": "Train 7 (Gate service)",
+        "pattern": ".#.......#"
+      },
+      {
+        "id": "t9",
+        "name": "Train 9 (freight)",
+        "pattern": "#.........",
+        "shift": 0
+      }
+    ],
+    "require": [
+      {
+        "track": "t7",
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": "dispatch_interlock",
+    "kind": "rule_contradiction",
+    "inputs": [
+      {
+        "id": "night",
+        "name": "It is night",
+        "value": true,
+        "locked": true
+      },
+      {
+        "id": "works",
+        "name": "Track works are open"
+      },
+      {
+        "id": "freight",
+        "name": "A freight is booked"
+      },
+      {
+        "id": "passenger",
+        "name": "A passenger is booked"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "signal",
+        "name": "Block signal"
+      },
+      {
+        "id": "brake",
+        "name": "Brakes"
+      }
+    ],
+    "rules": [
+      {
+        "id": "r1",
+        "text": "Open track works hold the block signal at red.",
+        "if": {
+          "works": true
+        },
+        "then": {
+          "signal": false
+        }
+      },
+      {
+        "id": "r2",
+        "text": "A booked freight is given a green block.",
+        "if": {
+          "freight": true
+        },
+        "then": {
+          "signal": true
+        }
+      },
+      {
+        "id": "r3",
+        "text": "At night a booked passenger is given a green block.",
+        "if": {
+          "night": true,
+          "passenger": true
+        },
+        "then": {
+          "signal": true
+        }
+      },
+      {
+        "id": "r4",
+        "text": "Brakes are applied whenever the block is red.",
+        "if": {
+          "works": true,
+          "night": true
+        },
+        "then": {
+          "brake": true
+        }
+      }
+    ],
+    "goal": "signal"
+  }
+]
