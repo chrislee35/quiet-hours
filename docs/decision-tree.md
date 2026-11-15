@@ -137,6 +137,47 @@ flowchart TD
   classDef planned stroke-dasharray:5 4,fill-opacity:0.5
 ```
 
+## Pallas and the one inventory puzzle
+
+Pallas is a candidate companion. Her trust moves a step at a time and is always recoverable; taking her out needs a repaired drive, a cargo tag and her consent. The parts are the game's single inventory puzzle.
+
+```mermaid
+flowchart TD
+  n_meet["Meet Pallas in the Safehouse"]
+  n_want["What do you want, Pallas?"]
+  n_allowed["You are allowed to want anything: trust up"]
+  n_dismiss["You are a maintenance unit: trust down"]
+  n_apology["Apologise: trust recovers"]
+  n_parts["Gather parts: coupler (scrap pile or Brindle), memory shard (archive or Perrin), Form 12-C (rack or Ines), permit stamp"]
+  n_bench["Doc Perrin's bench: build the drive and press the tag"]
+  n_fixed["Her drive is repaired: trust up"]
+  n_consent["Ask her to be registered as cargo (needs her trust)"]
+  n_cargo["Registered as cargo: she can pass the Gate as equipment"]
+  n_gate["At the Gate: trusts you, repaired, registered (CMP-5)"]
+  n_meet --> n_want
+  n_want -->|honest| n_allowed
+  n_want -->|dismissive| n_dismiss
+  n_dismiss --> n_apology
+  n_apology -->|back to unsure| n_want
+  n_meet --> n_parts
+  n_parts --> n_bench
+  n_bench --> n_fixed
+  n_allowed --> n_consent
+  n_fixed --> n_consent
+  n_consent --> n_cargo
+  n_cargo -.-> n_gate
+  class n_want,n_apology,n_bench,n_consent decision
+  class n_allowed,n_dismiss,n_fixed,n_gate outcome
+  class n_cargo achievement
+  class n_meet,n_parts state
+  class n_gate planned
+  classDef decision fill:#fff3c4,stroke:#b58900,color:#222
+  classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
+  classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222
+  classDef state fill:#eeeeee,stroke:#777,color:#222
+  classDef planned stroke-dasharray:5 4,fill-opacity:0.5
+```
+
 ## Choices that change the world
 
 Things the player does that the city, the Belt and the Underworks remember.

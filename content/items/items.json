@@ -151,5 +151,45 @@
     "stackable": false,
     "tags": [],
     "description": "A brass tag stamped with a train that does not exist. Quill left it on the grate at Platform A."
+  },
+  {
+    "id": "drive_coupler",
+    "name": "Drive coupler",
+    "type": "junk",
+    "stackable": false,
+    "tags": [],
+    "description": "A cracked-looking coupling that is not cracked at all. It would fit a maintenance unit's drive."
+  },
+  {
+    "id": "memory_shard",
+    "name": "Memory shard",
+    "type": "junk",
+    "stackable": false,
+    "tags": [],
+    "description": "A sliver of clean storage, the kind that holds a robot's sense of itself."
+  },
+  {
+    "id": "cargo_form",
+    "name": "Form 12-C: Cargo Declaration",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "A form declaring that a thing is equipment. It has a box for the thing's feelings, which is struck through."
+  },
+  {
+    "id": "repaired_drive",
+    "name": "Repaired drive",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "Pallas's new drive, assembled on Doc Perrin's bench. It hums."
+  },
+  {
+    "id": "cargo_tag",
+    "name": "Cargo tag",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "A stamped tag that makes a robot an object, for the Gate's scanners."
   }
 ]

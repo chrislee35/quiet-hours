@@ -28,6 +28,8 @@ export interface ServiceDef {
   /** Can only be used once per game. */
   once: boolean;
   requires: Condition[];
+  /** Part of the game's single inventory puzzle (PUZ-2): the id names the puzzle these recipes belong to. */
+  inventoryPuzzle?: string;
   /** Cheaper prices while conditions hold (a mentor's perk, a free pass for the run); the lowest that applies wins. */
   discounts?: { when: Condition[]; price: number }[];
   effects: Effect[];

@@ -271,5 +271,105 @@
       }
     ],
     "successText": "The checker's lamp turns green. Somewhere a log records that the old auditor has come back."
+  },
+  {
+    "id": "craft_repaired_drive",
+    "name": "Build Pallas's drive",
+    "description": "Assemble a repaired drive from a coupler and a memory shard on Doc Perrin's bench.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "inventoryPuzzle": "pallas_repair",
+    "requires": [
+      {
+        "has_item": "drive_coupler"
+      },
+      {
+        "has_item": "memory_shard"
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "drive_coupler",
+          1
+        ]
+      },
+      {
+        "remove_item": [
+          "memory_shard",
+          1
+        ]
+      },
+      {
+        "add_item": [
+          "repaired_drive",
+          1
+        ]
+      }
+    ],
+    "successText": "The coupler seats with a click. The shard goes in. The drive hums."
+  },
+  {
+    "id": "craft_cargo_tag",
+    "name": "Press a cargo tag",
+    "description": "Press a cargo tag from a Form 12-C and a permit stamp on Doc Perrin's bench.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "inventoryPuzzle": "pallas_repair",
+    "requires": [
+      {
+        "has_item": "cargo_form"
+      },
+      {
+        "has_item": "permit_stamp"
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "cargo_form",
+          1
+        ]
+      },
+      {
+        "remove_item": [
+          "permit_stamp",
+          1
+        ]
+      },
+      {
+        "add_item": [
+          "cargo_tag",
+          1
+        ]
+      }
+    ],
+    "successText": "Doc Perrin stamps the form and the form becomes a tag. It does not look like much. That is the point."
+  },
+  {
+    "id": "buy_memory_shard",
+    "name": "A memory shard",
+    "description": "Doc Perrin has one in a drawer, and no questions to ask about it.",
+    "price": 25,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "not": {
+          "has_item": "memory_shard"
+        }
+      }
+    ],
+    "effects": [
+      {
+        "add_item": [
+          "memory_shard",
+          1
+        ]
+      }
+    ],
+    "successText": "Perrin slides it across without looking at it."
   }
 ]

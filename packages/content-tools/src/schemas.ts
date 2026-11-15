@@ -145,6 +145,7 @@ export const serviceSchema = {
     legitimate: { type: "boolean" },
     once: { type: "boolean" },
     requires: { type: "array" },
+    inventoryPuzzle: { type: "string" },
     discounts: { type: "array", items: { type: "object", additionalProperties: false, required: ["when", "price"], properties: { when: { type: "array" }, price: { type: "integer", minimum: 0 } } } },
     effects: { type: "array" },
     successText: { type: "string" },

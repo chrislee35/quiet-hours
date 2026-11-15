@@ -22,6 +22,11 @@ node: back
 node: job
   on_enter: {+clue:permit_levels(ines), +clue:annex_pass(ines)}
   ines: "I read permits aloud for people who cannot. Level one gets you the plaza. Level two gets you the annex, and a pass for it is one signature from a form nobody reads. I never said that."
+  > [!item:cargo_form] "Could you spare a cargo declaration, Form 12-C?" {+item:cargo_form} -> form
+  > "Thank you." -> goodbye
+
+node: form
+  ines (dry): "Form 12-C. It has a box for the item's feelings, which someone has struck through. Do not ask who. Here."
   > "Thank you." -> goodbye
 
 node: minor

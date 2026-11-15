@@ -9,6 +9,7 @@ node: first
   doc_perrin (distracted): "Do not touch the pigeon. Statistic is thinking. ...Yes, you can talk to me. Perrin. Doc, if I must be. I put things in people's wrist bands that the city would rather I did not."
   > "What can you put in mine?" -> wares
   > "What is wrong with the pigeon?" -> pigeon
+  > "I need the bench." -> bench
   > "Goodbye." -> goodbye
 
 node: pigeon
@@ -35,7 +36,20 @@ node: lens
 node: back
   doc_perrin (distracted): "Yes? ...Oh, you. Statistic says hello."
   > "What can you put in my band?" -> wares
+  > "I need the bench." -> bench
   > "Goodbye." -> goodbye
+
+node: bench
+  on_enter: {flag:perrin_knows_parts}
+  doc_perrin (interested): "Ah. Pallas. A coupler and a memory shard make a drive. A Form 12-C and a permit stamp make a cargo tag. I do not ask what the tag is for. Bring me the parts."
+  > [can:craft_repaired_drive] "Build the drive." {service:craft_repaired_drive} -> built
+  > [can:craft_cargo_tag] "Press the tag." {service:craft_cargo_tag} -> built
+  > [credits>=25, !item:memory_shard] "Do you have a memory shard? (25 credits)" {service:buy_memory_shard} -> built
+  > "Not yet." -> goodbye
+
+node: built
+  doc_perrin (pleased): "There. Statistic approves. Statistic approves of very little."
+  > "Thank you." -> goodbye
 
 node: goodbye
   doc_perrin: "Mind the bands. And the pigeon."

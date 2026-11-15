@@ -464,6 +464,142 @@
       ]
     },
     {
+      "id": "pallas",
+      "title": "Pallas and the one inventory puzzle",
+      "intro": "Pallas is a candidate companion. Her trust moves a step at a time and is always recoverable; taking her out needs a repaired drive, a cargo tag and her consent. The parts are the game's single inventory puzzle.",
+      "nodes": [
+        {
+          "id": "meet",
+          "label": "Meet Pallas in the Safehouse",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "met_pallas"
+        },
+        {
+          "id": "want",
+          "label": "What do you want, Pallas?",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "pallas_asked_want"
+        },
+        {
+          "id": "allowed",
+          "label": "You are allowed to want anything: trust up",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "pallas_asked_want"
+        },
+        {
+          "id": "dismiss",
+          "label": "You are a maintenance unit: trust down",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "pallas_asked_want"
+        },
+        {
+          "id": "apology",
+          "label": "Apologise: trust recovers",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "pallas_asked_want"
+        },
+        {
+          "id": "parts",
+          "label": "Gather parts: coupler (scrap pile or Brindle), memory shard (archive or Perrin), Form 12-C (rack or Ines), permit stamp",
+          "kind": "state",
+          "status": "implemented",
+          "flag": "pallas_arc_started"
+        },
+        {
+          "id": "bench",
+          "label": "Doc Perrin's bench: build the drive and press the tag",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "pallas_arc_started"
+        },
+        {
+          "id": "fixed",
+          "label": "Her drive is repaired: trust up",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "pallas_repaired"
+        },
+        {
+          "id": "consent",
+          "label": "Ask her to be registered as cargo (needs her trust)",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "registered_as_cargo"
+        },
+        {
+          "id": "cargo",
+          "label": "Registered as cargo: she can pass the Gate as equipment",
+          "kind": "achievement",
+          "status": "implemented",
+          "flag": "registered_as_cargo"
+        },
+        {
+          "id": "gate",
+          "label": "At the Gate: trusts you, repaired, registered (CMP-5)",
+          "kind": "outcome",
+          "status": "planned"
+        }
+      ],
+      "edges": [
+        {
+          "from": "meet",
+          "to": "want"
+        },
+        {
+          "from": "want",
+          "to": "allowed",
+          "label": "honest"
+        },
+        {
+          "from": "want",
+          "to": "dismiss",
+          "label": "dismissive"
+        },
+        {
+          "from": "dismiss",
+          "to": "apology"
+        },
+        {
+          "from": "apology",
+          "to": "want",
+          "label": "back to unsure"
+        },
+        {
+          "from": "meet",
+          "to": "parts"
+        },
+        {
+          "from": "parts",
+          "to": "bench"
+        },
+        {
+          "from": "bench",
+          "to": "fixed"
+        },
+        {
+          "from": "allowed",
+          "to": "consent"
+        },
+        {
+          "from": "fixed",
+          "to": "consent"
+        },
+        {
+          "from": "consent",
+          "to": "cargo"
+        },
+        {
+          "from": "cargo",
+          "to": "gate"
+        }
+      ]
+    },
+    {
       "id": "world",
       "title": "Choices that change the world",
       "intro": "Things the player does that the city, the Belt and the Underworks remember.",

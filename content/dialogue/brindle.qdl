@@ -23,7 +23,12 @@ node: node4
 
 node: free
   brindle (soft): "Unit 7, unqueued. (hum) It has a second verse. I will find it."
+  > [!flag:brindle_gave, !item:drive_coupler] "Pallas needs a coupler. Do you have one?" {flag:brindle_gave, +item:drive_coupler, +clue:pallas_cargo(brindle)} -> coupler
   > "Goodbye." -> goodbye
+
+node: coupler
+  brindle (warm): "Pallas! Yes. A coupler: I keep one in my housing for emergencies. Tell Pallas the second verse is coming."
+  > "I will." -> goodbye
 
 node: lost
   brindle: "UNIT 7. SCRAPPED."

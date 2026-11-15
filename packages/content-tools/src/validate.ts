@@ -159,6 +159,21 @@ export function validateContent(bundle: ContentBundle): Issue[] {
     }
   }
 
+  // The single inventory puzzle (PUZ-2): exactly one puzzle is built from recipes, and every part it asks for can be had.
+  const recipes = entities.services.filter(({ entity }) => entity.inventoryPuzzle !== undefined);
+  const puzzleIds = new Set(recipes.map(({ entity }) => String(entity.inventoryPuzzle)));
+  if (puzzleIds.size !== 1) issues.push({ file: "services", message: `the game has exactly one inventory puzzle (PUZ-2); found ${puzzleIds.size}${puzzleIds.size ? `: ${[...puzzleIds].join(", ")}` : ""}` });
+  const itemSources = new Set<string>();
+  for (const { text } of bundle.dialogues) for (const m of text.matchAll(/\+item:([a-z][a-z0-9_]*)/g)) itemSources.add(m[1]!);
+  for (const { map } of mapData) for (const p of map.pickups ?? []) for (const part of p.grant.split("+")) { const [k, id] = part.split(":"); if (k === "item" && id) itemSources.add(id); }
+  for (const { entity } of entities.services) for (const e of entity.effects as { add_item?: [string, number] }[]) if (e.add_item) itemSources.add(e.add_item[0]);
+  for (const { file, entity } of recipes) {
+    for (const c of entity.requires as { has_item?: string | [string, number] }[]) {
+      const id = Array.isArray(c.has_item) ? c.has_item[0] : c.has_item;
+      if (id && !itemSources.has(id)) issues.push({ file, message: `inventory puzzle recipe "${entity.id}" needs "${id}", which nothing ever gives the player` });
+    }
+  }
+
   // Trust must always be recoverable: anyone whose trust can be lowered must be someone it can be raised with.
   for (const npc of unrecoverableTrust(compiled.map((c) => c.dialogue))) {
     issues.push({ file: `npc ${npc}`, message: `trust in "${npc}" can be lowered but there is no way to raise it from the worst state (CMP-4)` });

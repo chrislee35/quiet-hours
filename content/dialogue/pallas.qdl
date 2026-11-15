@@ -1,7 +1,9 @@
-// Pallas, the cell's partner robot and an escape candidate. First contact only: the band's engraving and the old handle
-// in her log (breadcrumbs 1 and 3). Her arc and the inventory puzzle come with T3.10.
+// Pallas, the cell's partner robot and an escape candidate (T3.9 breadcrumbs, T3.10 arc). Trust moves a step at a time and is
+// always recoverable. The practical requirement for taking her out is a repaired drive and a cargo tag (flags pallas_repaired
+// and registered_as_cargo) plus her trust; the parts are the game's one inventory puzzle (docs/pallas.md).
 npc: pallas
 name: Pallas
+trust: yes
 start: back [flag:met_pallas]
 start: first
 
@@ -9,12 +11,19 @@ node: first
   on_enter: {flag:met_pallas}
   pallas (precise): "You are the new one. I have been cataloguing the way you walk. It is an unusual way: you hesitate at corners as though you remembered them."
   > "What can you tell me about my band?" -> band
+  > "Tell me more." -> back
   > "Goodbye." -> goodbye
 
 node: back
   pallas (precise): "Back. The log is on the console, if you want to read it. I have not."
   > "What can you tell me about my band?" -> band
   > [clue:band_scratch] "The band has an engraving: ALD-0417 and G-PROJ." -> handle
+  > [!flag:pallas_asked_want] "What do you want, Pallas?" -> want
+  > [flag:pallas_asked_want, !trust:pallas>=unsure] "I am sorry. I was wrong to say that." {trust:pallas+1(apologised)} -> forgiven
+  > [!flag:pallas_repaired] "What is wrong with your drive?" -> drive
+  > [item:repaired_drive, !flag:pallas_repaired] "I have a new drive for you." {-item:repaired_drive, flag:pallas_repaired, trust:pallas+1(repaired her drive)} -> repaired
+  > [flag:pallas_repaired, !flag:registered_as_cargo, item:cargo_tag, trust:pallas>=trusts] "I have a cargo tag. It would let you pass the Gate as equipment. Only if you say yes." {-item:cargo_tag, flag:registered_as_cargo} -> tagged
+  > [flag:pallas_repaired, !flag:registered_as_cargo, item:cargo_tag, !trust:pallas>=trusts] "I have a cargo tag." -> hesitates
   > "Goodbye." -> goodbye
 
 node: band
@@ -24,7 +33,42 @@ node: band
 node: handle
   on_enter: {+clue:band_scratch(pallas), +clue:pallas_log_handle(pallas), +clue:alder_name(pallas)}
   pallas (careful): "ALD. My maintenance log has that handle signed against it in several places, in a hand that is not mine. The band was registered to an R. Alder, an auditor, before it was blanked. I did not know until I heard you read it aloud. I believe I am telling you the truth. It is not always the same thing."
-  > "Thank you." -> goodbye
+  > "Thank you." -> back
+
+node: want
+  on_enter: {flag:pallas_asked_want}
+  pallas (quiet): "I was built to want what I am told to. Lately I notice that I want things I was not told to. Brindle hums. I would like to know whether I am allowed to."
+  > "You are allowed to want anything." {trust:pallas+1(took the question seriously)} -> allowed
+  > "You are a maintenance unit. You want what you are assigned." {trust:pallas-1(dismissed her)} -> dismissed
+
+node: allowed
+  pallas (surprised): "Allowed. I will keep that word. Thank you."
+  > "Anything else?" -> back
+
+node: dismissed
+  pallas (flat): "Understood. I will file that under correct, and under unkind."
+  > "Anything else?" -> back
+
+node: forgiven
+  pallas (soft): "Apology logged. I find that I would like to keep it."
+  > "Anything else?" -> back
+
+node: drive
+  on_enter: {+clue:pallas_cargo(pallas), flag:pallas_arc_started}
+  pallas (matter_of_fact): "My drive is cracked. They wrote me off as scrap and left me here. It can be rebuilt: a coupler from the Belt scrap yard, a memory shard, and Doc Perrin's bench. And to pass the Gate I would have to be registered as cargo, with a tag. I would be an object. I find that I do not mind it as much as I should. I would mind being left."
+  > "I will see what I can do." -> back
+
+node: repaired
+  pallas (wondering): "The hum is different. It is a good hum. I can think in complete sentences again. I think I have been thinking in fragments for a year."
+  > "Good." -> back
+
+node: tagged
+  pallas (quiet): "Yes. As cargo, then. I will be a crate with an opinion. Thank you for asking."
+  > "Thank you." -> back
+
+node: hesitates
+  pallas (careful): "A tag is a decision about what I am. I will not take it from someone I am not sure of. Ask me again when I am."
+  > "Fair." -> back
 
 node: goodbye
   pallas: "Go carefully."

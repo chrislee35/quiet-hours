@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 51,
+ "nextobjectid": 52,
  "tilesets": [],
  "layers": [
   {
@@ -2339,6 +2339,31 @@
        "name": "dialogue",
        "type": "string",
        "value": "tobias"
+      }
+     ]
+    },
+    {
+     "id": 50,
+     "name": "pk_coupler",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 1440,
+     "y": 736,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "item:drive_coupler"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Pry a coupler from the scrap pile"
       }
      ]
     }

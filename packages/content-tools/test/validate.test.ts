@@ -219,4 +219,21 @@ describe("quests", () => {
     const issues = fixture((dir) => rmSync(join(dir, "dialogue", "pell.qdl")));
     expect(issues.some((i) => /breadcrumb "ledger".*1 direction/.test(i.message))).toBe(true);
   });
+
+  it("there is exactly one inventory puzzle, and every part it asks for can be had (PUZ-2)", () => {
+    const second = fixture((dir) => {
+      const f = join(dir, "services", "services.json");
+      const list = JSON.parse(readFileSync(f, "utf8")) as object[];
+      list.push({ id: "second_puzzle", name: "x", description: "x", price: 0, legitimate: false, once: false, requires: [], effects: [], successText: "x", inventoryPuzzle: "another" });
+      writeFileSync(f, JSON.stringify(list));
+    });
+    expect(second.some((i) => /exactly one inventory puzzle.*found 2/.test(i.message))).toBe(true);
+    const orphan = fixture((dir) => {
+      const f = join(dir, "services", "services.json");
+      const list = JSON.parse(readFileSync(f, "utf8")) as { id: string; requires: object[] }[];
+      list.find((x) => x.id === "craft_repaired_drive")!.requires.push({ has_item: "locker_key_does_not_exist_anywhere" });
+      writeFileSync(f, JSON.stringify(list));
+    });
+    expect(orphan.some((i) => /nothing ever gives the player/.test(i.message))).toBe(true);
+  });
 });
