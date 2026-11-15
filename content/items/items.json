@@ -191,5 +191,13 @@
     "stackable": false,
     "tags": [],
     "description": "A stamped tag that makes a robot an object, for the Gate's scanners."
+  },
+  {
+    "id": "anecdote",
+    "name": "Anecdote (stuffed pigeon)",
+    "type": "junk",
+    "stackable": false,
+    "tags": [],
+    "description": "A stuffed pigeon with a tag: EVIDENCE, UNREGISTERED AVIAN-SHAPED OBJECT. Statistic's other half."
   }
 ]

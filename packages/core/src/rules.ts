@@ -76,6 +76,8 @@ export type Effect =
   | { adjust_trust: [npc: string, delta: number, cause?: string] }
   /** Raises alert to at least this level (never lowers it). */
   | { raise_alert_to: AlertLevel }
+  /** Lowers alert to at most this level (never raises it): a day of good music. */
+  | { lower_alert_to: AlertLevel }
   | { emit: string }
   /** Rest in the Safehouse: the alert drops to Calm and the game saves. Only meaningful there; content gates it. */
   | { rest: true }
@@ -225,6 +227,13 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       state.alert.level = effect.raise_alert_to;
       state.alert.quietSince = tick;
       events.push({ type: "AlertChanged", tick, from, to: effect.raise_alert_to });
+    }
+  } else if ("lower_alert_to" in effect) {
+    const from = state.alert.level;
+    if (effect.lower_alert_to < from) {
+      state.alert.level = effect.lower_alert_to;
+      state.alert.quietSince = tick;
+      events.push({ type: "AlertChanged", tick, from, to: effect.lower_alert_to });
     }
   } else if ("schedule" in effect) {
     if (!config) throw new RuleError("schedule needs the game config");
@@ -471,6 +480,7 @@ export function validateEffect(raw: unknown, path = "effect"): string[] {
       if (!(isTuple(a, 2) || isTuple(a, 3)) || !isStr(a[0]) || !(a[1] === 1 || a[1] === -1) || (a.length === 3 && !isStr(a[2]))) bad("expected [npcId, +1 or -1, cause?]: one act is one step");
       break;
     case "raise_alert_to":
+    case "lower_alert_to":
       if (!isInt(a, 0, 3)) bad("expected an alert level 0-3");
       break;
     case "set_district":

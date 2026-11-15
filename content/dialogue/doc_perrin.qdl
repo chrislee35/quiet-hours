@@ -14,8 +14,19 @@ node: first
 
 node: pigeon
   doc_perrin (fond): "Nothing. Nothing is wrong with Statistic. Statistic is a stuffed pigeon, and the city has no category for that either. It is the best colleague I have ever had."
+  > [!flag:sq_09_started] "You seem sad about it." -> lost
+  > [flag:sq_09_started, item:anecdote, !flag:sq_09_done] "I found Anecdote." {service:perrin_reunion} -> reunited
   > "What can you put in my band?" -> wares
   > "Goodbye." -> goodbye
+
+node: lost
+  on_enter: {flag:sq_09_started}
+  doc_perrin (quiet): "Statistic had a partner. Anecdote. An Auditor took it off my shelf last spring: unregistered avian-shaped object. It is in the evidence cabinet in the Reintegration office, tagged and stacked. I would go myself, but Statistic would not like me out of its sight. Do not tell Statistic I said so."
+  > "I will see what I can do." -> goodbye
+
+node: reunited
+  doc_perrin (moved): "There. Statistic, look. Anecdote. ...It says it was not worried. It is lying beautifully."
+  > "Glad to help." -> goodbye
 
 node: wares
   on_enter: {+clue:memory_anchor_exists(doc_perrin)}
@@ -37,7 +48,14 @@ node: back
   doc_perrin (distracted): "Yes? ...Oh, you. Statistic says hello."
   > "What can you put in my band?" -> wares
   > "I need the bench." -> bench
+  > [flag:sq_09_started, item:anecdote, !flag:sq_09_done] "I found Anecdote." {service:perrin_reunion} -> reunited
+  > [!flag:sq_09_started] "Is Statistic all right? It seems low." -> lost
+  > [flag:sq_09_started, !item:anecdote, !flag:sq_09_done] "About Anecdote." -> lost2
   > "Goodbye." -> goodbye
+
+node: lost2
+  doc_perrin (quiet): "The evidence cabinet, Reintegration office. A hasp, nothing clever. Wire cutters would be quicker than patience."
+  > "Right." -> goodbye
 
 node: bench
   on_enter: {flag:perrin_knows_parts}

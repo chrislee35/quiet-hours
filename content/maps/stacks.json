@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 73,
+ "nextobjectid": 75,
  "tilesets": [],
  "layers": [
   {
@@ -2476,6 +2476,32 @@
      "class": "terminal",
      "x": 352,
      "y": 160,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 73,
+     "name": "radio_rig",
+     "type": "terminal",
+     "class": "terminal",
+     "x": 256,
+     "y": 352,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 74,
+     "name": "evidence_locker",
+     "type": "terminal",
+     "class": "terminal",
+     "x": 1408,
+     "y": 128,
      "width": 0,
      "height": 0,
      "rotation": 0,

@@ -71,5 +71,169 @@
         "flag": "quiet_step_found"
       }
     ]
+  },
+  {
+    "id": "stitch_in_time",
+    "title": "A Stitch in Time",
+    "summary": "Mrs. Adeyemi-Roth reports on her neighbours for extra rations. Keep her quiet, win her over, or sell her out.",
+    "start": [
+      {
+        "has_clue": "neighbor_wellness"
+      }
+    ],
+    "steps": [
+      {
+        "id": "learn",
+        "text": "Find out what Neighbor Wellness is",
+        "done": [
+          {
+            "has_clue": "neighbor_wellness"
+          }
+        ]
+      },
+      {
+        "id": "approach",
+        "text": "Decide how to deal with her (a dull true report, a gift, or the truth)",
+        "done": [
+          {
+            "any": [
+              {
+                "flag": "mrs_fed"
+              },
+              {
+                "flag": "mrs_bribed"
+              },
+              {
+                "flag": "mrs_sold"
+              },
+              {
+                "flag": "sq_02_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "settle",
+        "text": "Settle it: win her over, or sell her out",
+        "done": [
+          {
+            "flag": "sq_02_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_02_done"
+      }
+    ],
+    "failed": [
+      {
+        "flag": "mrs_threatened"
+      }
+    ]
+  },
+  {
+    "id": "statistic",
+    "title": "Statistic",
+    "summary": "Statistic's partner Anecdote was taken as evidence. It is in the Auditors' cabinet in the Reintegration office.",
+    "start": [
+      {
+        "flag": "sq_09_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "ask",
+        "text": "Find out why Statistic is sad",
+        "done": [
+          {
+            "flag": "sq_09_started"
+          }
+        ]
+      },
+      {
+        "id": "cabinet",
+        "text": "Open the evidence cabinet in the Reintegration office",
+        "done": [
+          {
+            "any": [
+              {
+                "has_item": "anecdote"
+              },
+              {
+                "flag": "sq_09_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "home",
+        "text": "Bring Anecdote home to Perrin",
+        "done": [
+          {
+            "flag": "sq_09_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_09_done"
+      }
+    ]
+  },
+  {
+    "id": "pirate_hour",
+    "title": "Pirate Hour",
+    "summary": "Teeter wants the Civic Voice to play a forbidden song at nine in the evening. The radio needs boosting first.",
+    "start": [
+      {
+        "flag": "sq_10_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "ask",
+        "text": "Hear Teeter out",
+        "done": [
+          {
+            "flag": "sq_10_started"
+          }
+        ]
+      },
+      {
+        "id": "boost",
+        "text": "Route power through the radio rig in the Safehouse",
+        "done": [
+          {
+            "any": [
+              {
+                "flag": "radio_boosted"
+              },
+              {
+                "flag": "sq_10_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "play",
+        "text": "Play the song between 21:00 and 21:30",
+        "done": [
+          {
+            "flag": "sq_10_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_10_done"
+      }
+    ]
   }
 ]

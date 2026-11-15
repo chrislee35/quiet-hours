@@ -86,5 +86,48 @@
       }
     ],
     "solvedText": "The log decrypts. Entry after entry is signed ALD, in a hand that is not Pallas's."
+  },
+  {
+    "id": "radio_rig",
+    "title": "The Safehouse radio rig",
+    "puzzle": "radio_power",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_flag": [
+          "radio_boosted",
+          true
+        ]
+      }
+    ],
+    "solvedText": "The signal path closes. The needle on Teeter's radio climbs past anything it was built to reach, and Teeter makes a noise like a kettle."
+  },
+  {
+    "id": "evidence_locker",
+    "title": "The Auditors' evidence cabinet",
+    "puzzle": "evidence_hasp",
+    "bypass": [
+      {
+        "has_item": "wire_cutters"
+      }
+    ],
+    "onSolve": [
+      {
+        "add_item": [
+          "anecdote",
+          1
+        ]
+      },
+      {
+        "set_flag": [
+          "anecdote_taken",
+          true
+        ]
+      },
+      {
+        "raise_alert_to": 1
+      }
+    ],
+    "solvedText": "The hasp gives. Among a tagged coat and a jar of unlabelled keys is a stuffed pigeon with a label that says EVIDENCE. Somewhere down the hall a lamp turns, politely."
   }
 ]

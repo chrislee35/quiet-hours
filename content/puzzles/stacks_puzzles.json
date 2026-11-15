@@ -16,5 +16,52 @@
       "o##",
       "o#o"
     ]
+  },
+  {
+    "id": "radio_power",
+    "kind": "power_routing",
+    "width": 4,
+    "height": 4,
+    "pieces": [
+      "EITE",
+      "LETL",
+      "TILE",
+      "IL+I"
+    ],
+    "rotations": [
+      "1203",
+      "3010",
+      "0321",
+      "2130"
+    ],
+    "source": [
+      0,
+      0
+    ],
+    "targets": [
+      [
+        3,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        2
+      ]
+    ]
+  },
+  {
+    "id": "evidence_hasp",
+    "kind": "lights_out",
+    "width": 3,
+    "height": 3,
+    "layout": [
+      "o#o",
+      "#o#",
+      "oo#"
+    ]
   }
 ]

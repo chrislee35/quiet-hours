@@ -21,6 +21,22 @@ node: cameras
   on_enter: {+clue:stacks_cameras_night(teeter)}
   teeter (earnest): "The Stacks cameras go on a night schedule at two in the morning. The plaza one looks the other way for a while. Do not do anything silly with that."
   > "What about the hackers?" -> hackers
+  > [!flag:sq_10_started] "What is the dial set to?" -> dial
+  > "Goodbye." -> goodbye
+
+node: dial
+  on_enter: {flag:sq_10_started}
+  teeter (rapturous): "A song! From before! One song, and I have never been able to play it, because the Safehouse set is too weak to reach the Civic Voice, and the Civic Voice only listens for ten minutes a night: nine to nine thirty. If somebody could route power through my rig and give it legs, I could play it into the PA. Everyone in the Stacks would hear it. Even the robots."
+  > "I will try the rig." -> song
+  > "Goodbye." -> goodbye
+
+node: song
+  teeter (earnest): "The rig is the grey box by the radio. Four by four, power in at the corner, three lamps to light. Once it is humming come and tell me, and be here between nine and half past nine."
+  > [flag:radio_boosted, !flag:pirate_played] "It is humming. Play it." {service:pirate_broadcast} -> played
+  > "Goodbye." -> goodbye
+
+node: played
+  teeter (overjoyed): "...Did you hear? Did you hear?! Admiral Pancake would have loved it. Thank you."
   > "Goodbye." -> goodbye
 
 node: hackers
@@ -30,6 +46,9 @@ node: hackers
 
 node: back
   teeter: "Back! Any cats?"
+  > [!flag:sq_10_started] "What is the dial set to?" -> dial
+  > [flag:sq_10_started, !flag:radio_boosted] "About the song." -> song
+  > [flag:radio_boosted, !flag:pirate_played] "Play it now." {service:pirate_broadcast} -> played
   > "Tell me about the cameras." -> cameras
   > "What about the hackers?" -> hackers
   > "Goodbye." -> goodbye

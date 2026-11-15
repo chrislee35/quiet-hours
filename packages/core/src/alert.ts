@@ -16,7 +16,9 @@ export function alertSystem(ctx: Ctx): void {
 
   const spotted = events.some((e) => (e.type === "RobotSpotted" || e.type === "CameraSpotted") && e.tick === state.tick);
   const cooldown = secondsToTicks(config.alert.sightingCooldownSeconds, config);
-  if (spotted && a.level < MAX_ALERT_LEVEL && state.tick - a.lastRaise >= cooldown) {
+  // A day of pirate radio (SQ-10): the guard is humming along, and nobody is looked at harder than "Suspicious".
+  const calm = state.flags.pirate_calm === true && a.level >= 1;
+  if (spotted && !calm && a.level < MAX_ALERT_LEVEL && state.tick - a.lastRaise >= cooldown) {
     const from = a.level;
     a.level = (a.level + 1) as AlertLevel;
     a.lastRaise = state.tick;

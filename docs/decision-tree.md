@@ -285,6 +285,16 @@ flowchart LR
     q_first_cache["Locker 9"]
     q_first_cache_start(["begins: learn 'laundry_key'"]) --> q_first_cache
     q_first_cache -->|done| q_first_cache_ok["flag quiet_step_found"]
+    q_stitch_in_time["A Stitch in Time"]
+    q_stitch_in_time_start(["begins: learn 'neighbor_wellness'"]) --> q_stitch_in_time
+    q_stitch_in_time -->|done| q_stitch_in_time_ok["flag sq_02_done"]
+    q_stitch_in_time -.->|missed| q_stitch_in_time_bad["flag mrs_threatened"]
+    q_statistic["Statistic"]
+    q_statistic_start(["begins: flag sq_09_started"]) --> q_statistic
+    q_statistic -->|done| q_statistic_ok["flag sq_09_done"]
+    q_pirate_hour["Pirate Hour"]
+    q_pirate_hour_start(["begins: flag sq_10_started"]) --> q_pirate_hour
+    q_pirate_hour -->|done| q_pirate_hour_ok["flag sq_10_done"]
   end
   subgraph stacks_slice_map["stacks slice"]
     q_maintenance_wing["Through the maintenance door"]
@@ -299,9 +309,9 @@ flowchart LR
     q_apology_express_start(["begins: flag sq_06_started"]) --> q_apology_express
     q_apology_express -->|done| q_apology_express_ok["flag sq_06_done"]
   end
-  class q_pump4_thermos,q_brindles_hum,q_lost_in_processing,q_pump4_rumour,q_act1_safehouse,q_first_cache,q_maintenance_wing,q_right_on_time,q_apology_express decision
-  class q_pump4_thermos_ok,q_brindles_hum_ok,q_lost_in_processing_ok,q_pump4_rumour_ok,q_act1_safehouse_ok,q_first_cache_ok,q_maintenance_wing_ok,q_right_on_time_ok,q_apology_express_ok achievement
-  class q_brindles_hum_bad,q_lost_in_processing_bad,q_pump4_rumour_bad outcome
+  class q_pump4_thermos,q_brindles_hum,q_lost_in_processing,q_pump4_rumour,q_act1_safehouse,q_first_cache,q_stitch_in_time,q_statistic,q_pirate_hour,q_maintenance_wing,q_right_on_time,q_apology_express decision
+  class q_pump4_thermos_ok,q_brindles_hum_ok,q_lost_in_processing_ok,q_pump4_rumour_ok,q_act1_safehouse_ok,q_first_cache_ok,q_stitch_in_time_ok,q_statistic_ok,q_pirate_hour_ok,q_maintenance_wing_ok,q_right_on_time_ok,q_apology_express_ok achievement
+  class q_brindles_hum_bad,q_lost_in_processing_bad,q_pump4_rumour_bad,q_stitch_in_time_bad outcome
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#f8d7da,stroke:#b03a48,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222
@@ -312,10 +322,13 @@ flowchart LR
 | Achievement | Where it comes from | Status |
 |---|---|---|
 | Help Dov Anselm with his sister's file (Lost in Processing) | side-quest `sq_01` (civic core) | implemented |
+| Settle things with Mrs. Adeyemi-Roth (A Stitch in Time) | side-quest `sq_02` (stacks) | implemented |
 | Return Gus Varga's thermos (Pump 4 Thermos) | side-quest `sq_03` (belt) | implemented |
 | Save Brindle from the scrap queue (Brindle's Hum) | side-quest `sq_04` (belt) | implemented |
 | Learn the tunnel trains (Right on Time) | side-quest `sq_05` (underworks) | implemented |
 | Fix the Conductor's timetable (Apology, Express) | side-quest `sq_06` (underworks) | implemented |
+| Bring Anecdote home to Doc Perrin (Statistic) | side-quest `sq_09` (stacks) | implemented |
+| Play the forbidden song on the Civic Voice (Pirate Hour) | side-quest `sq_10` (stacks) | implemented |
 | Both embrace and reject are playable | flag `past_stance` | implemented |
 | Met all four mentors | flag `met_tobias` | implemented |
 | The Hollow is never found | to be designed | planned |

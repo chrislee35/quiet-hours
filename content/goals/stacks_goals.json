@@ -18,5 +18,35 @@
         "flag": "quiet_step_found"
       }
     ]
+  },
+  {
+    "id": "sq_02",
+    "name": "Settle things with Mrs. Adeyemi-Roth (A Stitch in Time)",
+    "map": "stacks",
+    "require": [
+      {
+        "flag": "sq_02_done"
+      }
+    ]
+  },
+  {
+    "id": "sq_09",
+    "name": "Bring Anecdote home to Doc Perrin (Statistic)",
+    "map": "stacks",
+    "require": [
+      {
+        "flag": "sq_09_done"
+      }
+    ]
+  },
+  {
+    "id": "sq_10",
+    "name": "Play the forbidden song on the Civic Voice (Pirate Hour)",
+    "map": "stacks",
+    "require": [
+      {
+        "flag": "sq_10_done"
+      }
+    ]
   }
 ]

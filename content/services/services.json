@@ -574,5 +574,106 @@
       "requirements": "She will not file a second name for someone who has not yet seen what the Gate is.",
       "funds": "She files for money, kindly: ninety credits, forty if she already likes your work."
     }
+  },
+  {
+    "id": "perrin_reunion",
+    "name": "Anecdote comes home",
+    "description": "Perrin sets one stuffed pigeon beside the other and widens your band's slots.",
+    "price": 0,
+    "legitimate": false,
+    "once": true,
+    "requires": [
+      {
+        "has_item": "anecdote"
+      }
+    ],
+    "effects": [
+      {
+        "remove_item": [
+          "anecdote",
+          1
+        ]
+      },
+      {
+        "set_flag": [
+          "sq_09_done",
+          true
+        ]
+      },
+      {
+        "add_band_capacity": {
+          "slots": 1
+        }
+      }
+    ],
+    "successText": "Perrin sets Anecdote down beside Statistic and says nothing for some time. Then he opens your band and makes room in it. (One more augment slot.)",
+    "refusals": {
+      "requirements": "There is nothing in your hands that a pigeon would recognise."
+    }
+  },
+  {
+    "id": "pirate_broadcast",
+    "name": "Pirate Hour",
+    "description": "The Civic Voice carries a forbidden song, once, at the right hour.",
+    "price": 0,
+    "legitimate": false,
+    "once": true,
+    "requires": [
+      {
+        "flag": "radio_boosted"
+      },
+      {
+        "time_between": [
+          1260,
+          1290
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "set_flag": [
+          "pirate_played",
+          true
+        ]
+      },
+      {
+        "set_flag": [
+          "pirate_calm",
+          true
+        ]
+      },
+      {
+        "lower_alert_to": 0
+      },
+      {
+        "adjust_metric": [
+          "contentment",
+          10
+        ]
+      },
+      {
+        "schedule": {
+          "inMinutes": 1440,
+          "effects": [
+            {
+              "set_flag": [
+                "pirate_calm",
+                false
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "set_flag": [
+          "sq_10_done",
+          true
+        ]
+      }
+    ],
+    "successText": "At nine o'clock the Civic Voice says 'Good evening, citizens' and then, quite clearly, plays a song from before the city. Every robot in the Stacks slows to listen. It is, for one evening, a lovely place to be wanted.",
+    "refusals": {
+      "requirements": "Not yet. The signal has to be boosted, and the Civic Voice only leaves its microphone open between nine and half past nine in the evening."
+    }
   }
 ]

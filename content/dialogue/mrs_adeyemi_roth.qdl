@@ -2,6 +2,7 @@
 // The informant moral hook: befriend her, bribe her, feed her harmless reports, or threaten her.
 npc: mrs_adeyemi_roth
 name: Mrs. Adeyemi-Roth
+start: gone [flag:mrs_sold]
 start: back [flag:met_mrs]
 start: first
 
@@ -53,6 +54,8 @@ node: hub
   mrs_adeyemi_roth: "Now. Is there anything else on your mind, dear?"
   > [!flag:mrs_threatened] "I will report you before you report me." {flag:mrs_threatened, trust:mrs_adeyemi_roth-1(threatened her), emit:mrs_report} -> hostile
   > [flag:mrs_threatened] "I am sorry about what I said." {flag:mrs_apologised, trust:mrs_adeyemi_roth+1(apologised), flag:mrs_threatened=false} -> forgiven
+  > [trust:mrs_adeyemi_roth>=trusts, !flag:sq_02_done] "If I ever had to hide, would you let me use your landing?" -> safe
+  > [!flag:sq_02_done, !flag:mrs_threatened] "There is a reward for Neighbor Wellness informants who are found out. I could find you out." -> sell
   > "Goodbye." -> goodbye
 
 node: hostile
@@ -63,10 +66,31 @@ node: forgiven
   mrs_adeyemi_roth (mild): "Hm. I can be forgiven at; it is a hobby. But I have already posted what I posted."
   > "Goodbye." -> goodbye
 
+node: safe
+  on_enter: {flag:mrs_safe, flag:sq_02_done, flag:sq_02_outcome=won}
+  mrs_adeyemi_roth (warm): "My landing has a cupboard under the stairs that the form does not mention. If you are ever in trouble, dear, knock twice and I will be knitting very loudly. And I think I shall stop noticing things. It never agreed with me."
+  > "Thank you." -> hub
+
+node: sell
+  mrs_adeyemi_roth (flat): "Ah. So that is what you are. I had hoped you were the other kind."
+  > "Forty credits is forty credits." {+credits:40, flag:mrs_sold, flag:sq_02_done, flag:sq_02_outcome=sold, flag:hollow_risk} -> sold
+  > "...No. I am sorry. Forget I said it." {trust:mrs_adeyemi_roth-1(offered to sell her out)} -> hub
+
+node: sold
+  mrs_adeyemi_roth (cold): "I will pack. I would like you to know that I was fond of you for nearly a week."
+  > "Goodbye." -> goodbye
+
+node: gone
+  on_enter: {flag:met_mrs}
+  mrs_adeyemi_roth (flat): "There is a stranger's knitting on the chair now, and the draught from the stairs has moved in. The neighbours say a van came."
+  > "Goodbye." -> goodbye
+
 node: back
   mrs_adeyemi_roth: "Hello again, dear. Mind the stairs; the third step is a liar."
   > "Tell me about the list again." -> list
   > "I wanted to ask about being on it." -> change
+  > [trust:mrs_adeyemi_roth>=trusts, !flag:sq_02_done] "If I ever had to hide, would you let me use your landing?" -> safe
+  > [!flag:sq_02_done, !flag:mrs_threatened] "I could report you, you know." -> sell
   > "Goodbye." -> goodbye
 
 node: goodbye
