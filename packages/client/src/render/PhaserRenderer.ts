@@ -1,3 +1,4 @@
+import { drawLook, idleOf, lookFor, ringOf } from "./npcLooks.ts";
 import Phaser from "phaser";
 import { PALETTES, canvasColours } from "../palette.ts";
 import { hasTag, isSolid, pickupAvailable, zoneAt, type Command, type RobotMode, type Sim } from "@qh/core";
@@ -90,6 +91,8 @@ class QuietScene extends Phaser.Scene {
   private prevRobots = new Map<string, { x: number; y: number }>();
   private cones!: Phaser.GameObjects.Graphics;
   private npcMarks = new Map<string, [Phaser.GameObjects.Image, Phaser.GameObjects.Text]>();
+  /** Each figure's ring and shadow, and the little notes some of them hum. */
+  private npcFx = new Map<string, { base: Phaser.GameObjects.Graphics; phase: number; idle: "sway" | "pulse" | "hum"; notes: Phaser.GameObjects.Text[] }>();
   private propMarks = new Map<string, Phaser.GameObjects.GameObject[]>();
   private pickupMarks = new Map<string, Phaser.GameObjects.GameObject[]>();
   private promptText!: Phaser.GameObjects.Text;
@@ -112,7 +115,7 @@ class QuietScene extends Phaser.Scene {
   create(): void {
     this.renderedMap = this.sim.state.map;
     // The scene object is reused when it restarts, so forget what was drawn for the last map.
-    for (const m of [this.doorSprites, this.robotSprites, this.prevRobots, this.npcMarks, this.propMarks, this.pickupMarks] as Map<string, unknown>[]) m.clear();
+    for (const m of [this.doorSprites, this.robotSprites, this.prevRobots, this.npcMarks, this.npcFx, this.propMarks, this.pickupMarks] as Map<string, unknown>[]) m.clear();
     if (!this.subscribed) {
       this.subscribed = true;
       this.sim.bus.subscribe((e) => {
@@ -280,12 +283,24 @@ class QuietScene extends Phaser.Scene {
         .setDepth(60);
     }
     for (const n of this.sim.world.npcs) {
-      const sprite = this.add.image((n.x + 0.5) * TILE, (n.y + 0.5) * TILE, "npc").setLighting(true).setDepth(8);
+      const key = `npc_${n.id}`;
+      if (!this.textures.exists(key)) {
+        canvasTexture(this, key, 64, (c) => drawLook(c, lookFor(n.id)), (c) => { c.fillStyle = FLAT; c.fillRect(0, 0, 64, 64); });
+      }
+      const ringHex = ringOf(n.id);
+      const ringInt = parseInt(ringHex.slice(1), 16);
+      const base = this.add.graphics().setDepth(7);
+      base.fillStyle(0x000000, 0.35).fillEllipse(0, 0, 26, 9);
+      base.lineStyle(2, ringInt, 0.9).strokeEllipse(0, 0, 30, 11);
+      const idle = idleOf(n.id);
+      const notes = idle === "hum" ? [0, 1, 2].map(() => this.add.text(0, 0, "♪", { fontFamily: "monospace", fontSize: "13px", color: "#fff6c0" }).setDepth(61)) : [];
+      const sprite = this.add.image((n.x + 0.5) * TILE, (n.y + 0.5) * TILE, key).setScale(0.62).setLighting(true).setDepth(8);
       const label = this.add
-        .text((n.x + 0.5) * TILE, n.y * TILE - 4, n.id.replace(/_/g, " "), { fontFamily: "monospace", fontSize: "10px", color: "#9fd0ff" })
+        .text((n.x + 0.5) * TILE, n.y * TILE - 4, n.id.replace(/_/g, " "), { fontFamily: "monospace", fontSize: "10px", color: ringHex === "#5a6080" ? "#9fd0ff" : ringHex })
         .setOrigin(0.5, 1)
         .setDepth(60);
       this.npcMarks.set(n.id, [sprite, label]);
+      this.npcFx.set(n.id, { base, phase: (n.x * 7 + n.y * 13) % 6, idle, notes });
     }
     for (const r of this.sim.state.robots) {
       this.robotSprites.set(
@@ -534,8 +549,20 @@ class QuietScene extends Phaser.Scene {
     for (const [id, [sprite, label]] of this.npcMarks) {
       const n = this.sim.state.npcs[id];
       if (!n) continue;
-      sprite.setPosition(n.x * TILE, n.y * TILE).setVisible(!n.away);
-      label.setPosition(n.x * TILE, (n.y - 0.5) * TILE - 4).setVisible(!n.away);
+      const fx = this.npcFx.get(id);
+      const t = this.time.now / 1000;
+      const calm = this.deps.settings().reduceMotion;
+      const sway = fx && !calm ? Math.sin(t * 2 + fx.phase) * 1.6 : 0;
+      sprite.setPosition(n.x * TILE, n.y * TILE - 6 + sway).setVisible(!n.away);
+      if (fx && fx.idle === "pulse" && !calm) sprite.setScale(0.62 + Math.sin(t * 3 + fx.phase) * 0.025);
+      label.setPosition(n.x * TILE, (n.y - 0.5) * TILE - 12).setVisible(!n.away);
+      if (fx) {
+        fx.base.setPosition(n.x * TILE, n.y * TILE + 12).setVisible(!n.away);
+        fx.notes.forEach((note, i) => {
+          const u = calm ? 0.5 : (t * 0.45 + i / fx.notes.length) % 1;
+          note.setPosition(n.x * TILE + 10 + Math.sin(u * 6 + i) * 6, n.y * TILE - 14 - u * 26).setAlpha(1 - u).setVisible(!n.away);
+        });
+      }
     }
     for (const pr of this.sim.world.props) {
       const on = pr.shows === undefined || this.sim.state.hub.grown.includes(pr.shows);

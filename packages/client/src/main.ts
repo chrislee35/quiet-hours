@@ -87,6 +87,7 @@ if (saves.info("autosave")) menu.show("An autosave was found. Load it to continu
 
 new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => menu.visible || notebook.visible || settingsPanel.visible, settings: () => settings.get() });
 
+if (__QH_DEBUG__ && new URLSearchParams(location.search).has("npcs")) void import("./debug/npcGallery.ts").then((m) => m.mountNpcGallery());
 if (__QH_DEBUG__) {
   void import("./debug/overlay.ts").then((m) => m.mountDebugOverlay(sim));
 }
