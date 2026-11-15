@@ -35,7 +35,7 @@ const worlds = Object.fromEntries(
   Object.entries({ stacks, stacks_slice: stacksSlice, robot_range: robotRange, civic_core: civicCore, belt, underworks, gate, outside }).map(([id, raw]) => [id, buildWorld(importTiled(raw, id))]),
 );
 const mapParam = new URLSearchParams(location.search).get("map");
-const startMap = mapParam === "range" ? "robot_range" : mapParam === "slice" ? "stacks_slice" : mapParam === "civic" ? "civic_core" : mapParam === "belt" ? "belt" : mapParam === "underworks" ? "underworks" : mapParam === "gate" ? "gate" : "stacks";
+const startMap = mapParam === "range" ? "robot_range" : mapParam === "slice" ? "stacks_slice" : mapParam === "civic" ? "civic_core" : mapParam === "belt" ? "belt" : mapParam === "underworks" ? "underworks" : mapParam === "gate" ? "gate" : mapParam === "outside" ? "outside" : "stacks";
 const sim = new Sim(config, Date.now() >>> 0, { worlds, startMap, content: loadContent() });
 const host = document.getElementById("game");
 if (!host) throw new Error("missing #game element");

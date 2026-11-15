@@ -2351,7 +2351,7 @@
      "name": "pell",
      "type": "npc",
      "class": "npc",
-     "x": 1408,
+     "x": 1344,
      "y": 448,
      "width": 0,
      "height": 0,
@@ -2391,7 +2391,7 @@
      "name": "pk_ledger",
      "type": "pickup",
      "class": "pickup",
-     "x": 960,
+     "x": 832,
      "y": 448,
      "width": 0,
      "height": 0,
@@ -2407,7 +2407,7 @@
       {
        "name": "label",
        "type": "string",
-       "value": "Read the Auditor's Ledger"
+       "value": "Read the Ledger"
       }
      ]
     },
@@ -2432,7 +2432,7 @@
       {
        "name": "label",
        "type": "string",
-       "value": "Read the checkpoint log"
+       "value": "Read the log"
       }
      ]
     },
@@ -2441,7 +2441,7 @@
      "name": "pk_memory_shard",
      "type": "pickup",
      "class": "pickup",
-     "x": 1280,
+     "x": 1184,
      "y": 448,
      "width": 0,
      "height": 0,
@@ -2457,7 +2457,7 @@
       {
        "name": "label",
        "type": "string",
-       "value": "Take a memory shard from the archive racks"
+       "value": "Take a memory shard"
       }
      ]
     },
@@ -2466,7 +2466,7 @@
      "name": "pk_cargo_form",
      "type": "pickup",
      "class": "pickup",
-     "x": 1152,
+     "x": 1024,
      "y": 448,
      "width": 0,
      "height": 0,
@@ -2482,7 +2482,7 @@
       {
        "name": "label",
        "type": "string",
-       "value": "Take a Form 12-C from the rack"
+       "value": "Take a Form 12-C"
       }
      ]
     }

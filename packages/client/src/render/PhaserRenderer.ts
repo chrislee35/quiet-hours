@@ -14,6 +14,17 @@ import type { RenderDeps, Renderer } from "./Renderer.ts";
 const TILE = 32;
 /** How much the camera magnifies the world. At 1.5 about 20 x 11 tiles are visible, enough to see a robot's 6-tile cone. */
 const CAMERA_ZOOM = 1.5;
+/** Light colours for the places on each map (sterile Core, hot Belt, teal Underworks, cold Gate). */
+const DISTRICT_LIGHTS: Record<string, number[]> = {
+  stacks: [0xff2a9d, 0x2affd5, 0xffaa22],
+  stacks_slice: [0xff2a9d, 0x2affd5, 0xffaa22],
+  civic_core: [0xdfe8ff, 0xb8c8ff],
+  belt: [0xff8a2a, 0xffcf66],
+  underworks: [0x2affd5, 0x66aaff],
+  gate: [0xcfe0ff, 0xff5a5a],
+  outside: [0xffe9b0],
+  default: [0x9fb0ff],
+};
 const VIEW_W = 960;
 const VIEW_H = 540;
 
@@ -332,10 +343,9 @@ class QuietScene extends Phaser.Scene {
     this.lights.enable().setAmbientColor(0x1a1d30);
     const coneWidth = Phaser.Math.DegToRad(PLAYER_LIGHT_DEGREES);
     this.cone = this.lights.addConeLight(0, 0, PLAYER_LIGHT_TILES * TILE, 0xfff0c0, 2, 0, coneWidth * 0.7, coneWidth);
-    // A neon sign on the central wall, for the colored-light look.
-    this.lights.addLight(11.5 * TILE, 5.5 * TILE, 5 * TILE, 0xff2a9d, 1.4);
-    this.lights.addLight(2 * TILE, 12 * TILE, 4 * TILE, 0x2affd5, 1);
-    this.lights.addLight(20 * TILE, 7 * TILE, 5 * TILE, 0xffaa22, 1.1);
+    // Coloured light for each named place on this map, tinted by district: the neon look follows the level, not a fixed spot.
+    const tints = DISTRICT_LIGHTS[world.id] ?? DISTRICT_LIGHTS.default!;
+    world.places.slice(0, 8).forEach((pl, i) => this.lights.addLight((pl.x + 0.5) * TILE, (pl.y + 0.5) * TILE, 5 * TILE, tints[i % tints.length]!, 1.2));
 
     if (!this.gameLoadedWired) this.sim.bus.subscribe((e) => {
       if (e.type !== "GameLoaded") return;
@@ -353,6 +363,13 @@ class QuietScene extends Phaser.Scene {
     cam.setBounds(0, 0, world.width * TILE, world.height * TILE);
     cam.setZoom(CAMERA_ZOOM);
     cam.startFollow(this.player, true, 0.12, 0.12);
+    // Debug builds only: ?overview shows the whole map, lit, for reviewing level art (dead code in production).
+    if (__QH_DEBUG__ && new URLSearchParams(location.search).has("overview")) {
+      cam.stopFollow();
+      cam.setZoom(Math.min(cam.width / (world.width * TILE), cam.height / (world.height * TILE)));
+      cam.centerOn((world.width * TILE) / 2, (world.height * TILE) / 2);
+      this.lights.setAmbientColor(0xb8bcd8);
+    }
 
     if (!this.pressWired) this.deps.controller.onPress((action) => {
       if (this.uiOpenAtFrameStart || this.sim.state.conversation || this.sim.state.terminal || this.deps.isPaused()) return;
