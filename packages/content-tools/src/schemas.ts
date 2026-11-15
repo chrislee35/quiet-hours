@@ -207,11 +207,24 @@ export const growthSchema = {
 export const companionSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["id", "name", "role", "active", "gate", "routes", "fate"],
+  required: ["id", "name", "role", "active", "gate", "routes", "fate", "closing"],
   properties: {
     id, name: { type: "string", minLength: 1 }, role: { enum: ["mentor", "partner", "ward", "convert"] },
     active: { type: "array" }, gate: { type: "array", minItems: 1 },
     routes: { type: "object" }, fate: { type: "array" },
+    closing: { type: "object", additionalProperties: false, required: ["gratitude", "turn"], properties: { gratitude: { type: "string", minLength: 1 }, gratitude_romantic: { type: "string", minLength: 1 }, turn: { type: "string", minLength: 1 } } },
+  },
+} as const;
+
+export const closingSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "outside", "alone", "card"],
+  properties: {
+    id,
+    outside: { type: "array", minItems: 1, items: { type: "string", minLength: 1 } },
+    alone: { type: "object", additionalProperties: false, required: ["gratitude", "turn"], properties: { gratitude: { type: "string", minLength: 1 }, turn: { type: "string", minLength: 1 } } },
+    card: { type: "object", additionalProperties: false, required: ["title", "tagline", "soon"], properties: { title: { type: "string", minLength: 1 }, tagline: { type: "string", minLength: 1 }, soon: { type: "string", minLength: 1 } } },
   },
 } as const;
 
@@ -229,6 +242,7 @@ export const kinds = {
   goals: goalSchema,
   growth: growthSchema,
   companions: companionSchema,
+  closing: closingSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

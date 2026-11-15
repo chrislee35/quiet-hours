@@ -40,3 +40,4 @@ export * from "./hub.ts";
 export * from "./machinery.ts";
 export * from "./past.ts";
 export * from "./companions.ts";
+export * from "./closing.ts";

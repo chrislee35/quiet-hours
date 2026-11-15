@@ -1,4 +1,4 @@
-import { compileDialogue, composeMentors, type MentorVoicing, type AugmentDef, type ServiceDef, type ReactionDef, type QuestDef, type GrowthDef, type CompanionDef, type ItemDef, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
+import { compileDialogue, composeMentors, type MentorVoicing, type AugmentDef, type ServiceDef, type ReactionDef, type QuestDef, type GrowthDef, type CompanionDef, type ClosingDef, type ItemDef, type ClueDef, type Content, type PuzzleDef, type TerminalDef } from "@qh/core";
 
 /**
  * Loads dialogue (.qdl) and clue definitions from content/ at startup. The same compiler and checks run in
@@ -17,6 +17,7 @@ const serviceFiles = import.meta.glob("../../../content/services/*.json", { impo
 const reactionFiles = import.meta.glob("../../../content/reactions/*.json", { import: "default", eager: true }) as Record<string, ReactionDef[]>;
 const questFiles = import.meta.glob("../../../content/quests/*.json", { import: "default", eager: true }) as Record<string, QuestDef[]>;
 const companionFiles = import.meta.glob("../../../content/companions/*.json", { import: "default", eager: true }) as Record<string, CompanionDef[]>;
+const closingFiles = import.meta.glob("../../../content/closing/*.json", { import: "default", eager: true }) as Record<string, ClosingDef[]>;
 const growthFiles = import.meta.glob("../../../content/growth/*.json", { import: "default", eager: true }) as Record<string, GrowthDef[]>;
 
 export function loadContent(): Content {
@@ -50,5 +51,7 @@ export function loadContent(): Content {
   for (const list of Object.values(growthFiles)) for (const g of list) growth[g.id] = g;
   const companions: Content["companions"] = {};
   for (const list of Object.values(companionFiles)) for (const c of list) companions[c.id] = c;
-  return { dialogues, clues, puzzles, terminals, augments, items, services, reactions, quests, growth, companions };
+  const closing: Content["closing"] = {};
+  for (const list of Object.values(closingFiles)) for (const c of list) closing[c.id] = c;
+  return { dialogues, clues, puzzles, terminals, augments, items, services, reactions, quests, growth, companions, closing };
 }

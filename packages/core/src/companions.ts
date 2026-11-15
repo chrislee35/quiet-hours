@@ -11,6 +11,7 @@
 import type { Config } from "./config.ts";
 import type { Content } from "./dialogue/types.ts";
 import type { GameEvent, FlagValue } from "./events.ts";
+import type { CompanionClosing } from "./closing.ts";
 import { pastStance } from "./past.ts";
 import { evalAll, type Condition } from "./rules.ts";
 import type { SimState } from "./state.ts";
@@ -31,6 +32,8 @@ export interface CompanionDef {
   gate: Condition[];
   /** What each route additionally asks when this person is with the player, and why, in plain words. */
   routes: Record<RouteId, { requires: Condition[]; harder: string }>;
+  /** What they say at the end, in their voice (closing.ts). */
+  closing: CompanionClosing;
   /** What becomes of them if they stay: the first matching rule wins; otherwise "left". */
   fate: { when: Condition[]; state: SequelState }[];
 }

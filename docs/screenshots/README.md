@@ -10,6 +10,7 @@ Whole-map views rendered by the real Phaser client in headless Ungoogled Chromiu
 | `underworks.png` | the Transit Underworks: platform, tunnel and drain, junction, signal room, Platform 7 |
 | `gate.png` | the Gate: service platform, corridor, hall, Annex, threshold |
 | `outside.png` | the far side (a stub until the closing scene) |
+| `closing-gratitude.png`, `closing-card.png` | the closing scene (a mentor, romantic tone) and the sequel card (debug build, `?map=outside&closing=<who>&beat=<n>`) |
 | `npc-gallery.png` | every named figure on one sheet (debug build, `?npcs=1`) |
 | `stacks_slice.png`, `robot_range.png` | the older vertical-slice and robot-range test maps |
 

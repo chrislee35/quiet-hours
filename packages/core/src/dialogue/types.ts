@@ -1,6 +1,7 @@
 import type { AugmentDef, ItemDef } from "../augments.ts";
 import type { GrowthDef } from "../hub.ts";
 import type { CompanionDef } from "../companions.ts";
+import type { ClosingDef } from "../closing.ts";
 import type { QuestDef } from "../notebook.ts";
 import type { ReactionDef } from "../districts.ts";
 import type { ServiceDef } from "../economy.ts";
@@ -108,6 +109,8 @@ export interface Content {
   growth: Record<string, GrowthDef>;
   /** The candidates who might leave with the player (companions.ts). */
   companions: Record<string, CompanionDef>;
+  /** The closing scene and sequel card (closing.ts). */
+  closing: Record<string, ClosingDef>;
 }
 
-export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {}, augments: {}, items: {}, services: {}, reactions: {}, quests: {}, growth: {}, companions: {} };
+export const EMPTY_CONTENT: Content = { dialogues: {}, clues: {}, puzzles: {}, terminals: {}, augments: {}, items: {}, services: {}, reactions: {}, quests: {}, growth: {}, companions: {}, closing: {} };

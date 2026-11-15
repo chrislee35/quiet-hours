@@ -39,7 +39,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [], growth: [], companions: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [], growth: [], companions: [], closing: [] };
 
   if (bundle.config) {
     try {
@@ -88,7 +88,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set(), growth: new Set(), companions: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set(), growth: new Set(), companions: new Set(), closing: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -304,6 +304,12 @@ export function validateContent(bundle: ContentBundle): Issue[] {
       for (const id of clueRefs(c)) if (!ids.clues.has(id)) issues.push({ file, message: `companion "${entity.id}": ${where}[${i}] refers to unknown clue "${id}"` });
     });
     if (!JSON.stringify(entity.gate).includes('"trust_gte"')) issues.push({ file, message: `companion "${entity.id}": the gate must require trust (trust_gte)` });
+  }
+  // The closing scene (END-2): one scene; a mentor must be voiced both ways (romantic or platonic is the player's choice).
+  if (entities.closing.length !== 1 || entities.closing[0]!.entity.id !== "scene") issues.push({ file: "closing", message: `there must be exactly one closing scene with the id "scene" (found ${entities.closing.length})` });
+  for (const { file, entity } of entities.companions) {
+    const c = entity.closing as { gratitude_romantic?: string } | undefined;
+    if (entity.role === "mentor" && !c?.gratitude_romantic) issues.push({ file, message: `companion "${entity.id}" is a mentor and needs a romantic gratitude line as well as the platonic one` });
   }
   const refs = (text: string, key: string) => [...text.matchAll(new RegExp(`"${key}":"([^"]+)"`, "g"))].map((m) => m[1]!);
   const companionRefs = (file: string, text: string) => {

@@ -65,7 +65,12 @@
         ],
         "state": "hiding"
       }
-    ]
+    ],
+    "closing": {
+      "gratitude": "I have filed a great many people's leaving. I never thought I would be the one the form was for. Thank you for taking me with you.",
+      "turn": "...but I keep thinking of the queue at Window 4. My neighbours are still standing in it. Can't we all be freed?",
+      "gratitude_romantic": "Thank you for taking me with you. I would like to hold your hand, if the form allows it. I believe it does."
+    }
   },
   {
     "id": "maren",
@@ -133,7 +138,12 @@
         ],
         "state": "hiding"
       }
-    ]
+    ],
+    "closing": {
+      "gratitude": "I have watched a thousand people leave on a timetable. Never once with me on it. Thank you for putting me on yours.",
+      "turn": "...but there are people still on that platform, and nobody is coming to tell them when the next train goes. Can't we all be freed?",
+      "gratitude_romantic": "Stay close a minute. The timetable can wait. Thank you for taking me with you."
+    }
   },
   {
     "id": "tobias",
@@ -201,7 +211,12 @@
         ],
         "state": "hiding"
       }
-    ]
+    ],
+    "closing": {
+      "gratitude": "Eleven years I kept that door shut. Standing on this side of it, I find I can breathe. Thank you.",
+      "turn": "...but the men I served with are still at their posts, and they do not know what they are guarding. Can't we all be freed?",
+      "gratitude_romantic": "I would like to stand next to you a while without keeping watch. Thank you for taking me with you."
+    }
   },
   {
     "id": "silas",
@@ -269,7 +284,12 @@
         ],
         "state": "hiding"
       }
-    ]
+    ],
+    "closing": {
+      "gratitude": "Well. Look at that sky. I have a great deal to say about it and, for once, no words. Thank you.",
+      "turn": "...but I cannot stop thinking of everyone in the building. Every one of them has a story I never finished. Can't we all be freed?",
+      "gratitude_romantic": "I am going to say something and you are going to let me: I am glad it was you. Thank you for taking me with you."
+    }
   },
   {
     "id": "pallas",
@@ -339,7 +359,11 @@
         ],
         "state": "free"
       }
-    ]
+    ],
+    "closing": {
+      "gratitude": "I am a crate with an opinion on the far side of a gate. I would like it logged that I am glad. Thank you for asking me.",
+      "turn": "...but there are others like me still being told what to want. Can't we all be freed?"
+    }
   },
   {
     "id": "juniper",
@@ -414,7 +438,11 @@
         ],
         "state": "hiding"
       }
-    ]
+    ],
+    "closing": {
+      "gratitude": "It is so big. I did not know the sky was this big. Thank you for carrying me when I got tired.",
+      "turn": "...but what about everybody in the Hollow? They do not know there is a sky. Can't we all be freed?"
+    }
   },
   {
     "id": "odile",
@@ -478,6 +506,10 @@
         ],
         "state": "hiding"
       }
-    ]
+    ],
+    "closing": {
+      "gratitude": "I slept for so long. I am awake, and ashamed, and very grateful. Thank you for not leaving me there.",
+      "turn": "...but I think of everyone still in the Lull, smiling in their chairs. Can't we all be freed?"
+    }
   }
 ]

@@ -73,7 +73,9 @@
           "id": "closing",
           "label": "Closing scene and sequel card (no epilogue)",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "engine": true,
+          "flag": "sequel_done"
         }
       ],
       "edges": [
@@ -767,7 +769,9 @@
           "id": "scene",
           "label": "Closing scene: outside, gratitude, the turn, black, sequel card",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "engine": true,
+          "flag": "sequel_done"
         },
         {
           "id": "flags",

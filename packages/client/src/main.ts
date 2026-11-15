@@ -25,6 +25,7 @@ import { Autosaver, Game, SaveStore } from "./saves.ts";
 import { GearPanel } from "./ui/gear.ts";
 import { MenuPanel } from "./ui/menu.ts";
 import { NotebookPanel } from "./ui/notebook.ts";
+import { ClosingScene } from "./ui/closing.ts";
 import { TerminalWindow } from "./ui/terminal.ts";
 import { OVERLAY_CSS } from "./ui/styles.ts";
 
@@ -81,12 +82,19 @@ const notebook = new NotebookPanel(sim, document.body);
 const terminal = new TerminalWindow(sim, document.body);
 const gear = new GearPanel(sim, document.body);
 const settingsPanel = new SettingsPanel(settings, controller, storage, document.body);
+const closing = new ClosingScene(sim, document.body, () => settings.get().reduceMotion);
 const menu = new MenuPanel(game, document.body, __QH_BUILD_ID__, () => settingsPanel.toggle());
 bindUi(controller, sim, { dialogue, terminal, notebook, gear, menu, settings: settingsPanel });
 if (saves.info("autosave")) menu.show("An autosave was found. Load it to continue, or close this menu to play a new game.");
 
-new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => menu.visible || notebook.visible || settingsPanel.visible, settings: () => settings.get() });
+new PhaserRenderer().start(host, sim, { controller, hud, toolbelt: gear.toolbelt, isPaused: () => closing.visible || menu.visible || notebook.visible || settingsPanel.visible, settings: () => settings.get() });
 
+if (__QH_DEBUG__ && new URLSearchParams(location.search).has("closing")) {
+  const q = new URLSearchParams(location.search);
+  const who = q.get("closing") || "none";
+  sim.tick([{ type: "ApplyEffects", effects: [{ set_flag: ["escapee", who] }, { set_flag: ["mentor", "ines"] }, { set_flag: ["mentor_romance", q.has("romance")] }] }]);
+  closing.debugAt(Number(q.get("beat") ?? 0));
+}
 if (__QH_DEBUG__ && new URLSearchParams(location.search).has("npcs")) void import("./debug/npcGallery.ts").then((m) => m.mountNpcGallery());
 if (__QH_DEBUG__) {
   void import("./debug/overlay.ts").then((m) => m.mountDebugOverlay(sim));

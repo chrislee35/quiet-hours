@@ -1,0 +1,18 @@
+[
+  {
+    "id": "scene",
+    "outside": [
+      "The Gate is behind you. You are outside.",
+      "Quiet. The ground is uneven, the air is moving, and the horizon is further away than any wall you have known."
+    ],
+    "alone": {
+      "gratitude": "Nobody beside you. The air is cold and enormous, and it is yours.",
+      "turn": "...but I worry about the others. Can't we all be freed?"
+    },
+    "card": {
+      "title": "QUIET HOURS: COUNTERSIGN",
+      "tagline": "They got out. Now they're going back.",
+      "soon": "Coming soon"
+    }
+  }
+]

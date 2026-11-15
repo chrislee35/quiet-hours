@@ -32,11 +32,11 @@ flowchart TD
   n_optional -.-> n_companion
   n_companion --> n_route
   n_route --> n_m3
-  n_m3 -.-> n_closing
+  n_m3 --> n_closing
   class n_mentor,n_past,n_side,n_optional,n_companion,n_route,n_m3 decision
   class n_closing outcome
   class n_wake,n_pieces state
-  class n_optional,n_closing planned
+  class n_optional planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222
@@ -234,16 +234,16 @@ flowchart TD
   n_rt --> n_sneak
   n_rt --> n_hack
   n_rt --> n_break
-  n_sneak -.-> n_scene
-  n_hack -.-> n_scene
-  n_break -.-> n_scene
-  n_scene -.-> n_flags
+  n_sneak --> n_scene
+  n_hack --> n_scene
+  n_break --> n_scene
+  n_scene --> n_flags
   n_rt --> n_aware
-  n_aware -.-> n_scene
+  n_aware --> n_scene
   class n_cp,n_rt decision
   class n_pallas,n_june,n_odile,n_mentorc,n_sneak,n_hack,n_break,n_aware,n_scene outcome
   class n_flags state
-  class n_june,n_odile,n_scene planned
+  class n_june,n_odile planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222

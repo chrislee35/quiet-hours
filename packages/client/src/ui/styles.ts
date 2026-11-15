@@ -211,4 +211,18 @@ export const OVERLAY_CSS = `
 .qh-terminal .skip:hover, .qh-terminal .skip:focus-visible { outline: 2px solid var(--qh-warn); }
 .qh-terminal .leave { width: 100%; background: #1b1f33; color: inherit; font: inherit; border: 1px solid #3a3f5c; border-radius: 6px; padding: 7px 10px; cursor: pointer; }
 .qh-terminal .leave:hover, .qh-terminal .leave:focus-visible { background: #2a3050; outline: 2px solid var(--qh-warn); }
+.qh-closing { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end; justify-content: center; padding: 0 16px 32px; box-sizing: border-box; color: var(--qh-text); font: var(--qh-font)/1.55 system-ui, sans-serif; background: linear-gradient(transparent 55%, #05060bcc); cursor: pointer; }
+.qh-closing-on .qh-hud { display: none; }
+.qh-closing[hidden] { display: none; }
+.qh-closing[data-beat="black"], .qh-closing[data-beat="card"] { background: #000; align-items: center; flex-direction: column; justify-content: center; text-align: center; cursor: default; }
+.qh-closing .box { width: min(720px, 100%); background: #10121cf2; border: 1px solid #3a3f5c; border-radius: 8px; padding: 16px 20px; }
+.qh-closing .who { color: var(--qh-warn); font-weight: 600; margin-bottom: 4px; }
+.qh-closing p { margin: 0; font-size: 1.1em; }
+.qh-closing p.outside { color: var(--qh-muted); font-style: italic; }
+.qh-closing .go { margin-top: 10px; color: var(--qh-muted); font-size: .75em; text-align: right; }
+.qh-closing .title { font-size: clamp(1.6rem, 6vw, 3rem); letter-spacing: .12em; margin: 0 0 .5em; font-weight: 700; color: #fff; }
+.qh-closing .tagline { font-size: 1.2em; color: var(--qh-warn-soft); margin: 0 0 1.6em; }
+.qh-closing .soon { font-size: .9em; letter-spacing: .3em; text-transform: uppercase; color: var(--qh-muted); }
+@media (prefers-reduced-motion: no-preference) { .qh-closing[data-beat="card"] > * { animation: qh-fade 1.6s ease both; } .qh-closing[data-beat="card"] .tagline { animation-delay: .8s; } .qh-closing[data-beat="card"] .soon { animation-delay: 1.6s; } }
+@keyframes qh-fade { from { opacity: 0; } to { opacity: 1; } }
 `;
