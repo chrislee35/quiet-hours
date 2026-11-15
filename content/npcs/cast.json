@@ -172,5 +172,11 @@
     "name": "Checker K-9",
     "role": "checker",
     "district": "civic_core"
+  },
+  {
+    "id": "gate_voice",
+    "name": "The Gate",
+    "role": "gate_controller",
+    "district": "gate"
   }
 ]

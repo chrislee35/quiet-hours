@@ -19,6 +19,7 @@
  * stealth, district reactions, companions and the three-way ending matrix. Every action here is something a
  * player does without any of those, which is exactly what "no route needs combat" asks.
  */
+import { checkRoutes, type RouteReport } from "./routes.ts";
 import {
   chooseOption, completeTerminal, createInitialState, dialogueView, endConversation, evalAll, gameTimeAt, isActive, parseActiveWhen, pickupAvailable, pickupEffects, presentClue, equipAugment, unequipAugment, equipRefusal,
   puzzleModule, applyEffects, startConversation, spawnPoint,
@@ -69,6 +70,7 @@ export interface MapReport {
 }
 
 export interface Report {
+  routes?: RouteReport[];
   maps: MapReport[];
   /** Findings about the whole game rather than one map (a quest no map can complete). */
   findings: Finding[];
@@ -664,7 +666,19 @@ export function checkSolvability(
     message: `quest "${q.title}" can never be completed on any map${incomplete ? " (a search was cut short)" : ""}`,
   }));
   const all = [...maps.flatMap((m) => m.findings), ...findings];
-  return { maps, findings, errors: all.filter((f) => f.severity === "error").length, warnings: all.filter((f) => f.severity === "warning").length };
+  const base: Report = { maps, findings, errors: all.filter((f) => f.severity === "error").length, warnings: all.filter((f) => f.severity === "warning").length };
+  return withRoutes(base, checkRoutes(worlds, content, start, "stacks" in worlds ? "stacks" : Object.keys(worlds)[0] ?? "stacks"));
+}
+
+/** Adds the cross-map route findings to a report (END-1). */
+export function withRoutes(r: Report, routes: RouteReport[]): Report {
+  const findings: Finding[] = [...r.findings];
+  for (const rt of routes) {
+    if (!rt.reachable) findings.push({ severity: "error", kind: "route-unreachable", message: `the ${rt.route} route out of the city cannot be reached from a fresh start (needs: ${rt.missing.join(", ")})` });
+    else if (!rt.reachableNull) findings.push({ severity: "error", kind: "route-needs-the-past", message: `the ${rt.route} route can only be reached by embracing the past; keeping the null edge must also leave a way out` });
+  }
+  const all = [...r.maps.flatMap((m) => m.findings), ...findings];
+  return { ...r, routes, findings, errors: all.filter((f) => f.severity === "error").length, warnings: all.filter((f) => f.severity === "warning").length };
 }
 
 export function formatReport(r: Report): string {
@@ -678,6 +692,10 @@ export function formatReport(r: Report): string {
       lines.push(`  ${f.severity.toUpperCase()} [${f.kind}] ${f.message}`);
       if (f.route) lines.push(`    ${f.route.join(" -> ")}`);
     }
+  }
+  for (const rt of r.routes ?? []) {
+    lines.push(`route ${rt.route} (${rt.service}): ${rt.reachable ? "reachable" : "NOT reachable"}${rt.reachable ? (rt.reachableNull ? ", also without embracing the past" : ", only by embracing the past") : ""}`);
+    if (rt.reachable) lines.push(`    ${rt.chain.join(" -> ")}`);
   }
   for (const f of r.findings) lines.push(`${f.severity.toUpperCase()} [${f.kind}] ${f.message}`);
   lines.push(`${r.errors} error(s), ${r.warnings} warning(s)`);

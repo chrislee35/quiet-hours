@@ -7,12 +7,12 @@ start: first
 node: first
   pell (startled): "Alder? It is you. They said the file was closed. I am not supposed to say that name; the Ledger has it set to NULL, at your own request. Sit down. Please. I have missed you."
   > "I do not know who that is." -> doubt
-  > "Tell me everything." {flag:past_m2=embrace, +clue:pell_recognises(pell), +clue:alder_name(pell), +clue:ledger_redacted(pell), +clue:ledger_gate_line(pell), +clue:checkpoint_credential(pell), +clue:embrace_costs(pell), +clue:gate_lookup(pell), +clue:gate_three_ways(pell), +clue:one_companion(pell), +clue:mentor_record_severance(pell), trust:wren-1(went to Pell as the old self)} -> embraced
+  > "Tell me everything." {flag:past_m2=embrace, +clue:pell_recognises(pell), +clue:alder_name(pell), +clue:ledger_redacted(pell), +clue:ledger_gate_line(pell), +clue:checkpoint_credential(pell), +clue:embrace_costs(pell), +clue:gate_lookup(pell), +clue:gate_code_first(pell), +clue:gate_three_ways(pell), +clue:one_companion(pell), +clue:mentor_record_severance(pell), trust:wren-1(went to Pell as the old self)} -> embraced
   > "I am not that person. I do not want your help." {flag:past_m2=reject, +clue:pell_recognises(pell)} -> rejected
 
 node: doubt
   pell (gentle): "Of course. Of course you do not. You were always careful. Take a moment. I can wait."
-  > "Tell me everything." {flag:past_m2=embrace, +clue:pell_recognises(pell), +clue:alder_name(pell), +clue:ledger_redacted(pell), +clue:ledger_gate_line(pell), +clue:checkpoint_credential(pell), +clue:embrace_costs(pell), +clue:gate_lookup(pell), +clue:gate_three_ways(pell), +clue:one_companion(pell), +clue:mentor_record_severance(pell), trust:wren-1(went to Pell as the old self)} -> embraced
+  > "Tell me everything." {flag:past_m2=embrace, +clue:pell_recognises(pell), +clue:alder_name(pell), +clue:ledger_redacted(pell), +clue:ledger_gate_line(pell), +clue:checkpoint_credential(pell), +clue:embrace_costs(pell), +clue:gate_lookup(pell), +clue:gate_code_first(pell), +clue:gate_three_ways(pell), +clue:one_companion(pell), +clue:mentor_record_severance(pell), trust:wren-1(went to Pell as the old self)} -> embraced
   > "I am not that person. I do not want your help." {flag:past_m2=reject, +clue:pell_recognises(pell)} -> rejected
 
 node: embraced

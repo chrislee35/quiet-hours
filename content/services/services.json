@@ -371,5 +371,163 @@
       }
     ],
     "successText": "Perrin slides it across without looking at it."
+  },
+  {
+    "id": "train_7",
+    "name": "Train 7 to the Gate",
+    "description": "The service train boards at 13:50 and leaves at 13:52.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "time_between": [
+          830,
+          850
+        ]
+      }
+    ],
+    "effects": [],
+    "successText": "The doors hiss. Train 7 pulls out of the Underworks with the service staff and one passenger nobody has counted.",
+    "refusals": {
+      "requirements": "Train 7 has not been boarding. It runs at 13:52, and the platform opens at 13:50."
+    }
+  },
+  {
+    "id": "permit_level_3",
+    "name": "Level 3 permit (the Gate Annex)",
+    "description": "Ines does the paper: a Level 3 pass for the Gate Annex.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "has_pass": "civic_permit_2"
+      },
+      {
+        "has_clue": "annex_pass"
+      }
+    ],
+    "effects": [
+      {
+        "give_pass": {
+          "id": "civic_permit_3",
+          "label": "Civic permit, level 3 (Gate Annex)",
+          "level": 3,
+          "expiresInMinutes": 720,
+          "origin": "issued"
+        }
+      }
+    ],
+    "successText": "Ines stamps, signs, and stamps the signature. It is a perfectly ordinary Level 3 permit."
+  },
+  {
+    "id": "gate_sneak",
+    "name": "Out through the service gate",
+    "description": "Staff leave by the service gate in the window when passes, not faces, are checked.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "time_between": [
+          830,
+          850
+        ]
+      },
+      {
+        "has_record": true
+      }
+    ],
+    "effects": [
+      {
+        "set_flag": [
+          "route_taken",
+          "sneak"
+        ]
+      },
+      {
+        "set_flag": [
+          "escaped",
+          true
+        ]
+      }
+    ],
+    "successText": "The attendant's lamp reads your pass and not your face. The service gate opens. Nobody stops you.",
+    "refusals": {
+      "requirements": "The service gate wants a pass in its hand, and only between 13:50 and 14:10."
+    }
+  },
+  {
+    "id": "gate_hack",
+    "name": "Out through the authorised exit",
+    "description": "The controller has been told that you are cleared.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "flag": "gate_controller_open"
+      }
+    ],
+    "effects": [
+      {
+        "set_flag": [
+          "route_taken",
+          "hack"
+        ]
+      },
+      {
+        "set_flag": [
+          "escaped",
+          true
+        ]
+      }
+    ],
+    "successText": "The controller reads its own records, finds an entry that says you may pass, and believes it.",
+    "refusals": {
+      "requirements": "The exit's lamp is red. The controller has not been told to open it."
+    }
+  },
+  {
+    "id": "gate_break",
+    "name": "Out through the open Gate",
+    "description": "With the auxiliary power gone, a Gate that is unsure of someone stays open.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "district_is": [
+          "belt",
+          "node4",
+          "off"
+        ]
+      }
+    ],
+    "effects": [
+      {
+        "set_flag": [
+          "route_taken",
+          "break"
+        ]
+      },
+      {
+        "set_flag": [
+          "escaped",
+          true
+        ]
+      },
+      {
+        "set_flag": [
+          "gate_broken",
+          true
+        ]
+      }
+    ],
+    "successText": "The Gate stands open and unsure, the way it was never built to. You walk through it. Behind you, the lamps come back one by one.",
+    "refusals": {
+      "requirements": "The Gate is whole. Its auxiliary power is still on."
+    }
   }
 ]

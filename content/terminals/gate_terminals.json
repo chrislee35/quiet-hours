@@ -1,0 +1,33 @@
+[
+  {
+    "id": "gate_controller",
+    "title": "Gate controller (maintenance panel)",
+    "puzzle": "gate_code",
+    "critical": true,
+    "puzzleRequires": [
+      {
+        "has_clue": "gate_code_first"
+      },
+      {
+        "has_clue": "gate_code_second"
+      }
+    ],
+    "bypass": [
+      {
+        "flag_eq": [
+          "past_m3",
+          "embrace"
+        ]
+      }
+    ],
+    "onSolve": [
+      {
+        "set_flag": [
+          "gate_controller_open",
+          true
+        ]
+      }
+    ],
+    "solvedText": "The controller accepts the code, finds an entry for you in its own records, and marks you cleared."
+  }
+]

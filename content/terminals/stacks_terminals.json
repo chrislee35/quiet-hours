@@ -77,6 +77,12 @@
           "id": "pallas_log_handle",
           "from": "pallas_log"
         }
+      },
+      {
+        "give_clue": {
+          "id": "gate_code_second",
+          "from": "pallas_log"
+        }
       }
     ],
     "solvedText": "The log decrypts. Entry after entry is signed ALD, in a hand that is not Pallas's."

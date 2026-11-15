@@ -2402,7 +2402,7 @@
       {
        "name": "grant",
        "type": "string",
-       "value": "clue:ledger_redacted:auditors_ledger+clue:ledger_gate_line:auditors_ledger"
+       "value": "clue:ledger_redacted:auditors_ledger+clue:ledger_gate_line:auditors_ledger+clue:gate_code_first:auditors_ledger"
       },
       {
        "name": "label",

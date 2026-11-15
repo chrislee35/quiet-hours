@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 51,
+ "nextobjectid": 54,
  "tilesets": [],
  "layers": [
   {
@@ -3015,6 +3015,54 @@
        "name": "label",
        "type": "string",
        "value": "Service tunnel"
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "name": "from_gate",
+     "type": "spawn",
+     "class": "spawn",
+     "x": 1280,
+     "y": 576,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 52,
+     "name": "train_7",
+     "type": "exit",
+     "class": "exit",
+     "x": 1216,
+     "y": 576,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "to",
+       "type": "string",
+       "value": "gate"
+      },
+      {
+       "name": "spawn",
+       "type": "string",
+       "value": "from_train"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Train 7 to the Gate service platform"
+      },
+      {
+       "name": "fare",
+       "type": "string",
+       "value": "train_7"
       }
      ]
     }

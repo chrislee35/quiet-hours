@@ -31,12 +31,12 @@ flowchart TD
   n_side -.-> n_companion
   n_optional -.-> n_companion
   n_companion -.-> n_route
-  n_route -.-> n_m3
+  n_route --> n_m3
   n_m3 -.-> n_closing
   class n_mentor,n_past,n_side,n_optional,n_companion,n_route,n_m3 decision
   class n_closing outcome
   class n_wake,n_pieces state
-  class n_optional,n_companion,n_route,n_m3,n_closing planned
+  class n_optional,n_companion,n_closing planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222
@@ -112,14 +112,14 @@ flowchart TD
   n_edge["Keep the null edge: checkers stall on you, no record to trace"]
   n_learn --> n_m1
   n_learn --> n_m2
-  n_m1 -.-> n_m3
-  n_m2 -.-> n_m3
+  n_m1 --> n_m3
+  n_m2 --> n_m3
   n_m1 -->|embrace| n_embrace
   n_m2 -->|embrace| n_embrace
-  n_m3 -.->|embrace| n_embrace
+  n_m3 -->|embrace| n_embrace
   n_m1 -->|reject| n_reject
   n_m2 -->|reject| n_reject
-  n_m3 -.->|reject| n_reject
+  n_m3 -->|reject| n_reject
   n_learn -->|never choose| n_none
   n_embrace --> n_gain
   n_embrace --> n_cost
@@ -129,7 +129,6 @@ flowchart TD
   class n_embrace,n_reject,n_none,n_cost outcome
   class n_gain,n_edge achievement
   class n_learn state
-  class n_m3 planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222
@@ -218,9 +217,9 @@ flowchart TD
   n_odile["Odile (convert)"]
   n_mentorc["Your mentor"]
   n_rt["Which Gate route?"]
-  n_sneak["Sneak: Train 7 and the platform window"]
-  n_hack["Hack: the lookup, the controller, the null stall"]
-  n_break["Break the Gate: leave it open, the cost falls on those left"]
+  n_sneak["Sneak: Train 7, the service gate in the 13:50 window, a pass in hand"]
+  n_hack["Hack: the controller, by the two code halves or by answering the Gate as its builder"]
+  n_break["Break the Gate: cut Node 4, walk out through the open Gate; the cost falls on those left"]
   n_scene["Closing scene: outside, gratitude, the turn, black, sequel card"]
   n_flags["Sequel flags: Hollow, Lull, cell, Pallas, mentor, past stance"]
   n_cp -.-> n_pallas
@@ -231,9 +230,9 @@ flowchart TD
   n_june -.-> n_rt
   n_odile -.-> n_rt
   n_mentorc -.-> n_rt
-  n_rt -.-> n_sneak
-  n_rt -.-> n_hack
-  n_rt -.-> n_break
+  n_rt --> n_sneak
+  n_rt --> n_hack
+  n_rt --> n_break
   n_sneak -.-> n_scene
   n_hack -.-> n_scene
   n_break -.-> n_scene
@@ -241,7 +240,7 @@ flowchart TD
   class n_cp,n_rt decision
   class n_pallas,n_june,n_odile,n_mentorc,n_sneak,n_hack,n_break,n_scene outcome
   class n_flags state
-  class n_cp,n_pallas,n_june,n_odile,n_mentorc,n_rt,n_sneak,n_hack,n_break,n_scene,n_flags planned
+  class n_cp,n_pallas,n_june,n_odile,n_mentorc,n_scene,n_flags planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222

@@ -58,13 +58,15 @@
           "id": "route",
           "label": "Choose a Gate route (3)",
           "kind": "decision",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "route_taken"
         },
         {
           "id": "m3",
           "label": "M3: answer the Gate's prompt",
           "kind": "decision",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "past_m3"
         },
         {
           "id": "closing",
@@ -342,7 +344,7 @@
           "id": "m3",
           "label": "M3 Prompt: authenticate at the Gate as the builder?",
           "kind": "decision",
-          "status": "planned",
+          "status": "implemented",
           "flag": "past_m3"
         },
         {
@@ -725,25 +727,29 @@
           "id": "rt",
           "label": "Which Gate route?",
           "kind": "decision",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "route_taken"
         },
         {
           "id": "sneak",
-          "label": "Sneak: Train 7 and the platform window",
+          "label": "Sneak: Train 7, the service gate in the 13:50 window, a pass in hand",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "route_taken"
         },
         {
           "id": "hack",
-          "label": "Hack: the lookup, the controller, the null stall",
+          "label": "Hack: the controller, by the two code halves or by answering the Gate as its builder",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "route_taken"
         },
         {
           "id": "break",
-          "label": "Break the Gate: leave it open, the cost falls on those left",
+          "label": "Break the Gate: cut Node 4, walk out through the open Gate; the cost falls on those left",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "route_taken"
         },
         {
           "id": "scene",

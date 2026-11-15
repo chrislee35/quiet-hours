@@ -1,0 +1,27 @@
+// The Gate's voice, in the Gate hall. M3, the Prompt: it asks you to authenticate as the person who built it.
+npc: gate_voice
+name: The Gate
+start: done [flag:past_m3]
+start: first
+
+node: first
+  gate_voice (flat): "IDENTIFY. THIS GATE LOOKS YOU UP. IT HAS LOOKED UP ONE PERSON IN ITS HISTORY AND FOUND THEM, AND THAT PERSON WROTE THIS PROMPT. AUTHENTICATE AS R. ALDER?"
+  > "Yes. I am R. Alder." {flag:past_m3=embrace, trust:wren-1(answered the Gate as the old self)} -> embraced
+  > "No. I am nobody, and I intend to stay that way." {flag:past_m3=reject} -> rejected
+  > "I will think about it." -> goodbye
+
+node: embraced
+  gate_voice (flat): "AUTHENTICATED. WELCOME BACK. YOUR ACCESS HAS NOT EXPIRED. THIS IS RECORDED."
+  > "Thank you." -> goodbye
+
+node: rejected
+  gate_voice (flat): "UNKNOWN. PENDING REVIEW. (It waits. It will wait with you for as long as you like.)"
+  > "Thank you." -> goodbye
+
+node: done
+  gate_voice (flat): "IDENTIFY."
+  > "Goodbye." -> goodbye
+
+node: goodbye
+  gate_voice: "THE GATE WILL WAIT."
+  end
