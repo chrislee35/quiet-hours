@@ -204,6 +204,17 @@ export const growthSchema = {
   properties: { id, name: { type: "string", minLength: 1 }, description: { type: "string", minLength: 1 }, when: { type: "array", minItems: 1 } },
 } as const;
 
+export const companionSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "name", "role", "active", "gate", "routes", "fate"],
+  properties: {
+    id, name: { type: "string", minLength: 1 }, role: { enum: ["mentor", "partner", "ward", "convert"] },
+    active: { type: "array" }, gate: { type: "array", minItems: 1 },
+    routes: { type: "object" }, fate: { type: "array" },
+  },
+} as const;
+
 /** Content kinds: directory name under content/ -> schema for each entity. */
 export const kinds = {
   clues: clueSchema,
@@ -217,6 +228,7 @@ export const kinds = {
   quests: questSchema,
   goals: goalSchema,
   growth: growthSchema,
+  companions: companionSchema,
 } as const;
 
 export type Kind = keyof typeof kinds;

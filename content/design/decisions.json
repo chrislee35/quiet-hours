@@ -50,9 +50,10 @@
         },
         {
           "id": "companion",
-          "label": "Choose the one companion (4)",
+          "label": "Choose the one companion (ask them; they must be ready)",
           "kind": "decision",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "companion"
         },
         {
           "id": "route",
@@ -691,37 +692,40 @@
     {
       "id": "ending",
       "title": "The ending: companion, route, aftermath",
-      "intro": "Planned (T3.10 to T3.13). One companion, one of three routes, the same closing scene with only the companion's voice changing. The fate of the Hollow, the Lull, the cell and Pallas are recorded as sequel flags and shown only lightly.",
+      "intro": "One companion, one of three routes, the same closing scene with only the companion's voice changing. A candidate is asked in person and must trust you and meet their practical requirement; each route then asks something more of them. Everyone ends up aware, and the fate of the Hollow, the Lull, the cell, Pallas and each person left behind is written as sequel flags, shown only lightly.",
       "nodes": [
         {
           "id": "cp",
-          "label": "Who comes with you?",
+          "label": "Who comes with you? Ask them; the last one asked, and ready, is the one",
           "kind": "decision",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "companion"
         },
         {
           "id": "pallas",
-          "label": "Pallas (partner)",
+          "label": "Pallas (partner): trusts you, repaired, tagged as cargo. Harder: robots are scanned differently",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "companion"
         },
         {
           "id": "june",
-          "label": "June (ward)",
+          "label": "June (ward): trusts you, Marrow consents, a child-sized way. Harder: slow, noisy; planned with the Hollow",
           "kind": "outcome",
           "status": "planned"
         },
         {
           "id": "odile",
-          "label": "Odile (convert)",
+          "label": "Odile (convert): trusts you, sees through the Lull. Harder: fragile; planned with the Lull",
           "kind": "outcome",
           "status": "planned"
         },
         {
           "id": "mentorc",
-          "label": "Your mentor",
+          "label": "Your mentor: trusts you, willing to leave, second identity filed. Harder: the sneak window shrinks",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "companion"
         },
         {
           "id": "rt",
@@ -752,6 +756,14 @@
           "flag": "route_taken"
         },
         {
+          "id": "aware",
+          "label": "Everyone is aware: in person, or by a message at the crossing",
+          "kind": "outcome",
+          "status": "implemented",
+          "engine": true,
+          "flag": "awake_pallas"
+        },
+        {
           "id": "scene",
           "label": "Closing scene: outside, gratitude, the turn, black, sequel card",
           "kind": "outcome",
@@ -759,9 +771,10 @@
         },
         {
           "id": "flags",
-          "label": "Sequel flags: Hollow, Lull, cell, Pallas, mentor, past stance",
+          "label": "Sequel flags written at the crossing: who came, each person left behind (free, hiding, arrested or left; ally, wary or estranged), Hollow, Lull, cell, past stance",
           "kind": "state",
-          "status": "planned"
+          "status": "implemented",
+          "engine": true
         }
       ],
       "edges": [
@@ -824,6 +837,14 @@
         {
           "from": "scene",
           "to": "flags"
+        },
+        {
+          "from": "rt",
+          "to": "aware"
+        },
+        {
+          "from": "aware",
+          "to": "scene"
         }
       ]
     }

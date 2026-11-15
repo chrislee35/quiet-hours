@@ -6,7 +6,7 @@
 Service platform, service corridor (door unlocked 13:50-14:10), the Gate hall (the Gate's voice, a sentry), the Gate Annex (permission level 3; the controller), and the threshold behind the Gate door.
 
 ## Routes (END-1)
-Each crossing is a **service** used at an exit, so the requirements are data (CMP-5 will add the companion's requirements to the same services). Setting `route_taken` marks a service as a route.
+Each crossing is a **service** used at an exit, so the requirements are data (each carries `route_clear`, which adds the chosen companion's requirements: `docs/companions.md`). Setting `route_taken` marks a service as a route.
 
 | Route | Where | Needs |
 |---|---|---|

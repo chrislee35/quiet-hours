@@ -32,6 +32,9 @@
     "awakening.opt": "Say it.",
     "awakening.b": "Alder. You boarded the 13:52 and never got off at the other end. I will not misplace you twice.",
     "out": "Mind the gap.",
-    "idle": "I am on shift."
+    "idle": "I am on shift.",
+    "companion.a": "I have timed it every way I can. The window is short and I can be in it. Say the word and I walk.",
+    "companion.yes": "You are coming with me.",
+    "companion.b": "Good. I will be on the platform before it opens."
   }
 }

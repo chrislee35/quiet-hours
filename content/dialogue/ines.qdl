@@ -24,6 +24,11 @@ node: job
   ines: "I read permits aloud for people who cannot. Level one gets you the plaza. Level two gets you the annex, and a pass for it is one signature from a form nobody reads. I never said that."
   > [!item:cargo_form] "Could you spare a cargo declaration, Form 12-C?" {+item:cargo_form} -> form
   > [pass:civic_permit_2, clue:annex_pass, !pass:civic_permit_3] "Could you do the paper for a Level 3, for the Gate Annex?" {service:permit_level_3} -> level3
+  > [flag:mb_shake, !flag:mentor_identity] "I need a second identity filed for the person leaving with me." {service:mentor_second_identity} -> second
+  > "Thank you." -> goodbye
+
+node: second
+  ines (dry): "Done, or it will be when I finish. A second name is only a first name that nobody has used yet."
   > "Thank you." -> goodbye
 
 node: level3

@@ -32,6 +32,9 @@
     "awakening.opt": "Say it.",
     "awakening.b": "Alder. You said it was a good name for someone who meant to be forgotten. I am sorry I did not say so. I am so glad you came back.",
     "out": "Mind the stairs, they have opinions.",
-    "idle": "Oh, do come in."
+    "idle": "Oh, do come in.",
+    "companion.a": "I have said goodbye to every neighbour and told them it was a cold. Ask me and I will go. I will even be quiet about it, mostly.",
+    "companion.yes": "Come with me, Silas.",
+    "companion.b": "Then I will go, and I will tell you everything on the way, whether you want it or not."
   }
 }

@@ -32,6 +32,9 @@
     "awakening.opt": "Say it.",
     "awakening.b": "Alder. You built the thing. And then you tried to leave it. I stood on the line the day you did and I did not stop you. I am glad.",
     "out": "Stand easy.",
-    "idle": "Move along."
+    "idle": "Move along.",
+    "companion.a": "I watched that Gate for eleven years. I know where it is weak and I know where I am. If you want me beside you, I will be.",
+    "companion.yes": "I want you beside me.",
+    "companion.b": "Then I will keep to your left, the way I used to keep to the door."
   }
 }

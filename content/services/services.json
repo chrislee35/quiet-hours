@@ -437,6 +437,9 @@
       },
       {
         "has_record": true
+      },
+      {
+        "route_clear": "sneak"
       }
     ],
     "effects": [
@@ -455,7 +458,7 @@
     ],
     "successText": "The attendant's lamp reads your pass and not your face. The service gate opens. Nobody stops you.",
     "refusals": {
-      "requirements": "The service gate wants a pass in its hand, and only between 13:50 and 14:10."
+      "requirements": "The service gate wants a pass in its hand, and only between 13:50 and 14:10. Whoever is coming with you has to be able to make this crossing too."
     }
   },
   {
@@ -468,6 +471,9 @@
     "requires": [
       {
         "flag": "gate_controller_open"
+      },
+      {
+        "route_clear": "hack"
       }
     ],
     "effects": [
@@ -486,7 +492,7 @@
     ],
     "successText": "The controller reads its own records, finds an entry that says you may pass, and believes it.",
     "refusals": {
-      "requirements": "The exit's lamp is red. The controller has not been told to open it."
+      "requirements": "The exit's lamp is red. The controller has not been told to open it. Whoever is coming with you has to be able to make this crossing too."
     }
   },
   {
@@ -503,6 +509,9 @@
           "node4",
           "off"
         ]
+      },
+      {
+        "route_clear": "break"
       }
     ],
     "effects": [
@@ -514,20 +523,56 @@
       },
       {
         "set_flag": [
-          "escaped",
+          "gate_broken",
           true
         ]
       },
       {
         "set_flag": [
-          "gate_broken",
+          "escaped",
           true
         ]
       }
     ],
     "successText": "The Gate stands open and unsure, the way it was never built to. You walk through it. Behind you, the lamps come back one by one.",
     "refusals": {
-      "requirements": "The Gate is whole. Its auxiliary power is still on."
+      "requirements": "The Gate is whole. Its auxiliary power is still on. Whoever is coming with you has to be able to make this crossing too."
+    }
+  },
+  {
+    "id": "mentor_second_identity",
+    "name": "A second identity for your mentor",
+    "description": "Ines files a second name for the person who will leave with you, and unfiles the first.",
+    "price": 90,
+    "legitimate": false,
+    "once": true,
+    "requires": [
+      {
+        "flag": "mb_shake"
+      }
+    ],
+    "discounts": [
+      {
+        "when": [
+          {
+            "flag": "perk_paperwork"
+          }
+        ],
+        "price": 40
+      }
+    ],
+    "effects": [
+      {
+        "set_flag": [
+          "mentor_identity",
+          true
+        ]
+      }
+    ],
+    "successText": "Ines writes a second name into a column nobody reads and strikes the first through. It is, she says, the nicest thing she has done to a form.",
+    "refusals": {
+      "requirements": "She will not file a second name for someone who has not yet seen what the Gate is.",
+      "funds": "She files for money, kindly: ninety credits, forty if she already likes your work."
     }
   }
 ]

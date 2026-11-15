@@ -14,6 +14,7 @@ import type { Content } from "./dialogue/types.ts";
 import { isGrown } from "./hub.ts";
 import { dueIn } from "./machinery.ts";
 import { refreshPast } from "./past.ts";
+import { canBring, finalizeEscape, routeClear } from "./companions.ts";
 import { repayLoan, serviceStatus, takeLoan, totalOwed, useService } from "./economy.ts";
 import type { SimState } from "./state.ts";
 import { ticksPerGameMinute, type PassOrigin } from "./identity.ts";
@@ -47,6 +48,9 @@ export type Condition =
   | { can_service: string }
   /** A Safehouse growth exists (see hub.ts). */
   | { has_growth: string }
+  /** The candidate could be brought out now (trust plus the practical requirement), or the chosen companion can make this crossing. */
+  | { can_bring: string }
+  | { route_clear: string }
   /** The player has any identity on file (true) or is in the null state (false). */
   | { has_record: boolean }
   /** The player owes this lender, or "*" for any lender. */
@@ -118,6 +122,8 @@ export function evalCondition(c: Condition, state: Readonly<SimState>, config: C
   if ("all" in c) return c.all.every((x) => evalCondition(x, state, config, content));
   if ("any" in c) return c.any.some((x) => evalCondition(x, state, config, content));
   if ("not" in c) return !evalCondition(c.not, state, config, content);
+  if ("can_bring" in c) return content !== undefined && canBring(state, content, config, c.can_bring);
+  if ("route_clear" in c) return content !== undefined && routeClear(state, content, config, c.route_clear);
   if ("has_growth" in c) return content !== undefined && isGrown(state, content, config, c.has_growth);
   if ("can_service" in c) return content !== undefined && serviceStatus(state, content, config, c.can_service).ok;
   if ("has_record" in c) return (state.passes.length > 0) === c.has_record;
@@ -184,6 +190,7 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
       state.flags[flag] = value;
       events.push({ type: "FlagSet", tick, flag, value });
       if (flag.startsWith("past_m")) refreshPast(state.flags, flag, value);
+      if (flag === "escaped" && value === true && config && content) finalizeEscape(state, content, config, events);
     }
   } else if ("add_item" in effect || "remove_item" in effect) {
     const [itemId, count] = "add_item" in effect ? effect.add_item : effect.remove_item;
@@ -356,6 +363,8 @@ export function validateCondition(raw: unknown, path = "condition"): string[] {
     case "has_augment":
     case "augment_equipped":
     case "has_growth":
+    case "can_bring":
+    case "route_clear":
     case "can_service":
     case "in_debt":
       if (!isStr(a)) bad("expected a string id");

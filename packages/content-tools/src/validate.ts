@@ -39,7 +39,7 @@ const sourceKinds: Partial<Record<string, Kind>> = { npc: "npcs" };
 export function validateContent(bundle: ContentBundle): Issue[] {
   const issues: Issue[] = [];
   const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
-  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [], growth: [] };
+  const entities: Record<Kind, { file: string; entity: Entity }[]> = { clues: [], npcs: [], puzzles: [], terminals: [], augments: [], items: [], services: [], reactions: [], quests: [], goals: [], growth: [], companions: [] };
 
   if (bundle.config) {
     try {
@@ -88,7 +88,7 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
 
   // 2. Duplicate ids (per kind)
-  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set(), growth: new Set() };
+  const ids: Record<Kind, Set<string>> = { clues: new Set(), npcs: new Set(), puzzles: new Set(), terminals: new Set(), augments: new Set(), items: new Set(), services: new Set(), reactions: new Set(), quests: new Set(), goals: new Set(), growth: new Set(), companions: new Set() };
   for (const kind of Object.keys(entities) as Kind[]) {
     for (const { file, entity } of entities[kind]) {
       if (ids[kind].has(entity.id)) issues.push({ file, message: `duplicate ${kind} id "${entity.id}"` });
@@ -282,6 +282,42 @@ export function validateContent(bundle: ContentBundle): Issue[] {
   }
   for (const { file, dialogue } of compiled) {
     for (const m of JSON.stringify(dialogue).matchAll(/"has_growth":"([^"]+)"/g)) if (!ids.growth.has(m[1]!)) issues.push({ file, message: `gates on unknown growth "${m[1]}"` });
+  }
+  // Companions (CMP-1/5): well-formed gates and route complications; every route service asks about the companion;
+  // dialogue and services may only refer to real candidates and real routes.
+  const ROUTE_IDS = ["sneak", "hack", "break"];
+  for (const { file, entity } of entities.companions) {
+    const lists: [string, unknown[]][] = [["active", entity.active as unknown[]], ["gate", entity.gate as unknown[]]];
+    const routes = (entity.routes ?? {}) as Record<string, { requires?: unknown[]; harder?: string }>;
+    for (const r of ROUTE_IDS) {
+      const rt = routes[r];
+      if (!rt || !Array.isArray(rt.requires) || typeof rt.harder !== "string" || rt.harder.trim() === "") issues.push({ file, message: `companion "${entity.id}": route "${r}" needs requires (a list) and harder (what it costs them, in words)` });
+      else lists.push([`routes.${r}.requires`, rt.requires]);
+    }
+    for (const r of Object.keys(routes)) if (!ROUTE_IDS.includes(r)) issues.push({ file, message: `companion "${entity.id}": unknown route "${r}"` });
+    ((entity.fate ?? []) as { when: unknown[]; state: string }[]).forEach((f, i) => {
+      if (!["escaped", "free", "hiding", "arrested", "left"].includes(f.state) || f.state === "escaped") issues.push({ file, message: `companion "${entity.id}": fate[${i}] state must be free, hiding, arrested or left` });
+      lists.push([`fate[${i}].when`, f.when]);
+    });
+    for (const [where, conds] of lists) (conds ?? []).forEach((c, i) => {
+      for (const m of validateCondition(c, `${where}[${i}]`)) issues.push({ file, message: `companion "${entity.id}": ${m}` });
+      for (const id of clueRefs(c)) if (!ids.clues.has(id)) issues.push({ file, message: `companion "${entity.id}": ${where}[${i}] refers to unknown clue "${id}"` });
+    });
+    if (!JSON.stringify(entity.gate).includes('"trust_gte"')) issues.push({ file, message: `companion "${entity.id}": the gate must require trust (trust_gte)` });
+  }
+  const refs = (text: string, key: string) => [...text.matchAll(new RegExp(`"${key}":"([^"]+)"`, "g"))].map((m) => m[1]!);
+  const companionRefs = (file: string, text: string) => {
+    for (const id of refs(text, "can_bring")) if (!ids.companions.has(id)) issues.push({ file, message: `asks whether unknown candidate "${id}" can be brought` });
+    for (const r of refs(text, "route_clear")) if (!ROUTE_IDS.includes(r)) issues.push({ file, message: `route_clear names unknown route "${r}"` });
+  };
+  for (const { file, dialogue } of compiled) companionRefs(file, JSON.stringify(dialogue));
+  for (const { file, entity } of entities.services) {
+    companionRefs(file, JSON.stringify(entity.requires));
+    const setsRoute = (entity.effects as { set_flag?: [string, unknown] }[]).find((e) => e.set_flag?.[0] === "route_taken");
+    if (setsRoute) {
+      const route = String(setsRoute.set_flag![1]);
+      if (!JSON.stringify(entity.requires).includes(`"route_clear":"${route}"`)) issues.push({ file, message: `route service "${entity.id}" must require route_clear "${route}", so the chosen companion's requirements apply (CMP-5)` });
+    }
   }
   // Exits: the map they lead to, the spawn there, and the fare (a service) must exist.
   for (const { file, map } of mapData) for (const e of map.exits ?? []) {

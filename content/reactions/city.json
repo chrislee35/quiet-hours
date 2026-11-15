@@ -262,5 +262,27 @@
         }
       }
     ]
+  },
+  {
+    "id": "mentor_awakening_due",
+    "on": "FlagSet",
+    "match": {
+      "flag": "mb_choice"
+    },
+    "effects": [
+      {
+        "schedule": {
+          "inMinutes": 120,
+          "effects": [
+            {
+              "set_flag": [
+                "mentor_awakening",
+                true
+              ]
+            }
+          ]
+        }
+      }
+    ]
   }
 ]

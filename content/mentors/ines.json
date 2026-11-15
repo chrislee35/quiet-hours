@@ -32,6 +32,9 @@
     "awakening.opt": "Say it.",
     "awakening.b": "Alder. I filed you under a different letter and told myself it was an error. I will not file you wrongly again.",
     "out": "Mind the queue on your way out. It bites.",
-    "idle": "I am busy, and politely so."
+    "idle": "I am busy, and politely so.",
+    "companion.a": "I have been counting the days to the next train in the margin of a form. If you still want me with you, I am ready. My second name is filed.",
+    "companion.yes": "I want you with me.",
+    "companion.b": "Then I will be there. I always was early to things that mattered."
   }
 }

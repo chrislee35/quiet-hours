@@ -4,6 +4,7 @@
 npc: pallas
 name: Pallas
 trust: yes
+start: awakening [flag:registered_as_cargo, !flag:awake_pallas]
 start: back [flag:met_pallas]
 start: first
 
@@ -24,6 +25,8 @@ node: back
   > [item:repaired_drive, !flag:pallas_repaired] "I have a new drive for you." {-item:repaired_drive, flag:pallas_repaired, trust:pallas+1(repaired her drive)} -> repaired
   > [flag:pallas_repaired, !flag:registered_as_cargo, item:cargo_tag, trust:pallas>=trusts] "I have a cargo tag. It would let you pass the Gate as equipment. Only if you say yes." {-item:cargo_tag, flag:registered_as_cargo} -> tagged
   > [flag:pallas_repaired, !flag:registered_as_cargo, item:cargo_tag, !trust:pallas>=trusts] "I have a cargo tag." -> hesitates
+  > [bring:pallas, !flag:companion=pallas] "Will you come with me, Pallas? Out through the Gate?" {flag:companion=pallas} -> comes
+  > [flag:companion=pallas] "I cannot take you after all." {flag:companion=none} -> released
   > "Goodbye." -> goodbye
 
 node: band
@@ -65,6 +68,19 @@ node: repaired
 node: tagged
   pallas (quiet): "Yes. As cargo, then. I will be a crate with an opinion. Thank you for asking."
   > "Thank you." -> back
+
+node: awakening
+  on_enter: {flag:awake_pallas=person, +clue:pallas_cargo(pallas)}
+  pallas (quiet): "I have read my own log, the part before the drive broke. I am property, and I am property of something that is not the city. MERIDIAN signed my maintenance. It is not a person and it is not a building. It is the thing the Gate is for."
+  > "Yes. I think so too." -> back
+
+node: comes
+  pallas (quiet): "Then I will be cargo with an opinion, and I will be beside you. Say when."
+  > "Thank you." -> back
+
+node: released
+  pallas (soft): "Understood. I will stay where I am useful. It is a thing I am practised at."
+  > "I am sorry." -> back
 
 node: hesitates
   pallas (careful): "A tag is a decision about what I am. I will not take it from someone I am not sure of. Ask me again when I am."

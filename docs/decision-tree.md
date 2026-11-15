@@ -18,7 +18,7 @@ flowchart TD
   n_side["Side-quests and the world's reactions"]
   n_pieces["Act II: gather information and means"]
   n_optional["Optional areas: the Hollow and the Lull"]
-  n_companion["Choose the one companion (4)"]
+  n_companion["Choose the one companion (ask them; they must be ready)"]
   n_route["Choose a Gate route (3)"]
   n_m3["M3: answer the Gate's prompt"]
   n_closing["Closing scene and sequel card (no epilogue)"]
@@ -27,16 +27,16 @@ flowchart TD
   n_pieces --> n_past
   n_pieces --> n_side
   n_pieces -.-> n_optional
-  n_past -.-> n_companion
-  n_side -.-> n_companion
+  n_past --> n_companion
+  n_side --> n_companion
   n_optional -.-> n_companion
-  n_companion -.-> n_route
+  n_companion --> n_route
   n_route --> n_m3
   n_m3 -.-> n_closing
   class n_mentor,n_past,n_side,n_optional,n_companion,n_route,n_m3 decision
   class n_closing outcome
   class n_wake,n_pieces state
-  class n_optional,n_companion,n_closing planned
+  class n_optional,n_closing planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222
@@ -207,29 +207,30 @@ flowchart TD
 
 ## The ending: companion, route, aftermath
 
-Planned (T3.10 to T3.13). One companion, one of three routes, the same closing scene with only the companion's voice changing. The fate of the Hollow, the Lull, the cell and Pallas are recorded as sequel flags and shown only lightly.
+One companion, one of three routes, the same closing scene with only the companion's voice changing. A candidate is asked in person and must trust you and meet their practical requirement; each route then asks something more of them. Everyone ends up aware, and the fate of the Hollow, the Lull, the cell, Pallas and each person left behind is written as sequel flags, shown only lightly.
 
 ```mermaid
 flowchart TD
-  n_cp["Who comes with you?"]
-  n_pallas["Pallas (partner)"]
-  n_june["June (ward)"]
-  n_odile["Odile (convert)"]
-  n_mentorc["Your mentor"]
+  n_cp["Who comes with you? Ask them; the last one asked, and ready, is the one"]
+  n_pallas["Pallas (partner): trusts you, repaired, tagged as cargo. Harder: robots are scanned differently"]
+  n_june["June (ward): trusts you, Marrow consents, a child-sized way. Harder: slow, noisy; planned with the Hollow"]
+  n_odile["Odile (convert): trusts you, sees through the Lull. Harder: fragile; planned with the Lull"]
+  n_mentorc["Your mentor: trusts you, willing to leave, second identity filed. Harder: the sneak window shrinks"]
   n_rt["Which Gate route?"]
   n_sneak["Sneak: Train 7, the service gate in the 13:50 window, a pass in hand"]
   n_hack["Hack: the controller, by the two code halves or by answering the Gate as its builder"]
   n_break["Break the Gate: cut Node 4, walk out through the open Gate; the cost falls on those left"]
+  n_aware["Everyone is aware: in person, or by a message at the crossing"]
   n_scene["Closing scene: outside, gratitude, the turn, black, sequel card"]
-  n_flags["Sequel flags: Hollow, Lull, cell, Pallas, mentor, past stance"]
-  n_cp -.-> n_pallas
+  n_flags["Sequel flags written at the crossing: who came, each person left behind (free, hiding, arrested or left; ally, wary or estranged), Hollow, Lull, cell, past stance"]
+  n_cp --> n_pallas
   n_cp -.-> n_june
   n_cp -.-> n_odile
-  n_cp -.-> n_mentorc
-  n_pallas -.-> n_rt
+  n_cp --> n_mentorc
+  n_pallas --> n_rt
   n_june -.-> n_rt
   n_odile -.-> n_rt
-  n_mentorc -.-> n_rt
+  n_mentorc --> n_rt
   n_rt --> n_sneak
   n_rt --> n_hack
   n_rt --> n_break
@@ -237,10 +238,12 @@ flowchart TD
   n_hack -.-> n_scene
   n_break -.-> n_scene
   n_scene -.-> n_flags
+  n_rt --> n_aware
+  n_aware -.-> n_scene
   class n_cp,n_rt decision
-  class n_pallas,n_june,n_odile,n_mentorc,n_sneak,n_hack,n_break,n_scene outcome
+  class n_pallas,n_june,n_odile,n_mentorc,n_sneak,n_hack,n_break,n_aware,n_scene outcome
   class n_flags state
-  class n_cp,n_pallas,n_june,n_odile,n_mentorc,n_scene,n_flags planned
+  class n_june,n_odile,n_scene planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222

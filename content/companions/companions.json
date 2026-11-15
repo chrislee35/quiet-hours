@@ -1,0 +1,483 @@
+[
+  {
+    "id": "ines",
+    "name": "Ines Calloway",
+    "role": "mentor",
+    "active": [
+      {
+        "flag_eq": [
+          "mentor",
+          "ines"
+        ]
+      }
+    ],
+    "gate": [
+      {
+        "trust_gte": [
+          "ines",
+          1
+        ]
+      },
+      {
+        "flag_eq": [
+          "mentor_choice",
+          "leave"
+        ]
+      },
+      {
+        "flag": "mb_awakening"
+      }
+    ],
+    "routes": {
+      "sneak": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          },
+          {
+            "time_between": [
+              830,
+              840
+            ]
+          }
+        ],
+        "harder": "Ines is fully registered, so a second identity has to be filed for her; she is careful and will not run an unchecked plan. Through the service gate they need a filed second identity and the first ten minutes of the window, not the whole twenty."
+      },
+      "hack": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          }
+        ],
+        "harder": "Ines is fully registered, so a second identity has to be filed for her; she is careful and will not run an unchecked plan. The controller will only list them under the second name."
+      },
+      "break": {
+        "requires": [],
+        "harder": "The open Gate stops checking records, so the second identity is not needed; they only have to keep up."
+      }
+    },
+    "fate": [
+      {
+        "when": [
+          {
+            "flag": "gate_broken"
+          }
+        ],
+        "state": "hiding"
+      }
+    ]
+  },
+  {
+    "id": "maren",
+    "name": "Maren Okafor",
+    "role": "mentor",
+    "active": [
+      {
+        "flag_eq": [
+          "mentor",
+          "maren"
+        ]
+      }
+    ],
+    "gate": [
+      {
+        "trust_gte": [
+          "maren",
+          1
+        ]
+      },
+      {
+        "flag_eq": [
+          "mentor_choice",
+          "leave"
+        ]
+      },
+      {
+        "flag": "mb_awakening"
+      }
+    ],
+    "routes": {
+      "sneak": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          },
+          {
+            "time_between": [
+              830,
+              840
+            ]
+          }
+        ],
+        "harder": "Maren is fully registered, so a second identity has to be filed for her; she is blunt and will only go on a plan she has timed herself. Through the service gate they need a filed second identity and the first ten minutes of the window, not the whole twenty."
+      },
+      "hack": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          }
+        ],
+        "harder": "Maren is fully registered, so a second identity has to be filed for her; she is blunt and will only go on a plan she has timed herself. The controller will only list them under the second name."
+      },
+      "break": {
+        "requires": [],
+        "harder": "The open Gate stops checking records, so the second identity is not needed; they only have to keep up."
+      }
+    },
+    "fate": [
+      {
+        "when": [
+          {
+            "flag": "gate_broken"
+          }
+        ],
+        "state": "hiding"
+      }
+    ]
+  },
+  {
+    "id": "tobias",
+    "name": "Tobias Hale",
+    "role": "mentor",
+    "active": [
+      {
+        "flag_eq": [
+          "mentor",
+          "tobias"
+        ]
+      }
+    ],
+    "gate": [
+      {
+        "trust_gte": [
+          "tobias",
+          1
+        ]
+      },
+      {
+        "flag_eq": [
+          "mentor_choice",
+          "leave"
+        ]
+      },
+      {
+        "flag": "mb_awakening"
+      }
+    ],
+    "routes": {
+      "sneak": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          },
+          {
+            "time_between": [
+              830,
+              840
+            ]
+          }
+        ],
+        "harder": "Tobias is on the Gate's own rolls, so a second identity has to be filed for him; he will not step into a window he has not watched. Through the service gate they need a filed second identity and the first ten minutes of the window, not the whole twenty."
+      },
+      "hack": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          }
+        ],
+        "harder": "Tobias is on the Gate's own rolls, so a second identity has to be filed for him; he will not step into a window he has not watched. The controller will only list them under the second name."
+      },
+      "break": {
+        "requires": [],
+        "harder": "The open Gate stops checking records, so the second identity is not needed; they only have to keep up."
+      }
+    },
+    "fate": [
+      {
+        "when": [
+          {
+            "flag": "gate_broken"
+          }
+        ],
+        "state": "hiding"
+      }
+    ]
+  },
+  {
+    "id": "silas",
+    "name": "Silas Brandt",
+    "role": "mentor",
+    "active": [
+      {
+        "flag_eq": [
+          "mentor",
+          "silas"
+        ]
+      }
+    ],
+    "gate": [
+      {
+        "trust_gte": [
+          "silas",
+          1
+        ]
+      },
+      {
+        "flag_eq": [
+          "mentor_choice",
+          "leave"
+        ]
+      },
+      {
+        "flag": "mb_awakening"
+      }
+    ],
+    "routes": {
+      "sneak": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          },
+          {
+            "time_between": [
+              830,
+              840
+            ]
+          }
+        ],
+        "harder": "Silas is fully registered, so a second identity has to be filed for him; he talks, and a talker is slow to leave. Through the service gate they need a filed second identity and the first ten minutes of the window, not the whole twenty."
+      },
+      "hack": {
+        "requires": [
+          {
+            "flag": "mentor_identity"
+          }
+        ],
+        "harder": "Silas is fully registered, so a second identity has to be filed for him; he talks, and a talker is slow to leave. The controller will only list them under the second name."
+      },
+      "break": {
+        "requires": [],
+        "harder": "The open Gate stops checking records, so the second identity is not needed; they only have to keep up."
+      }
+    },
+    "fate": [
+      {
+        "when": [
+          {
+            "flag": "gate_broken"
+          }
+        ],
+        "state": "hiding"
+      }
+    ]
+  },
+  {
+    "id": "pallas",
+    "name": "Pallas",
+    "role": "partner",
+    "active": [],
+    "gate": [
+      {
+        "trust_gte": [
+          "pallas",
+          1
+        ]
+      },
+      {
+        "flag": "pallas_repaired"
+      },
+      {
+        "flag": "registered_as_cargo"
+      }
+    ],
+    "routes": {
+      "sneak": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 1
+            }
+          }
+        ],
+        "harder": "Robots are scanned differently. A calm platform scans her as cargo; any alert and the lamp looks twice."
+      },
+      "hack": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 2
+            }
+          }
+        ],
+        "harder": "The Annex is human-only. The controller must list her as equipment, and any hunting robot will see what she is."
+      },
+      "break": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 2
+            }
+          }
+        ],
+        "harder": "A Gate that has stopped checking still has robots near it, and they notice one of their own walking out."
+      }
+    },
+    "fate": [
+      {
+        "when": [
+          {
+            "flag": "gate_broken"
+          }
+        ],
+        "state": "hiding"
+      },
+      {
+        "when": [
+          {
+            "flag": "pallas_repaired"
+          }
+        ],
+        "state": "free"
+      }
+    ]
+  },
+  {
+    "id": "juniper",
+    "name": "Juniper",
+    "role": "ward",
+    "active": [],
+    "gate": [
+      {
+        "trust_gte": [
+          "juniper",
+          1
+        ]
+      },
+      {
+        "not": {
+          "flag": "hollow_discovered"
+        }
+      },
+      {
+        "flag": "marrow_consent"
+      },
+      {
+        "flag": "child_route"
+      }
+    ],
+    "routes": {
+      "sneak": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 1
+            }
+          }
+        ],
+        "harder": "She is slow and she is noisy. Any alert at all and the service gate is lost to her."
+      },
+      "hack": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 1
+            }
+          }
+        ],
+        "harder": "She cannot hold still in the Annex for long. The city must not already be looking."
+      },
+      "break": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 2
+            }
+          }
+        ],
+        "harder": "Walking out through the open Gate with a child while the lamps fail is loud, and being seen with her threatens the Hollow."
+      }
+    },
+    "fate": [
+      {
+        "when": [
+          {
+            "flag": "hollow_discovered"
+          }
+        ],
+        "state": "arrested"
+      },
+      {
+        "when": [
+          {
+            "flag": "gate_broken"
+          }
+        ],
+        "state": "hiding"
+      }
+    ]
+  },
+  {
+    "id": "odile",
+    "name": "Odile Marchetti",
+    "role": "convert",
+    "active": [],
+    "gate": [
+      {
+        "trust_gte": [
+          "odile",
+          1
+        ]
+      },
+      {
+        "flag": "lull_awake"
+      },
+      {
+        "not": {
+          "flag": "odile_lapsed"
+        }
+      }
+    ],
+    "routes": {
+      "sneak": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 1
+            }
+          }
+        ],
+        "harder": "She is fragile. At a checkpoint with any alert in the air she may panic, or the Lull pulls her back."
+      },
+      "hack": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 1
+            }
+          }
+        ],
+        "harder": "She will not stand still in an Annex with the city looking; the Lull is very good at bringing people back."
+      },
+      "break": {
+        "requires": [
+          {
+            "not": {
+              "alert_gte": 1
+            }
+          }
+        ],
+        "harder": "The lamps dying one by one is exactly the thing she is afraid of; with any alert she will turn back."
+      }
+    },
+    "fate": [
+      {
+        "when": [
+          {
+            "flag": "lull_awake"
+          }
+        ],
+        "state": "hiding"
+      }
+    ]
+  }
+]

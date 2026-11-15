@@ -12,4 +12,4 @@ Trust (CMP-3/4) is a hidden three-level state per person: does not trust you (-1
 ## Tests
 `packages/sim-harness/test/trust.test.ts`: the three lines and nothing numeric in the dialogue view; one step per act and clamping; recovery from the worst state; the log. `packages/content-tools/test/validate.test.ts`: recoverability.
 
-Companion gating (trust plus practical requirements at the Gate) is T3.12.
+Companion gating (trust plus practical requirements at the Gate): `docs/companions.md`.

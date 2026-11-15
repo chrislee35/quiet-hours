@@ -139,8 +139,11 @@ interface Needed { /** Flags that do not distinguish situations (a coin pickup a
 
 const REAL_ALERT = /"alert_gte"/;
 
-function readsIn(text: string, growth: Content["growth"] = {}): Set<string> {
+function readsIn(text: string, growth: Content["growth"] = {}, companions: Content["companions"] = {}): Set<string> {
   const out = new Set<string>();
+  // Bringing someone, or a crossing that asks about them, reads everything their gate and routes read.
+  if (/"(?:can_bring|route_clear)"/.test(text)) for (const f of readsIn(JSON.stringify(Object.values(companions)).replace(/"(?:can_bring|route_clear)"/g, '"_"'), growth)) out.add(f);
+  if (/"flag_eq":\["companion"/.test(text)) out.add("flag:companion");
   // A growth is a condition on other facts: reading it reads what it depends on.
   for (const m of text.matchAll(/"has_growth":"([^"]+)"/g)) for (const f of readsIn(JSON.stringify(growth[m[1]!]?.when ?? []), growth)) out.add(f);
   const grab = (re: RegExp, prefix: string) => { for (const m of text.matchAll(re)) out.add(`${prefix}:${m[1]}`); };
@@ -173,8 +176,8 @@ function neededFacts(content: Content, goals: readonly GoalDef[], world: World):
   const here = new Set(world.npcs.map((n) => n.dialogue));
   const terminalsHere = world.terminals.map((t) => content.terminals[t.id]).filter((t): t is NonNullable<typeof t> => t !== undefined);
   const producers: { name: string; produces: Set<string>; reads: Set<string> }[] = [
-    ...Object.values(content.dialogues).filter((d) => here.has(d.id)).map((d) => ({ name: `dialogue:${d.id}`, produces: producesIn(JSON.stringify(d), content), reads: readsIn(JSON.stringify(d), content.growth) })),
-    ...Object.values(content.services).map((v) => ({ name: `service:${v.id}`, produces: producesIn(JSON.stringify(v.effects), content), reads: readsIn(JSON.stringify(v.requires)) })),
+    ...Object.values(content.dialogues).filter((d) => here.has(d.id)).map((d) => ({ name: `dialogue:${d.id}`, produces: producesIn(JSON.stringify(d), content), reads: readsIn(JSON.stringify(d), content.growth, content.companions) })),
+    ...Object.values(content.services).map((v) => ({ name: `service:${v.id}`, produces: producesIn(JSON.stringify(v.effects), content), reads: readsIn(JSON.stringify(v.requires), content.growth, content.companions) })),
     ...Object.values(content.reactions).map((r) => ({ name: `reaction:${r.id}`, produces: producesIn(JSON.stringify(r.effects), content), reads: readsIn(JSON.stringify(r.if ?? [])) })),
     ...world.pickups.map((p) => ({ name: `pickup:${p.id}`, produces: new Set([...p.grant.split("+")].map((g) => { const [k, id] = g.split(":"); return `${k === "augment" ? "aug" : k}:${id}`; })), reads: readsIn(JSON.stringify({ requires: p.requires ?? "" })) })),
   ];
@@ -381,7 +384,7 @@ function sandboxDialogue(dialogueId: string, base: SimState, content: Content, c
     nodes.add(`${d.id}/${node.id}`);
     node.choices.forEach((c, i) => { if (evalAll(c.if, st, config, content)) choices.add(`${d.id}/${node.id}#${i}`); });
   };
-  const track = readsIn(JSON.stringify(content.dialogues[dialogueId] ?? {}), content.growth);
+  const track = readsIn(JSON.stringify(content.dialogues[dialogueId] ?? {}), content.growth, content.companions);
   for (const start of [base, rich]) {
     // Visit again after each way the last visit could end (an NPC greets a returning visitor differently), up to three visits.
     let frontier: SimState[] = [start];
@@ -432,10 +435,10 @@ export function checkMap(
   const dialogueReads = new Map<string, Set<string>>();
   const dialogueReadsOf = (id: string): Set<string> => {
     let r = dialogueReads.get(id);
-    if (!r) { r = new Set([...readsIn(JSON.stringify(content.dialogues[id] ?? {}), content.growth), ...serviceReads]); dialogueReads.set(id, r); }
+    if (!r) { r = new Set([...readsIn(JSON.stringify(content.dialogues[id] ?? {}), content.growth, content.companions), ...serviceReads]); dialogueReads.set(id, r); }
     return r;
   };
-  const serviceReads = readsIn(JSON.stringify(Object.values(content.services).map((v) => v.requires)));
+  const serviceReads = readsIn(JSON.stringify(Object.values(content.services).map((v) => v.requires)), content.growth, content.companions);
   /** Everything that decides how a conversation can go from here: the facts it reads, money, the time of day. */
   const convProjection = (st: SimState, dialogueId: string): string => {
     const r = dialogueReadsOf(dialogueId);

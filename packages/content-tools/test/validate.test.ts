@@ -236,4 +236,29 @@ describe("quests", () => {
     });
     expect(orphan.some((i) => /nothing ever gives the player/.test(i.message))).toBe(true);
   });
+
+  it("companions: a route service must ask about the companion, a candidate needs trust, and every route needs its complication in words (CMP-5)", () => {
+    const noClear = fixture((dir) => {
+      const f = join(dir, "services", "services.json");
+      const list = JSON.parse(readFileSync(f, "utf8")) as { id: string; requires: { route_clear?: string }[] }[];
+      const s = list.find((x) => x.id === "gate_hack")!;
+      s.requires = s.requires.filter((c) => c.route_clear === undefined);
+      writeFileSync(f, JSON.stringify(list));
+    });
+    expect(noClear.some((i) => /route service "gate_hack" must require route_clear "hack"/.test(i.message))).toBe(true);
+    const noTrust = fixture((dir) => {
+      const f = join(dir, "companions", "companions.json");
+      const list = JSON.parse(readFileSync(f, "utf8")) as { id: string; gate: object[] }[];
+      list.find((x) => x.id === "pallas")!.gate = [{ flag: "pallas_repaired" }];
+      writeFileSync(f, JSON.stringify(list));
+    });
+    expect(noTrust.some((i) => /companion "pallas": the gate must require trust/.test(i.message))).toBe(true);
+    const noWords = fixture((dir) => {
+      const f = join(dir, "companions", "companions.json");
+      const list = JSON.parse(readFileSync(f, "utf8")) as { id: string; routes: Record<string, { harder: string }> }[];
+      list.find((x) => x.id === "odile")!.routes.break!.harder = "";
+      writeFileSync(f, JSON.stringify(list));
+    });
+    expect(noWords.some((i) => /companion "odile": route "break" needs requires/.test(i.message))).toBe(true);
+  });
 });

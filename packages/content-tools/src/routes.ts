@@ -113,6 +113,13 @@ function rulesOf(worlds: Record<string, World>, content: Content): Rule[] {
       rules.push({ id: `exit ${x.id} to ${x.to}`, map, conds: fare?.requires ?? [], effects: [{ set_flag: [`__map_${x.to}`, true] }, ...(fare?.effects ?? [])], embraces: false });
     }
   }
+  // Reactions to a flag being set (and what they schedule) follow the flag: the mentor's awakening comes after their choice.
+  const flatten = (effects: Effect[]): Effect[] => effects.flatMap((e) => ("schedule" in e ? flatten(e.schedule.effects) : [e]));
+  for (const r of Object.values(content.reactions)) {
+    if (r.on !== "FlagSet" || typeof r.match?.flag !== "string") continue;
+    const effects = flatten(r.effects);
+    rules.push({ id: `reaction ${r.id}`, map: null, conds: [{ flag: r.match.flag }, ...(r.if ?? [])], effects, embraces: embraces(effects) });
+  }
   return rules;
 }
 
@@ -175,4 +182,29 @@ export function checkRoutes(worlds: Record<string, World>, content: Content, sta
     out.push({ route: String(eff.set_flag[1]), service: s.id, reachable: ok(full), reachableNull: ok(nul), chain, missing });
   }
   return out.sort((a, b) => (a.route < b.route ? -1 : 1));
+}
+
+export interface CompanionReport {
+  id: string;
+  /** The gate (trust plus the practical requirement) can be met from the start state, optimistically. */
+  gate: boolean;
+  /** Each route's extra requirements for this person can be met too. */
+  routes: Record<string, boolean>;
+  /** The gate conditions nothing in the content can yet make true. */
+  missing: string[];
+}
+
+/**
+ * Can each candidate be brought out, by each route (CMP-5)? Uses the same closure as `checkRoutes`: optimistic about time,
+ * money, position and alert, exact about the flags, items, clues and trust that the gate and the complications read.
+ * Candidates whose arcs are not written yet (June and Odile arrive with the optional areas) report missing conditions.
+ */
+export function checkCompanions(worlds: Record<string, World>, content: Content, start: { items: Record<string, number> }, startMap = "stacks"): CompanionReport[] {
+  const f = closure(rulesOf(worlds, content), content, start, startMap, false);
+  return Object.values(content.companions).map((c) => {
+    const missing = c.gate.filter((x) => !holds(x, f)).map((x) => JSON.stringify(x));
+    const routes: Record<string, boolean> = {};
+    for (const [r, rt] of Object.entries(c.routes)) routes[r] = rt.requires.every((x) => holds(x, f));
+    return { id: c.id, gate: missing.length === 0, routes, missing };
+  });
 }

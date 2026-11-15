@@ -54,6 +54,7 @@ function parseConditions(text: string, allowReliability: boolean, fail: (m: stri
     else if ((m = t.match(new RegExp(`^augment:(${ID})$`)))) c = { augment_equipped: m[1]! };
     else if ((m = t.match(new RegExp(`^owns:(${ID})$`)))) c = { has_augment: m[1]! };
     else if ((m = t.match(new RegExp(`^can:(${ID})$`)))) c = { can_service: m[1]! };
+    else if ((m = t.match(new RegExp(`^bring:(${ID})$`)))) c = { can_bring: m[1]! };
     else if ((m = t.match(new RegExp(`^grown:(${ID})$`)))) c = { has_growth: m[1]! };
     else if (t === "record") c = { has_record: true };
     else if (t === "curfew") c = { is_curfew: true };
