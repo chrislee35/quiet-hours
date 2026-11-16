@@ -8,7 +8,7 @@ import { ROBOT_KINDS, type ExitDef, type PropDef, type PlaceDef, type SpotDef, t
  * Authoring conventions (see docs/maps.md):
  *  - Tile layer "collision": any non-zero tile is a wall.
  *  - Object layer "zones": rectangles with custom properties `zone` (string id),
- *    `permission` (int, default 0), `curfew` (bool, default false) and `safe` (bool: manual saving always allowed). Later rectangles overwrite earlier ones.
+ *    `permission` (int, default 0), `curfew` (bool, default false) `safe` (bool: manual saving always allowed) and `dulls` (bool: time here smudges the notebook). Later rectangles overwrite earlier ones.
  *  - Object layer "objects": points or rectangles whose Class/Type is "door" or "spawn",
  *    named with the entity id. Doors take bool properties `open` and `locked` (default false).
  *    Class "npc": a person to talk to; Name is the npc id, string property `dialogue` is the conversation id.
@@ -110,11 +110,12 @@ export function importTiled(raw: unknown, id: string): MapData {
     }
     const curfew = prop(o, "curfew") === true;
     const safe = prop(o, "safe") === true;
+    const dulls = prop(o, "dulls") === true;
     let idx = zones.findIndex((z) => z.id === zid);
     if (idx === -1) {
-      zones.push({ id: zid, requiredPermission: permission, ...(curfew ? { curfew: true } : {}), ...(safe ? { safe: true } : {}) });
+      zones.push({ id: zid, requiredPermission: permission, ...(curfew ? { curfew: true } : {}), ...(safe ? { safe: true } : {}), ...(dulls ? { dulls: true } : {}) });
       idx = zones.length - 1;
-    } else if (zones[idx]!.requiredPermission !== permission || (zones[idx]!.curfew === true) !== curfew || (zones[idx]!.safe === true) !== safe) {
+    } else if (zones[idx]!.requiredPermission !== permission || (zones[idx]!.curfew === true) !== curfew || (zones[idx]!.safe === true) !== safe || (zones[idx]!.dulls === true) !== dulls) {
       errors.push(`zone "${zid}" is given conflicting permissions or curfew settings`);
     }
     const x0 = Math.floor(o.x / tilewidth);

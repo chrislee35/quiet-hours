@@ -14,6 +14,7 @@
 import type { Config } from "./config.ts";
 import type { ClueDef, Content } from "./dialogue/types.ts";
 import type { ClueStatus } from "./events.ts";
+import { dulledIds, smudge } from "./dulling.ts";
 import { evalAll, type Condition } from "./rules.ts";
 import type { SimState } from "./state.ts";
 import type { World } from "./world.ts";
@@ -33,6 +34,8 @@ export interface NotebookItem {
   related: { clueId: string; kind: LinkKind; direction: "to" | "from" }[];
   /** Links the player made, as the other clue's id. */
   linked: string[];
+  /** The Lull has smudged this entry (T4.2): `text` is blurred. The clue itself is untouched, and clears with sleep. */
+  dulled: boolean;
 }
 
 export function pairKey(a: string, b: string): [string, string] {
@@ -41,7 +44,8 @@ export function pairKey(a: string, b: string): [string, string] {
 
 const known = (state: Readonly<SimState>, id: string): boolean => state.clues[id] !== undefined;
 
-export function notebookItems(state: Readonly<SimState>, content: Content): NotebookItem[] {
+export function notebookItems(state: Readonly<SimState>, content: Content, config?: Config): NotebookItem[] {
+  const dulled = config ? dulledIds(state, config) : new Set<string>();
   return Object.entries(state.clues)
     .sort(([ai, a], [bi, b]) => a.learnedTick - b.learnedTick || (ai < bi ? -1 : 1))
     .map(([clueId, entry]) => {
@@ -52,7 +56,8 @@ export function notebookItems(state: Readonly<SimState>, content: Content): Note
         .flatMap((c) => c.links.filter((l) => l.to === clueId).map((l) => ({ clueId: c.id, kind: l.kind, direction: "from" as const })));
       return {
         clueId,
-        text: def?.text ?? `(unknown clue ${clueId})`,
+        text: dulled.has(clueId) ? smudge(clueId, def?.text ?? clueId) : (def?.text ?? `(unknown clue ${clueId})`),
+        dulled: dulled.has(clueId),
         from: entry.from,
         status: entry.status,
         learnedTick: entry.learnedTick,

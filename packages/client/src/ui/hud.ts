@@ -38,6 +38,8 @@ export class Hud {
       else if (e.type === "MapChanged") this.say("", 1);
       else if (e.type === "ClueGained") this.say("Notebook updated.", 2000);
       else if (e.type === "HubGrew") this.say(`The Safehouse has grown: ${sim.content.growth[e.growthId]?.name ?? e.growthId}.`, 4000);
+      else if (e.type === "NotebookDulled") this.say("The room is so soft. Your newest notes are going blurry.", 4500);
+      else if (e.type === "NotebookRestored") this.say("Your notebook is clear again.", 3500);
       else if (e.type === "Rested") this.say("You rest. The city loses interest. Game saved.", 3500);
     });
   }

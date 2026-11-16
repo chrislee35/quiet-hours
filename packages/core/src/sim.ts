@@ -1,4 +1,5 @@
 import { broadcastSystem } from "./broadcast.ts";
+import { dullingSystem } from "./dulling.ts";
 import { activeHints, type HintLevel, type HintView } from "./hints.ts";
 import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
@@ -306,6 +307,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "player", run: movePlayer },
   { name: "zones", run: trackZone },
   { name: "clock", run: advanceClock },
+  { name: "dulling", run: dullingSystem },
   { name: "machinery", run: machinerySystem },
   { name: "timers", run: timerSystem },
   { name: "economy", run: economySystem },
@@ -449,7 +451,7 @@ export class Sim {
   /** The notebook as the UI shows it (reliability hidden). */
   /** Everything the notebook screen shows, derived from state and content. */
   notebookItems(): NotebookItem[] {
-    return notebookItems(this.current, this.content);
+    return notebookItems(this.current, this.content, this.config);
   }
 
   conflicts(): Conflict[] {

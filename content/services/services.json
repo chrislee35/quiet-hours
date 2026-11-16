@@ -741,5 +741,27 @@
     "refusals": {
       "funds": "Three credits for the booth. The song is free; the privacy is what you are paying for."
     }
+  },
+  {
+    "id": "perrin_memory_anchor",
+    "name": "Memory Anchor, built",
+    "description": "Doc Perrin builds a Memory Anchor into your wrist band.",
+    "price": 25,
+    "legitimate": false,
+    "once": true,
+    "requires": [
+      {
+        "has_clue": "memory_anchor_exists"
+      }
+    ],
+    "effects": [
+      {
+        "grant_augment": "memory_anchor"
+      }
+    ],
+    "successText": "Perrin solders something the size of a lentil under your band and says it will hold your notes still where the air is trying to soften them. Memory Anchor added; wear it from the band menu.",
+    "refusals": {
+      "funds": "Twenty-five credits. Memory is the one thing I charge for."
+    }
   }
 ]

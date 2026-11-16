@@ -22,4 +22,4 @@ Shapes carry meaning (diamond = place, circle = person, triangle = you) and ever
 Typing in the search box never walks the character or triggers actions (the input controller ignores key presses going into a text field, except Escape).
 
 ## Not yet
-Dulling by the Lull (CLU-6) and hints (CLU-7) come with their milestones. Clue content (CLU-8, about 60-80 clues) is the M3 information pass.
+Dulling by the Lull (CLU-6) is in `docs/lull.md`; hints (CLU-7) in `docs/hints.md`. Clue content (CLU-8, about 60-80 clues) is the M3 information pass.

@@ -25,7 +25,7 @@ Augments are **not** confiscated when you are caught; they are part of you, not 
 | Signal Lens | 1 | 1 | tag `reveal_cones`: draws every robot and camera view cone, through walls, from any distance |
 | Slow Tongue | 1 | 1 | gates extra dialogue options (`augment:slow_tongue`); Odd Sam has one |
 | Burst Jammer | 1 | 2 | knocks robots and cameras within 6 tiles offline for 6 s; 40 s recharge |
-| Memory Anchor | 1 | 2 | tag `notebook_anchor`; has no effect until the Lull exists (T4.2) |
+| Memory Anchor | 1 | 2 | tag `notebook_anchor`; stops the Lull from smudging the notebook (`docs/lull.md`); Doc Perrin builds it for 25 credits |
 
 ## Getting them
 - **Found:** map object class `pickup` with `grant` = `augment:ID`, `item:ID[:COUNT]` or `credits:N`. Interact takes it once (flag `picked_<id>`).

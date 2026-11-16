@@ -120,6 +120,15 @@ export interface Config {
     trackedAlert: number;
     trackedGainFactor: number;
   };
+  /** The Lull smudges the newest notebook entries (T4.2). */
+  lull: {
+    /** In-game minutes in the Lull before anything smudges. */
+    graceMinutes: number;
+    /** Every further this many minutes smudges `perStep` more of the newest entries. */
+    stepMinutes: number;
+    perStep: number;
+    maxDulled: number;
+  };
   /** The Civic Voice's public-address broadcasts (T3.15). */
   pa: {
     /** In-game minutes between announcements. */
@@ -266,6 +275,7 @@ const SHAPE: Shape = {
   },
   failure: { holdSeconds: "number", alertAfterProcessing: "number", holdPerArrest: "number", holdMaxSeconds: "number", trackingAfterArrests: "number", trackedAlert: "number", trackedGainFactor: "number" },
   pa: { intervalMinutes: "number", noRepeat: "number" },
+  lull: { graceMinutes: "number", stepMinutes: "number", perStep: "number", maxDulled: "number" },
   comms: { rangeTiles: "number", latencySeconds: "number", primedSuspicion: "number", memorySeconds: "number" },
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },

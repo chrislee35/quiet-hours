@@ -11,6 +11,7 @@ import { gameTimeAt, inWindow } from "./clock.ts";
 import type { Config } from "./config.ts";
 import type { AlertLevel, ClueStatus, FlagValue, GameEvent, TrustLevel } from "./events.ts";
 import type { Content } from "./dialogue/types.ts";
+import { restoreNotebook } from "./dulling.ts";
 import { isGrown } from "./hub.ts";
 import { dueIn } from "./machinery.ts";
 import { refreshPast } from "./past.ts";
@@ -249,6 +250,7 @@ export function applyEffect(effect: Effect, state: SimState, events: GameEvent[]
     }
     state.alert.quietSince = tick;
     events.push({ type: "Rested", tick });
+    if (config && restoreNotebook(state, config)) events.push({ type: "NotebookRestored", tick });
   } else if ("emit" in effect) {
     events.push({ type: "Custom", tick, name: effect.emit });
   } else if ("give_pass" in effect) {

@@ -174,6 +174,7 @@ export class NotebookPanel {
       root.append(this.el("p", "Empty. Facts you learn will be written here.", "hint"));
       return;
     }
+    if (all.some((i) => i.dulled)) root.append(this.el("p", "Your newest notes are smudged: the Lull does that. Nothing is lost. Leave, and sleep at the Safehouse, and they come back.", "hint"));
     if (shown.length === 0) root.append(this.el("p", "Nothing matches.", "hint"));
     const ul = this.el("ul");
     for (const it of shown) ul.append(this.item(it, all));
@@ -182,7 +183,8 @@ export class NotebookPanel {
 
   private item(it: NotebookItem, all: readonly NotebookItem[]): HTMLElement {
     const li = this.el("li");
-    const text = this.el("span", it.text, it.status === "disproved" ? "disproved" : "");
+    const text = this.el("span", it.text, `${it.status === "disproved" ? "disproved" : ""}${it.dulled ? " dulled" : ""}`.trim());
+    if (it.dulled) text.title = "Smudged by the Lull. Sleep outside it and it clears.";
     const status = this.el("span", it.status === "unverified" ? "" : `(${it.status})`, `status ${it.status}`);
     li.append(text, status);
     li.append(this.el("div", `from ${it.from}${it.tags.length ? ` · ${it.tags.join(", ")}` : ""}`, "from"));

@@ -30,10 +30,15 @@ node: reunited
 
 node: wares
   on_enter: {+clue:memory_anchor_exists(doc_perrin)}
-  doc_perrin: "A Signal Lens, which shows you what the robots can see. Thirty credits, and I will pretend not to know where I got it. There is also a Memory Anchor, which keeps a certain pleasant district from smudging your notebook; that one I have to build, and that is for later."
+  doc_perrin: "A Signal Lens, which shows you what the robots can see. Thirty credits, and I will pretend not to know where I got it. There is also a Memory Anchor, which keeps a certain pleasant district from smudging your notebook; that one I build myself, twenty-five credits, and it only does anything in that district."
   > [credits>=30, !owns:signal_lens] "Fit the Signal Lens. (30 credits)" {service:perrin_signal_lens} -> fitted
+  > [credits>=25, !owns:memory_anchor] "Build the Memory Anchor. (25 credits)" {service:perrin_memory_anchor} -> anchored
   > [owns:signal_lens] "About the Lens again." -> lens
   > "Not now." -> goodbye
+
+node: anchored
+  doc_perrin (pleased): "Wear it in the Lull and the Lull will not be able to smudge a word. Take it off anywhere else, to spare the power. And sleep here afterwards regardless."
+  > "Anything else?" -> wares
 
 node: fitted
   doc_perrin (pleased): "Wear it from the band menu. Do not look at the sun."

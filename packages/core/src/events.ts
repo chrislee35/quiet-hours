@@ -78,6 +78,10 @@ export type GameEvent =
   | { type: "HubGrew"; tick: number; growthId: string }
   /** The player rested in the Safehouse: the city loses interest, and the game saves. */
   | { type: "Rested"; tick: number }
+  /** The Lull has smudged the newest `dulled` notebook entries (T4.2). */
+  | { type: "NotebookDulled"; tick: number; dulled: number }
+  /** Sleep has cleared a smudged notebook. */
+  | { type: "NotebookRestored"; tick: number }
   | { type: "CluesLinked"; tick: number; a: string; b: string }
   | { type: "CluesUnlinked"; tick: number; a: string; b: string }
   | { type: "GameLoaded"; tick: number }

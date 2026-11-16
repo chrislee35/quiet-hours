@@ -188,6 +188,8 @@ export interface ZoneDef {
   curfew?: boolean;
   /** A place where manual saving is always allowed (the Safehouse). */
   safe?: boolean;
+  /** Time spent here smudges the newest notebook entries (the Lull, T4.2). */
+  dulls?: boolean;
 }
 
 export interface DoorDef {

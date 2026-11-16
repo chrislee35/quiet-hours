@@ -17,7 +17,14 @@ Lila comes every evening and cannot remember why. Her little notebook is lost pr
 ## The back room
 Terminal `lull_core`, a lights-out puzzle: the mixing desk is playing the contentment index's pattern, giving `lull_machine_code` (machine-origin fingerprints for the sequel; not confirmed).
 
+## The dulling (T4.2, CLU-6; `packages/core/src/dulling.ts`)
+Zones marked `dulls: true` (all the Lull's) build **exposure** while you stand in them, kept in the number flag `lull_exposure` so saves keep it. After `lull.graceMinutes` (20 game minutes) the **newest** notebook entries smudge, `perStep` (3) more every `stepMinutes` (10), to at most `maxDulled` (12). A smudged entry shows blurred words (half of them, the same ones each time) and is flagged `dulled`; **the clue itself is never changed or lost**, and the notebook says so.
+- **Leaving** stops the build-up but does not clear it.
+- **Sleeping** (the `rest` effect, at the Safehouse) clears it all: `NotebookRestored`.
+- **Memory Anchor** (augment tag `notebook_anchor`, built by Doc Perrin for 25 credits once you know it exists): exposure does not build while it is worn. It does nothing elsewhere and does not undo smudging already done.
+Tuning: `lull` in `content/config/tuning.json`. Tests: `packages/sim-harness/test/dulling.test.ts`.
+
 ## Not here yet
-The dulling itself and the Memory Anchor (T4.2); Odile's arc and the pull-back rule (T4.3); the disruption branch (T4.5). The clue web is at its 100 cap, so the Lull adds no clues of its own: Lila gives existing ones.
+Odile's arc and the pull-back rule (T4.3); the disruption branch (T4.5). The clue web is at its 100 cap, so the Lull adds no clues of its own: Lila gives existing ones.
 
 Tests: `packages/sim-harness/test/lull.test.ts`.

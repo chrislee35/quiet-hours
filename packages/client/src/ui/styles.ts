@@ -24,6 +24,7 @@ export const OVERLAY_CSS = `
 .qh-notebook { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; z-index: 4; }
 .qh-notebook h2 { margin: 0 0 8px; font-size: 1.1em; color: var(--qh-warn); }
 .qh-notebook ul { list-style: none; margin: 0; padding: 0; }
+.qh-notebook .dulled { color: #8b90a8; filter: blur(0.5px); font-style: italic; }
 .qh-notebook li { padding: 7px 0; border-top: 1px solid #2a2f48; }
 .qh-notebook .from { color: var(--qh-muted); font-size: .8em; }
 .qh-notebook .status { font-size: .8em; margin-left: .4em; }
