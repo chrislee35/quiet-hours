@@ -1,0 +1,50 @@
+// Bede, the Hollow's gardener (T4.4). SQ-07 Tomatoes: the irrigation pump leaks; he needs a gasket from outside.
+npc: bede
+name: Bede
+start: done [flag:sq_07_done]
+start: fit [flag:sq_07_started, item:pump_gasket]
+start: back [flag:sq_07_started]
+start: first
+
+node: first
+  on_enter: {+clue:hollow_exists(bede), flag:sq_07_started}
+  bede (gruff): "Do not step on the seedlings. Marrow let you in? Then you are either harmless or very good. Here, look. These are tomatoes. Real ones."
+  bede (worried): "And they are dying. The pump behind the garden leaks at the seal and the beds go dry by noon. I need a gasket, an old rubber ring about the size of a coin. We cannot make one. The Belt's scrap yard has a drawer of them, or someone in the Stacks may have one."
+  > "I will see what I can do." -> end
+  > "Why a tomato?" -> why
+
+node: why
+  bede (gruff): "Because it is the one thing nobody is allowed to be sad about. Go on."
+  > "I will see what I can do." -> end
+
+node: back
+  bede (worried): "Gasket? A rubber ring about the size of a coin, for the pump behind the garden. The Belt's scrap yard, or someone in the Stacks with a tin of odd rubber."
+  > [!clue:june_hums] "Who is the girl humming in the commons?" -> june
+  > "Not yet." -> end
+
+node: june
+  on_enter: {+clue:june_hums(bede)}
+  bede (fond): "June. She hums when she is nervous, and she is nervous around anyone new. You will hear her before you see her, and so will anyone else who is listening."
+  > "I see." -> back
+
+node: fit
+  bede (excited): "That is it. Hold the light."
+  > "Here you are." {-item:pump_gasket, flag:sq_07_done, +item:tomato, flag:hollow_watch, +clue:june_hums(bede)} -> fitted
+
+node: fitted
+  bede (warm): "There. Listen to that: it holds. Take a tomato. Tell Marrow what you did; she will not say thank you, but she will listen differently. We have set a watcher at the old tunnel mouth because of you, which is the only honour I have to give."
+  > "Thank you." -> done
+
+node: done
+  bede (warm): "The beds are green again. Do not tell anyone where the tomatoes came from."
+  > [!clue:june_hums] "Who is the girl humming in the commons?" -> june2
+  > "Goodbye." -> end
+
+node: june2
+  on_enter: {+clue:june_hums(bede)}
+  bede (fond): "June. She hums when she is nervous. You will hear her before you see her."
+  > "I see." -> done
+
+node: end
+  bede (gruff): "Mind the seedlings."
+  end

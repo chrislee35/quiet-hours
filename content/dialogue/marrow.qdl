@@ -1,0 +1,59 @@
+// Marrow, elder of the Hollow (T4.4): protective, wary. Explains the discovery risk; after SQ-07 (Tomatoes) consents to June leaving with someone she trusts.
+npc: marrow
+name: Marrow
+start: back [flag:met_marrow]
+start: first
+
+node: first
+  on_enter: {flag:met_marrow}
+  marrow (wary): "You came by the old tunnel. Quill vouches for you, and Quill is a poor judge of weather. Say what you came for, and then say who else knows you came."
+  > "I only want to see that it is real." -> place
+  > "Who else knows? Nobody." -> nobody
+  > "Goodbye." -> goodbye
+
+node: back
+  marrow (wary): "You again. Sit by the fire if you must. Keep your voice down; the walls here are thinner than they look."
+  > [flag:hollow_trail] "Is something wrong?" -> trail
+  > "What is this place?" -> place
+  > "How could it be found?" -> risk
+  > [flag:sq_07_done, !flag:marrow_consent] "About the girl. June." -> june
+  > [!flag:sq_07_done] "About the girl. June." -> junenot
+  > [flag:marrow_consent] "About June again." -> junerepeat
+  > "Goodbye." -> goodbye
+
+node: nobody
+  marrow (dry): "Good. Keep it that way. Everyone who has ever found us has been somebody's friend."
+  > "What is this place?" -> place
+  > "How could it be found?" -> risk
+
+node: place
+  marrow (wary): "A place the city forgot it had. We found a way to be cold and fed and quiet, and then to be warm. Clean water, real earth, someone to sing to. It stays real only so long as nobody counts it."
+  > "How could it be found?" -> risk
+  > "Thank you for telling me." -> back
+
+node: risk
+  on_enter: {+clue:hollow_discovery_risk(marrow)}
+  marrow (wary): "A trail to the door, an informant with a good memory, a loud way out. A drone looking at the wrong tunnel on the wrong day. Any one of them and there will be a van, and then nothing at all."
+  > "I will be careful." -> back
+
+node: trail
+  marrow (cold): "Somebody walked behind you. Not close. Close enough that I counted the minutes. Do not come here with the city watching."
+  > "I am sorry." -> back
+
+node: junenot
+  marrow (flat): "June is not yours to ask about. Mend something of ours, or do something for us that costs you, and we may talk."
+  > "I understand." -> back
+
+node: june
+  on_enter: {flag:marrow_consent, +clue:june_consent(marrow)}
+  marrow (heavy): "Bede says you mended the pump and asked for nothing. She hums when she is frightened, you know, and she has never been frightened in her life, because I have never let her be. That will change."
+  marrow (heavy): "I will let her go. Only if the Hollow stays hidden, and only with someone she trusts. If you bring a van to this door, I will not forgive it, and neither will she."
+  > "I understand." -> back
+
+node: junerepeat
+  marrow (heavy): "You have my word. Do not make me regret it."
+  > "I will not." -> back
+
+node: goodbye
+  marrow (wary): "Mind the tunnel."
+  end

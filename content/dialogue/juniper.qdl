@@ -1,0 +1,32 @@
+// Juniper, June, about nine (T4.4). Never known anything but the Hollow. A first meeting; her arc and trust come with T4.6.
+npc: juniper
+name: June
+trust: yes
+start: back [flag:met_june]
+start: first
+
+node: first
+  on_enter: {flag:met_june}
+  juniper (shy): "..."
+  juniper (humming): "Hm hm hm-hm. Oh. Sorry. I do that. Are you from the other side of the tunnel? Marrow says there is a lot of side of it."
+  > "Yes. It is very large and very loud." -> loud
+  > "What are you humming?" -> tune
+  > "Goodbye." -> goodbye
+
+node: back
+  juniper (shy): "Hello again. Hm. Hm-hm."
+  > "What are you humming?" -> tune
+  > "Goodbye." -> goodbye
+
+node: loud
+  juniper (curious): "Louder than the pump? I do not believe you. Is it true they have no tomatoes?"
+  > "Not real ones." -> tune
+  > "Goodbye." -> goodbye
+
+node: tune
+  juniper (humming): "It is the one Bede sings to the seedlings. I do not know the end of it. Nobody does. Do you know the end?"
+  > "Not yet." -> back
+
+node: goodbye
+  juniper (shy): "Hm hm. Bye."
+  end

@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 54,
+ "nextobjectid": 56,
  "tilesets": [],
  "layers": [
   {
@@ -3063,6 +3063,49 @@
        "name": "fare",
        "type": "string",
        "value": "train_7"
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "name": "from_hollow",
+     "type": "spawn",
+     "class": "spawn",
+     "x": 2016,
+     "y": 832,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 54,
+     "name": "tunnel_to_hollow",
+     "type": "exit",
+     "class": "exit",
+     "x": 2048,
+     "y": 832,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "to",
+       "type": "string",
+       "value": "hollow"
+      },
+      {
+       "name": "spawn",
+       "type": "string",
+       "value": "from_tunnel"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "The service tunnel to the Hollow"
       }
      ]
     }

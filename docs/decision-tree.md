@@ -189,7 +189,7 @@ flowchart TD
   n_interlock["Beat the dispatcher's interlock"]
   n_stopped["Every tunnel train stands with its doors open"]
   n_hollowdoor["Quill opens the Hollow service tunnel"]
-  n_hollowrisk["Hollow safety: sloppy stealth, informants, a loud escape"]
+  n_hollowrisk["Hollow safety: sloppy stealth leaves a trail, informants, a loud escape (consequences in T4.5)"]
   n_stunned["Stun or destroy a robot: order and contentment fall"]
   n_caught["Caught: processed, belongings in the locker, a setback not an ending"]
   n_escalate["Each arrest holds longer; at three MERIDIAN tracks you (higher alert, quicker notice)"]
@@ -199,19 +199,22 @@ flowchart TD
   n_lullcore["Read the Lull's mixing desk: the same fingerprints as the contentment index"]
   n_odilewake["Wake Odile: clear water, what she was, what the Lull is (from your notebook)"]
   n_odilelapse["Odile slides back under if the city is on alert or she is left alone; water wakes her again"]
+  n_tomatoes["Mend the Hollow's pump for Bede (a gasket from the Belt or Wren): Marrow consents about June"]
+  n_trail["Arrive in the Hollow with the city on alert: a trail to its door"]
   n_power --> n_blackout
   n_node2 -->|presses rest open| n_stopped
   n_interlock --> n_stopped
-  n_hollowdoor -.->|a trail to the Hollow| n_hollowrisk
+  n_hollowdoor -->|a trail to the Hollow| n_hollowrisk
   n_caught -->|again and again| n_escalate
   n_escalate -->|at three arrests| n_halloran
   n_lullarch -->|a regular with a lost notebook| n_lila
   n_lullarch -->|the back room| n_lullcore
   n_lila -->|where she sits, and who she was| n_odilewake
   n_odilewake -->|fragile| n_odilelapse
-  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila,n_odilewake decision
-  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore,n_odilelapse outcome
-  class n_hollowrisk planned
+  n_hollowdoor -->|Bede's pump| n_tomatoes
+  n_trail --> n_hollowrisk
+  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila,n_odilewake,n_tomatoes decision
+  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore,n_odilelapse,n_trail outcome
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222
@@ -292,6 +295,9 @@ flowchart LR
     q_table_for_one -->|done| q_table_for_one_ok["flag sq_08_done"]
   end
   subgraph other_map["other"]
+    q_tomatoes["Tomatoes"]
+    q_tomatoes_start(["begins: flag sq_07_started"]) --> q_tomatoes
+    q_tomatoes -->|done| q_tomatoes_ok["flag sq_07_done"]
     q_pump4_rumour["The Pump 4 rumour"]
     q_pump4_rumour_start(["begins: any"]) --> q_pump4_rumour
     q_pump4_rumour -->|done| q_pump4_rumour_ok["clue_state"]
@@ -328,8 +334,8 @@ flowchart LR
     q_apology_express_start(["begins: flag sq_06_started"]) --> q_apology_express
     q_apology_express -->|done| q_apology_express_ok["flag sq_06_done"]
   end
-  class q_pump4_thermos,q_brindles_hum,q_lost_in_processing,q_table_for_one,q_pump4_rumour,q_act1_safehouse,q_first_cache,q_stitch_in_time,q_statistic,q_pirate_hour,q_maintenance_wing,q_right_on_time,q_apology_express decision
-  class q_pump4_thermos_ok,q_brindles_hum_ok,q_lost_in_processing_ok,q_table_for_one_ok,q_pump4_rumour_ok,q_act1_safehouse_ok,q_first_cache_ok,q_stitch_in_time_ok,q_statistic_ok,q_pirate_hour_ok,q_maintenance_wing_ok,q_right_on_time_ok,q_apology_express_ok achievement
+  class q_pump4_thermos,q_brindles_hum,q_lost_in_processing,q_table_for_one,q_tomatoes,q_pump4_rumour,q_act1_safehouse,q_first_cache,q_stitch_in_time,q_statistic,q_pirate_hour,q_maintenance_wing,q_right_on_time,q_apology_express decision
+  class q_pump4_thermos_ok,q_brindles_hum_ok,q_lost_in_processing_ok,q_table_for_one_ok,q_tomatoes_ok,q_pump4_rumour_ok,q_act1_safehouse_ok,q_first_cache_ok,q_stitch_in_time_ok,q_statistic_ok,q_pirate_hour_ok,q_maintenance_wing_ok,q_right_on_time_ok,q_apology_express_ok achievement
   class q_brindles_hum_bad,q_lost_in_processing_bad,q_pump4_rumour_bad,q_stitch_in_time_bad outcome
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#f8d7da,stroke:#b03a48,color:#222

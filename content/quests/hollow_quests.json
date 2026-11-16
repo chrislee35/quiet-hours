@@ -1,0 +1,44 @@
+[
+  {
+    "id": "tomatoes",
+    "title": "Tomatoes",
+    "summary": "The Hollow's tomatoes are failing: the old irrigation pump leaks. Bede needs a gasket the Hollow cannot make.",
+    "start": [
+      {
+        "flag": "sq_07_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "find",
+        "text": "Find a pump gasket (the Belt's scrap yard, or Wren's stores)",
+        "done": [
+          {
+            "any": [
+              {
+                "has_item": "pump_gasket"
+              },
+              {
+                "flag": "sq_07_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fit",
+        "text": "Bring it to Bede in the Hollow",
+        "done": [
+          {
+            "flag": "sq_07_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_07_done"
+      }
+    ]
+  }
+]

@@ -215,5 +215,21 @@
     "stackable": false,
     "tags": [],
     "description": "A small black notebook with a green ribbon, kept in careful handwriting. Lost property."
+  },
+  {
+    "id": "pump_gasket",
+    "name": "Pump gasket",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "A thick rubber ring the size of a coin, cut for an old irrigation pump."
+  },
+  {
+    "id": "tomato",
+    "name": "Tomato",
+    "type": "consumable",
+    "stackable": true,
+    "tags": [],
+    "description": "A real one. It smells of the sun."
   }
 ]

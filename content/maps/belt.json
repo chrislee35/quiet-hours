@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 52,
+ "nextobjectid": 53,
  "tilesets": [],
  "layers": [
   {
@@ -2364,6 +2364,31 @@
        "name": "label",
        "type": "string",
        "value": "Pry a coupler from the scrap pile"
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "name": "pk_gasket",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 128,
+     "y": 544,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "item:pump_gasket"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Dig through the scrap for a pump gasket"
       }
      ]
     }

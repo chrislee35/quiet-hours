@@ -44,4 +44,5 @@ export * from "./closing.ts";
 export * from "./broadcast.ts";
 export * from "./dulling.ts";
 export * from "./fragile.ts";
+export * from "./hollow.ts";
 export * from "./hints.ts";

@@ -11,7 +11,7 @@ Three train doors in the one-tile tunnel use `cycle: "7/5/seed"`: seven seconds 
 3. **The interlock** (terminal `track_interlock`, a rule-contradiction puzzle on Platform A): stops every train.
 
 ## Rooms
-Platform A (arrival, interlock, the token on the grate), Dispatch (Maren), the junction (Quill, signal lamps, a night auditor), the signal room (the Conductor, `signal_box`), Platform 7 (door unlocked 13:50-14:10, matching the platform window; its exit to the Gate arrives with T3.11) and the Hollow service tunnel (door locked until SQ-05; the exit to the Hollow arrives with M4).
+Platform A (arrival, interlock, the token on the grate), Dispatch (Maren), the junction (Quill, signal lamps, a night auditor), the signal room (the Conductor, `signal_box`), Platform 7 (door unlocked 13:50-14:10, matching the platform window; its exit to the Gate arrives with T3.11) and the Hollow service tunnel (door locked until SQ-05; the exit at its east end leads to the Hollow, `docs/hollow.md`).
 
 ## Side-quests
 - **SQ-05 Right on Time** (Quill): bring the token from Platform A and the trains' pattern. Reward: trust, `door_hollow` unlocked (reaction on the custom event `quill_opens_hollow`), clues `quill_shortcut`, `tunnel_scanners_low`.

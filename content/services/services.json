@@ -763,5 +763,32 @@
     "refusals": {
       "funds": "Twenty-five credits. Memory is the one thing I charge for."
     }
+  },
+  {
+    "id": "store_pump_gasket",
+    "name": "Pump gasket",
+    "description": "Wren's stores have a pump gasket, if you ask nicely.",
+    "price": 12,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "not": {
+          "has_item": "pump_gasket"
+        }
+      }
+    ],
+    "effects": [
+      {
+        "add_item": [
+          "pump_gasket",
+          1
+        ]
+      }
+    ],
+    "successText": "Wren finds one in a tin of odd rubber and does not ask what pump.",
+    "refusals": {
+      "funds": "Twelve credits. Wren is kind, not stupid."
+    }
   }
 ]

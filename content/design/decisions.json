@@ -658,9 +658,10 @@
         },
         {
           "id": "hollowrisk",
-          "label": "Hollow safety: sloppy stealth, informants, a loud escape",
+          "label": "Hollow safety: sloppy stealth leaves a trail, informants, a loud escape (consequences in T4.5)",
           "kind": "outcome",
-          "status": "planned"
+          "status": "implemented",
+          "flag": "hollow_risk"
         },
         {
           "id": "stunned",
@@ -724,6 +725,20 @@
           "kind": "outcome",
           "status": "implemented",
           "flag": "odile_lapsed"
+        },
+        {
+          "id": "tomatoes",
+          "label": "Mend the Hollow's pump for Bede (a gasket from the Belt or Wren): Marrow consents about June",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "sq_07_done"
+        },
+        {
+          "id": "trail",
+          "label": "Arrive in the Hollow with the city on alert: a trail to its door",
+          "kind": "outcome",
+          "status": "implemented",
+          "engine": true
         }
       ],
       "edges": [
@@ -774,6 +789,15 @@
           "from": "odilewake",
           "to": "odilelapse",
           "label": "fragile"
+        },
+        {
+          "from": "hollowdoor",
+          "to": "tomatoes",
+          "label": "Bede's pump"
+        },
+        {
+          "from": "trail",
+          "to": "hollowrisk"
         }
       ]
     },

@@ -94,6 +94,7 @@ node: funded3
 node: stores
   wren: "Whatever the cell can spare. Nothing fancy, and nothing that does not do what it says."
   > [grown:stores_shelf] "A noise-maker. (10 credits)" {service:store_noise_maker} -> sold
+  > [flag:sq_07_started, !flag:sq_07_done, !item:pump_gasket, credits>=12] "A pump gasket, an old rubber ring. (12 credits)" {service:store_pump_gasket} -> sold
   > [grown:tool_rack] "Wire cutters. (25 credits)" {service:store_wire_cutters} -> sold
   > [grown:tool_rack] "A stun charge. (40 credits)" {service:store_stun_charge} -> sold
   > "Not now." -> hub
