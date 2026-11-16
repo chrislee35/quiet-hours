@@ -14,7 +14,7 @@ import type { SimState } from "./state.ts";
  * changes what the raid does. When it lands: `hollow_discovered`, `hollow_outcome` = `scattered` (warned: the people
  * got away) or `wiped`, the custom event `hollow_raided`, and everyone in the Hollow is gone (`away`). A player inside
  * at that moment is spotted (alert Hunting). Leaving by the Gate on the break route with any risk at all also costs the
- * Hollow (`finalizeEscape`). `hollow_here` remembers that the player is inside, so a visit counts once.
+ * Hollow (`finalizeEscape`). Being seen with June (alert while she is your chosen companion) counts as one more trail (`hollow_seen_with_june`, once). `hollow_here` remembers that the player is inside, so a visit counts once.
  */
 export function hollowRisk(state: Readonly<SimState>): number {
   const f = state.flags;
@@ -40,6 +40,12 @@ export function hollowSystem({ state, config, events }: Ctx): void {
     }
   } else if (!inside && f.hollow_here === true) f.hollow_here = false;
 
+  // Being seen with June threatens the Hollow: once, when the city is on alert while she is with you.
+  if (f.companion === "juniper" && state.alert.level >= 1 && f.hollow_seen_with_june !== true && f.hollow_discovered !== true) {
+    f.hollow_seen_with_june = true;
+    f.hollow_trails = (typeof f.hollow_trails === "number" ? f.hollow_trails : 0) + 1;
+    f.hollow_risk = true;
+  }
   if (f.hollow_discovered === true) {
     if (inside) for (const n of Object.values(state.npcs)) n.away = true;
     return;

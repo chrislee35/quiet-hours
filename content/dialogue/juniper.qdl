@@ -15,7 +15,12 @@ node: first
 
 node: back
   juniper (shy): "Hello again. Hm. Hm-hm."
+  > [flag:tune_known, !flag:june_tune] "Bede taught me the end of your song." {flag:june_tune, trust:juniper+1(sang the end of her song)} -> tune_end
+  > [!flag:awake_juniper] "Do you want to know what is outside?" -> outside
+  > [bring:juniper, !flag:companion=juniper] "Will you come with me? Out through the tunnel, to the other side." {flag:companion=juniper} -> comes
+  > [flag:companion=juniper] "I cannot take you after all." {flag:companion=none} -> released
   > "What are you humming?" -> tune
+  > "Hush, please. You are very loud." {trust:juniper-1(told her to hush)} -> hushed
   > "Goodbye." -> goodbye
 
 node: loud
@@ -26,6 +31,31 @@ node: loud
 node: tune
   juniper (humming): "It is the one Bede sings to the seedlings. I do not know the end of it. Nobody does. Do you know the end?"
   > "Not yet." -> back
+
+node: tune_end
+  juniper (radiant): "It goes down. Down, and home, to where it started. Oh. Oh, it was never unfinished. Say it again. No, do not say it again, I will keep it."
+  > "It is yours." -> back
+
+node: outside
+  juniper (curious): "You said louder than the pump. What is it really like? Marrow says not to ask."
+  > "Loud, and large, and dangerous. Nothing has a roof. There is a thing called the sky and it goes all the way up." {flag:awake_juniper=person} -> truth
+  > "Not now." -> back
+
+node: truth
+  juniper (steady): "All the way up. Hm. That is a great deal of up. I think I would like to see it, even if I am frightened. Is that all right? Is it all right to be frightened and go?"
+  > "It is the only way to go." -> back
+
+node: comes
+  juniper (steady): "Marrow said I may, if you are the one. I will be quiet. I will try. If I hum, put your hand on my head, like Bede does, and I will stop."
+  > "Thank you, June." -> back
+
+node: released
+  juniper (small): "Oh. All right. I will wait here, with the tomatoes."
+  > "I am sorry." -> back
+
+node: hushed
+  juniper (small): "Sorry. I am sorry. I will be quiet."
+  > "It is all right." -> back
 
 node: goodbye
   juniper (shy): "Hm hm. Bye."

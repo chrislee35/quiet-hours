@@ -45,7 +45,14 @@ node: passed
 node: done
   quill (quick): "The east door is open. Mind the trains on your way back."
   > "Is there another way?" -> sewer
+  > [flag:marrow_consent, !flag:child_route] "Is there a way a child could get out? Quietly?" -> vent
   > "Goodbye." -> goodbye
+
+node: vent
+  on_enter: {flag:child_route, +clue:tunnel_scanners_low(quill)}
+  quill (low): "A child. Hm. The scanners in the east tunnel sit low enough to pass over one, and there is a vent behind the signal box at Platform 7 that nobody over four foot has used in thirty years. She would have to be carried, quiet as a stone. She will not be quiet. Children are not."
+  quill (low): "But yes. It can be done. I will leave the grille loose."
+  > "Thank you, Quill." -> done
 
 node: goodbye
   quill: "Mind the trains."

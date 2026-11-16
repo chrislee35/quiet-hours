@@ -204,6 +204,7 @@ flowchart TD
   n_warn["Warn Marrow in time: the raid scatters the Hollow instead of wiping it"]
   n_raided["The raid lands: the Hollow is wiped or scattered, and June cannot leave"]
   n_disrupt["Disrupt the Lull at the governor: the dulling stops, the city feels it, the patrons are not all glad"]
+  n_june["Give June the end of Bede's song: she trusts you; Quill leaves a child-sized way once Marrow consents"]
   n_power --> n_blackout
   n_node2 -->|presses rest open| n_stopped
   n_interlock --> n_stopped
@@ -220,7 +221,9 @@ flowchart TD
   n_hollowrisk -->|or the break route| n_raided
   n_warn -->|scattered| n_raided
   n_lullcore --> n_disrupt
-  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila,n_odilewake,n_tomatoes,n_warn,n_disrupt decision
+  n_tomatoes -->|Marrow's consent| n_june
+  n_hollowrisk -->|being seen with her| n_june
+  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila,n_odilewake,n_tomatoes,n_warn,n_disrupt,n_june decision
   class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore,n_odilelapse,n_trail,n_raided outcome
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222

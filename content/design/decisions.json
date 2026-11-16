@@ -760,6 +760,13 @@
           "kind": "decision",
           "status": "implemented",
           "flag": "lull_disrupted"
+        },
+        {
+          "id": "june",
+          "label": "Give June the end of Bede's song: she trusts you; Quill leaves a child-sized way once Marrow consents",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "child_route"
         }
       ],
       "edges": [
@@ -838,6 +845,16 @@
         {
           "from": "lullcore",
           "to": "disrupt"
+        },
+        {
+          "from": "tomatoes",
+          "to": "june",
+          "label": "Marrow's consent"
+        },
+        {
+          "from": "hollowrisk",
+          "to": "june",
+          "label": "being seen with her"
         }
       ]
     },

@@ -38,7 +38,14 @@ node: fitted
 node: done
   bede (warm): "The beds are green again. Do not tell anyone where the tomatoes came from."
   > [!clue:june_hums] "Who is the girl humming in the commons?" -> june2
+  > [!flag:tune_known] "Do you know the end of the song you sing to the seedlings?" -> tune
   > "Goodbye." -> end
+
+node: tune
+  on_enter: {flag:tune_known}
+  bede (soft): "The end? Of course I do. Nobody ever asks. It goes down, not up, and it comes home to where it started. Here. Hm, hm... there. Now you know it."
+  bede (soft): "Do not sing it where the walls listen. June has been waiting for it all her life, you know. She thinks the song never ends."
+  > "I will find her." -> done
 
 node: june2
   on_enter: {+clue:june_hums(bede)}

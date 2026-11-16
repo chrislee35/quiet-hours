@@ -18,7 +18,13 @@ At `hollow.discoverAt` (3) a **raid is set in motion** (`hollow_doomed`; the HUD
 - Otherwise it lands: `hollow_discovered`, `hollow_outcome` = `wiped` (or `scattered` if warned), everyone in the Hollow is gone, and a player still inside is spotted (Hunting).
 **Leaving by the Gate on the break route** with any risk at all costs the Hollow the same way (`finalizeEscape`); the other routes leave it hidden. `sequel_hollow` is `hidden`, `scattered` or `wiped`. A discovered Hollow ends June's gate (`hollow_discovered`).
 
-## Not here yet
-June's arc, her route requirements and `child_route` (T4.6).
+## June's arc (T4.6, CMP-5)
+- **The tune.** June has never known the end of the song Bede sings to the seedlings. After SQ-07 Bede will tell you how it ends (`tune_known`); telling June earns her trust (`june_tune`, one step to "trusts you"). Telling her to hush costs a step and the tune earns it back, so she is never stuck.
+- **The truth** (her awakening): ask whether she wants to know what is outside and be honest about it (`awake_juniper=person`).
+- **A way a child can use** (`child_route`): Quill, once Marrow has consented (SQ-07), leaves a vent grille loose behind the Platform 7 signal box and says how low the tunnel scanners sit.
+- **Marrow's consent** (`marrow_consent`) comes from SQ-07; if the Hollow is discovered, June cannot leave at all.
+- **Asking her** to come sets her as your companion (release if you change your mind); Marrow has a farewell.
+- **Her route requirements** are in `content/companions/companions.json`: any alert shuts the sneak and the hack; the break only fails at Hunting. **Being seen with her** (alert while she is your companion) adds one trail to the Hollow's risk, once.
+Tests: `packages/sim-harness/test/june.test.ts`.
 
 Tests: `packages/sim-harness/test/hollow.test.ts`, `consequences.test.ts`.

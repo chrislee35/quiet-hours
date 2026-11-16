@@ -28,7 +28,8 @@ node: back
   > "How could it be found?" -> risk
   > [flag:sq_07_done, !flag:marrow_consent] "About the girl. June." -> june
   > [!flag:sq_07_done] "About the girl. June." -> junenot
-  > [flag:marrow_consent] "About June again." -> junerepeat
+  > [flag:marrow_consent, !flag:companion=juniper] "About June again." -> junerepeat
+  > [flag:companion=juniper] "She is coming with me." -> farewell
   > "Goodbye." -> goodbye
 
 node: nobody
@@ -59,6 +60,10 @@ node: june
   marrow (heavy): "Bede says you mended the pump and asked for nothing. She hums when she is frightened, you know, and she has never been frightened in her life, because I have never let her be. That will change."
   marrow (heavy): "I will let her go. Only if the Hollow stays hidden, and only with someone she trusts. If you bring a van to this door, I will not forgive it, and neither will she."
   > "I understand." -> back
+
+node: farewell
+  marrow (heavy): "Then keep her quiet, and keep her warm, and keep her away from the sort of man who writes things down. If the sky is as large as you say, tell her that the tomatoes will be waiting."
+  > "I will." -> back
 
 node: junerepeat
   marrow (heavy): "You have my word. Do not make me regret it."
