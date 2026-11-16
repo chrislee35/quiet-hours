@@ -54,6 +54,12 @@
     "district": "lull"
   },
   {
+    "id": "marta_anselm",
+    "name": "Marta Anselm",
+    "role": "lull_regular",
+    "district": "lull"
+  },
+  {
     "id": "odile",
     "name": "Odile Marchetti",
     "role": "signatory",

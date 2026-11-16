@@ -675,5 +675,71 @@
     "refusals": {
       "requirements": "Not yet. The signal has to be boosted, and the Civic Voice only leaves its microphone open between nine and half past nine in the evening."
     }
+  },
+  {
+    "id": "lull_clear_water",
+    "name": "A glass of clear water",
+    "description": "The bar will pour it, with some puzzlement.",
+    "price": 2,
+    "legitimate": false,
+    "once": false,
+    "requires": [
+      {
+        "not": {
+          "has_item": "clear_water"
+        }
+      }
+    ],
+    "effects": [
+      {
+        "add_item": [
+          "clear_water",
+          1
+        ]
+      }
+    ],
+    "successText": "The Host pours it with a flourish, as if you had asked for something rare. It has no taste at all, and it is the most real thing you have drunk here.",
+    "refusals": {
+      "funds": "Two credits. Even the plain glass is not free in the Lull, only the amber."
+    }
+  },
+  {
+    "id": "lull_perfect_drink",
+    "name": "The perfect drink",
+    "description": "Free. The Host builds it from a short conversation about your day.",
+    "price": 0,
+    "legitimate": false,
+    "once": false,
+    "requires": [],
+    "effects": [
+      {
+        "set_flag": [
+          "had_perfect_drink",
+          true
+        ]
+      }
+    ],
+    "successText": "It is exactly the drink you did not know you wanted, and your shoulders come down an inch. The room is a little softer afterwards."
+  },
+  {
+    "id": "lull_tailored_song",
+    "name": "A song for you",
+    "description": "The listening booth composes one from your mood.",
+    "price": 3,
+    "legitimate": false,
+    "once": false,
+    "requires": [],
+    "effects": [
+      {
+        "set_flag": [
+          "heard_tailored_song",
+          true
+        ]
+      }
+    ],
+    "successText": "A tune built for you, from the way you walk. You hum the end of it for a long time, and cannot say what it was about.",
+    "refusals": {
+      "funds": "Three credits for the booth. The song is free; the privacy is what you are paying for."
+    }
   }
 ]

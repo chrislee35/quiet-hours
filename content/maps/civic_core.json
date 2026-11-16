@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 58,
+ "nextobjectid": 61,
  "tilesets": [],
  "layers": [
   {
@@ -2505,6 +2505,49 @@
       }
      ],
      "class": "npc"
+    },
+    {
+     "id": 58,
+     "name": "from_lull",
+     "type": "spawn",
+     "class": "spawn",
+     "x": 352,
+     "y": 736,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 59,
+     "name": "gilded_arch_to_lull",
+     "type": "exit",
+     "class": "exit",
+     "x": 352,
+     "y": 768,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "to",
+       "type": "string",
+       "value": "lull"
+      },
+      {
+       "name": "spawn",
+       "type": "string",
+       "value": "from_civic"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "The gilded arch to the Lull"
+      }
+     ]
     }
    ]
   }

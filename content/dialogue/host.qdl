@@ -1,0 +1,93 @@
+// The Host of the Lull. Charming, attentive, and (to a guest who looks) possibly either tragic or sinister: never settled here.
+// Gives the gossip about the hackers and the cat, the planted line that the Lull is harmless, the (true) hints about Odile, the water,
+// and, for SQ-08, Lila's lost diary.
+npc: host
+name: The Host
+start: back [flag:met_host]
+start: first
+
+node: first
+  on_enter: {flag:met_host}
+  host (warm): "Welcome, welcome. You look like someone who has been carrying a great deal. Put it down. Nothing here has ever needed to be carried."
+  host (warm): "I am the Host. Everyone is a guest, and every guest is expected."
+  > "What is this place?" -> place
+  > "A drink, perhaps." -> bar
+  > "Something else." -> back
+  > "Goodbye." -> goodbye
+
+node: back
+  host (warm): "Back again. It is so good to see you rested. What would you like?"
+  > "What is this place?" -> place
+  > "A drink." -> bar
+  > [!clue:hackers_reunion] "Anything happening here tonight?" -> reunion
+  > [!clue:cat_host] "Has a cat been in? Grey, unimpressed." -> cat
+  > [!clue:odile_content] "Who is the woman in the corner booth?" -> odile
+  > [clue:odile_content, !clue:odile_signatory] "Is she somebody important?" -> important
+  > [flag:sq_08_started, !flag:sq_08_done, !item:lila_diary] "A guest has lost a little notebook with a green ribbon. Ms Voss." -> lostprop
+  > "Goodbye." -> goodbye
+
+node: place
+  host (gentle): "The Lull is only a place to rest. Nobody is kept here against their will, and nothing is lost by staying. The city is a great deal. Here, it is less."
+  on_enter: {+clue:lull_harmless}
+  > "And the music?" -> music
+  > "Thank you." -> back
+
+node: music
+  host (warm): "Written for each guest, a little at a time, by listening. I do not choose it. I only arrange for it to be kind."
+  > "Right." -> back
+
+node: bar
+  host (warm): "The house drink is free, always: I build it for you out of how your day went. Or if you would like a song, the booths are at the back."
+  > "The perfect drink." {service:lull_perfect_drink} -> drank
+  > [credits>=3] "A song for me. (3 credits)" {service:lull_tailored_song} -> song
+  > [credits>=2, !item:clear_water] "Just a glass of water. (2 credits)" -> water
+  > "Nothing, thank you." -> back
+
+node: drank
+  host (warm): "There. Better already. Is it not?"
+  > "Yes." -> back
+
+node: song
+  host (gentle): "Go and sit. It will find you."
+  > "Thank you." -> back
+
+node: water
+  host (puzzled): "Water. Plain water. Do you know, in all my years nobody has asked me for that. Are you quite well?"
+  > [credits>=2] "Quite well. Water, please." {service:lull_clear_water} -> poured
+  > "Never mind." -> back
+
+node: poured
+  host (puzzled): "Of course. Of course. It is very clear."
+  > "Thank you." -> back
+
+node: reunion
+  host (warm): "Oh, you will like this. A whole crew of hackers has booked the same table on the same night. I have prepared four perfect drinks, and not one of them will agree on which is theirs."
+  on_enter: {+clue:hackers_reunion}
+  > "That sounds like them." -> back
+
+node: cat
+  host (fond): "A grey cat? Yes. It took the perfect drink, left a tip in a currency I would not name, and was not dulled in the least. I have wondered about it since."
+  on_enter: {+clue:cat_host}
+  > "Thank you." -> back
+
+node: odile
+  host (fond): "Councillor Marchetti. Retired happily, and wants no visitors. She has the corner booth, and I have never once had to ask her to leave."
+  on_enter: {+clue:odile_content}
+  > "Is she somebody important?" -> important
+  > "I see." -> back
+
+node: important
+  host (gentle): "Once. She sat on the council when it still signed things, and her signature is, I am told, one of the last that still counts for something. A quaint detail."
+  host (gentle): "We keep her comfortable. If she is left alone too long, or the city grows unquiet, she drifts back to us. It is a kindness, you understand."
+  on_enter: {+clue:odile_signatory, +clue:odile_lapse}
+  > "I see." -> back
+
+node: lostprop
+  host (smooth): "Ah. Ms Voss's. I did wonder who it belonged to. A guest's things find their owner: here you are."
+  host (smooth): "She is so very much happier without it, you know."
+  on_enter: {+item:lila_diary}
+  > "Thank you." -> back
+
+node: goodbye
+  host (warm): "Do come back. The door is always open. It has never once been locked."
+  end

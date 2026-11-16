@@ -1,0 +1,24 @@
+// Marta Anselm, Dov's sister, four years in the Lull. Her postcard says exactly the same thing every month.
+npc: marta_anselm
+name: Marta Anselm
+start: back [flag:met_marta]
+start: first
+
+node: first
+  on_enter: {flag:met_marta}
+  marta_anselm (bright): "I am having a lovely time. I write my brother every month to tell him so. Wish you were here! Would you like to carry a card for me?"
+  > [clue:dov_sister_lull] "Dov says hello." -> dov
+  > "Another time." -> goodbye
+
+node: back
+  marta_anselm (bright): "I am having a lovely time. Wish you were here."
+  > [clue:dov_sister_lull] "Dov says hello." -> dov
+  > "Goodbye." -> goodbye
+
+node: dov
+  marta_anselm (bright): "Dov? Oh, he worries. Tell him I am having a lovely time."
+  > "I will." -> goodbye
+
+node: goodbye
+  marta_anselm (bright): "Do come again."
+  end

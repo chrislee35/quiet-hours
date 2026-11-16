@@ -194,14 +194,19 @@ flowchart TD
   n_caught["Caught: processed, belongings in the locker, a setback not an ending"]
   n_escalate["Each arrest holds longer; at three MERIDIAN tracks you (higher alert, quicker notice)"]
   n_halloran["Show Halloran-7 two rules that contradict: the file is lost and the count is wiped"]
+  n_lullarch["Go through the gilded arch into the Lull: a safe place with shops and gossip"]
+  n_lila["Wake Lila Voss: her diary from the Host (or the staff drawer) and a glass of clear water"]
+  n_lullcore["Read the Lull's mixing desk: the same fingerprints as the contentment index"]
   n_power --> n_blackout
   n_node2 -->|presses rest open| n_stopped
   n_interlock --> n_stopped
   n_hollowdoor -.->|a trail to the Hollow| n_hollowrisk
   n_caught -->|again and again| n_escalate
   n_escalate -->|at three arrests| n_halloran
-  class n_power,n_node2,n_interlock,n_halloran decision
-  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate outcome
+  n_lullarch -->|a regular with a lost notebook| n_lila
+  n_lullarch -->|the back room| n_lullcore
+  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila decision
+  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore outcome
   class n_hollowrisk planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
@@ -277,6 +282,11 @@ flowchart LR
     q_lost_in_processing -->|done| q_lost_in_processing_ok["flag sq_01_done"]
     q_lost_in_processing -.->|missed| q_lost_in_processing_bad["flag dov_arrested"]
   end
+  subgraph lull_map["lull"]
+    q_table_for_one["Table for One"]
+    q_table_for_one_start(["begins: flag sq_08_started"]) --> q_table_for_one
+    q_table_for_one -->|done| q_table_for_one_ok["flag sq_08_done"]
+  end
   subgraph other_map["other"]
     q_pump4_rumour["The Pump 4 rumour"]
     q_pump4_rumour_start(["begins: any"]) --> q_pump4_rumour
@@ -314,8 +324,8 @@ flowchart LR
     q_apology_express_start(["begins: flag sq_06_started"]) --> q_apology_express
     q_apology_express -->|done| q_apology_express_ok["flag sq_06_done"]
   end
-  class q_pump4_thermos,q_brindles_hum,q_lost_in_processing,q_pump4_rumour,q_act1_safehouse,q_first_cache,q_stitch_in_time,q_statistic,q_pirate_hour,q_maintenance_wing,q_right_on_time,q_apology_express decision
-  class q_pump4_thermos_ok,q_brindles_hum_ok,q_lost_in_processing_ok,q_pump4_rumour_ok,q_act1_safehouse_ok,q_first_cache_ok,q_stitch_in_time_ok,q_statistic_ok,q_pirate_hour_ok,q_maintenance_wing_ok,q_right_on_time_ok,q_apology_express_ok achievement
+  class q_pump4_thermos,q_brindles_hum,q_lost_in_processing,q_table_for_one,q_pump4_rumour,q_act1_safehouse,q_first_cache,q_stitch_in_time,q_statistic,q_pirate_hour,q_maintenance_wing,q_right_on_time,q_apology_express decision
+  class q_pump4_thermos_ok,q_brindles_hum_ok,q_lost_in_processing_ok,q_table_for_one_ok,q_pump4_rumour_ok,q_act1_safehouse_ok,q_first_cache_ok,q_stitch_in_time_ok,q_statistic_ok,q_pirate_hour_ok,q_maintenance_wing_ok,q_right_on_time_ok,q_apology_express_ok achievement
   class q_brindles_hum_bad,q_lost_in_processing_bad,q_pump4_rumour_bad,q_stitch_in_time_bad outcome
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#f8d7da,stroke:#b03a48,color:#222
@@ -332,6 +342,7 @@ flowchart LR
 | Save Brindle from the scrap queue (Brindle's Hum) | side-quest `sq_04` (belt) | implemented |
 | Learn the tunnel trains (Right on Time) | side-quest `sq_05` (underworks) | implemented |
 | Fix the Conductor's timetable (Apology, Express) | side-quest `sq_06` (underworks) | implemented |
+| Wake Lila Voss (Table for One) | side-quest `sq_08` (lull) | implemented |
 | Bring Anecdote home to Doc Perrin (Statistic) | side-quest `sq_09` (stacks) | implemented |
 | Play the forbidden song on the Civic Voice (Pirate Hour) | side-quest `sq_10` (stacks) | implemented |
 | Both embrace and reject are playable | flag `past_stance` | implemented |

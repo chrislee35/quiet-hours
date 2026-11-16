@@ -1,0 +1,12 @@
+[
+  {
+    "id": "sq_08",
+    "name": "Wake Lila Voss (Table for One)",
+    "map": "lull",
+    "require": [
+      {
+        "flag": "sq_08_done"
+      }
+    ]
+  }
+]

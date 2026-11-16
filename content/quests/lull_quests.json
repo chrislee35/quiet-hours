@@ -1,0 +1,60 @@
+[
+  {
+    "id": "table_for_one",
+    "title": "Table for One",
+    "summary": "Lila Voss comes every evening, orders the amber drink and cannot remember why she came.",
+    "start": [
+      {
+        "flag": "sq_08_started"
+      }
+    ],
+    "steps": [
+      {
+        "id": "find",
+        "text": "Find out what Lila has lost (a notebook: ask the staff, or look where lost things go)",
+        "done": [
+          {
+            "any": [
+              {
+                "has_item": "lila_diary"
+              },
+              {
+                "flag": "sq_08_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "water",
+        "text": "Get a glass of clear water from the bar",
+        "done": [
+          {
+            "any": [
+              {
+                "has_item": "clear_water"
+              },
+              {
+                "flag": "sq_08_done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wake",
+        "text": "Give Lila her diary and the water",
+        "done": [
+          {
+            "flag": "sq_08_done"
+          }
+        ]
+      }
+    ],
+    "complete": [
+      {
+        "flag": "sq_08_done"
+      }
+    ]
+  }
+]

@@ -1,0 +1,68 @@
+// Lila Voss, a regular of the Lull: a table for one, every evening. SQ-08 "Table for One": bring her the diary she kept and a glass of clear water.
+npc: lila_voss
+name: Lila Voss
+start: done [flag:sq_08_done]
+start: diary [flag:sq_08_started, item:lila_diary]
+start: back [flag:met_lila]
+start: first
+
+node: first
+  on_enter: {flag:met_lila, flag:sq_08_started}
+  lila_voss (dreamy): "A table for one. It is always a table for one, is it not? I come every evening and I order the amber one, and it is lovely."
+  lila_voss (dreamy): "I am sure I came for a reason. Isn't it wonderful not to remember it?"
+  > "What did you do before?" -> job
+  > "What did you come for?" -> reason
+  > "Goodbye." -> goodbye
+
+node: back
+  lila_voss (dreamy): "Oh. Hello. Do I know you? Sit, sit. The amber one is lovely."
+  > "What did you come for?" -> reason
+  > "What did you do before?" -> job
+  > "Who is the woman at the window table?" -> marta
+  > "Goodbye." -> goodbye
+
+node: job
+  lila_voss (vague): "Records, I think. The Auditors' archive, something with a great many shelves. I used to write things down so I would not lose them. Silly."
+  > "What did you come for?" -> reason
+  > "Goodbye." -> goodbye
+
+node: reason
+  lila_voss (vague): "I had it written down. I wrote everything down. A little black notebook with a green ribbon. I cannot think where I put it. Somebody sensible must have put it somewhere sensible."
+  lila_voss (vague): "The staff look after lost things, I believe. Not that anything is lost here."
+  > "I will see if I can find it." -> goodbye
+  > "Goodbye." -> goodbye
+
+node: marta
+  lila_voss (vague): "Marta? By the window. She writes a card to her brother every month, the same card, and I think she has never once been unhappy. I envy her. Or I would, if I envied anything."
+  > "Thank you." -> back
+
+node: diary
+  lila_voss (startled): "That is... that is mine. The ribbon. Where did you find it?"
+  > [item:clear_water] "Drink this first. Not the amber. Then read." -> wake
+  > [!item:clear_water] "Read it." -> tryread
+  > "Keep it safe for now." -> goodbye
+
+node: tryread
+  lila_voss (struggling): "It is very sweet. Somebody has the most careful handwriting. It says: do not drink the amber one. I do not understand why not. I cannot hold it, I think the drink is in the way. Is there anything else I could have? Anything at all."
+  > "I will find you something." -> goodbye
+
+node: wake
+  on_enter: {-item:clear_water, -item:lila_diary, flag:sq_08_done, flag:lila_awake, +clue:lull_dulling(lila_voss), +clue:odile_signatory(lila_voss)}
+  lila_voss (struggling): "It is plain. It tastes of nothing. And it is... oh."
+  lila_voss (clear): "I had a daughter. I came here the first time to forget her and I have been forgetting everything since. Four years. Four years I have sat at this table."
+  lila_voss (clear): "Listen. The amber is how the Host keeps the regulars. You will lose your own memory of things too, if you stay: yesterday goes first. Write it down, as I did, and then leave and sleep somewhere else, and it comes back."
+  lila_voss (clear): "Marta by the window, she writes her brother the same card every month. And the Councillor in the corner booth, Odile Marchetti, she was on the council once. She has not finished a drink in years. Someone should wake her. Not me: I am not ready to be seen."
+  > "Thank you, Lila." -> done
+
+node: done
+  lila_voss (clear): "I will sit here a little longer, and pretend. If I leave all at once, he will notice. Water, for you? No, I will pay. It seems to be what I am for."
+  > "The corner booth." -> booth
+  > "Goodbye." -> goodbye
+
+node: booth
+  lila_voss (clear): "Odile. Under the chandelier. Be gentle. She will tell you she is happy, and she will not be lying."
+  > "Thank you." -> done
+
+node: goodbye
+  lila_voss (dreamy): "Come back, if you like. I will be here. I am always here."
+  end

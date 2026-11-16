@@ -11,7 +11,7 @@ Every side-quest is optional: no route out of the Gate asks for any (tested). Ea
 | 05 | Right on Time | Underworks, Quill | built (T3.6) | Permanent shortcut |
 | 06 | Apology, Express | Underworks, the Conductor | built (T3.6) | Free train rides |
 | 07 | Tomatoes | Hollow, Bede | **T4.4** (needs the Hollow) | Hollow safety, Marrow's consent for June |
-| 08 | Table for One | Lull, Lila Voss | **T4.1** (needs the Lull) | Wakes Lila, sets up the Signatory path |
+| 08 | Table for One | Lull, Lila Voss | **built (T4.1)** | Bring Lila her lost diary (the Host gives it to a friend, or the staff drawer behind the door that opens 03:00-03:30) and a glass of clear water: she wakes (`lila_awake`), you learn the dulling is real and who Odile is. No failure |
 | 09 | Statistic | Stacks, Doc Perrin | **built (T3.14)** | Perrin says Statistic is low: its partner **Anecdote** is in the Auditors' evidence cabinet in the Reintegration office (a lights-out hasp, or wire cutters). The cabinet is noticed (alert to Suspicious). Bring it home: **one more augment slot**. No failure |
 | 10 | Pirate Hour | Stacks, Teeter | **built (T3.14)** | Route power through the radio rig (a power-routing puzzle), then play the song on the Civic Voice between 21:00 and 21:30 (a service with a time window, once): alert drops to Calm and, for a day (`pirate_calm`), a sighting cannot raise it above Suspicious. No failure |
 

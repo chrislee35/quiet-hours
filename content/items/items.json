@@ -199,5 +199,21 @@
     "stackable": false,
     "tags": [],
     "description": "A stuffed pigeon with a tag: EVIDENCE, UNREGISTERED AVIAN-SHAPED OBJECT. Statistic's other half."
+  },
+  {
+    "id": "clear_water",
+    "name": "Glass of clear water",
+    "type": "consumable",
+    "stackable": false,
+    "tags": [],
+    "description": "Plain water in a plain glass. In the Lull it is the strangest thing on the menu."
+  },
+  {
+    "id": "lila_diary",
+    "name": "Lila's diary",
+    "type": "key",
+    "stackable": false,
+    "tags": [],
+    "description": "A small black notebook with a green ribbon, kept in careful handwriting. Lost property."
   }
 ]

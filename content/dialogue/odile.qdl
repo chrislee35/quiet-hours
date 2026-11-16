@@ -1,0 +1,24 @@
+// Odile Marchetti, the Signatory, in the Lull's corner booth. Held as a quiet presence for T4.1; her awakening arc (T4.3) replaces this.
+npc: odile
+name: Odile Marchetti
+start: back [flag:met_odile]
+start: first
+
+node: first
+  on_enter: {flag:met_odile}
+  odile (poised): "A new face. How delightful. Do sit, if you like: the music here is so very kind."
+  > "You are Councillor Marchetti." -> past
+  > "Goodbye." -> goodbye
+
+node: back
+  odile (poised): "Back already? Do sit."
+  > "You are Councillor Marchetti." -> past
+  > "Goodbye." -> goodbye
+
+node: past
+  odile (poised): "Retired. Gloriously. Do you know, I cannot recall what it was I used to do? Is that not wonderful?"
+  > "Perhaps." -> back
+
+node: goodbye
+  odile (poised): "Come again. I am always here."
+  end

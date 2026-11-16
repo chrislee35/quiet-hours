@@ -44,9 +44,9 @@ function satisfy(s: Scenario, conds: Condition[]): void {
 const quests = Object.values(content.quests);
 
 describe("every quest has a start, a complete and, where the story gives it one, a fail path (STORY §5)", () => {
-  it("there are quests for SQ-01 to SQ-06 and SQ-09, SQ-10 (SQ-07 and SQ-08 arrive with the Hollow and the Lull, T4.4 and T4.1)", () => {
+  it("there are quests for SQ-01 to SQ-06, SQ-08, SQ-09 and SQ-10 (SQ-07 arrives with the Hollow, T4.4)", () => {
     expect(Object.keys(content.quests).sort()).toEqual([
-      "act1_safehouse", "apology_express", "brindles_hum", "first_cache", "lost_in_processing", "maintenance_wing", "pirate_hour", "pump4_rumour", "pump4_thermos", "right_on_time", "statistic", "stitch_in_time",
+      "act1_safehouse", "apology_express", "brindles_hum", "first_cache", "lost_in_processing", "maintenance_wing", "pirate_hour", "pump4_rumour", "pump4_thermos", "right_on_time", "statistic", "stitch_in_time", "table_for_one",
     ]);
   });
   it.each(quests.map((q) => [q.id]))("%s: not in the log before it starts, active when it starts, complete when it completes", (id) => {
@@ -215,7 +215,7 @@ describe("SQ-10 Pirate Hour (Teeter)", () => {
 
 describe("every side-quest can be finished from a fresh start (cross-map closure)", () => {
   const facts = reachableFacts(a.worlds, content, a.start);
-  it.each([["sq_01_done"], ["sq_02_done"], ["sq_03_done"], ["sq_05_done"], ["sq_06_done"], ["sq_09_done"], ["sq_10_done"]])("%s can be set", (flag) => {
+  it.each([["sq_01_done"], ["sq_02_done"], ["sq_03_done"], ["sq_05_done"], ["sq_06_done"], ["sq_08_done"], ["sq_09_done"], ["sq_10_done"]])("%s can be set", (flag) => {
     expect(facts.flag(flag!), flag).toBe(true);
   });
   it("both of SQ-02's endings are possible, and the item for SQ-09 can be had", () => {

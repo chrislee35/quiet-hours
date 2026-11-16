@@ -52,7 +52,8 @@
     ],
     "links": [],
     "alsoFrom": [
-      "npc:host"
+      "npc:host",
+      "npc:lila_voss"
     ],
     "critical": true,
     "for": [

@@ -97,7 +97,7 @@ describe("the Civic Core map", () => {
   it("has its zones, windows, people and notices", () => {
     expect(civic.zones.map((z) => z.id).sort()).toEqual(["back_office", "civic_plaza", "permit_hall"]);
     expect(civic.npcs.map((n) => n.id).sort()).toEqual(["checker_k", "dov_anselm", "halloran_7", "ines", "pell", "ticket", "window_1", "window_4"]);
-    expect(civic.exits.map((e) => e.id).sort()).toEqual(["stairs_to_underworks", "tram_to_belt", "tram_to_stacks", "tunnel_to_stacks"]);
+    expect(civic.exits.map((e) => e.id).sort()).toEqual(["gilded_arch_to_lull", "stairs_to_underworks", "tram_to_belt", "tram_to_stacks", "tunnel_to_stacks"]);
     expect(civic.pickups.filter((p) => p.grant.startsWith("clue:")).map((p) => p.id).sort()).toEqual(["pk_checkpoint_log", "pk_form12b", "pk_form12bi", "pk_ledger", "pk_levels", "pk_rule4", "pk_rule9", "pk_shifts"]);
   });
 

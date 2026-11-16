@@ -65,9 +65,9 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | The Conductor | 4 |  |
 | The Host | 4 |  |
 | Case Officer Halloran-7 | 2 |  |
+| Lila Voss | 2 |  |
 | Teeter | 2 |  |
 | Ticket | 2 |  |
-| Lila Voss | 1 |  |
 | Odile Marchetti | 1 |  |
 
 ## Belt
@@ -142,7 +142,7 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 |---|---|---|---|---|---|
 | `lull_dulling` **!** | Staying in the Lull smudges your newest memories. They come back after you sleep outside it. | Doc Perrin; Lila Voss | true |  | lull |
 | `lull_machine_code` | The Lull's code carries the same fingerprints as MERIDIAN's contentment index. | Doc Perrin; terminal:lull_core | true | supports `contentment_falsified` | world |
-| `odile_signatory` **!** | Odile Marchetti is one of the very few people alive who can countersign a change to MERIDIAN itself. | doc:charter; The Host | true |  | companion:odile |
+| `odile_signatory` **!** | Odile Marchetti is one of the very few people alive who can countersign a change to MERIDIAN itself. | doc:charter; The Host; Lila Voss | true |  | companion:odile |
 | `odile_lapse` **!** | Odile slides back under if she is left alone, or if the city is on alert. | Doc Perrin; The Host | true | supports `lull_dulling` | companion:odile |
 | `charter_countersign` **!** | MERIDIAN's founding charter forbids any structural change without a living human countersignature. | doc:charter; Odile Marchetti | true | supports `odile_signatory` | companion:odile |
 | `lull_harmless` | The Lull is only a place to rest. Nobody is kept there against their will, and nothing is lost by staying. | The Host | planted | contradicts `lull_dulling` | lull |

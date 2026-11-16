@@ -64,6 +64,7 @@ export const NPC_LOOKS: Record<string, Look> = {
   juniper: L("human", "#e0a040", "#fff0c0", ["bow", "sprout"], { skin: "#a8744f", hair: "#2a1a14", ring: TEAL }),
   bede: L("human", "#5f8a3c", "#d8f0a0", ["flat_cap", "sprout"], { skin: "#d1a07c", hair: "#5a3a22" }),
   odile: L("human", "#a98ac0", "#f0e0ff", ["shawl", "bun"], { skin: "#e6c3a4", hair: "#e0e0e0", ring: TEAL }),
+  marta_anselm: L("human", "#d89a5a", "#fff4dc", ["bun", "scarf"], { skin: "#e0b08c", hair: "#6a4a32" }),
   lila_voss: L("human", "#c8707a", "#ffe0e0", ["bow"], { skin: "#e8c4a8", hair: "#4a2a2a" }),
   host: L("robot", "#e8e0c8", "#ffb36b", ["tie", "antenna"], { ring: CYAN }),
   mari_quade: L("human", "#c8503c", "#ffe0a0", ["apron", "flat_cap"], { skin: "#d6a67f", hair: "#222" }),

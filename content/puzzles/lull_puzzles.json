@@ -1,0 +1,13 @@
+[
+  {
+    "id": "lull_mixer",
+    "kind": "lights_out",
+    "width": 3,
+    "height": 3,
+    "layout": [
+      "#oo",
+      "o##",
+      "o#o"
+    ]
+  }
+]

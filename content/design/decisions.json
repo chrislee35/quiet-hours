@@ -689,6 +689,27 @@
           "kind": "decision",
           "status": "implemented",
           "flag": "halloran_dealt"
+        },
+        {
+          "id": "lullarch",
+          "label": "Go through the gilded arch into the Lull: a safe place with shops and gossip",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "met_host"
+        },
+        {
+          "id": "lila",
+          "label": "Wake Lila Voss: her diary from the Host (or the staff drawer) and a glass of clear water",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "sq_08_done"
+        },
+        {
+          "id": "lullcore",
+          "label": "Read the Lull's mixing desk: the same fingerprints as the contentment index",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "lull_core_read"
         }
       ],
       "edges": [
@@ -719,6 +740,16 @@
           "from": "escalate",
           "to": "halloran",
           "label": "at three arrests"
+        },
+        {
+          "from": "lullarch",
+          "to": "lila",
+          "label": "a regular with a lost notebook"
+        },
+        {
+          "from": "lullarch",
+          "to": "lullcore",
+          "label": "the back room"
         }
       ]
     },

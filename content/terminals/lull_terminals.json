@@ -1,0 +1,23 @@
+[
+  {
+    "id": "lull_core",
+    "title": "The Lull's mixing desk",
+    "puzzle": "lull_mixer",
+    "bypass": [],
+    "onSolve": [
+      {
+        "give_clue": {
+          "id": "lull_machine_code",
+          "from": "lull_core"
+        }
+      },
+      {
+        "set_flag": [
+          "lull_core_read",
+          true
+        ]
+      }
+    ],
+    "solvedText": "The channels fall dark one by one and the desk shows you what it has been playing under the music. The pattern is exactly the one the contentment index uses. Somebody did not write this by hand."
+  }
+]
