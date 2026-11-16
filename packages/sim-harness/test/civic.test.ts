@@ -98,7 +98,7 @@ describe("the Civic Core map", () => {
     expect(civic.zones.map((z) => z.id).sort()).toEqual(["back_office", "civic_plaza", "permit_hall"]);
     expect(civic.npcs.map((n) => n.id).sort()).toEqual(["checker_k", "dov_anselm", "halloran_7", "ines", "pell", "ticket", "window_1", "window_4"]);
     expect(civic.exits.map((e) => e.id).sort()).toEqual(["gilded_arch_to_lull", "stairs_to_underworks", "tram_to_belt", "tram_to_stacks", "tunnel_to_stacks"]);
-    expect(civic.pickups.filter((p) => p.grant.startsWith("clue:")).map((p) => p.id).sort()).toEqual(["pk_checkpoint_log", "pk_form12b", "pk_form12bi", "pk_ledger", "pk_levels", "pk_rule4", "pk_rule9", "pk_shifts"]);
+    expect(civic.pickups.filter((p) => p.grant.startsWith("clue:")).map((p) => p.id).sort()).toEqual(["pk_charter", "pk_checkpoint_log", "pk_form12b", "pk_form12bi", "pk_ledger", "pk_levels", "pk_rule4", "pk_rule9", "pk_shifts"]);
   });
 
   it("reading the notices is how you learn the rules: Rule 4 and Rule 9, which contradict each other", () => {

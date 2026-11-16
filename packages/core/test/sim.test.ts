@@ -29,6 +29,7 @@ describe("sim step", () => {
       "comms",
       "repairs",
       "alert",
+      "fragile",
       "demerits",
       "processing",
       "district-reactions",

@@ -710,6 +710,20 @@
           "kind": "outcome",
           "status": "implemented",
           "flag": "lull_core_read"
+        },
+        {
+          "id": "odilewake",
+          "label": "Wake Odile: clear water, what she was, what the Lull is (from your notebook)",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "lull_awake"
+        },
+        {
+          "id": "odilelapse",
+          "label": "Odile slides back under if the city is on alert or she is left alone; water wakes her again",
+          "kind": "outcome",
+          "status": "implemented",
+          "flag": "odile_lapsed"
         }
       ],
       "edges": [
@@ -750,6 +764,16 @@
           "from": "lullarch",
           "to": "lullcore",
           "label": "the back room"
+        },
+        {
+          "from": "lila",
+          "to": "odilewake",
+          "label": "where she sits, and who she was"
+        },
+        {
+          "from": "odilewake",
+          "to": "odilelapse",
+          "label": "fragile"
         }
       ]
     },

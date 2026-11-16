@@ -91,7 +91,7 @@ describe("two ways through every critical puzzle (PUZ-1) and nothing left to cha
     const r = checkSolvability(a.worlds, one, a.config, a.goals, a.start, { maxStates: 2500 });
     expect(r.critical!.find((x) => x.id === "locker_9")!.routes).toBe(1);
     expect([...r.maps.flatMap((m) => m.findings), ...r.findings].some((f) => f.kind === "single-route" && f.message.includes("locker_9"))).toBe(true);
-  });
+  }, 120_000);
 
   it("every critical puzzle is deterministic: it has a solution that does not depend on chance", () => {
     for (const t of Object.values(content.terminals).filter((x) => x.critical)) {

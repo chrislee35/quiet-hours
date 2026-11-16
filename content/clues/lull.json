@@ -20,7 +20,7 @@
   {
     "id": "lull_machine_code",
     "text": "The Lull's code carries the same fingerprints as MERIDIAN's contentment index.",
-    "source": "npc:doc_perrin",
+    "source": "terminal:lull_core",
     "reliability": "true",
     "tags": [
       "place:lull",
@@ -34,7 +34,7 @@
       }
     ],
     "alsoFrom": [
-      "terminal:lull_core"
+      "npc:doc_perrin"
     ],
     "for": [
       "world"

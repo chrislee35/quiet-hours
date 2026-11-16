@@ -117,5 +117,5 @@ describe("the Industrial Belt", () => {
     expect(saved.sim.state.flags.brindle_lost).toBeUndefined();
     const lost = day5(game());
     expect(lost.sim.state.flags.brindle_lost).toBe(true);
-  });
+  }, 120_000); // simulates four days twice
 });

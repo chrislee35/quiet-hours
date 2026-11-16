@@ -19,7 +19,7 @@ Exactly one candidate leaves with the player (CMP-1). Nothing follows the player
 | June | trusts you; the Hollow undiscovered; Marrow consents; a child-sized way | Slow and noisy: no alert on sneak or hack, nothing worse than Suspicious on break |
 | Odile | trusts you; the Lull seen through; not lapsed | Fragile: any alert and she panics or is pulled back, on every route |
 
-June's and Odile's flags (`hollow_discovered`, `marrow_consent`, `child_route`, `lull_awake`, `odile_lapsed`) are set by their arcs in M4 (T4.3, T4.4). Until then they cannot be brought, and `checkCompanions` (and its test) says so; when those arcs land the test's list must be emptied.
+Odile's flags (`lull_awake`, `odile_lapsed`) are set by her arc (T4.3, `docs/lull.md`). June's (`hollow_discovered`, `marrow_consent`, `child_route`) come with the Hollow (T4.4); until then she cannot be brought, and `checkCompanions` (and its test) says so; when that arc lands the test's list must be emptied.
 
 ## Choosing
 By asking. A mentor who has had their awakening and is willing to leave (`mentor_choice=leave`) offers to come (`arc_companion`, voiced four times in `content/mentors/*.json`); Pallas has a "Will you come with me?" option once she is ready; the **last** person asked who is ready is the companion (`flag companion`). Pallas can be released ("I cannot take you after all": `companion=none`).

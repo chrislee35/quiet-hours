@@ -1,6 +1,13 @@
-// Odile Marchetti, the Signatory, in the Lull's corner booth. Held as a quiet presence for T4.1; her awakening arc (T4.3) replaces this.
+// Odile Marchetti, the Signatory, in the Lull's corner booth (T4.3, CMP-5). Waking her is three beats made from the player's own notebook:
+//   1. a glass of clear water in place of her drink (she puts it down);
+//   2. show her the charter, or that she is one of the few who can countersign (what she used to be);
+//   3. show her what the Lull is (its code, or its dulling): she wakes.
+// Planted clues do nothing. She is fragile (packages/core/src/fragile.ts): alert or being left alone pulls her back; clear water brings her round again.
 npc: odile
 name: Odile Marchetti
+trust: yes
+start: awake [flag:lull_awake, !flag:odile_lapsed]
+start: lapsed [flag:lull_awake, flag:odile_lapsed]
 start: back [flag:met_odile]
 start: first
 
@@ -11,13 +18,98 @@ node: first
   > "Goodbye." -> goodbye
 
 node: back
-  odile (poised): "Back already? Do sit."
+  odile (poised): "Back already? Do sit. The drink is lovely."
+  > [item:clear_water, !flag:odile_s1] "Try this instead of the drink." {-item:clear_water, flag:odile_s1} -> water
+  > [flag:odile_s1] "There is something I would like to show you." -> show
   > "You are Councillor Marchetti." -> past
   > "Goodbye." -> goodbye
 
 node: past
   odile (poised): "Retired. Gloriously. Do you know, I cannot recall what it was I used to do? Is that not wonderful?"
   > "Perhaps." -> back
+
+node: water
+  odile (uncertain): "Water. I have not been given water in... it is so cold. Cold is a very sharp word. How odd, to have a word."
+  odile (uncertain): "I have put the drink down. I never put the drink down. Was there something you wanted to show me?"
+  > "Yes." -> show
+  > "Not yet." -> back
+
+node: show
+  odile (uncertain): "Show me. I will try to hold it."
+  present:
+    charter_countersign [reliability:true] {flag:odile_s2, verify:charter_countersign} -> charter
+    odile_signatory [reliability:true] {flag:odile_s2, verify:odile_signatory} -> signatory
+    lull_machine_code [reliability:true, flag:odile_s2] {verify:lull_machine_code} -> wake
+    lull_dulling [reliability:true, flag:odile_s2] {verify:lull_dulling} -> wake
+    lull_machine_code [reliability:true] -> toosoon
+    lull_dulling [reliability:true] -> toosoon
+    lull_harmless [reliability:planted] -> planted
+    odile_content [reliability:planted] -> planted
+    * -> shrug
+  > "Never mind." -> back
+
+node: charter
+  odile (stirring): "The charter. I read it aloud once, in a chamber with a ceiling, to people who listened. A living human countersignature, for any change to the thing itself. I wrote the clause on... a pen. I had a pen."
+  > "Keep going." -> show
+  > "That is enough for now." -> back
+
+node: signatory
+  odile (stirring): "One of the very few. Yes. They put me in a nice chair so that I should never be asked. Oh, that is an unkind thought. It is also, I think, a true one."
+  > "Keep going." -> show
+  > "That is enough for now." -> back
+
+node: toosoon
+  odile (poised): "That sounds frightening. I do not think I can hear it yet. Is there something else? Something that is mine?"
+  > "Let me find it." -> show
+
+node: planted
+  odile (poised): "Yes, the Host says so, and he is always right, and I feel quite warm. It is exactly what I would have said myself. That is a strange thing to notice."
+  > "Never mind." -> show
+
+node: shrug
+  odile (poised): "I am afraid I cannot make anything of that. It is very kind of you."
+  > "Try again." -> show
+  > "Never mind." -> back
+
+node: wake
+  on_enter: {flag:lull_awake, flag:awake_odile=person, trust:odile+1(saw through the Lull), +clue:charter_countersign(odile)}
+  odile (awake): "Four years. No. Longer: I stopped counting when the counting stopped hurting. I have been drinking my own conscience out of a very pretty glass."
+  odile (awake): "Listen to me. It will pull me back. If the city is up in arms I will feel the music go warm and I will not be able to stop it, and if you leave me alone here too long, it will find me. Come back to me. Bring water."
+  > "I will." -> awake
+
+node: awake
+  odile (clear): "What have you come to ask, my dear?"
+  > [bring:odile, !flag:companion=odile] "Will you come with me? Out through the Gate." {flag:companion=odile} -> comes
+  > [flag:companion=odile] "I cannot take you after all." {flag:companion=none} -> released
+  > "How are you holding up?" -> holding
+  > "Goodbye." -> goodbye
+
+node: holding
+  odile (clear): "Upright. The music is trying; I am ignoring it as one ignores a bore at dinner. If the city is in an uproar, or you stay away too long, I will not hold. Do not mistake me for strong."
+  > "I will not." -> awake
+
+node: comes
+  odile (clear): "Out. Yes. Past the Gate, to anyone who still has to sign something. I will be quiet, and I will not panic, if the city lets me. Do not hurry me, and do not let it be loud."
+  > "Understood." -> awake
+
+node: released
+  odile (clear): "I understand. I will be here, in the booth, with the water. Come back."
+  > "I will." -> awake
+
+node: lapsed
+  odile (poised): "Oh, hello. Do sit. The drink is lovely."
+  odile (poised): "Why do I feel as though I have forgotten to say something to somebody?"
+  > [item:clear_water] "Try this instead of the drink." {-item:clear_water, flag:odile_lapsed=false, trust:odile+1(woke her again)} -> recovered
+  > [flag:companion=odile] "I cannot take you after all." {flag:companion=none} -> lapsedgo
+  > "Goodbye." -> goodbye
+
+node: lapsedgo
+  odile (poised): "Of course. How kind to ask. Do come again."
+  > "Goodbye." -> goodbye
+
+node: recovered
+  odile (awake): "Oh. Oh, not again. Thank you. I could feel it close over me like a lid. Do not let me sit here."
+  > "You are awake now." -> awake
 
 node: goodbye
   odile (poised): "Come again. I am always here."

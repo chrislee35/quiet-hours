@@ -224,7 +224,7 @@ it("the content lists a route complication in words for every candidate and rout
 });
 
 describe("cross-map check of the companions (CMP-5)", () => {
-  it("the mentors and Pallas can be brought, on every route, from a fresh start; June and Odile wait for their arcs (T4.3, T4.4)", () => {
+  it("the mentors and Pallas can be brought, on every route, from a fresh start; Odile can be too (T4.3); June waits for her arc (T4.4)", () => {
     const reports = checkCompanions(a.worlds, content, a.start);
     const by = Object.fromEntries(reports.map((r) => [r.id, r]));
     for (const id of [...MENTORS, "pallas"]) {
@@ -232,7 +232,7 @@ describe("cross-map check of the companions (CMP-5)", () => {
       expect(by[id]!.gate, id).toBe(true);
       for (const r of ROUTES) expect(by[id]!.routes[r], `${id} ${r}`).toBe(true);
     }
-    // When the Hollow and the Lull arcs land, these must become reachable and this list must be emptied.
-    expect(reports.filter((r) => !r.gate).map((r) => r.id).sort()).toEqual(["juniper", "odile"]);
+    // When the Hollow arc lands (T4.4), June must become reachable and this list must be emptied.
+    expect(reports.filter((r) => !r.gate).map((r) => r.id).sort()).toEqual(["juniper"]);
   });
 });

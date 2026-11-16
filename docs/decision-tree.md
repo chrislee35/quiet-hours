@@ -197,6 +197,8 @@ flowchart TD
   n_lullarch["Go through the gilded arch into the Lull: a safe place with shops and gossip"]
   n_lila["Wake Lila Voss: her diary from the Host (or the staff drawer) and a glass of clear water"]
   n_lullcore["Read the Lull's mixing desk: the same fingerprints as the contentment index"]
+  n_odilewake["Wake Odile: clear water, what she was, what the Lull is (from your notebook)"]
+  n_odilelapse["Odile slides back under if the city is on alert or she is left alone; water wakes her again"]
   n_power --> n_blackout
   n_node2 -->|presses rest open| n_stopped
   n_interlock --> n_stopped
@@ -205,8 +207,10 @@ flowchart TD
   n_escalate -->|at three arrests| n_halloran
   n_lullarch -->|a regular with a lost notebook| n_lila
   n_lullarch -->|the back room| n_lullcore
-  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila decision
-  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore outcome
+  n_lila -->|where she sits, and who she was| n_odilewake
+  n_odilewake -->|fragile| n_odilelapse
+  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila,n_odilewake decision
+  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore,n_odilelapse outcome
   class n_hollowrisk planned
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222

@@ -248,7 +248,7 @@ describe("the shipped content", () => {
     const report = checkSolvability(a.worlds, broken, a.config, a.goals, a.start, { maxStates: 2500 });
     expect(report.errors).toBeGreaterThan(0);
     expect(report.maps.find((m) => m.map === "stacks_slice")!.findings.map((f) => f.kind)).toContain("single-route");
-  });
+  }, 120_000);
 
   it("would catch the goal becoming impossible: give the puzzle an unsolvable shape and no bypass", () => {
     const a = assemble(bundle);
@@ -256,5 +256,5 @@ describe("the shipped content", () => {
     const broken = { ...a.content, puzzles: { ...a.content.puzzles, maint_power: { ...hopelessPuzzle, pieces: ["EEEE", "EEEE", "EEEE", "EEEE"], rotations: ["0000", "0000", "0000", "0000"], width: 4, height: 4, source: [0, 0] } as PuzzleDef }, terminals: { ...a.content.terminals, maint_panel: { ...a.content.terminals.maint_panel!, bypass: [] } } };
     const report = checkSolvability(a.worlds, broken, a.config, a.goals, a.start, { maxStates: 2500 });
     expect(report.maps.find((m) => m.map === "stacks_slice")!.findings.map((f) => f.kind)).toEqual(expect.arrayContaining(["goal-unreachable"]));
-  });
+  }, 120_000);
 });

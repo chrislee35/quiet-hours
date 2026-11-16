@@ -141,7 +141,7 @@ Quiet Hours is a game about finding things out, so what the player *knows* is wh
 | Clue | What it says | From | Trust | Links | For |
 |---|---|---|---|---|---|
 | `lull_dulling` **!** | Staying in the Lull smudges your newest memories. They come back after you sleep outside it. | Doc Perrin; Lila Voss | true |  | lull |
-| `lull_machine_code` | The Lull's code carries the same fingerprints as MERIDIAN's contentment index. | Doc Perrin; terminal:lull_core | true | supports `contentment_falsified` | world |
+| `lull_machine_code` | The Lull's code carries the same fingerprints as MERIDIAN's contentment index. | terminal:lull_core; Doc Perrin | true | supports `contentment_falsified` | world |
 | `odile_signatory` **!** | Odile Marchetti is one of the very few people alive who can countersign a change to MERIDIAN itself. | doc:charter; The Host; Lila Voss | true |  | companion:odile |
 | `odile_lapse` **!** | Odile slides back under if she is left alone, or if the city is on alert. | Doc Perrin; The Host | true | supports `lull_dulling` | companion:odile |
 | `charter_countersign` **!** | MERIDIAN's founding charter forbids any structural change without a living human countersignature. | doc:charter; Odile Marchetti | true | supports `odile_signatory` | companion:odile |

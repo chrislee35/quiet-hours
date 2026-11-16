@@ -47,7 +47,9 @@
     "graceMinutes": 20,
     "stepMinutes": 10,
     "perStep": 3,
-    "maxDulled": 12
+    "maxDulled": 12,
+    "panicAlert": 2,
+    "leftAloneMinutes": 360
   },
   "pa": {
     "intervalMinutes": 25,

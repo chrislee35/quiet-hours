@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 61,
+ "nextobjectid": 62,
  "tilesets": [],
  "layers": [
   {
@@ -2546,6 +2546,31 @@
        "name": "label",
        "type": "string",
        "value": "The gilded arch to the Lull"
+      }
+     ]
+    },
+    {
+     "id": 60,
+     "name": "pk_charter",
+     "type": "pickup",
+     "class": "pickup",
+     "x": 256,
+     "y": 544,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true,
+     "properties": [
+      {
+       "name": "grant",
+       "type": "string",
+       "value": "clue:charter_countersign:charter"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Read the founding charter, framed on the plaza wall"
       }
      ]
     }

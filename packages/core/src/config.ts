@@ -128,6 +128,10 @@ export interface Config {
     stepMinutes: number;
     perStep: number;
     maxDulled: number;
+    /** Odile (T4.3): the alert level at which the Lull pulls her back under. */
+    panicAlert: number;
+    /** Odile: in-game minutes the player may spend away from the Lull before she slides back. */
+    leftAloneMinutes: number;
   };
   /** The Civic Voice's public-address broadcasts (T3.15). */
   pa: {
@@ -275,7 +279,7 @@ const SHAPE: Shape = {
   },
   failure: { holdSeconds: "number", alertAfterProcessing: "number", holdPerArrest: "number", holdMaxSeconds: "number", trackingAfterArrests: "number", trackedAlert: "number", trackedGainFactor: "number" },
   pa: { intervalMinutes: "number", noRepeat: "number" },
-  lull: { graceMinutes: "number", stepMinutes: "number", perStep: "number", maxDulled: "number" },
+  lull: { graceMinutes: "number", stepMinutes: "number", perStep: "number", maxDulled: "number", panicAlert: "number", leftAloneMinutes: "number" },
   comms: { rangeTiles: "number", latencySeconds: "number", primedSuspicion: "number", memorySeconds: "number" },
   cameras: { coneDegrees: "number", rangeTiles: "number", gainFactor: "number", sweepDegrees: "number", sweepSeconds: "number", cooldownSeconds: "number" },
   repairs: { cameraDelaySeconds: "number", relockDelaySeconds: "number", repairSeconds: "number" },

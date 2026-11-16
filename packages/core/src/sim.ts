@@ -1,5 +1,6 @@
 import { broadcastSystem } from "./broadcast.ts";
 import { dullingSystem } from "./dulling.ts";
+import { fragileSystem } from "./fragile.ts";
 import { activeHints, type HintLevel, type HintView } from "./hints.ts";
 import { deepClone } from "./clone.ts";
 import { alertSystem } from "./alert.ts";
@@ -318,6 +319,7 @@ export const SYSTEM_ORDER: readonly { name: string; run: System }[] = [
   { name: "comms", run: commsSystem },
   { name: "repairs", run: repairSystem },
   { name: "alert", run: alertSystem },
+  { name: "fragile", run: fragileSystem },
   { name: "demerits", run: demeritSystem },
   { name: "processing", run: processingSystem },
   { name: "district-reactions", run: reactionSystem },
