@@ -6,10 +6,17 @@
 npc: odile
 name: Odile Marchetti
 trust: yes
+start: shaken [flag:lull_disrupted, !flag:lull_awake]
 start: awake [flag:lull_awake, !flag:odile_lapsed]
 start: lapsed [flag:lull_awake, flag:odile_lapsed]
 start: back [flag:met_odile]
 start: first
+
+node: shaken
+  odile (uncertain): "The music has gone thin. I can see the chandelier is dirty. Someone has switched something off, haven't they? I do not feel quite so... Is there water?"
+  > [item:clear_water, !flag:odile_s1] "Try this instead of the drink." {-item:clear_water, flag:odile_s1} -> water
+  > [flag:odile_s1] "There is something I would like to show you." -> show
+  > "I will come back." -> goodbye
 
 node: first
   on_enter: {flag:met_odile}

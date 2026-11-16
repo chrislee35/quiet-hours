@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 4,
- "nextobjectid": 38,
+ "nextobjectid": 40,
  "tilesets": [],
  "layers": [
   {
@@ -2253,6 +2253,19 @@
        "value": "The back room"
       }
      ]
+    },
+    {
+     "id": 38,
+     "name": "lull_governor",
+     "type": "terminal",
+     "class": "terminal",
+     "x": 1568,
+     "y": 128,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
     }
    ]
   }

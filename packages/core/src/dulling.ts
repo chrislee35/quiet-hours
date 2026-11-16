@@ -59,7 +59,7 @@ const hasDullZone = new WeakMap<object, boolean>();
 export function dullingSystem({ state, config, world, content, events }: Ctx): void {
   let any = hasDullZone.get(world);
   if (any === undefined) hasDullZone.set(world, (any = world.zones.some((z) => z.dulls === true)));
-  if (!any) return;
+  if (!any || state.flags.lull_disrupted === true) return;
   const zone = zoneAt(world, Math.floor(state.player.x), Math.floor(state.player.y));
   if (!zone?.dulls || hasTag(state, content, "notebook_anchor")) return;
   const before = dulledCount(state, config);

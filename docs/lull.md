@@ -38,7 +38,11 @@ She then wakes (`lull_awake`, `awake_odile=person`, trust up one step) and can b
 - Any alert at all still stops a crossing with her (her route complications in `companions.json`).
 Tests: `packages/sim-harness/test/odile.test.ts`.
 
-## Not here yet
-The disruption branch (T4.5). The clue web is at its 100 cap, so the Lull adds no clues of its own: Lila gives existing ones.
+## Disrupting the Lull (T4.5)
+A second terminal in the back room, `lull_governor` (a lights-out puzzle), holds the whole place at one gentle number. Letting go (`lull_disrupted`) costs the city: contentment -15, order -8, alert to Suspicious (so MERIDIAN's reinforcements can follow if order falls far enough). Effects:
+- **the dulling stops** and **nothing pulls Odile back by being left alone** any more (her fear of a Hunting alert remains);
+- the patrons are not all glad: the Host stands very still ("I only ever made it kind"), Marta weeps ("Why did you wake me?") and, if told about Dov, goes to him; Odile, shaken, can be woken by the same three beats;
+- `sequel_lull` = `disrupted`. Water is still on the menu.
+It is optional, and nothing in the main story needs it. The clue web is at its 100 cap, so the Lull adds no clues of its own: Lila gives existing ones.
 
 Tests: `packages/sim-harness/test/lull.test.ts`.

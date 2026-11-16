@@ -40,6 +40,10 @@ export class Hud {
       else if (e.type === "HubGrew") this.say(`The Safehouse has grown: ${sim.content.growth[e.growthId]?.name ?? e.growthId}.`, 4000);
       else if (e.type === "NotebookDulled") this.say("The room is so soft. Your newest notes are going blurry.", 4500);
       else if (e.type === "NotebookRestored") this.say("Your notebook is clear again.", 3500);
+      else if (e.type === "Custom" && e.name === "hollow_doomed") this.say("You have been careless. Somebody may be following your trail to the Hollow. Marrow should be warned.", 6000);
+      else if (e.type === "Custom" && e.name === "hollow_spared") this.say("The trail has gone cold. The Hollow is safe again, for now.", 5000);
+      else if (e.type === "Custom" && e.name === "hollow_raided") this.say("Something has happened in the Hollow.", 6000);
+      else if (e.type === "Custom" && e.name === "odile_lapsed") this.say("Somewhere, Odile has slipped back under.", 4500);
       else if (e.type === "Rested") this.say("You rest. The city loses interest. Game saved.", 3500);
     });
   }

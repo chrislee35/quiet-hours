@@ -37,9 +37,9 @@ describe("the Lull", () => {
     expect(lull.cameras).toHaveLength(0);
     expect(lull.zones.every((z) => !z.curfew)).toBe(true);
   });
-  it("has the Host, Lila, Marta and Odile, and a terminal in the back room", () => {
+  it("has the Host, Lila, Marta and Odile, and two terminals in the back room", () => {
     expect(lull.npcs.map((n) => n.id).sort()).toEqual(["host", "lila_voss", "marta_anselm", "odile"]);
-    expect(lull.terminals.map((t) => t.id)).toEqual(["lull_core"]);
+    expect(lull.terminals.map((t) => t.id).sort()).toEqual(["lull_core", "lull_governor"]);
   });
 });
 

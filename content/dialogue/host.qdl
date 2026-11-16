@@ -3,8 +3,23 @@
 // and, for SQ-08, Lila's lost diary.
 npc: host
 name: The Host
+start: disrupted [flag:lull_disrupted]
 start: back [flag:met_host]
 start: first
+
+node: disrupted
+  host (still): "You have done a thing. I only ever made it kind. Nobody here was hurt. Nobody here was asked. I do not know which of those I was built to care about."
+  > [credits>=2, !item:clear_water] "Water, please. (2 credits)" {service:lull_clear_water} -> disrupted_water
+  > "I am sorry." -> disrupted_bye
+  > "Goodbye." -> disrupted_bye
+
+node: disrupted_water
+  host (still): "Of course. It has always been available. Nobody asked."
+  > "Thank you." -> disrupted
+
+node: disrupted_bye
+  host (gentle): "Do come back. The door has never been locked. I wonder, now, whether that was ever kindness."
+  end
 
 node: first
   on_enter: {flag:met_host}

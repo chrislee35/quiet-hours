@@ -658,10 +658,10 @@
         },
         {
           "id": "hollowrisk",
-          "label": "Hollow safety: sloppy stealth leaves a trail, informants, a loud escape (consequences in T4.5)",
+          "label": "The Hollow's risk: informants, trails and a loud escape add up; at three points a raid is coming",
           "kind": "outcome",
           "status": "implemented",
-          "flag": "hollow_risk"
+          "engine": true
         },
         {
           "id": "stunned",
@@ -739,6 +739,27 @@
           "kind": "outcome",
           "status": "implemented",
           "engine": true
+        },
+        {
+          "id": "warn",
+          "label": "Warn Marrow in time: the raid scatters the Hollow instead of wiping it",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "hollow_warned"
+        },
+        {
+          "id": "raided",
+          "label": "The raid lands: the Hollow is wiped or scattered, and June cannot leave",
+          "kind": "outcome",
+          "status": "implemented",
+          "engine": true
+        },
+        {
+          "id": "disrupt",
+          "label": "Disrupt the Lull at the governor: the dulling stops, the city feels it, the patrons are not all glad",
+          "kind": "decision",
+          "status": "implemented",
+          "flag": "lull_disrupted"
         }
       ],
       "edges": [
@@ -798,6 +819,25 @@
         {
           "from": "trail",
           "to": "hollowrisk"
+        },
+        {
+          "from": "hollowrisk",
+          "to": "warn",
+          "label": "in the hours before"
+        },
+        {
+          "from": "hollowrisk",
+          "to": "raided",
+          "label": "or the break route"
+        },
+        {
+          "from": "warn",
+          "to": "raided",
+          "label": "scattered"
+        },
+        {
+          "from": "lullcore",
+          "to": "disrupt"
         }
       ]
     },

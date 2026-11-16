@@ -19,5 +19,38 @@
       }
     ],
     "solvedText": "The channels fall dark one by one and the desk shows you what it has been playing under the music. The pattern is exactly the one the contentment index uses. Somebody did not write this by hand."
+  },
+  {
+    "id": "lull_governor",
+    "title": "The Lull's governor",
+    "puzzle": "lull_governor",
+    "bypass": [],
+    "onSolve": [
+      {
+        "set_flag": [
+          "lull_disrupted",
+          true
+        ]
+      },
+      {
+        "adjust_metric": [
+          "contentment",
+          -15
+        ]
+      },
+      {
+        "adjust_metric": [
+          "order",
+          -8
+        ]
+      },
+      {
+        "raise_alert_to": 1
+      },
+      {
+        "emit": "lull_disrupted"
+      }
+    ],
+    "solvedText": "The governor was holding the whole room at one gentle number. You let go of it. The music does not stop; it simply stops being kind, and then, one by one, the patrons begin to look at each other."
   }
 ]

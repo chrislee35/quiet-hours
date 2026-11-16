@@ -9,5 +9,16 @@
       "o##",
       "o#o"
     ]
+  },
+  {
+    "id": "lull_governor",
+    "kind": "lights_out",
+    "width": 3,
+    "height": 3,
+    "layout": [
+      "o#o",
+      "#o#",
+      "oo#"
+    ]
   }
 ]

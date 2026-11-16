@@ -35,7 +35,7 @@ When `escaped` becomes true, `finalizeEscape` (`packages/core/src/companions.ts`
 - `escapee` / `sequel_companion`: who came (`none` if nobody)
 - `sequel_<id>_state`: `escaped` (the chosen one), or `free`, `hiding`, `arrested`, `left` from each candidate's `fate` rules
 - `sequel_<id>_stance`: `ally`, `wary` or `estranged`, from their trust
-- `sequel_route`, `sequel_past` (the past stance), `sequel_hollow` (hidden/found), `sequel_lull` (sleeping/stirring), `sequel_cell` (safe/watched/retaliated)
+- `sequel_route`, `sequel_past` (the past stance), `sequel_hollow` (hidden/scattered/wiped), `sequel_lull` (sleeping/stirring/disrupted), `sequel_cell` (safe/watched/retaliated)
 
 Nothing here is ever shown in this game; the closing scene (T3.13) does not read them.
 

@@ -43,6 +43,10 @@
     "trackedAlert": 2,
     "trackedGainFactor": 1.3
   },
+  "hollow": {
+    "discoverAt": 3,
+    "raidDelayMinutes": 240
+  },
   "lull": {
     "graceMinutes": 20,
     "stepMinutes": 10,

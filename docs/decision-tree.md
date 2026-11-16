@@ -189,7 +189,7 @@ flowchart TD
   n_interlock["Beat the dispatcher's interlock"]
   n_stopped["Every tunnel train stands with its doors open"]
   n_hollowdoor["Quill opens the Hollow service tunnel"]
-  n_hollowrisk["Hollow safety: sloppy stealth leaves a trail, informants, a loud escape (consequences in T4.5)"]
+  n_hollowrisk["The Hollow's risk: informants, trails and a loud escape add up; at three points a raid is coming"]
   n_stunned["Stun or destroy a robot: order and contentment fall"]
   n_caught["Caught: processed, belongings in the locker, a setback not an ending"]
   n_escalate["Each arrest holds longer; at three MERIDIAN tracks you (higher alert, quicker notice)"]
@@ -201,6 +201,9 @@ flowchart TD
   n_odilelapse["Odile slides back under if the city is on alert or she is left alone; water wakes her again"]
   n_tomatoes["Mend the Hollow's pump for Bede (a gasket from the Belt or Wren): Marrow consents about June"]
   n_trail["Arrive in the Hollow with the city on alert: a trail to its door"]
+  n_warn["Warn Marrow in time: the raid scatters the Hollow instead of wiping it"]
+  n_raided["The raid lands: the Hollow is wiped or scattered, and June cannot leave"]
+  n_disrupt["Disrupt the Lull at the governor: the dulling stops, the city feels it, the patrons are not all glad"]
   n_power --> n_blackout
   n_node2 -->|presses rest open| n_stopped
   n_interlock --> n_stopped
@@ -213,8 +216,12 @@ flowchart TD
   n_odilewake -->|fragile| n_odilelapse
   n_hollowdoor -->|Bede's pump| n_tomatoes
   n_trail --> n_hollowrisk
-  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila,n_odilewake,n_tomatoes decision
-  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore,n_odilelapse,n_trail outcome
+  n_hollowrisk -->|in the hours before| n_warn
+  n_hollowrisk -->|or the break route| n_raided
+  n_warn -->|scattered| n_raided
+  n_lullcore --> n_disrupt
+  class n_power,n_node2,n_interlock,n_halloran,n_lullarch,n_lila,n_odilewake,n_tomatoes,n_warn,n_disrupt decision
+  class n_blackout,n_stopped,n_hollowdoor,n_hollowrisk,n_stunned,n_caught,n_escalate,n_lullcore,n_odilelapse,n_trail,n_raided outcome
   classDef decision fill:#fff3c4,stroke:#b58900,color:#222
   classDef outcome fill:#d8ecff,stroke:#2d6fb5,color:#222
   classDef achievement fill:#d9f2d9,stroke:#2e8b3d,color:#222

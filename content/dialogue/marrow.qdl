@@ -1,8 +1,18 @@
 // Marrow, elder of the Hollow (T4.4): protective, wary. Explains the discovery risk; after SQ-07 (Tomatoes) consents to June leaving with someone she trusts.
 npc: marrow
 name: Marrow
+start: warn [flag:hollow_doomed, !flag:hollow_warned, !flag:hollow_discovered, flag:met_marrow]
 start: back [flag:met_marrow]
 start: first
+
+node: warn
+  marrow (alarmed): "You have the face of someone who has done something. Say it."
+  > "A raid is coming. The city has a trail to your door. You have a few hours." {flag:hollow_warned} -> warned
+  > "Nothing. Never mind." -> back
+
+node: warned
+  marrow (grim): "Then we do not wait to be counted. The old tunnels, the cold stores, the children first. Bede will take the seedlings in his coat if he must. Thank you. Now go, and do not walk back down this tunnel."
+  > "I am sorry." -> back
 
 node: first
   on_enter: {flag:met_marrow}

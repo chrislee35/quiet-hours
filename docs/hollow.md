@@ -1,4 +1,4 @@
-# The Hollow (T4.4, WLD-7)
+# The Hollow (T4.4, T4.5, WLD-7)
 
 `content/maps/hollow.json` (56x26). Reached by the Underworks service tunnel (the door waits for SQ-05, Quill's token and the trains) and the exit at its east end; back by the tunnel mouth. `?map=hollow` opens it directly. Warm and acoustic: a commons, the gardens, the pump room, the sleeping rooms and Marrow's hearth. No robots, no cameras, every zone `safe` (saving allowed).
 
@@ -10,10 +10,15 @@
 ## SQ-07 Tomatoes
 The pump behind the garden leaks and the beds are dying. Bede needs a pump gasket the Hollow cannot make: the **Belt scrap yard** (a pickup) or **Wren's stores** (12 credits). Fitting it: a tomato, the flag `hollow_watch` (a lookout at the tunnel mouth; T4.5 uses it) and Marrow's regard, so she consents about June. No failure.
 
-## Discovery risk (`packages/core/src/hollow.ts`)
-Arriving in the Hollow with the city already on alert (Suspicious or worse) leaves a **trail**: `hollow_trail` and `hollow_risk`. `hollow_risk` is also set by selling out Mrs. Adeyemi-Roth (SQ-02). Marrow remarks on a trail. The consequences (a van, the wipe-out, the Lull disruption branch) are T4.5, which reads `hollow_risk`, `hollow_trail`, `hollow_watch` and `mrs_safe`; `hollow_discovered` is set there.
+## Discovery risk and the raid (`packages/core/src/hollow.ts`, tuning `hollow`)
+**Risk** is points from flags: **+2** `mrs_sold` (the informant sold out, SQ-02), **+1** for each arrival in the Hollow with the city already on alert (`hollow_trails`, at most 3; also `hollow_trail`/`hollow_risk`), **-1** `hollow_watch` (the lookout from SQ-07), **-1** `mrs_safe` (the informant won over, SQ-02). Never below 0.
+At `hollow.discoverAt` (3) a **raid is set in motion** (`hollow_doomed`; the HUD says you have been careless) and lands `hollow.raidDelayMinutes` (240, four game hours) later. In that window:
+- **Avert it**: anything that brings the risk back under 3 (finishing SQ-07 posts the lookout) calls it off (`hollow_spared`).
+- **Warn Marrow**: when she is told (her conversation offers it while a raid is coming; arrive quietly, or the trail makes it worse), `hollow_warned`, and the raid scatters rather than wipes.
+- Otherwise it lands: `hollow_discovered`, `hollow_outcome` = `wiped` (or `scattered` if warned), everyone in the Hollow is gone, and a player still inside is spotted (Hunting).
+**Leaving by the Gate on the break route** with any risk at all costs the Hollow the same way (`finalizeEscape`); the other routes leave it hidden. `sequel_hollow` is `hidden`, `scattered` or `wiped`. A discovered Hollow ends June's gate (`hollow_discovered`).
 
 ## Not here yet
-June's arc, her route requirements and `child_route` (T4.6); `hollow_discovered` and the consequences (T4.5).
+June's arc, her route requirements and `child_route` (T4.6).
 
-Tests: `packages/sim-harness/test/hollow.test.ts`.
+Tests: `packages/sim-harness/test/hollow.test.ts`, `consequences.test.ts`.

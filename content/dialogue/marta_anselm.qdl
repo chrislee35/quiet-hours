@@ -1,8 +1,18 @@
 // Marta Anselm, Dov's sister, four years in the Lull. Her postcard says exactly the same thing every month.
 npc: marta_anselm
 name: Marta Anselm
+start: disrupted [flag:lull_disrupted]
 start: back [flag:met_marta]
 start: first
+
+node: disrupted
+  marta_anselm (stricken): "I was happy. I was so happy. Why am I crying? Four years. I wrote him four years of the same card and I do not remember one day of them. Why did you wake me?"
+  > [clue:dov_sister_lull] "Your brother Dov has been waiting for you." -> dov_wake
+  > "I am sorry." -> goodbye
+
+node: dov_wake
+  marta_anselm (stricken): "Dov. Oh, Dov. I will go to him. I do not want to, and I will. Leave me a moment."
+  > "Take as long as you need." -> goodbye
 
 node: first
   on_enter: {flag:met_marta}
