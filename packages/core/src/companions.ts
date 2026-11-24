@@ -95,6 +95,8 @@ export function finalizeEscape(state: SimState, content: Content, config: Config
   const chosen = companionOf(state);
   const came = chosen !== undefined && canBring(state, content, config, chosen) ? chosen : undefined;
   set("escapee", came ?? "none");
+  // The break route leaves the Hollow to MERIDIAN's retaliation if it was at any risk. Whoever is crossing has already been counted, so this cannot strand them.
+  if (f.route_taken === "break" && f.hollow_discovered !== true && (hollowRisk(state) > 0 || f.hollow_risk === true)) raid(state, events);
   for (const c of candidates(state, content, config)) {
     if (f[flagKey.awake(c.id)] === undefined || f[flagKey.awake(c.id)] === false) set(flagKey.awake(c.id), "message");
     const fate = c.id === came ? "escaped" : (c.fate.find((r) => evalAll(r.when, state, config, content))?.state ?? "left");
@@ -104,7 +106,6 @@ export function finalizeEscape(state: SimState, content: Content, config: Config
   set("sequel_companion", came ?? "none");
   set("sequel_route", typeof f.route_taken === "string" ? f.route_taken : "none");
   set("sequel_past", pastStance(f));
-  if (f.route_taken === "break" && f.hollow_discovered !== true && (hollowRisk(state) > 0 || f.hollow_risk === true)) raid(state, events);
   set("sequel_hollow", hollowOutcome(state));
   set("sequel_lull", f.lull_disrupted === true ? "disrupted" : f.lull_awake === true ? "stirring" : "sleeping");
   set("sequel_cell", f.gate_broken === true ? "retaliated" : f.meridian_sees === true ? "watched" : "safe");

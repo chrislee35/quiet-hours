@@ -1,7 +1,7 @@
 // covers: CMP-1 (exactly one escapes), CMP-5 (gate and route complications), CMP-6 (awakening for every candidate), CMP-7 and END-4 (sequel flags), CMP-2 (four mentors)
 import { describe, expect, it } from "vitest";
-import { candidates, canBring, createSave, routeClear, ROUTES, type Condition, type CompanionDef } from "@qh/core";
-import { assemble, checkCompanions, loadContent } from "../../content-tools/src/index.ts";
+import { candidates, canBring, createSave, hollowOutcome, hollowRisk, routeClear, ROUTES, type Condition, type CompanionDef } from "@qh/core";
+import { assemble, checkAreas, checkCompanions, loadContent } from "../../content-tools/src/index.ts";
 import { Scenario } from "../src/index.ts";
 import { config } from "./helpers.ts";
 
@@ -141,6 +141,79 @@ describe("every mentor x companion x route (CMP-1, CMP-5, CMP-6, CMP-7, END-4)",
       expect(routeClear(s.sim.state, content, config, route)).toBe(false);
       cross(s, route);
       expect(s.sim.world.id).toBe("gate");
+    }
+  });
+});
+
+describe("the cross-map checker covers the optional areas (T4.7)", () => {
+  it("every Hollow and Lull branch can happen from a fresh start", () => {
+    const report = checkAreas(a.worlds, content, a.start);
+    expect(report.length).toBeGreaterThan(10);
+    expect(report.filter((r) => !r.reachable).map((r) => `${r.area}: ${r.what}`)).toEqual([]);
+  });
+});
+
+describe("every companion x route x the optional areas (T4.7, ADR-6)", () => {
+  /** What the Hollow and the Lull are like when the player leaves: the optional areas and their branches. */
+  const HOLLOW: Record<string, Record<string, unknown>> = {
+    hidden: {},
+    "at risk": { mrs_sold: true },
+    wiped: { hollow_discovered: true, hollow_outcome: "wiped" },
+    scattered: { hollow_discovered: true, hollow_outcome: "scattered", hollow_warned: true },
+  };
+  const LULL: Record<string, Record<string, unknown>> = { sleeping: {}, "seen through": { lull_awake: true }, disrupted: { lull_disrupted: true } };
+  const rows: [string, string, string, string, string][] = [];
+  for (const h of Object.keys(HOLLOW)) for (const l of Object.keys(LULL)) for (const c of ["ines", ...OTHERS, "none"]) for (const r of ROUTES) rows.push([h, l, c, r, `${h}/${l}`]);
+  it("has 180 combinations", () => expect(rows.length).toBe(180));
+
+  it.each(rows)("Hollow %s, Lull %s, companion %s, route %s", (hollow, lull, companion, route) => {
+    const s = prepare("ines", companion, route);
+    s.edit((st) => { Object.assign(st.flags, HOLLOW[hollow], LULL[lull]); });
+    const shut = companion === "juniper" && HOLLOW[hollow]!.hollow_discovered === true; // a found Hollow ends June's way out
+    expect(canBring(s.sim.state, content, config, companion === "none" ? "ines" : companion) || companion === "none").toBe(companion === "none" ? true : !shut);
+    cross(s, route);
+    if (shut) {
+      expect(s.sim.world.id).toBe("gate"); // refused: she cannot come
+      expect(flags(s).escaped).toBeUndefined();
+      return;
+    }
+    s.expectEvent("MapChanged", { from: "gate", to: "outside" });
+    expect(flags(s).escapee).toBe(companion);
+    // the Hollow: what was found stays found; the break route costs it if it was at any risk; otherwise it stays hidden
+    const found = HOLLOW[hollow]!.hollow_discovered === true;
+    const expectHollow = found ? HOLLOW[hollow]!.hollow_outcome : route === "break" && hollow === "at risk" ? "wiped" : "hidden";
+    expect(flags(s).sequel_hollow).toBe(expectHollow);
+    expect(hollowOutcome(s.sim.state)).toBe(expectHollow);
+    // the Lull
+    const awake = flags(s).lull_awake === true;
+    expect(flags(s).sequel_lull).toBe(LULL[lull]!.lull_disrupted === true ? "disrupted" : awake ? "stirring" : "sleeping");
+    // those left behind: June is arrested when the Hollow was wiped, hides when it was scattered or the Gate broke, and Odile hides once awake
+    if (companion !== "juniper") {
+      const june = flags(s).sequel_juniper_state;
+      if (expectHollow === "wiped") expect(june).toBe("arrested");
+      else if (expectHollow === "scattered") expect(june).toBe("hiding");
+      else if (route === "break") expect(june).toBe("hiding");
+    }
+    // everyone still aware, and only one escaped
+    for (const c of candidates(s.sim.state, content, config)) {
+      expect(["person", "message"]).toContain(flags(s)[`awake_${c.id}`]);
+      expect(flags(s)[`sequel_${c.id}_state`] === "escaped").toBe(c.id === companion);
+    }
+  });
+
+  it("the break route with no risk to the Hollow, and every other route, never raids it", () => {
+    for (const route of ROUTES) {
+      const s = prepare("ines", "none", route);
+      cross(s, route);
+      expect(hollowRisk(s.sim.state)).toBe(0);
+      expect(flags(s).sequel_hollow).toBe("hidden");
+    }
+  });
+  it("a lapsed Odile cannot be brought, in any state of the Lull", () => {
+    for (const l of Object.keys(LULL)) {
+      const s = prepare("ines", "odile", "sneak");
+      s.edit((st) => { Object.assign(st.flags, LULL[l], { odile_lapsed: true }); });
+      expect(routeClear(s.sim.state, content, config, "sneak"), l).toBe(false);
     }
   });
 });

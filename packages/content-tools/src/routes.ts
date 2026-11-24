@@ -209,6 +209,29 @@ export function checkCompanions(worlds: Record<string, World>, content: Content,
   });
 }
 
+/** The optional areas' branches (T4.7): every fact below must be possible from a fresh start, or the branch is dead content. */
+export const AREA_FACTS: readonly { area: "hollow" | "lull"; flag: string; what: string }[] = [
+  { area: "hollow", flag: "sq_07_done", what: "mend the pump" },
+  { area: "hollow", flag: "hollow_watch", what: "a lookout at the tunnel mouth" },
+  { area: "hollow", flag: "marrow_consent", what: "Marrow lets June go" },
+  { area: "hollow", flag: "tune_known", what: "learn the end of Bede's song" },
+  { area: "hollow", flag: "june_tune", what: "give June the end of the song" },
+  { area: "hollow", flag: "child_route", what: "a child-sized way out" },
+  { area: "hollow", flag: "hollow_warned", what: "warn Marrow of a raid" },
+  { area: "hollow", flag: "mrs_sold", what: "sell out the informant (a risk to the Hollow)" },
+  { area: "hollow", flag: "mrs_safe", what: "win the informant over (a safeguard)" },
+  { area: "lull", flag: "sq_08_done", what: "wake Lila Voss" },
+  { area: "lull", flag: "lull_core_read", what: "read the Lull's mixing desk" },
+  { area: "lull", flag: "lull_awake", what: "wake Odile" },
+  { area: "lull", flag: "lull_disrupted", what: "disrupt the Lull" },
+];
+
+/** Can each optional-area branch actually happen, from a fresh start, across maps? */
+export function checkAreas(worlds: Record<string, World>, content: Content, start: { items: Record<string, number> }, startMap = "stacks"): { area: string; flag: string; what: string; reachable: boolean }[] {
+  const f = reachableFacts(worlds, content, start, startMap);
+  return AREA_FACTS.map((x) => ({ ...x, reachable: f.flag(x.flag) }));
+}
+
 /**
  * Everything the cross-map closure can make true from a fresh start (optimistic about time, money and position, exact about
  * flags, items and clues). For quests the per-map search cannot finish (it is cut short on the big maps): "can this flag ever be set?".
